@@ -69,7 +69,7 @@ public class JoiningXMLFilter extends MyXFI {
 
     public static void main(String[] args) throws SAXException, ParserConfigurationException, FileNotFoundException, TransformerConfigurationException, TransformerException, IOException {
         File stylesheet = new File("inputFiles/franklin_nsaware.xsl");
-        File inputFile = new File("inputFiles/largest.xml");
+        File inputFile = new File("inputFiles/large.xml");
         File outputFile = new File("outputFiles/large_transform.xml");
 
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(inputFile));
