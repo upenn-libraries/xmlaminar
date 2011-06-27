@@ -16,6 +16,7 @@
 
 package edu.upennlib.ingestor.sax.xsl;
 
+import edu.upennlib.ingestor.sax.utils.MyXFI;
 import edu.upennlib.ingestor.sax.utils.NoopXMLFilter;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -30,6 +31,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -39,7 +41,8 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import org.springframework.core.io.ClassPathResource;
+import net.sf.saxon.Controller;
+import net.sf.saxon.serialize.CharacterMapIndex;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -48,15 +51,13 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
-import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
  * @author michael
  */
-public class JoiningXMLFilter extends XMLFilterImpl {
+public class JoiningXMLFilter extends MyXFI {
 
     public final int RECORD_LEVEL = 1;
     private int level = -1;
@@ -71,35 +72,50 @@ public class JoiningXMLFilter extends XMLFilterImpl {
         File inputFile = new File("inputFiles/largest.xml");
         File outputFile = new File("outputFiles/large_transform.xml");
 
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setNamespaceAware(true);
-        SAXParser parser = spf.newSAXParser();
-        XMLReader originalReader = parser.getXMLReader();
-
-        SplittingXMLFilter splitter = new SplittingXMLFilter();
-        splitter.setParent(originalReader);
-        
-        JoiningXMLFilter joiner = new JoiningXMLFilter();
-        joiner.setParent(originalReader);
-        joiner.setUpstreamSplittingFilter(splitter);
-        joiner.setStylesheet(stylesheet);
-
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(inputFile));
         InputSource inputSource = new InputSource(bis);
-        Transformer t;
-        synchronized(tf) {
-            t = tf.newTransformer();
-        }
-        t.setOutputProperty(OutputKeys.INDENT, "yes");
-        long start = System.currentTimeMillis();
+
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile));
-        t.transform(new SAXSource(joiner, inputSource), new StreamResult(bos));
+        JoiningXMLFilter instance = new JoiningXMLFilter();
+
+        long start = System.currentTimeMillis();
+        instance.transform(inputSource, stylesheet, new StreamResult(bos));
         System.out.println("duration: " + (System.currentTimeMillis() - start));
     }
 
     BufferingXMLFilter docLevelEventBuffer = new BufferingXMLFilter();
     SaxEventVerifier preRecordEventVerifier = new SaxEventVerifier();
     File stylesheet;
+
+    public void transform(InputSource source, File stylesheet, StreamResult result) throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException {
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
+        SAXParser parser = spf.newSAXParser();
+        XMLReader originalReader = parser.getXMLReader();
+
+        SplittingXMLFilter sxf = new SplittingXMLFilter();
+        sxf.setParent(originalReader);
+
+        setParent(originalReader);
+        setUpstreamSplittingFilter(sxf);
+        setStylesheet(stylesheet);
+
+        Controller mainController;
+        synchronized (tf) {
+            mainController = (Controller) tf.newTransformer();
+        }
+        synchronized (tf) {
+            try {
+                Templates th = tf.newTemplates(new StreamSource(stylesheet));
+                Controller subControllerInstance = (Controller) th.newTransformer();
+                mainController.getExecutable().setCharacterMapIndex(subControllerInstance.getExecutable().getCharacterMapIndex());
+                mainController.setOutputProperties(subControllerInstance.getOutputProperties());
+            } catch (TransformerConfigurationException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        mainController.transform(new SAXSource(this, source), result);
+    }
 
     public void setStylesheet(File stylesheet) {
         this.stylesheet = stylesheet;
@@ -253,11 +269,12 @@ public class JoiningXMLFilter extends XMLFilterImpl {
 
     }
 
+    private final CharacterMapIndex[] charMapIndex = new CharacterMapIndex[1];
+
     private class TransformerRunner implements Runnable {
 
         final TransformerOutputBuffer tob;
         final Transformer t;
-        final XMLFilter xslt;
         final InputSource dummyInputSource;
         BufferingXMLFilter in;
         BufferingXMLFilter out;
@@ -269,14 +286,13 @@ public class JoiningXMLFilter extends XMLFilterImpl {
             this.dummyInputSource = dummyInputSource;
             synchronized(tf) {
                 try {
-                    t = tf.newTransformer();
-                    xslt = tf.newXMLFilter(new StreamSource(stylesheet));
+                    Templates th = tf.newTemplates(new StreamSource(stylesheet));
+                    t = th.newTransformer();
                 } catch (TransformerConfigurationException ex) {
                     throw new RuntimeException(ex);
                 }
             }
         }
-
         private boolean parsingInitiated = false;
 
         @Override
@@ -292,10 +308,12 @@ public class JoiningXMLFilter extends XMLFilterImpl {
                                 }
                                 parsingInitiated = true;
                                 splitter[0].setContentHandler(in);
+                                splitter[0].setProperty("http://xml.org/sax/properties/lexical-handler", in);
                                 splitter[0].parse(dummyInputSource);
                             }
-                            xslt.setParent(in);
-                            t.transform(new SAXSource(xslt, new InputSource()), new SAXResult(out));
+                            SAXResult result = new SAXResult(out);
+                            result.setLexicalHandler(out);
+                            t.transform(new SAXSource(in, new InputSource()), result);
                         } catch (TransformerException ex) {
                             subdivide(t, in, out, dummyInputSource);
                         } catch (SAXException ex) {
@@ -339,14 +357,20 @@ public class JoiningXMLFilter extends XMLFilterImpl {
             individualInputBuffer.setParent(noop);
             subSplitter.setParent(in);
             subSplitter.setContentHandler(individualInputBuffer);
+            try {
+                subSplitter.setProperty("http://xml.org/sax/properties/lexical-handler", individualInputBuffer);
+            } catch (SAXNotRecognizedException ex) {
+                throw new RuntimeException(ex);
+            } catch (SAXNotSupportedException ex) {
+                throw new RuntimeException(ex);
+            }
             subSplitter.setDTDHandler(JoiningXMLFilter.this);
             subSplitter.setEntityResolver(JoiningXMLFilter.this);
             subSplitter.setErrorHandler(JoiningXMLFilter.this);
             do {
                 try {
                     subSplitter.parse(dummyInput);
-                    xslt.setParent(individualInputBuffer);
-                    t.transform(new SAXSource(xslt, new InputSource()), new SAXResult(localOutputEventBuffer));
+                    t.transform(new SAXSource(individualInputBuffer, new InputSource()), new SAXResult(localOutputEventBuffer));
                     localOutputEventBuffer.flush(out);
                 } catch (SAXException ex) {
                     localOutputEventBuffer.clear();
@@ -354,7 +378,6 @@ public class JoiningXMLFilter extends XMLFilterImpl {
                     localOutputEventBuffer.clear();
                 }
             } while (subSplitter.hasMoreOutput(dummyInput));
-            xslt.setParent(in);
         }
     }
 
@@ -570,7 +593,6 @@ public class JoiningXMLFilter extends XMLFilterImpl {
 
     @Override
     public void warning(SAXParseException e) throws SAXException {
-        System.out.println("error3");
         if (level < RECORD_LEVEL && encounteredFirstRecord) {
             docLevelEventBuffer.warning(e);
         } else {
@@ -579,13 +601,68 @@ public class JoiningXMLFilter extends XMLFilterImpl {
     }
 
     @Override
-    public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
-        super.setFeature(name, value);
+    public void comment(char[] ch, int start, int length) throws SAXException {
+        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+            docLevelEventBuffer.comment(ch, start, length);
+        } else {
+            super.comment(ch, start, length);
+        }
     }
 
     @Override
-    public void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException {
-        super.setProperty(name, value);
+    public void endCDATA() throws SAXException {
+        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+            docLevelEventBuffer.endCDATA();
+        } else {
+            super.endCDATA();
+        }
     }
+
+    @Override
+    public void endDTD() throws SAXException {
+        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+            docLevelEventBuffer.endDTD();
+        } else {
+            super.endDTD();
+        }
+    }
+
+    @Override
+    public void endEntity(String name) throws SAXException {
+        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+            docLevelEventBuffer.endEntity(name);
+        } else {
+            super.endEntity(name);
+        }
+    }
+
+    @Override
+    public void startCDATA() throws SAXException {
+        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+            docLevelEventBuffer.startCDATA();
+        } else {
+            super.startCDATA();
+        }
+    }
+
+    @Override
+    public void startDTD(String name, String publicId, String systemId) throws SAXException {
+        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+            docLevelEventBuffer.startDTD(name, publicId, systemId);
+        } else {
+            super.startDTD(name, publicId, systemId);
+        }
+    }
+
+    @Override
+    public void startEntity(String name) throws SAXException {
+        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+            docLevelEventBuffer.startEntity(name);
+        } else {
+            super.startEntity(name);
+        }
+    }
+
+
 
 }

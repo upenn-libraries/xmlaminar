@@ -142,4 +142,40 @@ public class MyEndEventStack implements ContentHandler {
     public void setDocumentLocator(Locator locator) {
     }
 
+    void startEntity(String name) {
+        if (!locked) {
+            push(SaxEventType.endEntity, name);
+        }
+    }
+
+    void startDTD(String name, String publicId, String systemId) {
+        if (!locked) {
+            push(SaxEventType.endDTD);
+        }
+    }
+
+    void startCDATA() {
+        if (!locked) {
+            push(SaxEventType.endCDATA);
+        }
+    }
+
+    void endEntity(String name) {
+        if (!locked) {
+            pop(SaxEventType.endEntity, name);
+        }
+    }
+
+    void endDTD() {
+        if (!locked) {
+            pop(SaxEventType.endDTD);
+        }
+    }
+
+    void endCDATA() {
+        if (!locked) {
+            pop(SaxEventType.endCDATA);
+        }
+    }
+
 }

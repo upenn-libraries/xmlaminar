@@ -27,5 +27,6 @@ package edu.upennlib.ingestor.sax.xsl;
  */
 public enum SaxEventType {
     setDocumentLocator, startDocument, endDocument, startPrefixMapping,
-    endPrefixMapping, startElement, endElement, characters, ignorableWhitespace, processingInstruction, skippedEntity
+    endPrefixMapping, startElement, endElement, characters, ignorableWhitespace, processingInstruction, skippedEntity,
+    comment, endCDATA, endDTD, endEntity, startCDATA, startDTD, startEntity
 }

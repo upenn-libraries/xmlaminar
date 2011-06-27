@@ -16,6 +16,7 @@
 
 package edu.upennlib.ingestor.sax.xsl;
 
+import edu.upennlib.ingestor.sax.utils.MyXFI;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -46,7 +47,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class SplittingXMLFilter extends XMLFilterImpl {
+public class SplittingXMLFilter extends MyXFI {
 
     public final boolean ENFORCE_RECORD_LEVEL_ELEMENT_CONSISTENCY = true;
     private final boolean[] parsing = new boolean[1];
@@ -323,6 +324,70 @@ public class SplittingXMLFilter extends XMLFilterImpl {
         super.warning(e);
     }
 
+    @Override
+    public void comment(char[] ch, int start, int length) throws SAXException {
+        if (!encounteredFirstRecord) {
+            startEvents.comment(ch, start, length);
+        }
+        super.comment(ch, start, length);
+    }
+
+    @Override
+    public void endCDATA() throws SAXException {
+        if (!encounteredFirstRecord) {
+            startEvents.endCDATA();
+            endEventStack.endCDATA();
+        }
+        super.endCDATA();
+    }
+
+    @Override
+    public void endDTD() throws SAXException {
+        if (!encounteredFirstRecord) {
+            startEvents.endDTD();
+            endEventStack.endDTD();
+        }
+        super.endDTD();
+    }
+
+    @Override
+    public void endEntity(String name) throws SAXException {
+        if (!encounteredFirstRecord) {
+            startEvents.endEntity(name);
+            endEventStack.endEntity(name);
+        }
+        super.endEntity(name);
+    }
+
+    @Override
+    public void startCDATA() throws SAXException {
+        if (!encounteredFirstRecord) {
+            startEvents.startCDATA();
+            endEventStack.startCDATA();
+        }
+        super.startCDATA();
+    }
+
+    @Override
+    public void startDTD(String name, String publicId, String systemId) throws SAXException {
+        if (!encounteredFirstRecord) {
+            startEvents.startDTD(name, publicId, systemId);
+            endEventStack.startDTD(name, publicId, systemId);
+        }
+        super.startDTD(name, publicId, systemId);
+    }
+
+    @Override
+    public void startEntity(String name) throws SAXException {
+        if (!encounteredFirstRecord) {
+            startEvents.startEntity(name);
+            endEventStack.startEntity(name);
+        }
+        super.startEntity(name);
+    }
+
+
+
     InputState currentInputState = null;
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
@@ -357,6 +422,7 @@ public class SplittingXMLFilter extends XMLFilterImpl {
             }
             XMLReader parent = getParent();
             parent.setContentHandler(this);
+            parent.setProperty("http://xml.org/sax/properties/lexical-handler", this);
             parent.setDTDHandler(this);
             parent.setEntityResolver(this);
             parent.setErrorHandler(this);

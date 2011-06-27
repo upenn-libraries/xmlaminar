@@ -16,9 +16,11 @@
 
 package edu.upennlib.ingestor.sax.xsl;
 
+import edu.upennlib.ingestor.sax.utils.MyXFI;
 import edu.upennlib.ingestor.sax.utils.NoopXMLFilter;
 import java.io.IOException;
 import java.nio.CharBuffer;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,7 +45,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class BufferingXMLFilter extends XMLFilterImpl {
+public class BufferingXMLFilter extends MyXFI {
 
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     public static final int QUEUE_ARRAY_SIZE = 2000;
@@ -56,6 +58,7 @@ public class BufferingXMLFilter extends XMLFilterImpl {
     private int queueSizeLimit = -1;
     private boolean parsing = false;
     private Thread eventPlayer = null;
+    boolean verbose = false;
 
     public static void main(String[] args) throws TransformerConfigurationException, TransformerException, ParserConfigurationException, SAXException, IOException, InterruptedException {
         SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -70,6 +73,7 @@ public class BufferingXMLFilter extends XMLFilterImpl {
         boolean playable = true;
         if (playable) {
             instance.getParent().setContentHandler(instance);
+            instance.getParent().setProperty("http://xml.org/sax/properties/lexical-handler", instance);
             instance.getParent().parse(input);
             instance.play(new MyContentHandler());
             synchronized(instance){
@@ -361,6 +365,62 @@ public class BufferingXMLFilter extends XMLFilterImpl {
     @Override
     public void skippedEntity(String name) throws SAXException {
         bufferSaxEvent(SaxEventType.skippedEntity, name);
+    }
+
+    @Override
+    public void comment(char[] ch, int start, int length) throws SAXException {
+        if (verbose) {
+            System.out.println("buffering: "+Arrays.asList(SaxEventType.comment, ch, start, length));
+        }
+        bufferSaxEvent(SaxEventType.comment, ch, start, length);
+    }
+
+    @Override
+    public void endCDATA() throws SAXException {
+        if (verbose) {
+            System.out.println(getParent()+" buffering: "+Arrays.asList(SaxEventType.endCDATA));
+        }
+        bufferSaxEvent(SaxEventType.endCDATA);
+    }
+
+    @Override
+    public void endDTD() throws SAXException {
+        if (verbose) {
+            System.out.println(getParent()+" buffering: "+Arrays.asList(SaxEventType.endDTD));
+        }
+        bufferSaxEvent(SaxEventType.endDTD);
+    }
+
+    @Override
+    public void endEntity(String name) throws SAXException {
+        if (verbose) {
+            System.out.println(getParent()+" buffering: "+Arrays.asList(SaxEventType.endEntity, name));
+        }
+        bufferSaxEvent(SaxEventType.endEntity, name);
+    }
+
+    @Override
+    public void startCDATA() throws SAXException {
+        if (verbose) {
+            System.out.println(getParent()+" buffering: "+Arrays.asList(SaxEventType.startCDATA));
+        }
+        bufferSaxEvent(SaxEventType.startCDATA);
+    }
+
+    @Override
+    public void startDTD(String name, String publicId, String systemId) throws SAXException {
+        if (verbose) {
+            System.out.println(getParent()+" buffering: "+Arrays.asList(SaxEventType.startDTD, name, publicId, systemId));
+        }
+        bufferSaxEvent(SaxEventType.startDTD, name, publicId, systemId);
+    }
+
+    @Override
+    public void startEntity(String name) throws SAXException {
+        if (verbose) {
+            System.out.println(getParent()+" buffering: "+Arrays.asList(SaxEventType.startEntity, name));
+        }
+        bufferSaxEvent(SaxEventType.startEntity, name);
     }
 
     private class EventPlayer implements Runnable {

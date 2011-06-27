@@ -12,7 +12,7 @@
  xmlns:xs="http://www.w3.org/2001/XMLSchema"
  version="2.0">
  
- <xsl:output encoding="UTF-8" use-character-maps="cdata" indent="yes" method="xml" version="1.0"
+<xsl:output encoding="UTF-8" use-character-maps="cdata" indent="yes" method="xml" version="1.0"
   omit-xml-declaration="no"/>
 
  <xsl:character-map name="cdata">

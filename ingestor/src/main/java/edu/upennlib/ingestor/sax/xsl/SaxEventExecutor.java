@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.ext.LexicalHandler;
 
 /**
  *
@@ -123,6 +124,37 @@ public class SaxEventExecutor {
             case startPrefixMapping:
                 if (writeStructural) {
                     ch.startPrefixMapping((String) args[1], (String) args[2]);
+                }
+                break;
+            case startCDATA:
+                System.out.println("blah");
+                if (writeStructural && ch instanceof LexicalHandler) {
+                    ((LexicalHandler)ch).startCDATA();
+                }
+                break;
+            case startDTD:
+                if (writeStructural && ch instanceof LexicalHandler) {
+                    ((LexicalHandler)ch).startDTD((String) args[1], (String) args[2], (String) args[3]);
+                }
+                break;
+            case startEntity:
+                if (writeStructural && ch instanceof LexicalHandler) {
+                    ((LexicalHandler)ch).startEntity((String) args[1]);
+                }
+                break;
+            case endCDATA:
+                if (writeStructural && ch instanceof LexicalHandler) {
+                    ((LexicalHandler)ch).endCDATA();
+                }
+                break;
+            case endDTD:
+                if (writeStructural && ch instanceof LexicalHandler) {
+                    ((LexicalHandler)ch).endDTD();
+                }
+                break;
+            case endEntity:
+                if (writeStructural && ch instanceof LexicalHandler) {
+                    ((LexicalHandler)ch).endEntity((String) args[1]);
                 }
                 break;
         }
