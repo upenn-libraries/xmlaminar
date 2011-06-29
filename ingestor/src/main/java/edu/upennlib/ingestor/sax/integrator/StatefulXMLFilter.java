@@ -35,7 +35,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 public class StatefulXMLFilter extends XMLFilterImpl {
 
     public static final String INTEGRATOR_URI = "http://integrator";
-    public static enum State {WAIT, SELF, SKIP, STEP, PLAY}
+    public static enum State {WAIT, SKIP, STEP, PLAY}
     private State state = State.WAIT;
     private int level = -1;
     private int refLevel = -1;
@@ -48,7 +48,7 @@ public class StatefulXMLFilter extends XMLFilterImpl {
     private boolean writable = false;
 
     public void updateState(IntegratorOutputNode ion) {
-        if (state != State.WAIT && state != State.SELF) {
+        if (state != State.WAIT) {
             throw new IllegalStateException();
         }
         if (!writable && ion.isPotentiallyWritable(getIdType(), getIdString())) {
@@ -57,7 +57,7 @@ public class StatefulXMLFilter extends XMLFilterImpl {
     }
 
     public void finishedUpdatingState() {
-        if (state != State.WAIT && state != State.SELF) {
+        if (state != State.WAIT) {
             throw new IllegalStateException();
         }
         if (writable) {
@@ -71,21 +71,21 @@ public class StatefulXMLFilter extends XMLFilterImpl {
     }
 
     public String getIdType() {
-        if (state != State.WAIT && state != State.SELF) {
+        if (state != State.WAIT) {
             throw new IllegalStateException();
         }
         return idType.peek();
     }
 
     public String getIdString() {
-        if (state != State.WAIT && state != State.SELF) {
+        if (state != State.WAIT) {
             throw new IllegalStateException();
         }
         return idString.peek();
     }
 
     public long getIdLong() {
-        if (state != State.WAIT && state != State.SELF) {
+        if (state != State.WAIT) {
             throw new IllegalStateException();
         }
         return idLong.peek();
@@ -96,7 +96,6 @@ public class StatefulXMLFilter extends XMLFilterImpl {
         level++;
         switch (state) {
             case WAIT:
-            case SELF:
                 throw new IllegalStateException();
             case SKIP:
                 break;
@@ -114,11 +113,9 @@ public class StatefulXMLFilter extends XMLFilterImpl {
                 }
                 if ("true".equals(atts.getValue("self"))) {
                     selfId = true;
-                    state = State.SELF;
-                } else {
-                    state = State.WAIT;
                 }
-                while (state == State.SELF || state == State.WAIT) {
+                state = State.WAIT;
+                while (state == State.WAIT) {
                     writable = false;
                     synchronized (this) {
                         try {
@@ -138,7 +135,6 @@ public class StatefulXMLFilter extends XMLFilterImpl {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         switch (state) {
             case WAIT:
-            case SELF:
                 throw new IllegalStateException();
             case STEP:
                 selfId = false;
