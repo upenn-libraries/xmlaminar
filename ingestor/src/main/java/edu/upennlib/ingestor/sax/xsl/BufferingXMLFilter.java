@@ -183,6 +183,7 @@ public class BufferingXMLFilter extends MyXFI {
             } else if (args[0] == SaxEventType.startElement) {
                 args[4] = new AttributesImpl((Attributes) args[4]);
             }
+            //System.out.println(Arrays.asList(args));
             eventQueue[0].add(args);
             queueSize++;
             eventQueue.notify();

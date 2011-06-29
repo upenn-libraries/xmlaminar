@@ -52,7 +52,7 @@
                            </descriptorRefs>
                            <archive>
                                <manifestEntries>
-                                   <Main-Class>edu.upennlib.ingestor.sax.xsl.JoiningXMLFilter</Main-Class>
+                                   <Main-Class>edu.upennlib.ingestor.sax.integrator.BinaryMARCXMLReader</Main-Class>
                                    <Class-Path>./</Class-Path>
                                </manifestEntries>
                            </archive>
@@ -73,6 +73,24 @@
             <groupId>net.sf.saxon</groupId>
             <artifactId>saxon</artifactId>
             <version>9.3.0.5</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.14</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>oracle</groupId>
+            <artifactId>jdbc</artifactId>
+            <version>1.4</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>marc4j</groupId>
+            <artifactId>marc4j</artifactId>
+            <version>2.4</version>
             <type>jar</type>
         </dependency>
     </dependencies>
