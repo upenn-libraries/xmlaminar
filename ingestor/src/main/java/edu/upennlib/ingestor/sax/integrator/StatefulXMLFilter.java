@@ -61,7 +61,11 @@ public class StatefulXMLFilter extends XMLFilterImpl {
             throw new IllegalStateException();
         }
         if (writable) {
-            state = State.PLAY;
+            if (selfId) {
+                state = State.PLAY;
+            } else {
+                state = State.STEP;
+            }
         } else {
             state = State.SKIP;
         }
