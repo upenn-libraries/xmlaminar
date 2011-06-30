@@ -21,6 +21,8 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
+import edu.upennlib.ingestor.sax.integrator.complex.*;
+import java.util.HashMap;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,11 +34,11 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class StatefulXMLFilter extends XMLFilterImpl {
+public class SimpleStatefulXMLFilterNode extends XMLFilterImpl {
 
     public static final String INTEGRATOR_URI = "http://integrator";
     public static enum State {WAIT, SKIP, STEP, PLAY}
-    private State state = State.WAIT;
+    private State state = State.STEP;
     private int level = -1;
     private int refLevel = -1;
 
@@ -47,12 +49,36 @@ public class StatefulXMLFilter extends XMLFilterImpl {
 
     private boolean writable = false;
 
-    public void updateState(IntegratorOutputNode ion) {
+    private SimpleStatefulXMLFilterNode child;
+
+    public void blockUntilAtRest() {
+        while (state != State.WAIT) {
+            synchronized(this) {
+                try {
+                    wait();
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+    }
+
+    public int getLevel() {
         if (state != State.WAIT) {
             throw new IllegalStateException();
         }
-        if (!writable && ion.isPotentiallyWritable(getIdType(), getIdString())) {
-            writable = true;
+        return level;
+    }
+
+    public void updateState(String idType, String idString, long idLong) {
+        if (state != State.WAIT) {
+            throw new IllegalStateException();
+        }
+        if (child != null) {
+            child.updateState(idType, idString, idLong);
+        }
+        if (!writable) {
+            writable = getIdType().equals(idType) && getIdLong() == idLong;
         }
     }
 
@@ -71,6 +97,11 @@ public class StatefulXMLFilter extends XMLFilterImpl {
         }
         synchronized(this) {
             notify();
+            try {
+                wait();
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -122,6 +153,7 @@ public class StatefulXMLFilter extends XMLFilterImpl {
                 while (state == State.WAIT) {
                     writable = false;
                     synchronized (this) {
+                        notify();
                         try {
                             wait();
                         } catch (InterruptedException ex) {
