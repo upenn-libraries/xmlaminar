@@ -320,8 +320,8 @@ public abstract class SQLXMLReader implements XMLReader {
     private int idFieldDepth = -1;
 
     private AttributesImpl attRunner = new AttributesImpl();
-    private String idAttLocalName = "id";
-    private String idAttQName = integratorPrefix+":"+idAttLocalName;
+    private String idAttName = "id";
+    private String selfAttName = "self";
 
     private BufferingXMLFilter endElementBuffer = new BufferingXMLFilter();
     private void writeStructuralEvents() throws SQLException, SAXException {
@@ -350,7 +350,10 @@ public abstract class SQLXMLReader implements XMLReader {
         i = decreasedFieldDepthLimit;
         while (++i < currentId.length) {
             attRunner.clear();
-            attRunner.addAttribute(INTEGRATOR_URI, idAttLocalName, idAttQName, "CDATA", Long.toString(currentId[i]));
+            attRunner.addAttribute("", idAttName, idAttName, "CDATA", Long.toString(currentId[i]));
+            if (i == currentId.length - 1) {
+                attRunner.addAttribute("", selfAttName, selfAttName, "CDATA", "true");
+            }
             idFieldDepth++;
             ch.startElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i], attRunner);
         }

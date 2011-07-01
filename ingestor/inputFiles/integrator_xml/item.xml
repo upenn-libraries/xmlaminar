@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<integ:root xmlns:integ="http://integrator">
+   <integ:BIB_ID id="3000001">
+      <integ:MFHD_ID id="3194109">
+         <integ:ITEM_ID id="2571751" self="true">
+            <ITEM_ID>2571751</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-06-11 10:00:44.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000006">
+      <integ:MFHD_ID id="3194112">
+         <integ:ITEM_ID id="2601533" self="true">
+            <ITEM_ID>2601533</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-07-24 12:38:33.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000013">
+      <integ:MFHD_ID id="3194116">
+         <integ:ITEM_ID id="2566993" self="true">
+            <ITEM_ID>2566993</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-06-01 14:03:47.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000015">
+      <integ:MFHD_ID id="3194117">
+         <integ:ITEM_ID id="2571990" self="true">
+            <ITEM_ID>2571990</ITEM_ID>
+            <ITEM_ENUM>Bk.1</ITEM_ENUM>
+            <ITEM_CREATE_DATE>2001-06-11 12:07:49.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="2571993" self="true">
+            <ITEM_ID>2571993</ITEM_ID>
+            <ITEM_ENUM>Bk.2</ITEM_ENUM>
+            <ITEM_CREATE_DATE>2001-06-11 12:10:25.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000022">
+      <integ:MFHD_ID id="3194119">
+         <integ:ITEM_ID id="2567111" self="true">
+            <ITEM_ID>2567111</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-06-01 15:01:19.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000023">
+      <integ:MFHD_ID id="3194120">
+         <integ:ITEM_ID id="2589662" self="true">
+            <ITEM_ID>2589662</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-07-05 16:32:01.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000024">
+      <integ:MFHD_ID id="3194121">
+         <integ:ITEM_ID id="2567000" self="true">
+            <ITEM_ID>2567000</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-06-01 14:08:22.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000025">
+      <integ:MFHD_ID id="3194122">
+         <integ:ITEM_ID id="2601327" self="true">
+            <ITEM_ID>2601327</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-07-24 11:35:24.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000032">
+      <integ:MFHD_ID id="3194126">
+         <integ:ITEM_ID id="2563084" self="true">
+            <ITEM_ID>2563084</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 13:34:37.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000033">
+      <integ:MFHD_ID id="3194127">
+         <integ:ITEM_ID id="2563085" self="true">
+            <ITEM_ID>2563085</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 13:35:26.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000043">
+      <integ:MFHD_ID id="3194136">
+         <integ:ITEM_ID id="2563097" self="true">
+            <ITEM_ID>2563097</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 13:51:30.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000045">
+      <integ:MFHD_ID id="3202314">
+         <integ:ITEM_ID id="2621436" self="true">
+            <ITEM_ID>2621436</ITEM_ID>
+            <ITEM_ENUM>9th ed. 1964</ITEM_ENUM>
+            <ITEM_CREATE_DATE>2001-08-20 09:39:38.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000050">
+      <integ:MFHD_ID id="3194138">
+         <integ:ITEM_ID id="2577041" self="true">
+            <ITEM_ID>2577041</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-06-14 12:42:15.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000056">
+      <integ:MFHD_ID id="3194142">
+         <integ:ITEM_ID id="2563121" self="true">
+            <ITEM_ID>2563121</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 14:08:31.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000060">
+      <integ:MFHD_ID id="3194147">
+         <integ:ITEM_ID id="2563129" self="true">
+            <ITEM_ID>2563129</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 14:15:59.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000071">
+      <integ:MFHD_ID id="3194156">
+         <integ:ITEM_ID id="2563167" self="true">
+            <ITEM_ID>2563167</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 14:35:33.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000072">
+      <integ:MFHD_ID id="3194154">
+         <integ:ITEM_ID id="2563163" self="true">
+            <ITEM_ID>2563163</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 14:33:39.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000079">
+      <integ:MFHD_ID id="3194159">
+         <integ:ITEM_ID id="2563176" self="true">
+            <ITEM_ID>2563176</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 14:39:40.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000080">
+      <integ:MFHD_ID id="3194161">
+         <integ:ITEM_ID id="2563181" self="true">
+            <ITEM_ID>2563181</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 14:42:00.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000081">
+      <integ:MFHD_ID id="3194162">
+         <integ:ITEM_ID id="2563183" self="true">
+            <ITEM_ID>2563183</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 14:42:45.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+            <TEMP_LOCATION_DISP>Fine Arts Reserve</TEMP_LOCATION_DISP>
+            <TEMP_LOCATION>Fine Arts Library Reserve</TEMP_LOCATION>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000084">
+      <integ:MFHD_ID id="3194163">
+         <integ:ITEM_ID id="2563191" self="true">
+            <ITEM_ID>2563191</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 14:47:57.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000088">
+      <integ:MFHD_ID id="3194165">
+         <integ:ITEM_ID id="2563215" self="true">
+            <ITEM_ID>2563215</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-05-24 14:55:12.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000090">
+      <integ:MFHD_ID id="3194167">
+         <integ:ITEM_ID id="2599212" self="true">
+            <ITEM_ID>2599212</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-07-20 10:25:28.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000091">
+      <integ:MFHD_ID id="3194168">
+         <integ:ITEM_ID id="2567103" self="true">
+            <ITEM_ID>2567103</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-06-01 14:56:15.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000094">
+      <integ:MFHD_ID id="3194169">
+         <integ:ITEM_ID id="2567025" self="true">
+            <ITEM_ID>2567025</ITEM_ID>
+            <ITEM_CREATE_DATE>2001-06-01 14:23:38.0</ITEM_CREATE_DATE>
+            <NUM_HOLDS>0</NUM_HOLDS>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+</integ:root>

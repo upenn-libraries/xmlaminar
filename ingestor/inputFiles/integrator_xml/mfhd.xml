@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<integ:root xmlns:integ="http://integrator">
+   <integ:BIB_ID id="3000001">
+      <integ:MFHD_ID id="3194109" self="true">
+         <MFHD_ID>3194109</MFHD_ID>
+         <DISPLAY_CALL_NO>E99.U8 U84 2000</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>E   99            U 8   U 84   2000</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 12:41:42.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-06-11 10:00:28.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Museum Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>University Museum Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000006">
+      <integ:MFHD_ID id="3194112" self="true">
+         <MFHD_ID>3194112</MFHD_ID>
+         <DISPLAY_CALL_NO>E99.A86 T486 2001</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>E   99            A 86   T 486   2001</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 12:44:37.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-07-24 12:37:46.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Museum Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>University Museum Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000013">
+      <integ:MFHD_ID id="3194116" self="true">
+         <MFHD_ID>3194116</MFHD_ID>
+         <DISPLAY_CALL_NO>PA4179 .P53 1985</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>PA 4179            P 53   1985</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 12:53:13.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-06-01 14:02:52.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Museum Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>University Museum Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000015">
+      <integ:MFHD_ID id="3194117" self="true">
+         <MFHD_ID>3194117</MFHD_ID>
+         <DISPLAY_CALL_NO>PA258 .B325 1990</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>PA  258            B 325   1990</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 12:54:29.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-06-11 12:09:18.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Museum Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>University Museum Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000022">
+      <integ:MFHD_ID id="3194119" self="true">
+         <MFHD_ID>3194119</MFHD_ID>
+         <DISPLAY_CALL_NO>F1435.3.P6 G38 1978</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>F 14353           P 6   G 38   1978</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:03:41.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-06-22 10:01:04.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Museum Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>University Museum Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000023">
+      <integ:MFHD_ID id="3194120" self="true">
+         <MFHD_ID>3194120</MFHD_ID>
+         <DISPLAY_CALL_NO>DF261.E5 O44 1966</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>DF  261            E 5   O 44   1966</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:04:32.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-07-05 16:33:57.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Museum Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>University Museum Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000024">
+      <integ:MFHD_ID id="3194121" self="true">
+         <MFHD_ID>3194121</MFHD_ID>
+         <DISPLAY_CALL_NO>PJ1135 .M4 1993</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>PJ 1135            M 4   1993</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:05:50.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-06-22 11:43:35.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Museum Egyptian</PERM_LOCATION_DISP>
+         <PERM_LOCATION>University Museum Library Egyptian Collection</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000025">
+      <integ:MFHD_ID id="3194122" self="true">
+         <MFHD_ID>3194122</MFHD_ID>
+         <DISPLAY_CALL_NO>F1376 .M555 1960</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>F 1376            M 555   1960</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:06:44.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-07-24 11:34:40.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Museum Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>University Museum Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000030">
+      <integ:MFHD_ID id="3194123" self="true">
+         <MFHD_ID>3194123</MFHD_ID>
+         <DISPLAY_CALL_NO>BX4700.L7 B67 1624</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>BX 4700            L 7   B 67   1624</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:21:38.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2006-03-08 09:40:36.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Rare Bk &amp; Mss Lea</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Rare Bk &amp; Ms Library Lea Collection</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000031">
+      <integ:MFHD_ID id="3194125" self="true">
+         <MFHD_ID>3194125</MFHD_ID>
+         <DISPLAY_CALL_NO>Microfilm news 619</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>MICROFILM NEWS 619</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:32:48.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 13:32:48.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>8</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>VP Microforms</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library Microtext</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000032">
+      <integ:MFHD_ID id="3194126" self="true">
+         <MFHD_ID>3194126</MFHD_ID>
+         <DISPLAY_CALL_NO>543 M336 Bd.31 4th ed.</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>543 M 336 BD .31 4 TH ED</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:34:26.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2004-09-15 09:54:51.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>1</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Storage</PERM_LOCATION_DISP>
+         <PERM_LOCATION>LIBRA: From RECORD page, use Place Request tab</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000033">
+      <integ:MFHD_ID id="3194127" self="true">
+         <MFHD_ID>3194127</MFHD_ID>
+         <DISPLAY_CALL_NO>543 M336 Bd.37 3rd. ed.</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>543 M 336 BD .37 3 RD ED</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:35:15.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2004-09-15 09:54:51.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>1</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Storage</PERM_LOCATION_DISP>
+         <PERM_LOCATION>LIBRA: From RECORD page, use Place Request tab</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000034">
+      <integ:MFHD_ID id="3194128" self="true">
+         <MFHD_ID>3194128</MFHD_ID>
+         <DISPLAY_CALL_NO>Microfilm news 620</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>MICROFILM NEWS 620</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:36:08.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 13:36:08.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>8</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>VP Microforms</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library Microtext</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000035">
+      <integ:MFHD_ID id="3194130" self="true">
+         <MFHD_ID>3194130</MFHD_ID>
+         <DISPLAY_CALL_NO>Microfilm news 621</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>MICROFILM NEWS 621</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:40:03.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 13:40:03.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>8</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>VP Microforms</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library Microtext</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000039">
+      <integ:MFHD_ID id="3194134" self="true">
+         <MFHD_ID>3194134</MFHD_ID>
+         <DISPLAY_CALL_NO>Microfilm news 622</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>MICROFILM NEWS 622</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:47:18.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 13:47:18.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>8</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>VP Microforms</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library Microtext</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000040">
+      <integ:MFHD_ID id="3194132" self="true">
+         <MFHD_ID>3194132</MFHD_ID>
+         <DISPLAY_CALL_NO>Microfilm news 622</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>MICROFILM NEWS 622</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:45:05.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 13:45:05.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>8</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>VP Microforms</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library Microtext</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000043">
+      <integ:MFHD_ID id="3194136" self="true">
+         <MFHD_ID>3194136</MFHD_ID>
+         <DISPLAY_CALL_NO>DS432.G86 1999</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>DS  432            G 86   1999</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:51:20.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 13:51:20.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>A Van Pelt Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000045">
+      <integ:MFHD_ID id="3202314" self="true">
+         <MFHD_ID>3202314</MFHD_ID>
+         <DISPLAY_CALL_NO>PN6071.S33 Y42</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>PN 6071            S 33   Y 42</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-06-05 11:09:09.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2004-11-24 12:38:10.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>A Van Pelt Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000050">
+      <integ:MFHD_ID id="3194138" self="true">
+         <MFHD_ID>3194138</MFHD_ID>
+         <DISPLAY_CALL_NO>QC611.95 .H84 2000</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>QC  61195          H 84   2000</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 13:58:38.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 13:59:14.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>A Van Pelt Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000056">
+      <integ:MFHD_ID id="3194142" self="true">
+         <MFHD_ID>3194142</MFHD_ID>
+         <DISPLAY_CALL_NO>PN2885.M3 M65 2000</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>PN 2885            M 3   M 65   2000</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 14:08:22.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 14:08:22.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>A Van Pelt Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000060">
+      <integ:MFHD_ID id="3194147" self="true">
+         <MFHD_ID>3194147</MFHD_ID>
+         <DISPLAY_CALL_NO>PN1997 M814 1985</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>PN 1997            M 814   1985</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 14:15:52.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 14:15:52.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Storage</PERM_LOCATION_DISP>
+         <PERM_LOCATION>LIBRA: From RECORD page, use Place Request tab</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000061">
+      <integ:MFHD_ID id="3210419" self="true">
+         <MFHD_ID>3210419</MFHD_ID>
+         <DISPLAY_CALL_NO>BS315 .M36 1835</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>BS  315            M 36   1835</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-06-29 08:29:29.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-06-29 08:29:29.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Rare Bk &amp; Mss Rare Book</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Rare Bk &amp; Ms Library RBC</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000071">
+      <integ:MFHD_ID id="3194156" self="true">
+         <MFHD_ID>3194156</MFHD_ID>
+         <DISPLAY_CALL_NO>Z692.E43 M36 2001</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>Z  692            E 43   M 36   2001</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 14:35:26.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 14:35:26.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>A Van Pelt Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000072">
+      <integ:MFHD_ID id="3194154" self="true">
+         <MFHD_ID>3194154</MFHD_ID>
+         <DISPLAY_CALL_NO>BF1714.H5 P693 1987</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>BF 1714            H 5   P 693   1987</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 14:33:28.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 14:33:28.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Storage</PERM_LOCATION_DISP>
+         <PERM_LOCATION>LIBRA: From RECORD page, use Place Request tab</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000079">
+      <integ:MFHD_ID id="3194159" self="true">
+         <MFHD_ID>3194159</MFHD_ID>
+         <DISPLAY_CALL_NO>PL4718.4 .R36 1999</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>PL 47184           R 36   1999</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 14:39:29.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 14:39:29.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>A Van Pelt Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000080">
+      <integ:MFHD_ID id="3194161" self="true">
+         <MFHD_ID>3194161</MFHD_ID>
+         <DISPLAY_CALL_NO>PK1859.J67 .M67 1999</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>PK 1859            J 67   M 67   1999</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 14:41:52.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 14:41:52.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>A Van Pelt Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000081">
+      <integ:MFHD_ID id="3194162" self="true">
+         <MFHD_ID>3194162</MFHD_ID>
+         <DISPLAY_CALL_NO>Desk Pamphlet - Marcus</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>DESK PAMPHLET - MARCUS</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 14:42:44.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 14:42:44.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>8</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Fine Arts Reserve</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Fine Arts Library Reserve</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000084">
+      <integ:MFHD_ID id="3194163" self="true">
+         <MFHD_ID>3194163</MFHD_ID>
+         <DISPLAY_CALL_NO>PL4758.9.K27 Z585 1999</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>PL 47589           K 27   Z 585   1999</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 14:47:48.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2009-06-25 13:24:44.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Storage</PERM_LOCATION_DISP>
+         <PERM_LOCATION>LIBRA: From RECORD page, use Place Request tab</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000088">
+      <integ:MFHD_ID id="3194165" self="true">
+         <MFHD_ID>3194165</MFHD_ID>
+         <DISPLAY_CALL_NO>PK1859.Y35 .Y84 1999</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>PK 1859            Y 35   Y 84   1999</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 14:55:04.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-05-24 14:55:04.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>A Van Pelt Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>Van Pelt Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000090">
+      <integ:MFHD_ID id="3194167" self="true">
+         <MFHD_ID>3194167</MFHD_ID>
+         <DISPLAY_CALL_NO>GN60 .W654 1990</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>GN   60            W 654   1990</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 14:58:02.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-07-20 10:24:33.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Museum Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>University Museum Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000091">
+      <integ:MFHD_ID id="3194168" self="true">
+         <MFHD_ID>3194168</MFHD_ID>
+         <DISPLAY_CALL_NO>F1221.Z3 C46 1992</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>F 1221            Z 3   C 46   1992</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 14:59:17.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-06-01 14:55:36.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Museum Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>University Museum Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000094">
+      <integ:MFHD_ID id="3194169" self="true">
+         <MFHD_ID>3194169</MFHD_ID>
+         <DISPLAY_CALL_NO>CC76 .P37 1994</DISPLAY_CALL_NO>
+         <NORMALIZED_CALL_NO>CC   76            P 37   1994</NORMALIZED_CALL_NO>
+         <HOLD_CREATE_DATE>2001-05-24 15:00:20.0</HOLD_CREATE_DATE>
+         <LAST_HOLD_UPDATE>2001-06-01 14:22:54.0</LAST_HOLD_UPDATE>
+         <CALL_NO_TYPE>0</CALL_NO_TYPE>
+         <PERM_LOCATION_DISP>Museum Library</PERM_LOCATION_DISP>
+         <PERM_LOCATION>University Museum Library</PERM_LOCATION>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+</integ:root>

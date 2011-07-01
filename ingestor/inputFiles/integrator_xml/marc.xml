@@ -1,0 +1,2260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<integ:root xmlns:integ="http://integrator">
+   <integ:BIB_ID id="3000001" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000001</marc:controlfield>
+         <marc:controlfield tag="005">20060426095000.0</marc:controlfield>
+         <marc:controlfield tag="008">010216s2000    couabc   b    001 0 eng  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   00131941 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0916537110</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0916537129 (pbk.)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)CTYAFNP8472-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">MoSR</marc:subfield>
+            <marc:subfield code="d">MoSR</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">n-us-co</marc:subfield>
+            <marc:subfield code="a">n-us-ut</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1=" " ind2="4">
+            <marc:subfield code="a">E99.U8</marc:subfield>
+            <marc:subfield code="b">U84 2000</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Ute Indian arts &amp; culture :</marc:subfield>
+            <marc:subfield code="b">from prehistory to the new millennium /</marc:subfield>
+            <marc:subfield code="c">edited by William Wroth.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="3" ind2=" ">
+            <marc:subfield code="a">Ute Indian arts and culture</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Colorado Springs, Colo. :</marc:subfield>
+            <marc:subfield code="b">Taylor Museum of the Colorado Springs Fine Art Center,</marc:subfield>
+            <marc:subfield code="c">c2000.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">viii, 248 p. :</marc:subfield>
+            <marc:subfield code="b">ill. (some col.), map, ports. ;</marc:subfield>
+            <marc:subfield code="c">27 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Catalog of an exhibition held at the Taylor Museum, Colorado Springs Fine Art Center, July 21-Dec. 31, 2001; the Anasazi Heritage Center, Apr. 1-Sep. 30, 2001; the Autry Museum of Western Heritage, Oct. 30, 2001-Jan. 27, 2002 and the Buffalo Bill Historical Center, Spring-Summer 2002.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references and index.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Ute Indians</marc:subfield>
+            <marc:subfield code="x">Art</marc:subfield>
+            <marc:subfield code="v">Exhibitions.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Ute Indians</marc:subfield>
+            <marc:subfield code="x">Material culture</marc:subfield>
+            <marc:subfield code="v">Exhibitions.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Ute Indians</marc:subfield>
+            <marc:subfield code="x">History.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Ute Indians</marc:subfield>
+            <marc:subfield code="x">Social life and customs.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Wroth, William,</marc:subfield>
+            <marc:subfield code="d">1938-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Taylor Museum.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Colorado Springs Fine Arts Center.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Anasazi Heritage Center (U.S.)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Autry Museum of Western Heritage.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Buffalo Bill Historical Center.</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000006" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000006</marc:controlfield>
+         <marc:controlfield tag="005">20071127095748.0</marc:controlfield>
+         <marc:controlfield tag="008">010201s2001    qucab    b   f000 0 eng d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm46627210</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">CaOODP</marc:subfield>
+            <marc:subfield code="b">eng</marc:subfield>
+            <marc:subfield code="c">NLC</marc:subfield>
+            <marc:subfield code="d">PU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="016" ind1=" " ind2=" ">
+            <marc:subfield code="a">20019800002</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0660178419</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="041" ind1="0" ind2=" ">
+            <marc:subfield code="a">eng</marc:subfield>
+            <marc:subfield code="b">engfre</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">n-cn---</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1=" " ind2="4">
+            <marc:subfield code="a">E99.A86</marc:subfield>
+            <marc:subfield code="b">T486 2001</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1="0" ind2=" ">
+            <marc:subfield code="a">391/.0089/97</marc:subfield>
+            <marc:subfield code="2">21</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Thompson, Judy,</marc:subfield>
+            <marc:subfield code="d">1946-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Fascinating challenges :</marc:subfield>
+            <marc:subfield code="b">studying material culture with Dorothy Burnham /</marc:subfield>
+            <marc:subfield code="c">Judy Thompson, Judy Hall and Leslie Tepper, in collaboration with Dorothy K. Burnham.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Hull, Quebec :</marc:subfield>
+            <marc:subfield code="b">Canadian Museum of Civilization,</marc:subfield>
+            <marc:subfield code="c">c2001.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">xvi, 268 p. :</marc:subfield>
+            <marc:subfield code="b">ill., map ;</marc:subfield>
+            <marc:subfield code="c">24 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="440" ind1=" " ind2="0">
+            <marc:subfield code="a">Mercury series,</marc:subfield>
+            <marc:subfield code="x">0316-1854</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="490" ind1="1" ind2=" ">
+            <marc:subfield code="a">Paper/Canadian Ethnology Service,</marc:subfield>
+            <marc:subfield code="x">0316-1862 ;</marc:subfield>
+            <marc:subfield code="v">136</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">Abstracts in English and French.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Athapascan Indians</marc:subfield>
+            <marc:subfield code="x">Clothing.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Native peoples</marc:subfield>
+            <marc:subfield code="x">Clothing</marc:subfield>
+            <marc:subfield code="z">Canada.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Burnham, Dorothy K.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Tepper, Leslie Heyman,</marc:subfield>
+            <marc:subfield code="d">1947-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Hall, Judy,</marc:subfield>
+            <marc:subfield code="d">1946-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="711" ind1="2" ind2=" ">
+            <marc:subfield code="a">Canadian Ethnology Service.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="711" ind1="2" ind2=" ">
+            <marc:subfield code="a">Canadian Museum of Civilization.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="830" ind1=" " ind2="0">
+            <marc:subfield code="a">Paper (Canadian Ethnology Service) ;</marc:subfield>
+            <marc:subfield code="v">136.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">E0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000013" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000013</marc:controlfield>
+         <marc:controlfield tag="005">20070227115532.0</marc:controlfield>
+         <marc:controlfield tag="008">860324s1985    okua          001 0 eng |</marc:controlfield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0806119373</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)GAEG30936346-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">OKE</marc:subfield>
+            <marc:subfield code="c">OKE</marc:subfield>
+            <marc:subfield code="d">EMU</marc:subfield>
+            <marc:subfield code="d">PU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Pharr, Clyde,</marc:subfield>
+            <marc:subfield code="d">1883-1972.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Homeric Greek :</marc:subfield>
+            <marc:subfield code="b">a book for beginners /</marc:subfield>
+            <marc:subfield code="c">by Clyde Pharr.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">Rev. ed. / by John Wright.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Norman, Okla. :</marc:subfield>
+            <marc:subfield code="b">University of Oklahoma Press,</marc:subfield>
+            <marc:subfield code="c">c1985.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">lii, 361 p. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">20 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="600" ind1="0" ind2="0">
+            <marc:subfield code="a">Homer</marc:subfield>
+            <marc:subfield code="x">Language</marc:subfield>
+            <marc:subfield code="x">Grammar.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Greek language</marc:subfield>
+            <marc:subfield code="x">Grammar</marc:subfield>
+            <marc:subfield code="y">1950-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2="0">
+            <marc:subfield code="a">Wright, John Henry,</marc:subfield>
+            <marc:subfield code="d">1941-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9665</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="b">PA4179 .P53 1985</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000015" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000015</marc:controlfield>
+         <marc:controlfield tag="005">20010611120808.0</marc:controlfield>
+         <marc:controlfield tag="008">890822m19901991nyua          001 0 eng  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">  8922967//r932</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0195056213</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0195056221</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)DCLC8922967-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="041" ind1="0" ind2=" ">
+            <marc:subfield code="a">enggrc</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">PA258</marc:subfield>
+            <marc:subfield code="b">.B325 1990</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1="0" ind2="0">
+            <marc:subfield code="a">488.82/421</marc:subfield>
+            <marc:subfield code="2">20</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Balme, M. G.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Athenaze :</marc:subfield>
+            <marc:subfield code="b">an introduction to ancient Greek /</marc:subfield>
+            <marc:subfield code="c">Maurice Balme and Gilbert Lawall ; with drawings by Catherine Balme.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">Rev. ed.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">New York :</marc:subfield>
+            <marc:subfield code="b">Oxford University Press,</marc:subfield>
+            <marc:subfield code="c">1990-1991.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">2 v. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">24 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">English and Greek.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes index.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Greek language</marc:subfield>
+            <marc:subfield code="x">Grammar.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Greek language</marc:subfield>
+            <marc:subfield code="x">Readers.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Lawall, Gilbert.</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000022" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000022</marc:controlfield>
+         <marc:controlfield tag="005">20071127095752.0</marc:controlfield>
+         <marc:controlfield tag="008">780927r19781931nyua          000 0 eng  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">77092481</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm04271441</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0486236188 :</marc:subfield>
+            <marc:subfield code="c">$3.50 ($4.25 Can.)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">F1435.3.P6</marc:subfield>
+            <marc:subfield code="b">G38 1978</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1="0" ind2="0">
+            <marc:subfield code="a">497/.4</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Gates, William,</marc:subfield>
+            <marc:subfield code="d">1863-1940</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="3">
+            <marc:subfield code="a">An outline dictionary of Maya glyphs, with a concordance and analysis of their relationships :</marc:subfield>
+            <marc:subfield code="b">with the author's "Glyph studies" reprinted from the Maya Society quarterly /</marc:subfield>
+            <marc:subfield code="c">by William Gates.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">New York :</marc:subfield>
+            <marc:subfield code="b">Dover Publications,</marc:subfield>
+            <marc:subfield code="c">1978.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">xii, 204 p. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">22 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Reprint of the 1931 ed. published by Johns Hopkins Press, Baltimore.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Mayan languages</marc:subfield>
+            <marc:subfield code="x">Writing.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Maya language.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">E0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000023" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000023</marc:controlfield>
+         <marc:controlfield tag="005">20071127095755.0</marc:controlfield>
+         <marc:controlfield tag="008">850723s1966    tu a          000 0 eng d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm12292514</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">CSH</marc:subfield>
+            <marc:subfield code="c">CSH</marc:subfield>
+            <marc:subfield code="d">PU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1=" " ind2="4">
+            <marc:subfield code="a">DF261.E5</marc:subfield>
+            <marc:subfield code="b">O44 1966</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Ömer, N.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">City immortal:</marc:subfield>
+            <marc:subfield code="b">Ephesus.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Izmir, [n.p],</marc:subfield>
+            <marc:subfield code="c">1966.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">61 p.</marc:subfield>
+            <marc:subfield code="b">illus., maps</marc:subfield>
+            <marc:subfield code="c">17 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="651" ind1=" " ind2="0">
+            <marc:subfield code="a">Ephesus (Extinct city)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">E0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000024" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000024</marc:controlfield>
+         <marc:controlfield tag="005">20071127095758.0</marc:controlfield>
+         <marc:controlfield tag="008">930723r19931927nyua          000 0 eng d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm28493271</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">IQU</marc:subfield>
+            <marc:subfield code="c">IQU</marc:subfield>
+            <marc:subfield code="d">NYP</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0870521020 :</marc:subfield>
+            <marc:subfield code="c">$16.95</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="1" ind2="4">
+            <marc:subfield code="a">PJ1135</marc:subfield>
+            <marc:subfield code="b">.M4 1993</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Mercer, Samuel A. B.</marc:subfield>
+            <marc:subfield code="q">(Samuel Alfred Browne),</marc:subfield>
+            <marc:subfield code="d">b. 1880.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="240" ind1="1" ind2="0">
+            <marc:subfield code="a">Egyptian grammar, with chrestomathy and glossary</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="4">
+            <marc:subfield code="a">The handbook of Egyptian hieroglyphs :</marc:subfield>
+            <marc:subfield code="b">a study of the ancient language /</marc:subfield>
+            <marc:subfield code="c">Samuel A.B. Mercer.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">Hippocrene pbk. ed.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">New York :</marc:subfield>
+            <marc:subfield code="b">Hippocrene Books,</marc:subfield>
+            <marc:subfield code="c">1993.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">vi, 184 p. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">22 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Originally published: Egyptian grammar, with chrestomathy and glossary. London : Luzac, 1927, in series: The Oriental research series.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Egyptian language</marc:subfield>
+            <marc:subfield code="x">Grammar.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Egyptian language</marc:subfield>
+            <marc:subfield code="x">Readers.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Egyptian language</marc:subfield>
+            <marc:subfield code="x">Writing, Hieroglyphic.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="740" ind1="0" ind2=" ">
+            <marc:subfield code="a">Egyptian hieroglyphs.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">E0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000025" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000025</marc:controlfield>
+         <marc:controlfield tag="005">20071127095759.0</marc:controlfield>
+         <marc:controlfield tag="008">840713q19001984sp ab         000 0 spa d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm10947520</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">TXX</marc:subfield>
+            <marc:subfield code="c">TXX</marc:subfield>
+            <marc:subfield code="d">PU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="041" ind1="0" ind2=" ">
+            <marc:subfield code="a">spaeng</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1=" " ind2="4">
+            <marc:subfield code="a">F1376</marc:subfield>
+            <marc:subfield code="b">.M555 1960</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="092" ind1=" " ind2=" ">
+            <marc:subfield code="a">972.65</marc:subfield>
+            <marc:subfield code="b">M543m</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Merida, Chichen-Itza,</marc:subfield>
+            <marc:subfield code="b">uxmal y dzibilchaltun.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Merida :</marc:subfield>
+            <marc:subfield code="b">La literaria,</marc:subfield>
+            <marc:subfield code="c">s.d. [ca. 1960]</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">32 p. :</marc:subfield>
+            <marc:subfield code="b">col. ill, maps ;</marc:subfield>
+            <marc:subfield code="c">23 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">Spanish and English.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="651" ind1=" " ind2="0">
+            <marc:subfield code="a">Yucatán (Mexico : State)</marc:subfield>
+            <marc:subfield code="x">Description and travel.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">E0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000030" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000030</marc:controlfield>
+         <marc:controlfield tag="005">20110413210349.0</marc:controlfield>
+         <marc:controlfield tag="008">010524s1624    it c          000 0bita d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(PUVoyagerBIBID)3000030</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">PU</marc:subfield>
+            <marc:subfield code="c">PU</marc:subfield>
+            <marc:subfield code="e">dcrb</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">e-sp---</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1=" " ind2="4">
+            <marc:subfield code="a">BX4700.L7</marc:subfield>
+            <marc:subfield code="b">B67 1624</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Breue compendio della vita, e miracoli di Santo Ignatio, fondatore della Compagnia di Giesù.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="3" ind2=" ">
+            <marc:subfield code="a">Breve compendio della vita, e miracoli di Santo Ignatio, fondatore della Compagnia di Giesù</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">In Ferrara :</marc:subfield>
+            <marc:subfield code="b">Presso Francesco Suzzi ;</marc:subfield>
+            <marc:subfield code="a">Stampato in Milano :</marc:subfield>
+            <marc:subfield code="b">Per Pandolfo Malatesta,</marc:subfield>
+            <marc:subfield code="c">1624.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">15, [1] p. :</marc:subfield>
+            <marc:subfield code="b">port. (woodcut) ;</marc:subfield>
+            <marc:subfield code="c">15 cm. (8vo)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Second printer statement from colophon.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Signatures: A⁸.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Woodcuts: port. of St. Ignatius on t.p.; head-piece and initial.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="590" ind1=" " ind2=" ">
+            <marc:subfield code="a">Acquired for the Penn Libraries with assistance from the Henry Charles Lea Fund.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="590" ind1=" " ind2=" ">
+            <marc:subfield code="a">Closely cropped at margins; partial loss of license on t.p.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="590" ind1=" " ind2=" ">
+            <marc:subfield code="a">Bound with: Compendio della vita del B.P. Francesco Borgia.  In Bologna : Per lo Mascheroni e'l Ferroni, 1624 -- Ricordi e detti notabili di S. Francesco Sauerio della Compagnia di Geisu, apostolo dell'Indie.  In Bologna : Presso Theodoro Mascheroni, &amp; Clemente Ferroni, 1622 -- Elogio del padre Gioseffo Anceta della Compagnia di Giesù.  In Napoli, Como, Reggio, &amp; in Bologna : Presso Theodoro Mascheroni, e Clemente Ferroni, 1624.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="600" ind1="0" ind2="0">
+            <marc:subfield code="a">Ignatius,</marc:subfield>
+            <marc:subfield code="c">of Loyola, Saint,</marc:subfield>
+            <marc:subfield code="d">1491-1556.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="610" ind1="2" ind2="0">
+            <marc:subfield code="a">Jesuits</marc:subfield>
+            <marc:subfield code="v">Biography.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Christian saints</marc:subfield>
+            <marc:subfield code="z">Spain</marc:subfield>
+            <marc:subfield code="v">Biography</marc:subfield>
+            <marc:subfield code="v">Early works to 1800.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="4">
+            <marc:subfield code="a">CHR 1624</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="4">
+            <marc:subfield code="a">PRO Soave, Fiammetta (label, Rome)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Suzzi, Francesco,</marc:subfield>
+            <marc:subfield code="e">printer.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Malatesta, Pandolfo,</marc:subfield>
+            <marc:subfield code="d">fl. 1594-1626,</marc:subfield>
+            <marc:subfield code="e">printer.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Henry Charles Lea Library (University of Pennsylvania)</marc:subfield>
+            <marc:subfield code="5">PU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Henry Charles Lea Fund.</marc:subfield>
+            <marc:subfield code="5">PU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="752" ind1=" " ind2=" ">
+            <marc:subfield code="a">Italy</marc:subfield>
+            <marc:subfield code="d">Ferrara.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="752" ind1=" " ind2=" ">
+            <marc:subfield code="a">Italy</marc:subfield>
+            <marc:subfield code="d">Milan.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="856" ind1="4" ind2="2">
+            <marc:subfield code="3">The Henry Charles Lea Fund Home Page</marc:subfield>
+            <marc:subfield code="u">http://hdl.library.upenn.edu/1017.12/366238</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000031" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000031</marc:controlfield>
+         <marc:controlfield tag="005">20010524133155.0</marc:controlfield>
+         <marc:controlfield tag="007">hd|afa|||baca</marc:controlfield>
+         <marc:controlfield tag="008">840424d18031818ctuwr nea     0  |a0eng d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)CTYAFML7604-S</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">CtY</marc:subfield>
+            <marc:subfield code="c">CtY</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">n-us-ct</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="130" ind1="0" ind2=" ">
+            <marc:subfield code="a">Connecticut herald (New Haven, Conn. : 1803)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Connecticut herald</marc:subfield>
+            <marc:subfield code="h">[microform].</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">New-Haven [Conn.] :</marc:subfield>
+            <marc:subfield code="b">Printed and published for the proprietor,</marc:subfield>
+            <marc:subfield code="c">1803-1818.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">15 v. ;</marc:subfield>
+            <marc:subfield code="c">53 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Weekly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">Vol. 1, no. 1 (Nov. 1, 1803)-v. 15, no. 22 (Mar. 10, 1818).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Publishers: Comstock, Griswold &amp; Co., &lt;1804&gt;; Comstock, Steele &amp; Co., 1804-1805; Oliver Steele &amp; Co., 1805-1811; Walter &amp; Steele, 1811-1813; O. Steele, 1813-&lt;1815&gt;; Steele &amp; Gray, 1816-1817; Flagg &amp; Gray, 1817-1818.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="515" ind1=" " ind2=" ">
+            <marc:subfield code="a">Issues for Nov. 6, 1810-1818 also called: Whole no. 367-750.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="533" ind1=" " ind2=" ">
+            <marc:subfield code="a">Microfilm.</marc:subfield>
+            <marc:subfield code="b">Naples, FL :</marc:subfield>
+            <marc:subfield code="c">NewsBank, Inc. :</marc:subfield>
+            <marc:subfield code="c">Readex ;</marc:subfield>
+            <marc:subfield code="b">New Canaan, CT :</marc:subfield>
+            <marc:subfield code="c">Readex,</marc:subfield>
+            <marc:subfield code="d">[1999?-]</marc:subfield>
+            <marc:subfield code="e">microfilm reels ; 35 mm.</marc:subfield>
+            <marc:subfield code="f">(Early American newspapers)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="651" ind1=" " ind2="0">
+            <marc:subfield code="a">New Haven (Conn.)</marc:subfield>
+            <marc:subfield code="v">Newspapers.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="752" ind1=" " ind2=" ">
+            <marc:subfield code="a">United States</marc:subfield>
+            <marc:subfield code="b">Connecticut</marc:subfield>
+            <marc:subfield code="c">New Haven</marc:subfield>
+            <marc:subfield code="d">New Haven.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="0" ind2="5">
+            <marc:subfield code="t">Connecticut post, and New Haven visitor</marc:subfield>
+            <marc:subfield code="g">1804</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="0" ind2="0">
+            <marc:subfield code="t">Connecticut herald and general advertiser</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="830" ind1=" " ind2="0">
+            <marc:subfield code="a">Early American newspapers.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9115</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000032" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000032</marc:controlfield>
+         <marc:controlfield tag="005">20010524133320.0</marc:controlfield>
+         <marc:controlfield tag="008">870423s1954    gw a     b    000 0 ger d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(NNC)notisALK5328</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)15578728</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)NYCGALK5328-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">VA@</marc:subfield>
+            <marc:subfield code="c">VA@</marc:subfield>
+            <marc:subfield code="d">NNC</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Weihrich, Robert.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="4">
+            <marc:subfield code="a">Die chemische Analyse in der Stahlindustrie /</marc:subfield>
+            <marc:subfield code="c">Bearb. von August Winkel.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">4. umgearb. und erweiterte Aufl.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Stuttgart :</marc:subfield>
+            <marc:subfield code="b">F. Enke,</marc:subfield>
+            <marc:subfield code="c">1954.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">223 p. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">25 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="440" ind1=" " ind2="4">
+            <marc:subfield code="a">Die Chemische Analyse,</marc:subfield>
+            <marc:subfield code="v">31. Bd.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Bibliographical footnotes.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Based on I. Kassler's Untersuchungsmethoden für Roheisen, Stahl und Ferrolegierungen.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Steel</marc:subfield>
+            <marc:subfield code="x">Analysis.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Kassler, Isidor,</marc:subfield>
+            <marc:subfield code="d">1877-</marc:subfield>
+            <marc:subfield code="t">Untersuchungsmethoden für Roheisen, Stahl und Ferrolegierungen.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Winkel, August,</marc:subfield>
+            <marc:subfield code="e">ed.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9125</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="b">540.8\C422\v.31</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000033" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000033</marc:controlfield>
+         <marc:controlfield tag="005">20010524133451.0</marc:controlfield>
+         <marc:controlfield tag="008">840316s1954    gw a     b    001 0 ger c</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">a  54003176 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(NNC)notisALK5345</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)10527298</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)NYCGALK5345-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">Iowa State Coll. Libr.</marc:subfield>
+            <marc:subfield code="c">DGW</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Prodinger, Wilhelm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Organische Fällungsmittel in der quantitativen Analyse.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">3. völlig umgearb. und verm. Aufl.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Stuttgart,</marc:subfield>
+            <marc:subfield code="b">F. Enke,</marc:subfield>
+            <marc:subfield code="c">1954.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">232 p.</marc:subfield>
+            <marc:subfield code="b">tables.</marc:subfield>
+            <marc:subfield code="c">25 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="440" ind1=" " ind2="4">
+            <marc:subfield code="a">Die Chemische Analyse,</marc:subfield>
+            <marc:subfield code="v">37 Bd.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Bibliographical footnotes.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemistry, Analytic</marc:subfield>
+            <marc:subfield code="x">Quantitative.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemical tests and reagents.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Metals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9125</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="b">540.8\C422\v.37\3d ed.</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000034" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000034</marc:controlfield>
+         <marc:controlfield tag="005">20010524133521.0</marc:controlfield>
+         <marc:controlfield tag="007">hd|afa|||baca</marc:controlfield>
+         <marc:controlfield tag="008">820316d18021803ctuwr nea     0  | 0eng d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)CTYAFFJ0361-S</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">CtY</marc:subfield>
+            <marc:subfield code="c">CtY</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">n-us-ct</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="130" ind1="0" ind2=" ">
+            <marc:subfield code="a">Visitor (New Haven, Conn.)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="4">
+            <marc:subfield code="a">The visitor</marc:subfield>
+            <marc:subfield code="h">[microform].</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">New Haven [Conn.] :</marc:subfield>
+            <marc:subfield code="b">Printed by William W. Morse for the editor,</marc:subfield>
+            <marc:subfield code="c">1802-1803.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">1 v. ;</marc:subfield>
+            <marc:subfield code="c">27 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Weekly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">Vol. 1, no. 1 (Oct. 30, 1802)-v. 1, no. 52 (Oct. 25, 1803).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="533" ind1=" " ind2=" ">
+            <marc:subfield code="a">Microfilm.</marc:subfield>
+            <marc:subfield code="b">New Canaan, Conn. :</marc:subfield>
+            <marc:subfield code="c">Readex,</marc:subfield>
+            <marc:subfield code="d">[1989?]</marc:subfield>
+            <marc:subfield code="e">1 microfilm reel ; 35 mm.</marc:subfield>
+            <marc:subfield code="f">(Early American newspapers)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="651" ind1=" " ind2="4">
+            <marc:subfield code="a">New Haven (Conn.)</marc:subfield>
+            <marc:subfield code="x">Newspapers.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="752" ind1=" " ind2=" ">
+            <marc:subfield code="a">United States</marc:subfield>
+            <marc:subfield code="b">Connecticut</marc:subfield>
+            <marc:subfield code="c">New Haven</marc:subfield>
+            <marc:subfield code="d">New Haven.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="0" ind2="0">
+            <marc:subfield code="t">Messenger (New Haven, Conn.)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="0" ind2="0">
+            <marc:subfield code="t">Connecticut post, and New Haven visitor</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="830" ind1=" " ind2="0">
+            <marc:subfield code="a">Early American newspapers.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9115</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000035" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000035</marc:controlfield>
+         <marc:controlfield tag="005">20010524133850.0</marc:controlfield>
+         <marc:controlfield tag="007">hd|afa|||baca</marc:controlfield>
+         <marc:controlfield tag="008">820925d18121855ctuwr nea     0  | 0eng d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)CTYAFML7601-S</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">CtY</marc:subfield>
+            <marc:subfield code="c">CtY</marc:subfield>
+            <marc:subfield code="d">CStRLIN</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">n-us-ct</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="130" ind1="0" ind2=" ">
+            <marc:subfield code="a">Columbian register (New Haven, Conn. : 1812)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Columbian register</marc:subfield>
+            <marc:subfield code="h">[microform].</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="1" ind2=" ">
+            <marc:subfield code="i">Issues for Mar. 24-Oct. 10, 1818 called:</marc:subfield>
+            <marc:subfield code="a">Columbian register, and true Republican</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">New-Haven, Conn. :</marc:subfield>
+            <marc:subfield code="b">J. Barber,</marc:subfield>
+            <marc:subfield code="c">1812-1855.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">44 v.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Weekly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">Vol. 1, no. 1 (Dec. 1, 1812)-v. 44, no. 2249 (Dec. 29, 1855).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Publishers: Barber &amp; Osborn, 1833-1838; Osborn &amp; Baldwin, 1838-1855.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Editor: M.A. Osborn, 1834-1855.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Semiweekly ed.: Morning register (New Haven, Conn.), 183 -183 .</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Triweekly eds.: Columbian register (New Haven, Conn. : 1840), 1840-184u, and: New Haven register (New Haven, Conn. : 1846), 184u-185u, and: Daily register (New Haven, Conn.), 185u-1855.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Daily ed.: New-Haven daily register, 1846-1855.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="533" ind1=" " ind2=" ">
+            <marc:subfield code="a">Microfilm.</marc:subfield>
+            <marc:subfield code="b">Naples, FL :</marc:subfield>
+            <marc:subfield code="c">Readex :</marc:subfield>
+            <marc:subfield code="c">NewsBank, inc. ;</marc:subfield>
+            <marc:subfield code="a">New Canaan, Ct :</marc:subfield>
+            <marc:subfield code="c">Readex,</marc:subfield>
+            <marc:subfield code="d">[1999?-   ]</marc:subfield>
+            <marc:subfield code="e">microfilm reels ; 35 mm</marc:subfield>
+            <marc:subfield code="f">(Early American newspapers)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="651" ind1=" " ind2="0">
+            <marc:subfield code="a">New Haven (Conn.)</marc:subfield>
+            <marc:subfield code="v">Newspapers.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="752" ind1=" " ind2=" ">
+            <marc:subfield code="a">United States</marc:subfield>
+            <marc:subfield code="b">Connecticut</marc:subfield>
+            <marc:subfield code="c">New Haven</marc:subfield>
+            <marc:subfield code="d">New Haven.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="775" ind1="1" ind2=" ">
+            <marc:subfield code="t">Morning register (New Haven, Conn.)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="775" ind1="1" ind2=" ">
+            <marc:subfield code="t">Columbian register (New Haven, Conn. : 1840)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="775" ind1="1" ind2=" ">
+            <marc:subfield code="t">New Haven register (New Haven, Conn. : 1846)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="775" ind1="1" ind2=" ">
+            <marc:subfield code="t">Daily register (New Haven, Conn.)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="775" ind1="1" ind2=" ">
+            <marc:subfield code="t">New-Haven daily register</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="0" ind2="0">
+            <marc:subfield code="t">Columbian weekly register</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="830" ind1=" " ind2="0">
+            <marc:subfield code="a">Early American newspapers.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9115</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000039" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000039</marc:controlfield>
+         <marc:controlfield tag="005">20010524134558.0</marc:controlfield>
+         <marc:controlfield tag="007">hdrafa---baca</marc:controlfield>
+         <marc:controlfield tag="008">870828d17861789nyuuu nea     0uuu 0eng d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)CTYG87-S1492</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">CtY</marc:subfield>
+            <marc:subfield code="c">CtY</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="052" ind1=" " ind2=" ">
+            <marc:subfield code="a">3783</marc:subfield>
+            <marc:subfield code="b">N3</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="4">
+            <marc:subfield code="a">The New-Haven gazette and the Connecticut magazine</marc:subfield>
+            <marc:subfield code="h">[microform].</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="0" ind2="0">
+            <marc:subfield code="a">New Haven gazette and the Connecticut magazine</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="1" ind2="0">
+            <marc:subfield code="a">New Haven gazette and Connecticut magazine</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1="0" ind2="0">
+            <marc:subfield code="a">New Haven, Conn. :</marc:subfield>
+            <marc:subfield code="b">Meigs &amp; Dana,</marc:subfield>
+            <marc:subfield code="c">1786-1789.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">4 v. ;</marc:subfield>
+            <marc:subfield code="c">26 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Weekly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">Vol. 1, no. 1 (Feb. 16, 1786)-v. 4, no. 23 (June 18, 1789).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Published as: New Haven gazette and Connecticut magazine, 1789.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Publisher: J. Meigs, 1787-1789.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="515" ind1=" " ind2=" ">
+            <marc:subfield code="a">Not published Jan. 4, 1787.</marc:subfield>
+            <marc:subfield code="z">Cf. LC 18th cent. newspapers (1936 ed.).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="533" ind1=" " ind2=" ">
+            <marc:subfield code="a">Microfilm.</marc:subfield>
+            <marc:subfield code="b">New York :</marc:subfield>
+            <marc:subfield code="c">Readex Microprint Corp.,</marc:subfield>
+            <marc:subfield code="d">[19--</marc:subfield>
+            <marc:subfield code="e">1 microfilm reel ; 35 mm.</marc:subfield>
+            <marc:subfield code="f">(Early American newspapers)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="0" ind2="0">
+            <marc:subfield code="a">New-Haven gazette</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="830" ind1=" " ind2="0">
+            <marc:subfield code="a">Early American newspapers.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9114</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000040" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000040</marc:controlfield>
+         <marc:controlfield tag="005">20010524134408.0</marc:controlfield>
+         <marc:controlfield tag="007">hdrafa---baca</marc:controlfield>
+         <marc:controlfield tag="008">870826d17841786nyuuu nea     0uuu 0eng d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)CTYG87-S1486</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">CtY</marc:subfield>
+            <marc:subfield code="c">CtY</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="052" ind1=" " ind2=" ">
+            <marc:subfield code="a">3783</marc:subfield>
+            <marc:subfield code="b">N3</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="4">
+            <marc:subfield code="a">The New-Haven gazette</marc:subfield>
+            <marc:subfield code="h">[microform].</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="0" ind2="3">
+            <marc:subfield code="a">New Haven gazette</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1="0" ind2="0">
+            <marc:subfield code="a">New Haven, Conn. :</marc:subfield>
+            <marc:subfield code="b">Meigs, Bowen, and Dana,</marc:subfield>
+            <marc:subfield code="c">1784-1786.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">2 v. :</marc:subfield>
+            <marc:subfield code="b">ill ;</marc:subfield>
+            <marc:subfield code="c">42-48 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Weekly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">Vol. 1, no. 1 (May 13, 1784)-v. 2, no. 92 (Feb. 9, 1786).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Publisher: Meigs &amp; Dana, 1786.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="533" ind1=" " ind2=" ">
+            <marc:subfield code="a">Microfilm.</marc:subfield>
+            <marc:subfield code="b">New York :</marc:subfield>
+            <marc:subfield code="c">Readex Microprint Corp.,</marc:subfield>
+            <marc:subfield code="d">[19--]</marc:subfield>
+            <marc:subfield code="e">1 microfilm reel ; 35 mm.</marc:subfield>
+            <marc:subfield code="f">(Early American newspapers)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Reel for 1784-86 includes: New Haven chronicle.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="0" ind2="0">
+            <marc:subfield code="t">New-Haven gazette and the Connecticut magazine</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="830" ind1=" " ind2="0">
+            <marc:subfield code="a">Early American newspapers.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9914</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000043" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000043</marc:controlfield>
+         <marc:controlfield tag="005">20010524135109.0</marc:controlfield>
+         <marc:controlfield tag="008">000526s1999    ii abf   b    001 0 eng  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   99950076 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">8176461121</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="025" ind1=" " ind2=" ">
+            <marc:subfield code="a">I-E-99-950076; 68-21</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)CSUGA4491110-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="037" ind1=" " ind2=" ">
+            <marc:subfield code="b">Library of Congress -- New Delhi Field Office</marc:subfield>
+            <marc:subfield code="c">Rs500.00</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">lcode</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">a-ii---</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">DS432.G86</marc:subfield>
+            <marc:subfield code="b">1999</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Verma, V.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Ban-Gujars :</marc:subfield>
+            <marc:subfield code="b">a nomadic tribe in Himachal Pradesh /</marc:subfield>
+            <marc:subfield code="c">V. Verma.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Delhi :</marc:subfield>
+            <marc:subfield code="b">B.R. Pub. Corp.,</marc:subfield>
+            <marc:subfield code="c">2000.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">viii, 208 p., [8] p. of plates :</marc:subfield>
+            <marc:subfield code="b">ill., map ;</marc:subfield>
+            <marc:subfield code="c">23 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references (p. [201]-204) and index.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Gujars</marc:subfield>
+            <marc:subfield code="z">India</marc:subfield>
+            <marc:subfield code="z">Himachal Pradesh.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Nomads</marc:subfield>
+            <marc:subfield code="z">India</marc:subfield>
+            <marc:subfield code="z">Himachal Pradesh.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="651" ind1=" " ind2="0">
+            <marc:subfield code="a">Himachal Pradesh (India)</marc:subfield>
+            <marc:subfield code="x">Civilization.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9995</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000045" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000045</marc:controlfield>
+         <marc:controlfield tag="005">20070313123209.0</marc:controlfield>
+         <marc:controlfield tag="008">010524d19601964nyuar         0   a0eng d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)CTYG83-S403</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">CU</marc:subfield>
+            <marc:subfield code="c">CU</marc:subfield>
+            <marc:subfield code="d">CU</marc:subfield>
+            <marc:subfield code="d">MiU</marc:subfield>
+            <marc:subfield code="d">CtY</marc:subfield>
+            <marc:subfield code="d">PU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1=" " ind2="4">
+            <marc:subfield code="a">PN6071.S33</marc:subfield>
+            <marc:subfield code="b">Y42</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Annual of the year's best SF.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1="0" ind2=" ">
+            <marc:subfield code="a">New York :</marc:subfield>
+            <marc:subfield code="b">Simon and Schuster,</marc:subfield>
+            <marc:subfield code="c">1960-1964.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">5 v. ;</marc:subfield>
+            <marc:subfield code="c">17-22 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Annual</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">5th-9th.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Edited by Judith Merril.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Science fiction</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Merril, Judith,</marc:subfield>
+            <marc:subfield code="d">1923-1997.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="0" ind2="0">
+            <marc:subfield code="t">SF (New York, N.Y. : 1956)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="0" ind2="0">
+            <marc:subfield code="t">Year's best SF</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000050" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000050</marc:controlfield>
+         <marc:controlfield tag="005">20010524135734.0</marc:controlfield>
+         <marc:controlfield tag="008">000803s2000    nyu      b    001 0 eng  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   00061911 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">3540679537 (alk. paper)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)DCLC0061911-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">CStRLIN</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">QC611.95</marc:subfield>
+            <marc:subfield code="b">.H84 2000</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1="0" ind2="0">
+            <marc:subfield code="a">537.6/23</marc:subfield>
+            <marc:subfield code="2">21</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Huebener, R. P.</marc:subfield>
+            <marc:subfield code="q">(Rudolf Peter),</marc:subfield>
+            <marc:subfield code="d">1931-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Magnetic flux structures in superconductors :</marc:subfield>
+            <marc:subfield code="b">extended reprint of a classic text /</marc:subfield>
+            <marc:subfield code="c">R.P. Huebener.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">[2nd ed.].</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">New York :</marc:subfield>
+            <marc:subfield code="b">Springer,</marc:subfield>
+            <marc:subfield code="c">2000.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="263" ind1=" " ind2=" ">
+            <marc:subfield code="a">0011</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">p. cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="440" ind1=" " ind2="0">
+            <marc:subfield code="a">Springer series in solid-state sciences,</marc:subfield>
+            <marc:subfield code="x">0171-1873 ;</marc:subfield>
+            <marc:subfield code="v">6</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references and index.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Superconductors.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Magnetic flux.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9660</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000056" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000056</marc:controlfield>
+         <marc:controlfield tag="005">20010524140811.0</marc:controlfield>
+         <marc:controlfield tag="008">000712s2000    ii       b    000 0 maro </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   99957172 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="z">8172651046</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="025" ind1=" " ind2=" ">
+            <marc:subfield code="a">I-Mar-99-957172; 06; 12</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)DCLC99957172-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="037" ind1=" " ind2=" ">
+            <marc:subfield code="b">Library of Congress -- New Delhi Field Office</marc:subfield>
+            <marc:subfield code="c">Rs160.00</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">lcode</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">a-ii---</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">PN2885.M3</marc:subfield>
+            <marc:subfield code="b">M65 2000</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Mokāśī, Madhukara Gaṇeśa.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Dalita raṅgabhūmī āṇi nāṭya caḷavaḷa /</marc:subfield>
+            <marc:subfield code="c">Madhukara Mokāśī.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">Prathamāvr̥ttī.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Puṇe :</marc:subfield>
+            <marc:subfield code="b">Snehavardhana Pabliśiṅga Hāūsa,</marc:subfield>
+            <marc:subfield code="c">2000.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">238 p. ;</marc:subfield>
+            <marc:subfield code="c">23 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">In Marathi.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="520" ind1=" " ind2=" ">
+            <marc:subfield code="a">Study on Dalit theater and drama; with particular reference to Marathi.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references (p. 223-229).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Theater</marc:subfield>
+            <marc:subfield code="z">India</marc:subfield>
+            <marc:subfield code="z">Maharashtra.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Marathi drama</marc:subfield>
+            <marc:subfield code="y">20th century</marc:subfield>
+            <marc:subfield code="x">History and criticism.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Dalits in literature.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9110</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000060" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000060</marc:controlfield>
+         <marc:controlfield tag="005">20010524141523.0</marc:controlfield>
+         <marc:controlfield tag="008">910307s1985    ii            000 0 mal u</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   88900927 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="c">Rs25.00</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="025" ind1=" " ind2=" ">
+            <marc:subfield code="a">I Mal 5515</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)ILCGHZ1139103-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">CStRLIN</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="041" ind1="0" ind2=" ">
+            <marc:subfield code="a">mal</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2=" ">
+            <marc:subfield code="a">PN1997</marc:subfield>
+            <marc:subfield code="b">M814 1985</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Gopalakrishnan, Adoor,</marc:subfield>
+            <marc:subfield code="d">1941-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Mukhāmukhaṃ /</marc:subfield>
+            <marc:subfield code="c">Aṭūr Gōpālakr̥ṣṇan.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Kōṭṭayaṃ :</marc:subfield>
+            <marc:subfield code="b">Ḍi. Si. Buks :</marc:subfield>
+            <marc:subfield code="b">Distributors, Current Books,</marc:subfield>
+            <marc:subfield code="c">1985.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">xii, 132 p., [8] p. of plates :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">22 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Screenplay.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">In Malayalam.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">"Ēt̲t̲avuṃ mikacca tirakkathaykkuḷḷa dēśīya avārḍu labhicca kr̥ti"--Half t.p.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="630" ind1="0" ind2="0">
+            <marc:subfield code="a">Mukhāmukhaṃ (Motion picture)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9115</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000061" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000061</marc:controlfield>
+         <marc:controlfield tag="005">20060912143931.0</marc:controlfield>
+         <marc:controlfield tag="008">940509s1835    ru            000 0 mnc d</marc:controlfield>
+         <marc:datafield tag="041" ind1="1" ind2=" ">
+            <marc:subfield code="a">mnc</marc:subfield>
+            <marc:subfield code="h">grc</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1=" " ind2="4">
+            <marc:subfield code="a">BS315</marc:subfield>
+            <marc:subfield code="b">.M36 1835</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="130" ind1="0" ind2=" ">
+            <marc:subfield code="a">Bible.</marc:subfield>
+            <marc:subfield code="p">N.T.</marc:subfield>
+            <marc:subfield code="l">Manchu.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="4">
+            <marc:subfield code="a">[The New Testament /</marc:subfield>
+            <marc:subfield code="c">translated by S. Lipovtsov.]</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="1" ind2="0">
+            <marc:subfield code="a">Ejan eisos keristos ...</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">[St. Petersburg :</marc:subfield>
+            <marc:subfield code="b">British and Foreign Bible Society,</marc:subfield>
+            <marc:subfield code="c">1835]</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">8 v. ;</marc:subfield>
+            <marc:subfield code="c">27 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">In Manchu.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">In Uighur script.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="4">
+            <marc:subfield code="a">CHR 1835</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="4">
+            <marc:subfield code="a">PRO Evans, Thomas Wiltberger, 1823-1897 (donor)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Lipovtsov, S.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Evans Bible Collection (University of Pennsylvania)</marc:subfield>
+            <marc:subfield code="5">PU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000071" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000071</marc:controlfield>
+         <marc:controlfield tag="005">20071127095802.0</marc:controlfield>
+         <marc:controlfield tag="008">001130s2001    ilu      b    001 0 eng  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">00067646</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm45505938</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">JBO</marc:subfield>
+            <marc:subfield code="d">C#P</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0838935109 (alk. paper)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">n-us---</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">Z692.E43</marc:subfield>
+            <marc:subfield code="b">M36 2001</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1="0" ind2="0">
+            <marc:subfield code="a">025.17/4</marc:subfield>
+            <marc:subfield code="2">21</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Managing electronic serials :</marc:subfield>
+            <marc:subfield code="b">essays based on the ALCTS electronic serials institutes, 1997-1999 /</marc:subfield>
+            <marc:subfield code="c">Pamela Bluh, editor, for the Serials Section of the Association for Library Collections &amp; Technical Services.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Chicago :</marc:subfield>
+            <marc:subfield code="b">American Library Association,</marc:subfield>
+            <marc:subfield code="c">2001.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">xiii, 189 p. ;</marc:subfield>
+            <marc:subfield code="c">23 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="440" ind1=" " ind2="0">
+            <marc:subfield code="a">ALCTS papers on library technical services &amp; collections ;</marc:subfield>
+            <marc:subfield code="v">no. 9</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references (p. 165-173) and index.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Libraries</marc:subfield>
+            <marc:subfield code="z">United States</marc:subfield>
+            <marc:subfield code="x">Special collections</marc:subfield>
+            <marc:subfield code="x">Electronic journals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Bluh, Pamela M.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Association for Library Collections &amp; Technical Services.</marc:subfield>
+            <marc:subfield code="b">Serials Section.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">E0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000072" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000072</marc:controlfield>
+         <marc:controlfield tag="005">20010524143157.0</marc:controlfield>
+         <marc:controlfield tag="008">910307s1987    ii            000 0 mal u</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   88900860 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="c">Rs15.00</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="025" ind1=" " ind2=" ">
+            <marc:subfield code="a">I Mal 5505</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)ILCGHZ1139104-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">ICU</marc:subfield>
+            <marc:subfield code="d">CStRLIN</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="041" ind1="1" ind2=" ">
+            <marc:subfield code="a">malsan</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2=" ">
+            <marc:subfield code="a">BF1714.H5</marc:subfield>
+            <marc:subfield code="b">P693 1987</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="130" ind1="0" ind2=" ">
+            <marc:subfield code="a">Praśnamārga.</marc:subfield>
+            <marc:subfield code="l">Malayalam.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Praśnarīti /</marc:subfield>
+            <marc:subfield code="c">Ke. Nīlakanṭhanāśāri avarkaḷāl pariśōdhikkappeṭṭatȧ.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">8. patippu.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Kollaṃ :</marc:subfield>
+            <marc:subfield code="b">Es. T̲t̲i. R̲eḍyār,</marc:subfield>
+            <marc:subfield code="c">1987.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">ii, 103 p. ;</marc:subfield>
+            <marc:subfield code="c">23 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">In Malayalam.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Translation of: Praśnamārga.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="520" ind1=" " ind2=" ">
+            <marc:subfield code="a">Anonymous verse translation of an anonymous Sanskrit verse work on the Hindu approach to predictive astrology.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Hindu astrology</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Nīlakanṭhanāśāri, Ke.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9115</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000079" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000079</marc:controlfield>
+         <marc:controlfield tag="005">20010524143914.0</marc:controlfield>
+         <marc:controlfield tag="008">000207s1999    ii       b    001 0 malo </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   99947582 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">8171309615</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="025" ind1=" " ind2=" ">
+            <marc:subfield code="a">I-Mal-99-947582; 012</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)DCLC99947582-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="037" ind1=" " ind2=" ">
+            <marc:subfield code="b">Library of Congress -- New Delhi Field Office</marc:subfield>
+            <marc:subfield code="c">Rs90.00</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">CStRLIN</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">lcode</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">a-ii---</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">PL4718.4</marc:subfield>
+            <marc:subfield code="b">.R36 1999</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Rājaśēkharan, Pi. Ke.,</marc:subfield>
+            <marc:subfield code="d">1916-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Andhanāya daivaṃ :</marc:subfield>
+            <marc:subfield code="b">Malayāḷanōvalint̲e 100 varṣaṅṅaḷ : paṭhanaṃ /</marc:subfield>
+            <marc:subfield code="c">Pi. Ke. Rājaśēkharan.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Kottayam :</marc:subfield>
+            <marc:subfield code="b">Ḍi. Si. Buks :</marc:subfield>
+            <marc:subfield code="b">Distributors, Current Books,</marc:subfield>
+            <marc:subfield code="c">1999.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">256 p. ;</marc:subfield>
+            <marc:subfield code="c">22 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="440" ind1=" " ind2="0">
+            <marc:subfield code="a">Rajatajūbili granthāvali ;</marc:subfield>
+            <marc:subfield code="v">25</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">In Malayalam.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="520" ind1=" " ind2=" ">
+            <marc:subfield code="a">On the growth of Malayalam novel in the past 100 years.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references (p. 244-246) and index.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Malayalam fiction</marc:subfield>
+            <marc:subfield code="x">History and criticism.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9110</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000080" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000080</marc:controlfield>
+         <marc:controlfield tag="005">20010524144146.0</marc:controlfield>
+         <marc:controlfield tag="008">000313s1999||||ii |||| ||||||||| ||guj| </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   99955661 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="025" ind1=" " ind2=" ">
+            <marc:subfield code="a">I-Gu-99-955661; 010</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)DCLC99955661-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="037" ind1=" " ind2=" ">
+            <marc:subfield code="b">Library of Congress -- New Delhi Field Office</marc:subfield>
+            <marc:subfield code="c">Rs200.00</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">CStRLIN</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">lcode</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">MLCSA 2001/00598</marc:subfield>
+            <marc:subfield code="a">PK1859</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="090" ind1="0" ind2="0">
+            <marc:subfield code="a">PK1859.J67</marc:subfield>
+            <marc:subfield code="b">.M67 1999</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Jośī, Vinoda.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Morapiccha /</marc:subfield>
+            <marc:subfield code="c">Vinoda Jośī.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">1. āvr̥tti.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Amadāvāda :</marc:subfield>
+            <marc:subfield code="b">Pārśva Pablikeśana,</marc:subfield>
+            <marc:subfield code="c">1999.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">361 p. ;</marc:subfield>
+            <marc:subfield code="c">22 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Novel.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">In Gujarati.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9550</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000081" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000081</marc:controlfield>
+         <marc:controlfield tag="005">20010524144241.0</marc:controlfield>
+         <marc:controlfield tag="008">010524 2000    xx                  eng  </marc:controlfield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Readings</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000084" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000084</marc:controlfield>
+         <marc:controlfield tag="005">20010524144739.0</marc:controlfield>
+         <marc:controlfield tag="008">010327s1999    ii       b    000 0 tam  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   99946831 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="025" ind1=" " ind2=" ">
+            <marc:subfield code="a">I-T-99-946831; 012</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CU)GLAD51036550</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)CUBGGLAD51036550-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="037" ind1=" " ind2=" ">
+            <marc:subfield code="a"/>
+            <marc:subfield code="b">Library of Congress -- New Delhi Field Office</marc:subfield>
+            <marc:subfield code="c">Rs30.00</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">CU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">lcode</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">PL4758.9.K27 (XL:.xZ5-999)+</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Ar̲ivunampi, A.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Kampar kāṭṭum Maḷḷar māṇpu /</marc:subfield>
+            <marc:subfield code="c">A. Ar̲ivunampi.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">1. patippu.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Kōyamuttūr :</marc:subfield>
+            <marc:subfield code="b">Tamil̲ar Paṇpāṭu Camūka Āyvu Man̲r̲am,</marc:subfield>
+            <marc:subfield code="c">1999.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">104 p. ;</marc:subfield>
+            <marc:subfield code="c">23 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="520" ind1=" " ind2=" ">
+            <marc:subfield code="a">Study of the tradition of Pallars, a caste in Tamil Nadu, from the works of Kampar, 9th century Tamil poet.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">In Tamil.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="600" ind1="0" ind2="0">
+            <marc:subfield code="a">Kampar,</marc:subfield>
+            <marc:subfield code="d">9th cent.</marc:subfield>
+            <marc:subfield code="x">Views on Pallars.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Pallars in literature.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Tamil̲ar Paṇpāṭu Camūka Āyvu Man̲r̲am.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9115</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="a">PL4758.9.K27</marc:subfield>
+            <marc:subfield code="b">Z585 1999</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000088" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000088</marc:controlfield>
+         <marc:controlfield tag="005">20010524145454.0</marc:controlfield>
+         <marc:controlfield tag="008">000228s1999||||ii |||| ||||||||| ||guj| </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   99955675 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="025" ind1=" " ind2=" ">
+            <marc:subfield code="a">I-Gu-99-955675; 010</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)DCLC99955675-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="037" ind1=" " ind2=" ">
+            <marc:subfield code="b">Library of Congress -- New Delhi Field Office</marc:subfield>
+            <marc:subfield code="c">Rs150.00</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">CStRLIN</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">lcode</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">MLCSA 2001/00583</marc:subfield>
+            <marc:subfield code="a">PK1859</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="090" ind1="0" ind2="0">
+            <marc:subfield code="a">PK1859.Y35</marc:subfield>
+            <marc:subfield code="b">.Y84 1999</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Yājñika, Hasu.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Yugasandhi /</marc:subfield>
+            <marc:subfield code="c">Hasu Yājñika.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">1. āvr̥tti.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Amadāvāda :</marc:subfield>
+            <marc:subfield code="b">Gūrjara Grantharatna Kāryālaya,</marc:subfield>
+            <marc:subfield code="c">1999.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">6, 400 p. ;</marc:subfield>
+            <marc:subfield code="c">19 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Novel.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">In Gujarati.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9550</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000090" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000090</marc:controlfield>
+         <marc:controlfield tag="005">20071127095803.0</marc:controlfield>
+         <marc:controlfield tag="008">851204s1990    ncua     b    000 0 eng d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm27941217</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">CGU</marc:subfield>
+            <marc:subfield code="c">CGU</marc:subfield>
+            <marc:subfield code="d">PU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="z">0898920493</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="090" ind1=" " ind2=" ">
+            <marc:subfield code="a">GN60</marc:subfield>
+            <marc:subfield code="b">.W654 1990</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Wolfe, Linda D.,</marc:subfield>
+            <marc:subfield code="d">1942-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Physical anthropology :</marc:subfield>
+            <marc:subfield code="b">laboratory textbook /</marc:subfield>
+            <marc:subfield code="c">Linda D. Wolfe, Leslie Sue Lieberman.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">3rd ed.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Raleigh, N.C. :</marc:subfield>
+            <marc:subfield code="b">Contemporary Publishing,</marc:subfield>
+            <marc:subfield code="c">c1990.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">1 v. (various pagings) :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">28 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">"Combination textbook and workbook for laboratory classes in biological anthropology"--Preface.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Physical anthropology</marc:subfield>
+            <marc:subfield code="x">Laboratory manuals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Lieberman, Leslie Sue.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="740" ind1="0" ind2="2">
+            <marc:subfield code="a">Laboratory textbook, physical anthropology.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">E0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000091" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000091</marc:controlfield>
+         <marc:controlfield tag="005">20010601145643.0</marc:controlfield>
+         <marc:controlfield tag="008">910827s1992    txuab    b    000 0 eng  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   91000211 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0030550572</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)CUBGGLAD167779091-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">CU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">n-mx---</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">F1221.Z3</marc:subfield>
+            <marc:subfield code="b">C46 1992</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1="0" ind2="0">
+            <marc:subfield code="a">306/.089976</marc:subfield>
+            <marc:subfield code="2">20</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Chiñas, Beverly.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="4">
+            <marc:subfield code="a">The Isthmus Zapotecs :</marc:subfield>
+            <marc:subfield code="b">a matrifocal culture of Mexico /</marc:subfield>
+            <marc:subfield code="c">Beverly Newbold Chiñas.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">2nd ed.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Fort Worth :</marc:subfield>
+            <marc:subfield code="b">Harcourt Brace Jovanovich College Publishers,</marc:subfield>
+            <marc:subfield code="c">c1992.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">xxvi, 133 p. :</marc:subfield>
+            <marc:subfield code="b">ill., map ;</marc:subfield>
+            <marc:subfield code="c">24 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="490" ind1="1" ind2=" ">
+            <marc:subfield code="a">Case studies in cultural anthropology</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references (p. 129-133).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Zapotec Indians</marc:subfield>
+            <marc:subfield code="x">Social life and customs.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Zapotec women.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Sex role</marc:subfield>
+            <marc:subfield code="z">Mexico</marc:subfield>
+            <marc:subfield code="z">Tehuantepec, Isthmus of.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="752" ind1=" " ind2=" ">
+            <marc:subfield code="a">United States</marc:subfield>
+            <marc:subfield code="b">Texas</marc:subfield>
+            <marc:subfield code="d">Fort Worth</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="830" ind1=" " ind2="0">
+            <marc:subfield code="a">Case studies in cultural anthropology.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9115</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="a">F1221.Z3</marc:subfield>
+            <marc:subfield code="b">C46 1992</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000094" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:controlfield tag="001">3000094</marc:controlfield>
+         <marc:controlfield tag="005">20010601142457.0</marc:controlfield>
+         <marc:controlfield tag="008">930923s1994    njua     b    000 0 eng d</marc:controlfield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0130148466</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)NYCGAKU9277-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">NED</marc:subfield>
+            <marc:subfield code="c">NED</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Patterson, Thomas Carl.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="4">
+            <marc:subfield code="a">The theory and practice of archaeology :</marc:subfield>
+            <marc:subfield code="b">a workbook /</marc:subfield>
+            <marc:subfield code="c">Thomas C. Patterson.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">2nd ed.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Englewood Cliffs, N.J. :</marc:subfield>
+            <marc:subfield code="b">Prentice-Hall,</marc:subfield>
+            <marc:subfield code="c">c1994.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">xvii, 140 p. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">24 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Archaeology</marc:subfield>
+            <marc:subfield code="x">Methodology.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9115</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="a">CC76</marc:subfield>
+            <marc:subfield code="b">.P37 1994g</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="a">CC76</marc:subfield>
+            <marc:subfield code="b">.P37 1994g</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+</integ:root>

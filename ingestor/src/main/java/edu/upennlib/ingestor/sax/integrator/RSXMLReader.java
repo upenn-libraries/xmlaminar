@@ -104,13 +104,13 @@ public class RSXMLReader extends SQLXMLReader {
         instance.setSid(sid);
         instance.setUser(user);
         instance.setPwd(pwd);
-        instance.setSql(sqlItemStatus);
-        instance.setIdFieldLabels(itemStatusIdFields);
+        instance.setSql(sqlMfhd);
+        instance.setIdFieldLabels(mfhdIdFields);
 
         SAXTransformerFactory stf = (SAXTransformerFactory)TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
         Transformer t = stf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
-        t.transform(new SAXSource(instance, new InputSource()), new StreamResult("/tmp/item_status.xml"));
+        t.transform(new SAXSource(instance, new InputSource()), new StreamResult("/tmp/mfhd.xml"));
     }
 
 }

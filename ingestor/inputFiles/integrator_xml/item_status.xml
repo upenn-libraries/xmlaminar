@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<integ:root xmlns:integ="http://integrator">
+   <integ:BIB_ID id="3000001">
+      <integ:MFHD_ID id="3194109">
+         <integ:ITEM_ID id="2571751">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000006">
+      <integ:MFHD_ID id="3194112">
+         <integ:ITEM_ID id="2601533">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000013">
+      <integ:MFHD_ID id="3194116">
+         <integ:ITEM_ID id="2566993">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000015">
+      <integ:MFHD_ID id="3194117">
+         <integ:ITEM_ID id="2571990">
+            <integ:STATUS_ID id="3" self="true">
+               <STATUS_ID>3</STATUS_ID>
+               <STATUS>Renewed</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="2571993">
+            <integ:STATUS_ID id="3" self="true">
+               <STATUS_ID>3</STATUS_ID>
+               <STATUS>Renewed</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000022">
+      <integ:MFHD_ID id="3194119">
+         <integ:ITEM_ID id="2567111">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000023">
+      <integ:MFHD_ID id="3194120">
+         <integ:ITEM_ID id="2589662">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000024">
+      <integ:MFHD_ID id="3194121">
+         <integ:ITEM_ID id="2567000">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000025">
+      <integ:MFHD_ID id="3194122">
+         <integ:ITEM_ID id="2601327">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000032">
+      <integ:MFHD_ID id="3194126">
+         <integ:ITEM_ID id="2563084">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000033">
+      <integ:MFHD_ID id="3194127">
+         <integ:ITEM_ID id="2563085">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000043">
+      <integ:MFHD_ID id="3194136">
+         <integ:ITEM_ID id="2563097">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000045">
+      <integ:MFHD_ID id="3202314">
+         <integ:ITEM_ID id="2621436">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000050">
+      <integ:MFHD_ID id="3194138">
+         <integ:ITEM_ID id="2577041">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000056">
+      <integ:MFHD_ID id="3194142">
+         <integ:ITEM_ID id="2563121">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000060">
+      <integ:MFHD_ID id="3194147">
+         <integ:ITEM_ID id="2563129">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000071">
+      <integ:MFHD_ID id="3194156">
+         <integ:ITEM_ID id="2563167">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000072">
+      <integ:MFHD_ID id="3194154">
+         <integ:ITEM_ID id="2563163">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000079">
+      <integ:MFHD_ID id="3194159">
+         <integ:ITEM_ID id="2563176">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000080">
+      <integ:MFHD_ID id="3194161">
+         <integ:ITEM_ID id="2563181">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000081">
+      <integ:MFHD_ID id="3194162">
+         <integ:ITEM_ID id="2563183">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000084">
+      <integ:MFHD_ID id="3194163">
+         <integ:ITEM_ID id="2563191">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000088">
+      <integ:MFHD_ID id="3194165">
+         <integ:ITEM_ID id="2563215">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000090">
+      <integ:MFHD_ID id="3194167">
+         <integ:ITEM_ID id="2599212">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000091">
+      <integ:MFHD_ID id="3194168">
+         <integ:ITEM_ID id="2567103">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="3000094">
+      <integ:MFHD_ID id="3194169">
+         <integ:ITEM_ID id="2567025">
+            <integ:STATUS_ID id="1" self="true">
+               <STATUS_ID>1</STATUS_ID>
+               <STATUS>Not Charged</STATUS>
+            </integ:STATUS_ID>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+</integ:root>

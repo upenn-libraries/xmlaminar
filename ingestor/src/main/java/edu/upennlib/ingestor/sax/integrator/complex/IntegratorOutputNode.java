@@ -61,15 +61,21 @@ public class IntegratorOutputNode implements Runnable {
             }
             while (true) {
                 blockUntilAtRest();
+                logger.trace("point 1");
                 if (childrenReadyToWrite()) {
+                    logger.trace("point 2");
                     try {
                         writeChildOutputToPayload();
                     } catch (SAXException ex) {
                         throw new RuntimeException(ex);
                     }
+                    logger.trace("point 3");
                 } else {
+                    logger.trace("point 4");
                     Comparable nextId = getLeastId();
+                    logger.trace("point 5 "+nextId);
                     prepare(nextId);
+                    logger.trace("point 6");
                 }
             }
         }
@@ -133,10 +139,11 @@ public class IntegratorOutputNode implements Runnable {
         } else {
             if (state == State.POTENTIALLY_WRITABLE) {
                 Comparable localId = getId();
-                if (localId != null && id.compareTo(localId) != 0) {
+                if (id != null && localId != null && id.compareTo(localId) != 0) {
                     logger.trace("setting NOT_WRITABLE; id="+id+", localId="+localId);
                     state = State.NOT_WRITABLE;
                 } else if (self()) {
+                    logger.trace("setting WRITABLE");
                     state = State.WRITABLE;
                 }
             }
@@ -144,16 +151,29 @@ public class IntegratorOutputNode implements Runnable {
         switch (state) {
             case POTENTIALLY_WRITABLE:
                 payload.setState(StatefulXMLFilter.State.STEP);
-                synchronized(payload) {
+                synchronized (payload) {
+                    logger.trace("1 notifying " + payload);
                     payload.notify();
+                    try {
+                        payload.wait();
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
+                break;
             case WRITABLE:
                 payload.setState(StatefulXMLFilter.State.PLAY);
                 break;
             case NOT_WRITABLE:
                 payload.setState(StatefulXMLFilter.State.SKIP);
                 synchronized(payload) {
+                    logger.trace("1 notifying "+payload);
                     payload.notify();
+                    try {
+                        payload.wait();
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
         }
     }
@@ -187,9 +207,9 @@ public class IntegratorOutputNode implements Runnable {
     private void writeChildOutputToPayload() throws SAXException {
         for (Entry<String, IntegratorOutputNode> e : children.entrySet()) {
             if (xxxChildWritable) {
-                payload.startElement("uri", e.getKey(), "qName", attRunner);
+                payload.startElement("", e.getKey(), e.getKey(), attRunner);
                 e.getValue().writeOutput(payload);
-                payload.endElement("uri", e.getKey(), "qName");
+                payload.endElement("", e.getKey(), e.getKey());
             }
         }
     }

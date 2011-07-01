@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -51,7 +52,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
     private boolean selfId = false;
     private LinkedList<Comparable> id = new LinkedList<Comparable>();
 
-    private boolean writable = false;
     private InputSource inputSource = new InputSource();
 
     protected Logger logger = Logger.getLogger(getClass());
@@ -83,8 +83,12 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
     public void blockUntilAtRest() {
         while (state != State.WAIT) {
             synchronized(this) {
+                logger.trace("3 notifying "+this);
+                notify();
                 try {
+                    logger.trace("3 waiting on "+this);
                     wait();
+                    logger.trace("3 finished waiting on "+this);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -104,13 +108,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
             throw new IllegalStateException();
         }
         return level;
-    }
-
-    public void updateState(boolean writable) {
-        if (state != State.WAIT) {
-            throw new IllegalStateException();
-        }
-        this.writable = writable;
     }
 
     private String getStackTrace() {
@@ -157,10 +154,10 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
             case WAIT:
                 throw new IllegalStateException();
             case SKIP:
-                logger.trace("startElement("+uri+", "+localName+", "+qName+", "+attsToString(atts)+") SKIP");
+                //logger.trace("startElement("+uri+", "+localName+", "+qName+", "+attsToString(atts)+") SKIP");
                 break;
             case PLAY:
-                logger.trace("startElement("+uri+", "+localName+", "+qName+", "+attsToString(atts)+") PLAY");
+                //logger.trace("startElement("+uri+", "+localName+", "+qName+", "+attsToString(atts)+") PLAY");
                 super.startElement(uri, localName, qName, atts);
                 return;
             case STEP:
@@ -173,6 +170,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
                         throw new IllegalStateException("idString=="+idString+" for " + uri + ", " + localName + ", " + qName + ", " + attsToString(atts));
                     } else {
                         Comparable localId = new IdUpenn(localName, idString);
+                        logger.trace("id="+localId);
                         id.push(localId);
                     }
                     if ("true".equals(atts.getValue("self"))) {
@@ -181,12 +179,14 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
                 }
                 state = State.WAIT;
                 while (state == State.WAIT) {
-                    writable = false;
                     synchronized (this) {
                         updated = true;
+                        logger.trace("1 notifying "+this);
                         notify();
                         try {
+                            logger.trace("1 waiting on "+this);
                             wait();
+                            logger.trace("1 finished waiting on "+this);
                         } catch (InterruptedException ex) {
                             throw new RuntimeException(ex);
                         }
@@ -209,19 +209,24 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
             case WAIT:
                 throw new IllegalStateException();
             case SKIP:
-                logger.trace("endElement("+uri+", "+localName+", "+qName+") SKIP");
+                //logger.trace("endElement("+uri+", "+localName+", "+qName+") SKIP");
                 if (level == refLevel) {
                     state = State.STEP;
                 }
             case STEP:
                 logger.trace("endElement("+uri+", "+localName+", "+qName+") STEP");
-                id.pop();
+                if (!uri.equals(INTEGRATOR_URI)) {
+                    throw new IllegalStateException();
+                }
+                if (!localName.equals("root")) {
+                    id.pop();
+                }
                 if (selfId) {
                     selfId = false;
                     break;
                 }
             case PLAY:
-                logger.trace("endElement("+uri+", "+localName+", "+qName+") PLAY");
+                //logger.trace("endElement("+uri+", "+localName+", "+qName+") PLAY");
                 if (level == refLevel) {
                     state = State.STEP;
                 }
@@ -233,12 +238,15 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
     public void writeOutput(ContentHandler ch) {
         setContentHandler(ch);
         if (state != State.PLAY) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("expected state PLAY, found: "+state);
         }
         synchronized(this) {
+            logger.trace("2 notifying "+this);
             notify();
             try {
+                logger.trace("2 waiting on "+this);
                 wait();
+                logger.trace("2 finished waiting on "+this);
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
