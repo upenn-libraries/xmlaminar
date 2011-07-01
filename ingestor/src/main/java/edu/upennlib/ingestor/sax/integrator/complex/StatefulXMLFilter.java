@@ -22,11 +22,13 @@
 package edu.upennlib.ingestor.sax.integrator.complex;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.LinkedList;
-import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.TTCCLayout;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -50,11 +52,23 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
     private LinkedList<Comparable> id = new LinkedList<Comparable>();
 
     private boolean writable = false;
+    private InputSource inputSource = new InputSource();
+
+    protected Logger logger = Logger.getLogger(getClass());
+
+    public StatefulXMLFilter() {
+        logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
+        logger.setLevel(Level.TRACE);
+    }
+
+    public void setInputSource(InputSource inputSource) {
+        this.inputSource = inputSource;
+    }
 
     @Override
     public void run() {
         try {
-            parse(new InputSource());
+            parse(inputSource);
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         } catch (IOException ex) {
@@ -99,27 +113,15 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         this.writable = writable;
     }
 
-    public void finishedUpdatingState() {
-        if (state != State.WAIT) {
-            throw new IllegalStateException();
-        }
-        if (writable) {
-            if (selfId) {
-                state = State.PLAY;
-            } else {
-                state = State.STEP;
-            }
-        } else {
-            state = State.SKIP;
-        }
-        synchronized(this) {
-            notify();
-            try {
-                wait();
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
+    private String getStackTrace() {
+        StringWriter sw = new StringWriter();
+        new RuntimeException().printStackTrace(new PrintWriter(sw, true));
+        return sw.toString();
+    }
+
+    public void setState(State state) {
+        logger.trace("setting state="+state);
+        this.state = state;
     }
 
     public Comparable getParentId() {
@@ -140,6 +142,14 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         return id.peek();
     }
 
+    private static String attsToString(Attributes atts) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < atts.getLength(); i++) {
+            sb.append(atts.getQName(i)).append("=\"").append(atts.getValue(i)).append("\", ");
+        }
+        return sb.toString();
+    }
+
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         level++;
@@ -147,20 +157,27 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
             case WAIT:
                 throw new IllegalStateException();
             case SKIP:
+                logger.trace("startElement("+uri+", "+localName+", "+qName+", "+attsToString(atts)+") SKIP");
                 break;
             case PLAY:
+                logger.trace("startElement("+uri+", "+localName+", "+qName+", "+attsToString(atts)+") PLAY");
                 super.startElement(uri, localName, qName, atts);
                 return;
             case STEP:
-                String idString = atts.getValue("id");
-                if (idString == null) {
-                    throw new IllegalStateException("null id for " + uri + ", " + localName + ", " + qName);
-                } else {
-                    Comparable localId = new IdUpenn(localName, idString);
-                    id.push(localId);
-                }
-                if ("true".equals(atts.getValue("self"))) {
-                    selfId = true;
+                logger.trace("startElement("+uri+", "+localName+", "+qName+", "+attsToString(atts)+") STEP");
+                if (!uri.equals(INTEGRATOR_URI)) {
+                    throw new IllegalStateException();
+                } else if (level > 0) {
+                    String idString = atts.getValue("id");
+                    if (idString == null) {
+                        throw new IllegalStateException("idString=="+idString+" for " + uri + ", " + localName + ", " + qName + ", " + attsToString(atts));
+                    } else {
+                        Comparable localId = new IdUpenn(localName, idString);
+                        id.push(localId);
+                    }
+                    if ("true".equals(atts.getValue("self"))) {
+                        selfId = true;
+                    }
                 }
                 state = State.WAIT;
                 while (state == State.WAIT) {
@@ -176,7 +193,12 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
                     }
                 }
                 if (state == State.PLAY || state == State.SKIP) {
-                    refLevel = level;
+                    refLevel = level + 1;
+                }
+                if (state == State.PLAY || state == State.STEP) {
+                    if (state != State.PLAY || refLevel != level + 1) {
+                        super.startElement(uri, localName, qName, atts);
+                    }
                 }
         }
     }
@@ -186,16 +208,24 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         switch (state) {
             case WAIT:
                 throw new IllegalStateException();
-            case STEP:
-                selfId = false;
-                id.pop();
-                break;
-            case PLAY:
-                super.endElement(uri, localName, qName);
             case SKIP:
+                logger.trace("endElement("+uri+", "+localName+", "+qName+") SKIP");
                 if (level == refLevel) {
                     state = State.STEP;
                 }
+            case STEP:
+                logger.trace("endElement("+uri+", "+localName+", "+qName+") STEP");
+                id.pop();
+                if (selfId) {
+                    selfId = false;
+                    break;
+                }
+            case PLAY:
+                logger.trace("endElement("+uri+", "+localName+", "+qName+") PLAY");
+                if (level == refLevel) {
+                    state = State.STEP;
+                }
+                super.endElement(uri, localName, qName);
         }
         level--;
     }

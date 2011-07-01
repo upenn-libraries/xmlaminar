@@ -131,7 +131,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     private static String sql = "SELECT DISTINCT BIB_DATA.BIB_ID, BIB_DATA.SEQNUM, BIB_DATA.RECORD_SEGMENT "
             + "FROM PENNDB.BIB_DATA, BIB_MASTER "
             + "WHERE BIB_DATA.BIB_ID = BIB_MASTER.BIB_ID AND  BIB_MASTER.SUPPRESS_IN_OPAC = 'N' "
-            //+ "AND BIB_DATA.BIB_ID > 0 AND BIB_DATA.BIB_ID < 100000 "
+            + "AND BIB_DATA.BIB_ID > 3000000 AND BIB_DATA.BIB_ID < 3000100 "
             + "ORDER BY BIB_ID, SEQNUM";
 
     public static void main(String args[]) throws ConnectionException, SQLException, FileNotFoundException, IOException, SAXException, TransformerConfigurationException, TransformerException, ParserConfigurationException {
@@ -152,7 +152,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         SAXTransformerFactory stf = (SAXTransformerFactory)TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
         Transformer t = stf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("/tmp/db_out.xml"));
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("/tmp/marc.xml"));
         long start = System.currentTimeMillis();
         t.transform(new SAXSource(instance, new InputSource()), new StreamResult(bos));
         System.out.println("duration: "+(System.currentTimeMillis() - start));

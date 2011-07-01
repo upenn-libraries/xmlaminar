@@ -21,6 +21,7 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
+import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -322,17 +323,31 @@ public abstract class SQLXMLReader implements XMLReader {
     private String idAttLocalName = "id";
     private String idAttQName = integratorPrefix+":"+idAttLocalName;
 
-
+    private BufferingXMLFilter endElementBuffer = new BufferingXMLFilter();
     private void writeStructuralEvents() throws SQLException, SAXException {
         for (int i = 0; i < currentId.length ; i++) {
             lastId[i] = currentId[i];
             currentId[i] = rs.getLong(idFieldLabels[i]);
         }
         int i = idFieldDepth + 1;
-        while (--i > -1 && currentId[i] != lastId[i]) {
-            ch.endElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i]);
-            idFieldDepth--;
+        int decreasedFieldDepthLimit = idFieldDepth;
+        endElementBuffer.clear();
+        boolean endElementBufferEmpty = true;
+        while (--i > -1) {
+            if (currentId[i] != lastId[i]) {
+                if (!endElementBufferEmpty) {
+                    idFieldDepth += endElementBuffer.flush(ch);
+                    endElementBufferEmpty = true;
+                }
+                ch.endElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i]);
+                idFieldDepth--;
+                decreasedFieldDepthLimit = i - 1;
+            } else {
+                endElementBuffer.endElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i]);
+                endElementBufferEmpty = false;
+            }
         }
+        i = decreasedFieldDepthLimit;
         while (++i < currentId.length) {
             attRunner.clear();
             attRunner.addAttribute(INTEGRATOR_URI, idAttLocalName, idAttQName, "CDATA", Long.toString(currentId[i]));

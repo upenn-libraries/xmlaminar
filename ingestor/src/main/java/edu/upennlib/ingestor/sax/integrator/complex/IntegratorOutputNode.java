@@ -24,8 +24,11 @@ package edu.upennlib.ingestor.sax.integrator.complex;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.TTCCLayout;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -38,9 +41,11 @@ public class IntegratorOutputNode implements Runnable {
 
     private final StatefulXMLFilter payload;
     private final boolean aggregateNode;
-    private HashMap<String, IntegratorOutputNode> children;
+    private HashMap<String, IntegratorOutputNode> children = new HashMap<String, IntegratorOutputNode>();
     public static enum State {POTENTIALLY_WRITABLE, WRITABLE, NOT_WRITABLE}
     private State state = State.POTENTIALLY_WRITABLE;
+
+    protected Logger logger = Logger.getLogger(getClass());
 
     @Override
     public void run() {
@@ -62,10 +67,10 @@ public class IntegratorOutputNode implements Runnable {
                     } catch (SAXException ex) {
                         throw new RuntimeException(ex);
                     }
+                } else {
+                    Comparable nextId = getLeastId();
+                    prepare(nextId);
                 }
-                Comparable nextId = getLeastId();
-                prepare(nextId);
-                //wakeThreads
             }
         }
     }
@@ -81,6 +86,9 @@ public class IntegratorOutputNode implements Runnable {
     }
 
     public IntegratorOutputNode(StatefulXMLFilter payload) {
+        Appender appender = new ConsoleAppender(new TTCCLayout(), "System.out");
+        logger.addAppender(appender);
+        logger.setLevel(Level.TRACE);
         if (payload != null) {
             aggregateNode = false;
             this.payload = payload;
@@ -92,12 +100,6 @@ public class IntegratorOutputNode implements Runnable {
 
     public boolean isAggregateNode() {
         return aggregateNode;
-    }
-
-    public void updatePayloadState() {
-        if (payload != null) {
-            payload.updateState(state == State.POTENTIALLY_WRITABLE || state == State.WRITABLE);
-        }
     }
 
     public void resetState() {
@@ -131,7 +133,8 @@ public class IntegratorOutputNode implements Runnable {
         } else {
             if (state == State.POTENTIALLY_WRITABLE) {
                 Comparable localId = getId();
-                if (localId == null || id.compareTo(localId) != 0) {
+                if (localId != null && id.compareTo(localId) != 0) {
+                    logger.trace("setting NOT_WRITABLE; id="+id+", localId="+localId);
                     state = State.NOT_WRITABLE;
                 } else if (self()) {
                     state = State.WRITABLE;
@@ -140,8 +143,18 @@ public class IntegratorOutputNode implements Runnable {
         }
         switch (state) {
             case POTENTIALLY_WRITABLE:
-                updatePayloadState();
+                payload.setState(StatefulXMLFilter.State.STEP);
+                synchronized(payload) {
+                    payload.notify();
+                }
             case WRITABLE:
+                payload.setState(StatefulXMLFilter.State.PLAY);
+                break;
+            case NOT_WRITABLE:
+                payload.setState(StatefulXMLFilter.State.SKIP);
+                synchronized(payload) {
+                    payload.notify();
+                }
         }
     }
 
@@ -168,7 +181,7 @@ public class IntegratorOutputNode implements Runnable {
         return true;
     }
 
-    boolean xxxChildWritable;
+    boolean xxxChildWritable = true;
 
     private AttributesImpl attRunner = new AttributesImpl();
     private void writeChildOutputToPayload() throws SAXException {
@@ -189,9 +202,9 @@ public class IntegratorOutputNode implements Runnable {
         return payload.getId();
     }
 
-    public Comparable getLeastId() {
+    private Comparable getLeastId() {
         if (!isAggregateNode()) {
-            return getId();
+            throw new IllegalStateException();
         } else {
             Comparable id = null;
             for (IntegratorOutputNode ion : children.values()) {
@@ -211,4 +224,7 @@ public class IntegratorOutputNode implements Runnable {
         return payload.getParentId();
     }
 
+    public void addChild(String childElementName, IntegratorOutputNode child) {
+        children.put(childElementName, child);
+    }
 }

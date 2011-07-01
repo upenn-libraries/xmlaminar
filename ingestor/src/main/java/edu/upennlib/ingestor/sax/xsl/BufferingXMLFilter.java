@@ -214,11 +214,11 @@ public class BufferingXMLFilter extends MyXFI {
         return replayableLocal(ch, true, true);
     }
 
-    public void flush(ContentHandler ch) throws SAXException {
+    public int flush(ContentHandler ch) throws SAXException {
         if (eventPlayer != null) {
             throw new IllegalStateException();
         }
-        playLocal(ch, true, true);
+        return playLocal(ch, true, true);
     }
 
     public int playMostRecentStructurallyInsignificant(ContentHandler ch) throws SAXException {
@@ -234,8 +234,9 @@ public class BufferingXMLFilter extends MyXFI {
         return level;
     }
 
-    private void playLocal(ContentHandler ch, boolean writeStructural, boolean writeNonStructural) throws SAXException {
+    private int playLocal(ContentHandler ch, boolean writeStructural, boolean writeNonStructural) throws SAXException {
         Object[] next = null;
+        int level = 0;
         synchronized (eventQueue) {
             if (eventQueue[0] != null && !eventQueue[0].isEmpty()) {
                 next = (Object[]) eventQueue[0].remove();
@@ -244,7 +245,7 @@ public class BufferingXMLFilter extends MyXFI {
         }
         while (next != null) {
             //System.out.println("on:"+ch+", "+Arrays.asList(next));
-            executor.executeSaxEvent(ch, next, writeStructural, writeNonStructural);
+            level += executor.executeSaxEvent(ch, next, writeStructural, writeNonStructural);
             synchronized (eventQueue) {
                 if (queueSize != 0) {
                     next = (Object[]) eventQueue[0].remove();
@@ -257,6 +258,7 @@ public class BufferingXMLFilter extends MyXFI {
                 }
             }
         }
+        return level;
     }
 
     private int replayableLocal(ContentHandler ch, boolean writeStructural, boolean writeNonStructural) throws SAXException {

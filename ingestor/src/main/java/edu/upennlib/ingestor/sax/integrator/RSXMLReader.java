@@ -73,12 +73,27 @@ public class RSXMLReader extends SQLXMLReader {
     private static String sid = "[sid]";
     private static String user = "[username]";
     private static String pwd = "[password]";
-    private static String sql = "SELECT BM.BIB_ID, MI.MFHD_ID, I.ITEM_ID, MI.ITEM_ENUM, I.CREATE_DATE AS ITEM_CREATE_DATE, I.HOLDS_PLACED AS NUM_HOLDS, "
+    private static String sqlItem = "SELECT BM.BIB_ID, MI.MFHD_ID, I.ITEM_ID, MI.ITEM_ENUM, I.CREATE_DATE AS ITEM_CREATE_DATE, I.HOLDS_PLACED AS NUM_HOLDS, "
             + "L.LOCATION_NAME AS TEMP_LOCATION_DISP, L.LOCATION_DISPLAY_NAME AS TEMP_LOCATION "
             + "FROM BIB_MFHD BM, MFHD_ITEM MI, ITEM I LEFT OUTER JOIN LOCATION L ON I.TEMP_LOCATION = L.LOCATION_ID "
             + "WHERE BM.MFHD_ID = MI.MFHD_ID AND MI.ITEM_ID = I.ITEM_ID "
-            + "AND BIB_ID > 3000000 AND BIB_ID < 3010000 "
+            + "AND BIB_ID > 3000000 AND BIB_ID < 3000100 "
             + "ORDER BY BIB_ID, MFHD_ID, ITEM_ID";
+    private static String[] itemIdFields = {"BIB_ID", "MFHD_ID", "ITEM_ID"};
+    private static String sqlMfhd = "SELECT BM.BIB_ID, MM.MFHD_ID, MM.DISPLAY_CALL_NO, MM.NORMALIZED_CALL_NO, MM.CREATE_DATE AS HOLD_CREATE_DATE, MAX(ACTION_DATE) AS LAST_HOLD_UPDATE, CALL_NO_TYPE, "
+            + "L.LOCATION_NAME AS PERM_LOCATION_DISP, L.LOCATION_DISPLAY_NAME AS PERM_LOCATION "
+            + "FROM MFHD_MASTER MM, BIB_MFHD BM, MFHD_HISTORY MH, LOCATION L "
+            + "WHERE MM.MFHD_ID = BM.MFHD_ID AND MH.MFHD_ID = BM.MFHD_ID AND MM.SUPPRESS_IN_OPAC = 'N' AND MM.LOCATION_ID = L.LOCATION_ID "
+            + "AND BIB_ID > 3000000 AND BIB_ID < 3000100 "
+            + "GROUP BY BM.BIB_ID, MM.MFHD_ID, MM.DISPLAY_CALL_NO, MM.NORMALIZED_CALL_NO, MM.CREATE_DATE, CALL_NO_TYPE, L.LOCATION_NAME, L.LOCATION_DISPLAY_NAME "
+            + "ORDER BY BIB_ID, MFHD_ID";
+    private static String[] mfhdIdFields = {"BIB_ID", "MFHD_ID"};
+    private static String sqlItemStatus = "SELECT BM.BIB_ID, MI.MFHD_ID, I.ITEM_ID, IST.ITEM_STATUS_TYPE AS STATUS_ID, IST.ITEM_STATUS_DESC STATUS "
+            + "FROM BIB_MFHD BM, MFHD_ITEM MI, ITEM I, ITEM_STATUS, ITEM_STATUS_TYPE IST "
+            + "WHERE BM.MFHD_ID = MI.MFHD_ID AND MI.ITEM_ID = I.ITEM_ID AND I.ITEM_ID = ITEM_STATUS.ITEM_ID AND ITEM_STATUS.ITEM_STATUS = IST.ITEM_STATUS_TYPE "
+            + "AND BIB_ID > 3000000 AND BIB_ID < 3000100 "
+            + "ORDER BY BIB_ID, MFHD_ID, ITEM_ID, STATUS_ID";
+    private static String[] itemStatusIdFields = {"BIB_ID", "MFHD_ID", "ITEM_ID", "STATUS_ID"};
 
     public static void main(String[] args) throws TransformerConfigurationException, TransformerException, ConnectionException {
 
@@ -89,14 +104,13 @@ public class RSXMLReader extends SQLXMLReader {
         instance.setSid(sid);
         instance.setUser(user);
         instance.setPwd(pwd);
-        instance.setSql(sql);
-        String[] ifl = {"BIB_ID", "MFHD_ID", "ITEM_ID"};
-        instance.setIdFieldLabels(ifl);
+        instance.setSql(sqlItemStatus);
+        instance.setIdFieldLabels(itemStatusIdFields);
 
         SAXTransformerFactory stf = (SAXTransformerFactory)TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
         Transformer t = stf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
-        t.transform(new SAXSource(instance, new InputSource()), new StreamResult("/tmp/db_out.xml"));
+        t.transform(new SAXSource(instance, new InputSource()), new StreamResult("/tmp/item_status.xml"));
     }
 
 }

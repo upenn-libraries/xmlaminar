@@ -16,9 +16,16 @@
 
 package edu.upennlib.ingestor.sax.integrator.complex;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import edu.upennlib.ingestor.sax.integrator.BinaryMARCXMLReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -78,4 +85,35 @@ public class IntegratorSAX implements Runnable {
             wakeUpdatedSources();
         }
     }
+
+    public static void main(String[] args) throws ParserConfigurationException, SAXException, FileNotFoundException, IOException {
+        IntegratorSAX instance = new IntegratorSAX();
+        instance.setupAndRun();
+    }
+
+    private void setupAndRun() throws ParserConfigurationException, SAXException, FileNotFoundException {
+        File marcFile = new File("inputFiles/integrator_xml/marc.xml");
+        File hldgFile = new File("inputFiles/integrator_xml/mfhd.xml");
+        File itemFile = new File("inputFiles/integrator_xml/item.xml");
+        File itemStatusFile = new File("inputFiles/integrator_xml/item_status.xml");
+        StatefulXMLFilter marcSxf = new StatefulXMLFilter();
+        boolean fromDatabase = false;
+        if (fromDatabase) {
+            BinaryMARCXMLReader bmxr = new BinaryMARCXMLReader();
+            // set properties...
+            marcSxf.setParent(bmxr);
+        } else {
+            // From file
+            SAXParserFactory spf = SAXParserFactory.newInstance();
+            spf.setNamespaceAware(true);
+            marcSxf.setParent(spf.newSAXParser().getXMLReader());
+            marcSxf.setInputSource(new InputSource(new FileInputStream(marcFile)));
+        }
+        ArrayList<StatefulXMLFilter> sxfs = new ArrayList<StatefulXMLFilter>();
+        sxfs.add(marcSxf);
+        sources = sxfs.toArray(new StatefulXMLFilter[0]);
+        rootOutputNode.addChild("marc", new IntegratorOutputNode(marcSxf));
+        rootOutputNode.run();
+    }
+
 }
