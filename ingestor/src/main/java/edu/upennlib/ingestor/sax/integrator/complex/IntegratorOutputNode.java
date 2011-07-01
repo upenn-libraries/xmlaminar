@@ -33,17 +33,58 @@ import org.xml.sax.helpers.AttributesImpl;
  *
  * @author michael
  */
-public class IntegratorOutputNode {
+public class IntegratorOutputNode implements Runnable {
 
     private final StatefulXMLFilter payload;
-    HashMap<String, IntegratorOutputNode> children;
-
+    private final boolean aggregateNode;
+    private HashMap<String, IntegratorOutputNode> children;
     public static enum State {POTENTIALLY_WRITABLE, WRITABLE, NOT_WRITABLE}
-
     private State state = State.POTENTIALLY_WRITABLE;
 
+    @Override
+    public void run() {
+        if (!isAggregateNode() ^ children.isEmpty()) {
+            throw new IllegalStateException();
+        }
+        for (Entry<String,IntegratorOutputNode> e : children.entrySet()) {
+            Thread t = new Thread(e.getValue(), e.getKey());
+            t.start();
+        }
+        Thread t = new Thread(payload);
+        t.start();
+        while (true) {
+            blockUntilAtRest();
+            if (readyToWrite()) {
+                try {
+                    writeOutput(payload);
+                } catch (SAXException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            Comparable nextId = getLeastId();
+            prepare(nextId);
+        }
+    }
+
+    public void blockUntilAtRest() {
+        for (IntegratorOutputNode child : children.values()) {
+            blockUntilAtRest();
+        }
+        payload.blockUntilAtRest();
+    }
+
     public IntegratorOutputNode(StatefulXMLFilter payload) {
-        this.payload = payload;
+        if (payload != null) {
+            aggregateNode = false;
+            this.payload = payload;
+        } else {
+            aggregateNode = true;
+            this.payload = new StatefulXMLFilter();
+        }
+    }
+
+    public boolean isAggregateNode() {
+        return aggregateNode;
     }
 
     public void updatePayloadState() {
@@ -100,21 +141,16 @@ public class IntegratorOutputNode {
     }
 
     public boolean self() {
-        if (payload != null) {
-            return payload.self();
-        } else {
-            for (IntegratorOutputNode ion : children.values()) {
-                if (ion.self()) {
-                    return true;
-                }
-            }
-            return false;
-        }
+        return payload.self();
     }
 
     public Comparable getId() {
-        if (payload != null) {
-            return payload.getId();
+        return payload.getId();
+    }
+
+    public Comparable getLeastId() {
+        if (!isAggregateNode()) {
+            return getId();
         } else {
             Comparable id = null;
             for (IntegratorOutputNode ion : children.values()) {

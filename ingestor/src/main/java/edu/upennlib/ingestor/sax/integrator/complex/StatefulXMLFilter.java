@@ -21,12 +21,14 @@
 
 package edu.upennlib.ingestor.sax.integrator.complex;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.XMLFilterImpl;
 
@@ -34,7 +36,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class StatefulXMLFilter extends XMLFilterImpl {
+public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
 
     public static final String INTEGRATOR_URI = "http://integrator";
     public static enum State {WAIT, SKIP, STEP, PLAY}
@@ -46,8 +48,18 @@ public class StatefulXMLFilter extends XMLFilterImpl {
     private boolean selfId = false;
     private LinkedList<Comparable> id = new LinkedList<Comparable>();
 
-
     private boolean writable = false;
+
+    @Override
+    public void run() {
+        try {
+            parse(new InputSource());
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
     public boolean self() {
         return selfId;
