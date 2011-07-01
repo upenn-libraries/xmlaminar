@@ -22,6 +22,7 @@
 package edu.upennlib.ingestor.sax.integrator.complex;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,31 +47,37 @@ public class IntegratorOutputNode implements Runnable {
         if (!isAggregateNode() ^ children.isEmpty()) {
             throw new IllegalStateException();
         }
-        for (Entry<String,IntegratorOutputNode> e : children.entrySet()) {
-            Thread t = new Thread(e.getValue(), e.getKey());
-            t.start();
-        }
-        Thread t = new Thread(payload);
-        t.start();
-        while (true) {
-            blockUntilAtRest();
-            if (readyToWrite()) {
-                try {
-                    writeOutput(payload);
-                } catch (SAXException ex) {
-                    throw new RuntimeException(ex);
-                }
+        if (!isAggregateNode()) {
+            payload.run();
+        } else {
+            for (Entry<String, IntegratorOutputNode> e : children.entrySet()) {
+                Thread t = new Thread(e.getValue(), e.getKey());
+                t.start();
             }
-            Comparable nextId = getLeastId();
-            prepare(nextId);
+            while (true) {
+                blockUntilAtRest();
+                if (childrenReadyToWrite()) {
+                    try {
+                        writeChildOutputToPayload();
+                    } catch (SAXException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+                Comparable nextId = getLeastId();
+                prepare(nextId);
+                //wakeThreads
+            }
         }
     }
 
     public void blockUntilAtRest() {
-        for (IntegratorOutputNode child : children.values()) {
-            blockUntilAtRest();
+        if (!isAggregateNode()) {
+            payload.blockUntilAtRest();
+        } else {
+            for (IntegratorOutputNode child : children.values()) {
+                child.blockUntilAtRest();
+            }
         }
-        payload.blockUntilAtRest();
     }
 
     public IntegratorOutputNode(StatefulXMLFilter payload) {
@@ -97,46 +104,80 @@ public class IntegratorOutputNode implements Runnable {
         state = State.POTENTIALLY_WRITABLE;
     }
 
+    boolean xxxRequireForWrite;
+
     public void prepare(Comparable id) {
-        if (state == State.POTENTIALLY_WRITABLE) {
-            if (getId() == null || id.compareTo(getId()) != 0) {
-                state = State.NOT_WRITABLE;
-            } else if (self()) {
+        if (isAggregateNode()) {
+            if (state == State.POTENTIALLY_WRITABLE) {
+                Iterator<IntegratorOutputNode> iter = children.values().iterator();
                 state = State.WRITABLE;
+                while (iter.hasNext() && state != State.NOT_WRITABLE) {
+                    IntegratorOutputNode ion = iter.next();
+                    ion.prepare(id);
+                    switch (ion.state) {
+                        case WRITABLE:
+                            break;
+                        case NOT_WRITABLE:
+                            if (xxxRequireForWrite) {
+                                state = State.NOT_WRITABLE;
+                            }
+                            break;
+                        case POTENTIALLY_WRITABLE:
+                            state = State.POTENTIALLY_WRITABLE;
+                            break;
+                    }
+                }
+            }
+        } else {
+            if (state == State.POTENTIALLY_WRITABLE) {
+                Comparable localId = getId();
+                if (localId == null || id.compareTo(localId) != 0) {
+                    state = State.NOT_WRITABLE;
+                } else if (self()) {
+                    state = State.WRITABLE;
+                }
             }
         }
         switch (state) {
             case POTENTIALLY_WRITABLE:
                 updatePayloadState();
             case WRITABLE:
-                for (IntegratorOutputNode ion : children.values()) {
-                    ion.prepare(id);
-                }
         }
     }
 
-    public boolean readyToWrite() {
-        if (state == State.POTENTIALLY_WRITABLE) {
-            return false;
-        } else if (state == State.WRITABLE) {
-            for (IntegratorOutputNode ion : children.values()) {
-                if (!ion.readyToWrite()) {
-                    return false;
-                }
+    private boolean writableStateDetermined() {
+        return (state == State.WRITABLE || state == State.NOT_WRITABLE);
+    }
+    
+    public boolean isWritable() {
+        return state == State.WRITABLE;
+    }
+
+    // Called from parent.
+    public void writeOutput(ContentHandler ch) throws SAXException {
+        payload.writeOutput(ch);
+    }
+
+
+    private boolean childrenReadyToWrite() {
+        for (IntegratorOutputNode child : children.values()) {
+            if (!child.writableStateDetermined()) {
+                return false;
             }
         }
         return true;
     }
-    private AttributesImpl attRunner = new AttributesImpl();
 
-    public void writeOutput(ContentHandler ch) throws SAXException {
-        if (payload != null) {
-            payload.writeOutput();
-        }
+    boolean xxxChildWritable;
+
+    private AttributesImpl attRunner = new AttributesImpl();
+    private void writeChildOutputToPayload() throws SAXException {
         for (Entry<String, IntegratorOutputNode> e : children.entrySet()) {
-            ch.startElement("uri", e.getKey(), "qName", attRunner);
-            e.getValue().writeOutput(ch);
-            ch.endElement("uri", e.getKey(), "qName");
+            if (xxxChildWritable) {
+                payload.startElement("uri", e.getKey(), "qName", attRunner);
+                e.getValue().writeOutput(payload);
+                payload.endElement("uri", e.getKey(), "qName");
+            }
         }
     }
 
@@ -165,12 +206,9 @@ public class IntegratorOutputNode implements Runnable {
         }
     }
 
+    // Called from parent, not from self.
     public Comparable getParentId() {
-        if (payload != null) {
-            return payload.getParentId();
-        } else {
-            return getId();
-        }
+        return payload.getParentId();
     }
 
 }

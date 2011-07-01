@@ -28,6 +28,7 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.XMLFilterImpl;
@@ -199,7 +200,8 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         level--;
     }
 
-    public void writeOutput() {
+    public void writeOutput(ContentHandler ch) {
+        setContentHandler(ch);
         if (state != State.PLAY) {
             throw new IllegalStateException();
         }

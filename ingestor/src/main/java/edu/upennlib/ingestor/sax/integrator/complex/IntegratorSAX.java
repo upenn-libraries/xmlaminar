@@ -66,7 +66,7 @@ public class IntegratorSAX implements Runnable {
     public void run() {
         while (true) {
             blockUntilAtRest();
-            if (rootOutputNode.readyToWrite()) {
+            if (rootOutputNode.isWritable()) {
                 try {
                     rootOutputNode.writeOutput(ch);
                 } catch (SAXException ex) {
