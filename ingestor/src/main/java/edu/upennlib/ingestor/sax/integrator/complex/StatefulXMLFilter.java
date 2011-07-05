@@ -41,7 +41,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
+public class StatefulXMLFilter extends XMLFilterImpl implements Runnable, IdQueryable {
 
     public static final String INTEGRATOR_URI = "http://integrator";
     public static enum State {WAIT, SKIP, STEP, PLAY}
@@ -88,16 +88,19 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         }
     }
 
+    @Override
     public boolean self() {
         block();
         return selfId;
     }
 
+    @Override
     public int getLevel() {
         block();
         return level;
     }
 
+    @Override
     public Comparable getId() {
         block();
         return id.peek();
@@ -196,6 +199,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         level--;
     }
 
+    @Override
     public void skipOutput() {
         if (state != State.WAIT) {
             throw new IllegalStateException("expected state WAIT, found: "+state);
@@ -206,6 +210,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         }
     }
 
+    @Override
     public void writeOutput(ContentHandler ch) {
         setContentHandler(ch);
         if (state != State.WAIT) {
@@ -222,6 +227,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         }
     }
 
+    @Override
     public void writeStartElements(ContentHandler ch) {
         if (state != State.WAIT) {
             throw new IllegalStateException("expected state WAIT, found: "+state);
@@ -233,6 +239,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         }
     }
 
+    @Override
     public void writeEndElements(ContentHandler ch) {
         if (state != State.WAIT) {
             throw new IllegalStateException("expected state WAIT, found: "+state);
