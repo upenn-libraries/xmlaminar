@@ -21,6 +21,7 @@
 
 package edu.upennlib.ingestor.sax.integrator.complex;
 
+import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -48,7 +49,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
     private int level = -1;
     private int refLevel = -1;
 
-    private boolean updated = false;
     private boolean selfId = false;
     private LinkedList<Comparable> id = new LinkedList<Comparable>();
 
@@ -76,19 +76,11 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         }
     }
 
-    public boolean self() {
-        return selfId;
-    }
-
-    public void blockUntilAtRest() {
+    private void block() {
         while (state != State.WAIT) {
             synchronized(this) {
-                logger.trace("3 notifying "+this);
-                notify();
                 try {
-                    logger.trace("3 waiting on "+this);
                     wait();
-                    logger.trace("3 finished waiting on "+this);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -96,46 +88,18 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         }
     }
 
-    public boolean isUpdated() {
-        if (state != State.WAIT) {
-            throw new IllegalStateException();
-        }
-        return updated;
+    public boolean self() {
+        block();
+        return selfId;
     }
 
     public int getLevel() {
-        if (state != State.WAIT) {
-            throw new IllegalStateException();
-        }
+        block();
         return level;
     }
 
-    private String getStackTrace() {
-        StringWriter sw = new StringWriter();
-        new RuntimeException().printStackTrace(new PrintWriter(sw, true));
-        return sw.toString();
-    }
-
-    public void setState(State state) {
-        logger.trace("setting state="+state);
-        this.state = state;
-    }
-
-    public Comparable getParentId() {
-        if (state != State.WAIT) {
-            throw new IllegalStateException();
-        }
-        if (id.size() < 2) {
-            return null;
-        } else {
-            return id.get(1);
-        }
-    }
-
     public Comparable getId() {
-        if (state != State.WAIT) {
-            throw new IllegalStateException();
-        }
+        block();
         return id.peek();
     }
 
@@ -154,14 +118,11 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
             case WAIT:
                 throw new IllegalStateException();
             case SKIP:
-                //logger.trace("startElement("+uri+", "+localName+", "+qName+", "+attsToString(atts)+") SKIP");
                 break;
             case PLAY:
-                //logger.trace("startElement("+uri+", "+localName+", "+qName+", "+attsToString(atts)+") PLAY");
                 super.startElement(uri, localName, qName, atts);
                 return;
             case STEP:
-                logger.trace("startElement("+uri+", "+localName+", "+qName+", "+attsToString(atts)+") STEP");
                 if (!uri.equals(INTEGRATOR_URI)) {
                     throw new IllegalStateException();
                 } else if (level > 0) {
@@ -180,13 +141,9 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
                 state = State.WAIT;
                 while (state == State.WAIT) {
                     synchronized (this) {
-                        updated = true;
-                        logger.trace("1 notifying "+this);
                         notify();
                         try {
-                            logger.trace("1 waiting on "+this);
                             wait();
-                            logger.trace("1 finished waiting on "+this);
                         } catch (InterruptedException ex) {
                             throw new RuntimeException(ex);
                         }
@@ -195,13 +152,15 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
                 if (state == State.PLAY || state == State.SKIP) {
                     refLevel = level + 1;
                 }
-                if (state == State.PLAY || state == State.STEP) {
-                    if (state != State.PLAY || refLevel != level + 1) {
-                        super.startElement(uri, localName, qName, atts);
-                    }
+                if (state == State.PLAY && refLevel != level + 1) {
+                    super.startElement(uri, localName, qName, atts);
+                } else if (state == State.STEP) {
+                    startElementBuffer.startElement(uri, localName, qName, atts);
                 }
         }
     }
+    private final BufferingXMLFilter endElementBuffer = new BufferingXMLFilter();
+    private final BufferingXMLFilter startElementBuffer = new BufferingXMLFilter();
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -209,12 +168,12 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
             case WAIT:
                 throw new IllegalStateException();
             case SKIP:
-                //logger.trace("endElement("+uri+", "+localName+", "+qName+") SKIP");
                 if (level == refLevel) {
+                    startElementBuffer.clear();
+                    endElementBuffer.clear();
                     state = State.STEP;
                 }
             case STEP:
-                logger.trace("endElement("+uri+", "+localName+", "+qName+") STEP");
                 if (!uri.equals(INTEGRATOR_URI)) {
                     throw new IllegalStateException();
                 }
@@ -225,9 +184,11 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
                     selfId = false;
                     break;
                 }
+                endElementBuffer.endElement(uri, localName, qName);
             case PLAY:
-                //logger.trace("endElement("+uri+", "+localName+", "+qName+") PLAY");
                 if (level == refLevel) {
+                    startElementBuffer.clear();
+                    endElementBuffer.clear();
                     state = State.STEP;
                 }
                 super.endElement(uri, localName, qName);
@@ -235,21 +196,51 @@ public class StatefulXMLFilter extends XMLFilterImpl implements Runnable {
         level--;
     }
 
+    public void skipOutput() {
+        if (state != State.WAIT) {
+            throw new IllegalStateException("expected state WAIT, found: "+state);
+        }
+        state = State.SKIP;
+        synchronized(this) {
+            notify();
+        }
+    }
+
     public void writeOutput(ContentHandler ch) {
         setContentHandler(ch);
-        if (state != State.PLAY) {
-            throw new IllegalStateException("expected state PLAY, found: "+state);
+        if (state != State.WAIT) {
+            throw new IllegalStateException("expected state WAIT, found: "+state);
         }
+        state = State.PLAY;
         synchronized(this) {
-            logger.trace("2 notifying "+this);
             notify();
             try {
-                logger.trace("2 waiting on "+this);
                 wait();
-                logger.trace("2 finished waiting on "+this);
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
+        }
+    }
+
+    public void writeStartElements(ContentHandler ch) {
+        if (state != State.WAIT) {
+            throw new IllegalStateException("expected state WAIT, found: "+state);
+        }
+        try {
+            startElementBuffer.flush(ch);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public void writeEndElements(ContentHandler ch) {
+        if (state != State.WAIT) {
+            throw new IllegalStateException("expected state WAIT, found: "+state);
+        }
+        try {
+            endElementBuffer.flush(ch);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
