@@ -197,7 +197,6 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 requires.addFirst(true);
             } else {
                 aggregating = nodes.size() == 1;
-                //System.out.println("aggregating="+aggregating+" for "+name);
             }
             int size = nodes.size();
             childNodes = nodes.toArray(new IdQueryable[size]);

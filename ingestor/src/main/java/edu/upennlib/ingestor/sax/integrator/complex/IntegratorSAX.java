@@ -90,8 +90,8 @@ public class IntegratorSAX {
         hldgsNode.addChild("hldg", hldgNode, false);
         recordNode.addChild("marc", new IntegratorOutputNode(marcSxf), false);
         recordNode.addChild("hldgs", hldgsNode, false);
-        //hldgNode.addChild("items", itemsNode, false);
-        //itemsNode.addChild("item", itemNode, false);
+        hldgNode.addChild("items", itemsNode, false);
+        itemsNode.addChild("item", itemNode, false);
         //itemNode.addChild("itemStatuses", itemStatusesNode, false);
         //itemStatusesNode.addChild("itemStatus", itemStatusNode, false);
         rootOutputNode.addChild("record", recordNode, false);
