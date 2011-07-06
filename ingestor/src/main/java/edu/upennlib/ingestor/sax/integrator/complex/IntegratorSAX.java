@@ -53,8 +53,9 @@ public class IntegratorSAX {
         File itemFile = new File("inputFiles/integrator_xml/item.xml");
         File itemStatusFile = new File("inputFiles/integrator_xml/item_status.xml");
         StatefulXMLFilter marcSxf = new StatefulXMLFilter();
-        StatefulXMLFilter hldgsSxf = new StatefulXMLFilter();
         StatefulXMLFilter hldgSxf = new StatefulXMLFilter();
+        StatefulXMLFilter itemSxf = new StatefulXMLFilter();
+        StatefulXMLFilter itemStatusSxf = new StatefulXMLFilter();
         boolean fromDatabase = false;
         if (fromDatabase) {
             BinaryMARCXMLReader bmxr = new BinaryMARCXMLReader();
@@ -68,6 +69,10 @@ public class IntegratorSAX {
             marcSxf.setInputSource(new InputSource(new FileInputStream(marcFile)));
             hldgSxf.setParent(spf.newSAXParser().getXMLReader());
             hldgSxf.setInputSource(new InputSource(new FileInputStream(hldgFile)));
+            itemSxf.setParent(spf.newSAXParser().getXMLReader());
+            itemSxf.setInputSource(new InputSource(new FileInputStream(itemFile)));
+            itemStatusSxf.setParent(spf.newSAXParser().getXMLReader());
+            itemStatusSxf.setInputSource(new InputSource(new FileInputStream(itemStatusFile)));
         }
         ArrayList<StatefulXMLFilter> sxfs = new ArrayList<StatefulXMLFilter>();
         sxfs.add(marcSxf);
@@ -77,13 +82,22 @@ public class IntegratorSAX {
 
         IntegratorOutputNode recordNode = new IntegratorOutputNode(null);
         IntegratorOutputNode hldgsNode = new IntegratorOutputNode(null);
-        hldgsNode.addChild("hldg", new IntegratorOutputNode(hldgSxf), false);
+        IntegratorOutputNode hldgNode = new IntegratorOutputNode(hldgSxf);
+        IntegratorOutputNode itemsNode = new IntegratorOutputNode(null);
+        IntegratorOutputNode itemNode = new IntegratorOutputNode(itemSxf);
+        //IntegratorOutputNode itemStatusesNode = new IntegratorOutputNode(null);
+        //IntegratorOutputNode itemStatusNode = new IntegratorOutputNode(itemStatusSxf);
+        hldgsNode.addChild("hldg", hldgNode, false);
         recordNode.addChild("marc", new IntegratorOutputNode(marcSxf), false);
         recordNode.addChild("hldgs", hldgsNode, false);
+        //hldgNode.addChild("items", itemsNode, false);
+        //itemsNode.addChild("item", itemNode, false);
+        //itemNode.addChild("itemStatuses", itemStatusesNode, false);
+        //itemStatusesNode.addChild("itemStatus", itemStatusNode, false);
         rootOutputNode.addChild("record", recordNode, false);
-        boolean raw = true;
+        boolean raw = false;
         if (!raw) {
-            t.transform(new SAXSource(rootOutputNode, new InputSource()), new StreamResult("/tmp/blah"));
+            t.transform(new SAXSource(rootOutputNode, new InputSource()), new StreamResult("/tmp/blah.xml"));
         } else {
             BufferingXMLFilter rawOutput = new BufferingXMLFilter();
             rootOutputNode.setContentHandler(rawOutput);

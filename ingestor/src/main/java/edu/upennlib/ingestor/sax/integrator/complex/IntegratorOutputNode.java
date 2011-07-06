@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Random;
 import org.apache.log4j.Appender;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
@@ -55,6 +56,15 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     private String[] childElementNames;
     private IdQueryable[] childNodes;
     private Boolean[] requireForWrite;
+    private String name;
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+        if (inputFilter != null) {
+            inputFilter.setName(name);
+        }
+    }
 
     @Override
     public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
@@ -158,7 +168,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         output = ch;
     }
 
-    private boolean aggregating = true;
+    private boolean aggregating = false;
 
     @Override
     public void run() {
@@ -170,12 +180,14 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     output = inputFilter;
                     notify();
                 }
+                //System.out.println("noop aggregating="+aggregating+" for "+name);
                 inputFilter.run();
             }
         } else {
             if (output == null) {
                 synchronized (this) {
                     output = new StatefulXMLFilter();
+                    ((StatefulXMLFilter)output).setName(name);
                     notify();
                 }
             }
@@ -183,15 +195,22 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 names.addFirst(null);
                 nodes.addFirst(inputFilter);
                 requires.addFirst(true);
+            } else {
+                aggregating = nodes.size() == 1;
+                //System.out.println("aggregating="+aggregating+" for "+name);
             }
             int size = nodes.size();
-            aggregating = size == 1;
             childNodes = nodes.toArray(new IdQueryable[size]);
             childElementNames = names.toArray(new String[size]);
             requireForWrite = requires.toArray(new Boolean[size]);
 
             for (int i = 0; i < childNodes.length; i++) {
-                Thread t = new Thread(childNodes[i], childElementNames[i]);
+                Thread t;
+                if (childElementNames[i] != null) {
+                    t = new Thread(childNodes[i], childElementNames[i]);
+                } else {
+                    t = new Thread(childNodes[i]);
+                }
                 t.start();
                 if (requireForWrite[i]) {
                     requiredIndexes.add(i);
@@ -232,7 +251,12 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                         leastId = childNodes[i].getId();
                     } else if (tmpLevel == level) {
                         Comparable tmpId = childNodes[i].getId();
-                        if (tmpId != null && (leastId == null || tmpId.compareTo(leastId) < 0)) {
+                        if (tmpId == null ^ leastId == null) {
+                            throw new IllegalStateException("tmpLevel="+tmpLevel+", tmpId="+tmpId+", level="+level+", leastId="+leastId);
+                        } else if (tmpId == null || tmpId.compareTo(leastId) == 0) {
+                            activeIndexes.add(i);
+                        } else if (tmpId.compareTo(leastId) < 0) {
+                            activeIndexes.clear();
                             activeIndexes.add(i);
                             leastId = tmpId;
                         }
@@ -242,7 +266,6 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     // ok.
                 }
             }
-            System.out.println(this + " got least id, level=" + level + ", id=" + leastId + ", allFinished=" + allFinished);
             if (!activeIndexes.containsAll(requiredIndexes)) {
                 for (int i : activeIndexes) {
                     childNodes[i].skipOutput();
@@ -250,45 +273,68 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             } else {
                 Boolean self = null;
                 for (int i : activeIndexes) {
-                    if (!childNodes[i].isFinished() && childNodes[i].self()) {
-                        if (self == null) {
-                            self = true;
-                            if (lastLevel == null || level < lastLevel) {
-                                childNodes[i].writeEndElements(output, !aggregating);
-                                if (!childNodes[i].isFinished()) {
-                                    childNodes[i].writeStartElements(output, !aggregating);
+                    if (!childNodes[i].isFinished()) {
+                        if (childNodes[i].self()) {
+                            if (self == null) {
+                                self = true;
+                                if (lastLevel == null || level > lastLevel) {
+                                    childNodes[i].writeOuterStartElement(output, aggregating);
+                                    if (!aggregating) {
+                                        childNodes[i].writeInnerStartElement(output);
+                                    }
+                                } else if (level < lastLevel) {
+                                    if (!aggregating) {
+                                        childNodes[i].writeInnerEndElement(output);
+                                    }
+                                    childNodes[i].writeOuterEndElement(output);
+                                } else if (level == lastLevel) {
+                                    if (!aggregating) {
+                                        childNodes[i].writeInnerEndElement(output);
+                                        childNodes[i].writeInnerStartElement(output);
+                                    }
+                                }
+                            } else if (!self) {
+                                throw new IllegalStateException();
+                            }
+                            if (lastLevel == null || level >= lastLevel) {
+                                if (childElementNames[i] != null) {
+                                    System.out.println(name+":open "+childElementNames[i]);
+                                    output.startElement("", childElementNames[i], childElementNames[i], attRunner);
+                                }
+                                childNodes[i].writeOutput(output);
+                                if (childElementNames[i] != null) {
+                                    System.out.println(name+":close "+childElementNames[i]);
+                                    output.endElement("", childElementNames[i], childElementNames[i]);
                                 }
                             }
-                        } else if (!self) {
-                            throw new IllegalStateException();
-                        }
-                        if (childElementNames[i] != null) {
-                            output.startElement("", childElementNames[i], childElementNames[i], attRunner);
-                        }
-                        childNodes[i].writeOutput(output);
-                        if (childElementNames[i] != null) {
-                            output.endElement("", childElementNames[i], childElementNames[i]);
-                        }
-                    } else {
-                        if (self == null) {
-                            self = false;
-                            if (lastLevel == null || level < lastLevel) {
-                                childNodes[i].writeEndElements(output, aggregating);
-                                if (!childNodes[i].isFinished()) {
-                                    childNodes[i].writeStartElements(output, aggregating);
+                        } else {
+                            if (self == null) {
+                                self = false;
+                                if (lastLevel == null || level > lastLevel) {
+                                    childNodes[i].writeOuterStartElement(output, false);
+                                } else if (level < lastLevel) {
+                                    childNodes[i].writeOuterEndElement(output);
+                                } else {
+                                    if (level > 0 || leastId != null) {
+                                        //throw new IllegalStateException("non-self levels should not repeat; level=" + level + ", id=" + leastId);
+                                    }
                                 }
+                            } else if (self) {
+                                throw new IllegalStateException("inconsistent child selfness, asserted level=" + level + ", id=" + leastId);
                             }
-                        } else if (!self) {
-                            throw new IllegalStateException();
-                        }
-                        if (!childNodes[i].isFinished()) {
-                            childNodes[i].step();
+                            if (!childNodes[i].isFinished()) {
+                                childNodes[i].step();
+                            }
                         }
                     }
                 }
             }
             lastLevel = level;
         }
+        System.out.println("started on "+name);
+        childNodes[0].writeInnerEndElement(output);
+        childNodes[0].writeOuterEndElement(output);
+        System.out.println("finished on "+name);
     }
 
     @Override
@@ -333,19 +379,33 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     }
 
     @Override
-    public void writeStartElements(ContentHandler ch, boolean aggregate) {
+    public void writeOuterStartElement(ContentHandler ch, boolean asSelf) {
         if (output instanceof IdQueryable) {
-            ((IdQueryable)output).writeStartElements(ch, aggregate);
+            ((IdQueryable)output).writeOuterStartElement(ch, asSelf);
         }
     }
 
     @Override
-    public void writeEndElements(ContentHandler ch, boolean aggregate) {
+    public void writeInnerStartElement(ContentHandler ch) {
         if (output instanceof IdQueryable) {
-            ((IdQueryable)output).writeEndElements(ch, aggregate);
+            ((IdQueryable)output).writeInnerStartElement(ch);
         }
     }
-    
+
+    @Override
+    public void writeInnerEndElement(ContentHandler ch) {
+        if (output instanceof IdQueryable) {
+            ((IdQueryable)output).writeInnerEndElement(ch);
+        }
+    }
+
+    @Override
+    public void writeOuterEndElement(ContentHandler ch) {
+        if (output instanceof IdQueryable) {
+            ((IdQueryable)output).writeOuterEndElement(ch);
+        }
+    }
+
     private AttributesImpl attRunner = new AttributesImpl();
 
     @Override
@@ -366,7 +426,6 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         } else {
             throw new IllegalStateException();
         }
-
     }
 
     @Override
@@ -397,6 +456,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             throw new NullPointerException();
         }
         names.add(childElementName);
+        child.setName(childElementName);
         nodes.add(child);
         requires.add(requireForWrite);
     }

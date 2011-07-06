@@ -61,9 +61,16 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
 
     protected Logger logger = Logger.getLogger(getClass());
 
+    private String name;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public StatefulXMLFilter() {
         logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
         logger.setLevel(Level.TRACE);
+        setContentHandler(innerStartElementBuffer);
     }
 
     public void setInputSource(InputSource inputSource) {
@@ -131,6 +138,15 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         return sb.toString();
     }
 
+    private String buffersToString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("outerStartElementBuffer: ").append(outerStartElementBuffer).append("\n");
+        sb.append("innerStartElementBuffer: ").append(innerStartElementBuffer).append("\n");
+        sb.append("innerEndElementBuffer: ").append(innerEndElementBuffer).append("\n");
+        sb.append("outerEndElementBuffer: ").append(outerEndElementBuffer).append("\n");
+        return sb.toString();
+    }
+
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         level++;
@@ -143,19 +159,23 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                 super.startElement(uri, localName, qName, atts);
                 return;
             case STEP:
-                if (getContentHandler() != startElementBuffer) {
-                    setContentHandler(startElementBuffer);
+                if (getContentHandler() != innerStartElementBuffer) {
+                    if (getContentHandler() == innerEndElementBuffer) {
+                        setContentHandler(innerStartElementBuffer);
+                    } else {
+                        throw new IllegalStateException(buffersToString()+"contentHandler: "+getContentHandler());
+                    }
                 }
                 super.startElement(uri, localName, qName, atts);
                 if (!uri.equals(INTEGRATOR_URI)) {
-                    throw new IllegalStateException("expected uri: "+INTEGRATOR_URI+"; found: "+uri+", "+localName+", "+qName);
+                    throw new IllegalStateException("expected uri: " + INTEGRATOR_URI + "; found: " + uri + ", " + localName + ", " + qName);
                 } else if (level > 0) {
                     String idString = atts.getValue("id");
                     if (idString == null) {
                         throw new IllegalStateException("level="+level+" idString=="+idString+" for " + uri + ", " + localName + ", " + qName + ", " + attsToString(atts));
                     } else {
                         Comparable localId = new IdUpenn(localName, idString);
-                        logger.trace("id="+localId);
+                        //logger.trace("id="+localId);
                         id.push(localId);
                     }
                     if ("true".equals(atts.getValue("self"))) {
@@ -174,54 +194,25 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                     }
                 }
                 if (state == State.PLAY || state == State.SKIP) {
-                    refLevel = level + 1;
+                    refLevel = level;
+                    outerStartElementBuffer.clear();
+                    innerStartElementBuffer.clear();
                 }
-                if (state == State.PLAY && refLevel != level + 1) {
+                if (state == State.PLAY && refLevel != level) {
                     super.startElement(uri, localName, qName, atts);
                 }
         }
     }
-    private final BufferingXMLFilter endElementBuffer = new BufferingXMLFilter();
-    private final BufferingXMLFilter startElementBuffer = new BufferingXMLFilter();
-
-    @Override
-    public void endPrefixMapping(String prefix) throws SAXException {
-        if (state == State.STEP && getContentHandler() != endElementBuffer) {
-            setContentHandler(endElementBuffer);
-        }
-        super.endPrefixMapping(prefix);
-    }
-
-    @Override
-    public void startDocument() throws SAXException {
-        if (state == State.STEP && getContentHandler() != startElementBuffer) {
-            setContentHandler(startElementBuffer);
-        }
-        super.startDocument();
-    }
-
-    @Override
-    public void startPrefixMapping(String prefix, String uri) throws SAXException {
-        if (state == State.STEP && getContentHandler() != startElementBuffer) {
-            setContentHandler(startElementBuffer);
-        }
-        super.startPrefixMapping(prefix, uri);
-    }
-
-
+    private BufferingXMLFilter outerEndElementBuffer = new BufferingXMLFilter();
+    private BufferingXMLFilter innerEndElementBuffer = new BufferingXMLFilter();
+    private BufferingXMLFilter innerStartElementBuffer = new BufferingXMLFilter();
+    private BufferingXMLFilter outerStartElementBuffer = new BufferingXMLFilter();
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         switch (state) {
             case WAIT:
                 throw new IllegalStateException();
-            case SKIP:
-                if (level == refLevel) {
-                    startElementBuffer.clear();
-                    endElementBuffer.clear();
-                    setContentHandler(endElementBuffer);
-                    state = State.STEP;
-                }
             case STEP:
                 if (!uri.equals(INTEGRATOR_URI)) {
                     throw new IllegalStateException();
@@ -229,23 +220,46 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                 if (!localName.equals("root")) {
                     id.pop();
                 }
-                if (selfId) {
-                    selfId = false;
-                    break;
+                if (getContentHandler() == outerEndElementBuffer) {
+                    BufferingXMLFilter tmp = innerEndElementBuffer;
+                    innerEndElementBuffer = outerEndElementBuffer;
+                    outerEndElementBuffer = tmp;
+                    outerEndElementBuffer.clear();
+                } else if (getContentHandler() == innerStartElementBuffer) {
+                    innerEndElementBuffer.clear();
+                    innerStartElementBuffer.flush(outerEndElementBuffer);
                 }
-                if (getContentHandler() != endElementBuffer) {
-                    throw new IllegalStateException();
-                }
+                setContentHandler(outerEndElementBuffer);
                 super.endElement(uri, localName, qName);
+                state = State.WAIT;
+                synchronized (this) {
+                    while (state == State.WAIT) {
+                        notify();
+                        try {
+                            wait();
+                        } catch (InterruptedException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                }
                 break;
+            case SKIP:
             case PLAY:
-                super.endElement(uri, localName, qName);
                 if (level == refLevel) {
-                    startElementBuffer.clear();
-                    endElementBuffer.clear();
-                    setContentHandler(endElementBuffer);
+                    if (!selfId) {
+                        throw new IllegalStateException();
+                    } else {
+                        selfId = false;
+                    }
+                    if (!localName.equals("root")) {
+                        id.pop();
+                    }
+                    innerEndElementBuffer.clear();
+                    outerEndElementBuffer.clear();
+                    setContentHandler(innerEndElementBuffer);
                     state = State.STEP;
                 }
+                super.endElement(uri, localName, qName);
         }
         level--;
     }
@@ -254,14 +268,20 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
 
     @Override
     public void endDocument() throws SAXException {
-        if (getContentHandler() != endElementBuffer) {
-            throw new IllegalStateException();
+        if (getContentHandler() == innerStartElementBuffer) {
+            BufferingXMLFilter tmp = innerEndElementBuffer;
+            innerEndElementBuffer = outerEndElementBuffer;
+            outerEndElementBuffer = tmp;
+            outerEndElementBuffer.clear();
+            innerStartElementBuffer.flush(outerEndElementBuffer);
         }
+        setContentHandler(outerEndElementBuffer);
+        super.endDocument();
+        System.out.println("buffering endDocument on sxf."+name);
         synchronized(this) {
             finished = true;
             notify();
         }
-        super.endDocument();
     }
 
     @Override
@@ -302,23 +322,27 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
     SaxEventExecutor see = new SaxEventExecutor();
 
     @Override
-    public void writeStartElements(ContentHandler ch, boolean aggregate) {
+    public void writeOuterStartElement(ContentHandler ch, boolean asSelf) {
         if (state != State.WAIT) {
             throw new IllegalStateException("expected state WAIT, found: "+state);
         }
         try {
-            Iterator iter = startElementBuffer.iterator();
+            Iterator iter = outerStartElementBuffer.iterator();
             Object[] current = null;
             boolean hasNext = iter.hasNext();
             while (hasNext) {
                 current = (Object[]) iter.next();
-                System.out.println(this+" "+Arrays.asList(current));
-                if (!(hasNext = iter.hasNext()) && aggregate && self()) {
+                if (!(hasNext = iter.hasNext()) && asSelf && self()) {
                     AttributesImpl selfAtts;
-                    if (current[4] instanceof AttributesImpl) {
-                        selfAtts = (AttributesImpl) current[3];
-                    } else {
-                        selfAtts = new AttributesImpl((Attributes) current[3]);
+                    try {
+                        if (current[4] instanceof AttributesImpl) {
+                            selfAtts = (AttributesImpl) current[4];
+                        } else {
+                            selfAtts = new AttributesImpl((Attributes) current[4]);
+                        }
+                    } catch (ArrayIndexOutOfBoundsException ex) {
+                        outerStartElementBuffer.play(null);
+                        throw new RuntimeException(""+Arrays.asList(current)+ex);
                     }
                     selfAtts.addAttribute("", "self", "self", "CDATA", "true");
                     current[4] = selfAtts;
@@ -329,25 +353,38 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
             throw new RuntimeException(ex);
         }
     }
-    //@Override
-    public void writeStartElementsOld(ContentHandler ch, boolean aggregate) {
+
+    @Override
+    public void writeInnerStartElement(ContentHandler ch) {
         if (state != State.WAIT) {
             throw new IllegalStateException("expected state WAIT, found: "+state);
         }
         try {
-            startElementBuffer.flush(ch);
+            innerStartElementBuffer.flush(ch);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    @Override
+    public void writeInnerEndElement(ContentHandler ch) {
+        if (state != State.WAIT && !isFinished()) {
+            throw new IllegalStateException("expected state WAIT, found: "+state);
+        }
+        try {
+            innerEndElementBuffer.flush(ch);
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }
     }
 
     @Override
-    public void writeEndElements(ContentHandler ch, boolean aggregate) {
+    public void writeOuterEndElement(ContentHandler ch) {
         if (state != State.WAIT && !isFinished()) {
             throw new IllegalStateException("expected state WAIT, found: "+state);
         }
         try {
-            endElementBuffer.flush(ch);
+            outerEndElementBuffer.flush(ch);
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }
@@ -356,11 +393,15 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
     @Override
     public void step() {
         if (state != State.WAIT) {
-            throw new IllegalStateException("expected state WAIT, found: "+state);
+            throw new IllegalStateException("expected state WAIT, found: " + state);
         }
-        Thread.dumpStack();
         state = State.STEP;
-        synchronized(this) {
+        BufferingXMLFilter tmp = outerStartElementBuffer;
+        outerStartElementBuffer = innerStartElementBuffer;
+        innerStartElementBuffer = tmp;
+        innerStartElementBuffer.clear();
+        setContentHandler(innerStartElementBuffer);
+        synchronized (this) {
             notify();
             try {
                 wait();
