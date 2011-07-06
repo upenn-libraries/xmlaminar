@@ -270,7 +270,11 @@ public class BufferingXMLFilter extends MyXFI {
                 Iterator iter = eventQueue[0].iterator();
                 while (iter.hasNext()) {
                     Object[] next = (Object[]) iter.next();
-                    level += executor.executeSaxEvent(ch, next, writeStructural, writeNonStructural);
+                    if (ch == null) {
+                        System.out.println(Arrays.asList(next));
+                    } else {
+                        level += executor.executeSaxEvent(ch, next, writeStructural, writeNonStructural);
+                    }
                 }
             }
             return level;
@@ -278,6 +282,25 @@ public class BufferingXMLFilter extends MyXFI {
     }
 
     public Iterator iterator() {
+        if (eventQueue[0] == null) {
+            return new Iterator() {
+
+                @Override
+                public boolean hasNext() {
+                    return false;
+                }
+
+                @Override
+                public Object next() {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+            };
+        }
         return eventQueue[0].iterator();
     }
 

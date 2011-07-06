@@ -17,6 +17,7 @@
 package edu.upennlib.ingestor.sax.integrator.complex;
 
 import edu.upennlib.ingestor.sax.integrator.BinaryMARCXMLReader;
+import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,7 +25,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-import org.xml.sax.ContentHandler;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -32,71 +39,22 @@ import org.xml.sax.SAXException;
  *
  * @author michael
  */
-public class IntegratorSAX implements Runnable {
-    private StatefulXMLFilter[] sources;
+public class IntegratorSAX {
     private final IntegratorOutputNode rootOutputNode = new IntegratorOutputNode(null);
 
-    private void blockUntilAtRest() {
-        for (StatefulXMLFilter sxf : sources) {
-            sxf.blockUntilAtRest();
-        }
-    }
-
-    private Comparable evaluateNextLeastId() {
-        int leastIdSourceLevel = -1;
-        Comparable leastId = null;
-        for (int i = 0; i < sources.length; i++) {
-            int level = sources[i].getLevel();
-            if (level > leastIdSourceLevel) {
-                leastIdSourceLevel = level;
-                leastId = sources[i].getId();
-            } else if (level == leastIdSourceLevel && sources[i].getId().compareTo(leastId) < 0) {
-                leastId = sources[i].getId();
-            }
-        }
-        return leastId;
-    }
-
-    private void wakeUpdatedSources() {
-        for (StatefulXMLFilter sxf : sources) {
-            if (sxf.isUpdated()) {
-                synchronized(sxf) {
-                    sxf.notify();
-                }
-            }
-        }
-    }
-
-    ContentHandler ch;
-
-    @Override
-    public void run() {
-        while (true) {
-            blockUntilAtRest();
-            if (rootOutputNode.isWritable()) {
-                try {
-                    rootOutputNode.writeOutput(ch);
-                } catch (SAXException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-            Comparable leastId = evaluateNextLeastId();
-            rootOutputNode.prepare(leastId);
-            wakeUpdatedSources();
-        }
-    }
-
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, FileNotFoundException, IOException {
+    public static void main(String[] args) throws ParserConfigurationException, SAXException, FileNotFoundException, IOException, TransformerConfigurationException, TransformerException {
         IntegratorSAX instance = new IntegratorSAX();
         instance.setupAndRun();
     }
 
-    private void setupAndRun() throws ParserConfigurationException, SAXException, FileNotFoundException {
+    private void setupAndRun() throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException {
         File marcFile = new File("inputFiles/integrator_xml/marc.xml");
         File hldgFile = new File("inputFiles/integrator_xml/mfhd.xml");
         File itemFile = new File("inputFiles/integrator_xml/item.xml");
         File itemStatusFile = new File("inputFiles/integrator_xml/item_status.xml");
         StatefulXMLFilter marcSxf = new StatefulXMLFilter();
+        StatefulXMLFilter hldgsSxf = new StatefulXMLFilter();
+        StatefulXMLFilter hldgSxf = new StatefulXMLFilter();
         boolean fromDatabase = false;
         if (fromDatabase) {
             BinaryMARCXMLReader bmxr = new BinaryMARCXMLReader();
@@ -108,12 +66,34 @@ public class IntegratorSAX implements Runnable {
             spf.setNamespaceAware(true);
             marcSxf.setParent(spf.newSAXParser().getXMLReader());
             marcSxf.setInputSource(new InputSource(new FileInputStream(marcFile)));
+            hldgSxf.setParent(spf.newSAXParser().getXMLReader());
+            hldgSxf.setInputSource(new InputSource(new FileInputStream(hldgFile)));
         }
         ArrayList<StatefulXMLFilter> sxfs = new ArrayList<StatefulXMLFilter>();
         sxfs.add(marcSxf);
-        sources = sxfs.toArray(new StatefulXMLFilter[0]);
-        rootOutputNode.addChild("marc", new IntegratorOutputNode(marcSxf));
-        rootOutputNode.run();
-    }
+        TransformerFactory tf = TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
+        Transformer t = tf.newTransformer();
+        t.setOutputProperty(OutputKeys.INDENT, "yes");
 
+        IntegratorOutputNode recordNode = new IntegratorOutputNode(null);
+        IntegratorOutputNode hldgsNode = new IntegratorOutputNode(null);
+        hldgsNode.addChild("hldg", new IntegratorOutputNode(hldgSxf), false);
+        recordNode.addChild("marc", new IntegratorOutputNode(marcSxf), false);
+        recordNode.addChild("hldgs", hldgsNode, false);
+        rootOutputNode.addChild("record", recordNode, false);
+        boolean raw = true;
+        if (!raw) {
+            t.transform(new SAXSource(rootOutputNode, new InputSource()), new StreamResult("/tmp/blah"));
+        } else {
+            BufferingXMLFilter rawOutput = new BufferingXMLFilter();
+            rootOutputNode.setContentHandler(rawOutput);
+            try {
+                rootOutputNode.run();
+            } catch (Exception e) {
+                e.printStackTrace(System.out);
+            }
+            rawOutput.play(null);
+        }
+    }
+    public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
 }
