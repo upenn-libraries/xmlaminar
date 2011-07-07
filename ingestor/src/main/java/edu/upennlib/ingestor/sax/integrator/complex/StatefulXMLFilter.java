@@ -203,7 +203,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                 }
                 if (state == State.PLAY || state == State.SKIP) {
                     refLevel = level;
-                    //outerStartElementBuffer.clear();
+                    outerStartElementBuffer.clear();
                     innerStartElementBuffer.clear();
                 }
                 if (state == State.PLAY && refLevel != level) {
