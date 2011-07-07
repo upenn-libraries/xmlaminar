@@ -69,6 +69,8 @@ public class RSXMLReader extends SQLXMLReader {
         }
     }
 
+    private static final String lowBib = "3000620";
+    private static final String highBib = "3000700";
     private static String host = "[host_or_ip]";
     private static String sid = "[sid]";
     private static String user = "[username]";
@@ -77,21 +79,21 @@ public class RSXMLReader extends SQLXMLReader {
             + "L.LOCATION_NAME AS TEMP_LOCATION_DISP, L.LOCATION_DISPLAY_NAME AS TEMP_LOCATION "
             + "FROM BIB_MFHD BM, MFHD_ITEM MI, ITEM I LEFT OUTER JOIN LOCATION L ON I.TEMP_LOCATION = L.LOCATION_ID "
             + "WHERE BM.MFHD_ID = MI.MFHD_ID AND MI.ITEM_ID = I.ITEM_ID "
-            + "AND BIB_ID > 3000000 AND BIB_ID < 3000100 "
+            + "AND BIB_ID > "+lowBib+" AND BIB_ID < "+highBib+" "
             + "ORDER BY BIB_ID, MFHD_ID, ITEM_ID";
     private static String[] itemIdFields = {"BIB_ID", "MFHD_ID", "ITEM_ID"};
     private static String sqlMfhd = "SELECT BM.BIB_ID, MM.MFHD_ID, MM.DISPLAY_CALL_NO, MM.NORMALIZED_CALL_NO, MM.CREATE_DATE AS HOLD_CREATE_DATE, MAX(ACTION_DATE) AS LAST_HOLD_UPDATE, CALL_NO_TYPE, "
             + "L.LOCATION_NAME AS PERM_LOCATION_DISP, L.LOCATION_DISPLAY_NAME AS PERM_LOCATION "
             + "FROM MFHD_MASTER MM, BIB_MFHD BM, MFHD_HISTORY MH, LOCATION L "
             + "WHERE MM.MFHD_ID = BM.MFHD_ID AND MH.MFHD_ID = BM.MFHD_ID AND MM.SUPPRESS_IN_OPAC = 'N' AND MM.LOCATION_ID = L.LOCATION_ID "
-            + "AND BIB_ID > 3000000 AND BIB_ID < 3000100 "
+            + "AND BIB_ID > "+lowBib+" AND BIB_ID < "+highBib+" "
             + "GROUP BY BM.BIB_ID, MM.MFHD_ID, MM.DISPLAY_CALL_NO, MM.NORMALIZED_CALL_NO, MM.CREATE_DATE, CALL_NO_TYPE, L.LOCATION_NAME, L.LOCATION_DISPLAY_NAME "
             + "ORDER BY BIB_ID, MFHD_ID";
     private static String[] mfhdIdFields = {"BIB_ID", "MFHD_ID"};
     private static String sqlItemStatus = "SELECT BM.BIB_ID, MI.MFHD_ID, I.ITEM_ID, IST.ITEM_STATUS_TYPE AS STATUS_ID, IST.ITEM_STATUS_DESC STATUS "
             + "FROM BIB_MFHD BM, MFHD_ITEM MI, ITEM I, ITEM_STATUS, ITEM_STATUS_TYPE IST "
             + "WHERE BM.MFHD_ID = MI.MFHD_ID AND MI.ITEM_ID = I.ITEM_ID AND I.ITEM_ID = ITEM_STATUS.ITEM_ID AND ITEM_STATUS.ITEM_STATUS = IST.ITEM_STATUS_TYPE "
-            + "AND BIB_ID > 3000000 AND BIB_ID < 3000100 "
+            + "AND BIB_ID > "+lowBib+" AND BIB_ID < "+highBib+" "
             + "ORDER BY BIB_ID, MFHD_ID, ITEM_ID, STATUS_ID";
     private static String[] itemStatusIdFields = {"BIB_ID", "MFHD_ID", "ITEM_ID", "STATUS_ID"};
 
@@ -110,7 +112,7 @@ public class RSXMLReader extends SQLXMLReader {
         SAXTransformerFactory stf = (SAXTransformerFactory)TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
         Transformer t = stf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
-        t.transform(new SAXSource(instance, new InputSource()), new StreamResult("/tmp/mfhd.xml"));
+        t.transform(new SAXSource(instance, new InputSource()), new StreamResult("/tmp/hldg.xml"));
     }
 
 }

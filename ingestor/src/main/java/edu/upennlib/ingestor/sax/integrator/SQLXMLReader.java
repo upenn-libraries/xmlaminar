@@ -110,7 +110,7 @@ public abstract class SQLXMLReader implements XMLReader {
 
     @Override
     public void setEntityResolver(EntityResolver resolver) {
-        throw new UnsupportedOperationException("setEntityResolver("+resolver+")");
+        logger.trace("ignoring setEntityResolver(" + resolver + ")");
     }
 
     @Override

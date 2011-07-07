@@ -25,6 +25,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import org.apache.log4j.Appender;
@@ -118,7 +119,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     @Override
     public void setEntityResolver(EntityResolver resolver) {
-            throw new UnsupportedOperationException("setEntityResolver("+resolver+")");
+        throw new UnsupportedOperationException("setEntityResolver(" + resolver + ")");
     }
 
     @Override
@@ -187,14 +188,13 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     output = inputFilter;
                     notify();
                 }
-                //System.out.println("noop aggregating="+aggregating+" for "+name);
                 inputFilter.run();
             }
         } else {
             if (output == null) {
                 synchronized (this) {
                     output = new StatefulXMLFilter();
-                    ((StatefulXMLFilter)output).setName(name);
+                    ((StatefulXMLFilter)output).setName(name+"Output");
                     notify();
                 }
             }
@@ -248,28 +248,44 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         int level;
         Comparable leastId;
         boolean allFinished = false;
+        boolean[] eligible = new boolean[childNodes.length];
+        Arrays.fill(eligible, true);
         while (!allFinished) {
             level = -1;
             leastId = null;
             allFinished = true;
+            String init = null;
+            boolean levelRestricted = false;
             for (int i = 0; i < childNodes.length; i++) {
                 try {
                     int tmpLevel = childNodes[i].getLevel();
                     if (tmpLevel > level) {
-                        activeIndexes.clear();
-                        activeIndexes.add(i);
-                        level = tmpLevel;
-                        leastId = childNodes[i].getId();
+                        if (eligible[i]) {
+                            activeIndexes.clear();
+                            activeIndexes.add(i);
+                            level = tmpLevel;
+                            leastId = childNodes[i].getId();
+                            init = (childElementNames[i] != null ? childElementNames[i] : inputFilter.getName());
+                        } else {
+                            levelRestricted = true;
+                        }
                     } else if (tmpLevel == level) {
                         Comparable tmpId = childNodes[i].getId();
                         if (tmpId == null ^ leastId == null) {
-                            throw new IllegalStateException("tmpLevel="+tmpLevel+", tmpId="+tmpId+", level="+level+", leastId="+leastId);
+                            throw new IllegalStateException(childElementNames[i]+" tmpLevel="+tmpLevel+", tmpId="+tmpId+"; "+init+" level="+level+", leastId="+leastId);
                         } else if (tmpId == null || tmpId.compareTo(leastId) == 0) {
+                            eligible[i] = true;
                             activeIndexes.add(i);
                         } else if (tmpId.compareTo(leastId) < 0) {
+                            for (int j : activeIndexes) {
+                                eligible[j] = false;
+                            }
                             activeIndexes.clear();
+                            eligible[i] = true;
                             activeIndexes.add(i);
                             leastId = tmpId;
+                        } else if (tmpId.compareTo(leastId) > 0) {
+                            eligible[i] = false;
                         }
                     }
                     allFinished = false;
@@ -278,8 +294,16 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 }
             }
             if (!activeIndexes.containsAll(requiredIndexes)) {
-                for (int i : activeIndexes) {
-                    childNodes[i].skipOutput();
+                if (!levelRestricted) {
+                    for (int i : activeIndexes) {
+                        childNodes[i].skipOutput();
+                    }
+                } else {
+                    for (int i : activeIndexes) {
+                        if (!childNodes[i].isFinished()) {
+                            childNodes[i].step();
+                        }
+                    }
                 }
             } else {
                 Boolean self = null;
@@ -297,12 +321,16 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                                         childNodes[i].writeInnerStartElement(output);
                                     }
                                     firstIndexWritten = i;
+                                } else {
+                                    throw new IllegalStateException("level="+level+", lastLevel="+lastLevel);
                                 }
                             } else if (!self) {
                                 throw new IllegalStateException();
                             }
                             if (lastLevel == null || level >= lastLevel) {
                                 if (childElementNames[i] != null) {
+                                    attRunner.clear();
+                                    attRunner.addAttribute("", "id", "id", "CDATA", leastId.toString());
                                     output.startElement("", childElementNames[i], childElementNames[i], attRunner);
                                 }
                                 childNodes[i].writeOutput(output);
@@ -319,7 +347,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                                     childNodes[i].writeOuterEndElement(output);
                                 } else {
                                     if (level > 0 || leastId != null) {
-                                        //throw new IllegalStateException("non-self levels should not repeat; level=" + level + ", id=" + leastId);
+                                        throw new IllegalStateException("non-self levels should not repeat; level=" + level + ", id=" + leastId);
                                     }
                                 }
                             } else if (self) {
