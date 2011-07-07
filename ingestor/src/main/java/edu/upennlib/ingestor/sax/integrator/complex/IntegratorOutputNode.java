@@ -27,7 +27,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.Random;
 import org.apache.log4j.Appender;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
@@ -57,6 +56,14 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     private IdQueryable[] childNodes;
     private Boolean[] requireForWrite;
     private String name;
+
+    public void setAggregating(boolean aggregating) {
+        this.aggregating = aggregating;
+    }
+
+    public Boolean isAggregating() {
+        return aggregating;
+    }
 
     @Override
     public void setName(String name) {
@@ -168,7 +175,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         output = ch;
     }
 
-    private boolean aggregating = false;
+    private Boolean aggregating = null;
 
     @Override
     public void run() {
@@ -195,8 +202,13 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 names.addFirst(null);
                 nodes.addFirst(inputFilter);
                 requires.addFirst(true);
+                if (aggregating == null) {
+                    aggregating = false;
+                }
             } else {
-                aggregating = nodes.size() == 1;
+                if (aggregating == null) {
+                    aggregating = nodes.size() == 1;
+                }
             }
             int size = nodes.size();
             childNodes = nodes.toArray(new IdQueryable[size]);
@@ -271,38 +283,30 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 }
             } else {
                 Boolean self = null;
+                int firstIndexWritten = -1;
                 for (int i : activeIndexes) {
                     if (!childNodes[i].isFinished()) {
                         if (childNodes[i].self()) {
                             if (self == null) {
                                 self = true;
-                                if (lastLevel == null || level > lastLevel) {
-                                    childNodes[i].writeOuterStartElement(output, aggregating);
+                                if (lastLevel == null || level >= lastLevel) {
+                                    if (level > lastLevel) {
+                                        childNodes[i].writeOuterStartElement(output, aggregating);
+                                    }
                                     if (!aggregating) {
                                         childNodes[i].writeInnerStartElement(output);
                                     }
-                                } else if (level < lastLevel) {
-                                    if (!aggregating) {
-                                        childNodes[i].writeInnerEndElement(output);
-                                    }
-                                    childNodes[i].writeOuterEndElement(output);
-                                } else if (level == lastLevel) {
-                                    if (!aggregating) {
-                                        childNodes[i].writeInnerEndElement(output);
-                                        childNodes[i].writeInnerStartElement(output);
-                                    }
+                                    firstIndexWritten = i;
                                 }
                             } else if (!self) {
                                 throw new IllegalStateException();
                             }
                             if (lastLevel == null || level >= lastLevel) {
                                 if (childElementNames[i] != null) {
-                                    System.out.println(name+":open "+childElementNames[i]);
                                     output.startElement("", childElementNames[i], childElementNames[i], attRunner);
                                 }
                                 childNodes[i].writeOutput(output);
                                 if (childElementNames[i] != null) {
-                                    System.out.println(name+":close "+childElementNames[i]);
                                     output.endElement("", childElementNames[i], childElementNames[i]);
                                 }
                             }
@@ -327,13 +331,14 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                         }
                     }
                 }
+                if (self != null && self && !aggregating) {
+                    childNodes[firstIndexWritten].writeInnerEndElement(output);
+                }
             }
             lastLevel = level;
         }
-        System.out.println("started on "+name);
         childNodes[0].writeInnerEndElement(output);
         childNodes[0].writeOuterEndElement(output);
-        System.out.println("finished on "+name);
     }
 
     @Override

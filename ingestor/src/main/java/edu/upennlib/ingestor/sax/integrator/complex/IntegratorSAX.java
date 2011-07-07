@@ -85,16 +85,18 @@ public class IntegratorSAX {
         IntegratorOutputNode hldgNode = new IntegratorOutputNode(hldgSxf);
         IntegratorOutputNode itemsNode = new IntegratorOutputNode(null);
         IntegratorOutputNode itemNode = new IntegratorOutputNode(itemSxf);
-        //IntegratorOutputNode itemStatusesNode = new IntegratorOutputNode(null);
-        //IntegratorOutputNode itemStatusNode = new IntegratorOutputNode(itemStatusSxf);
+        IntegratorOutputNode itemStatusesNode = new IntegratorOutputNode(null);
+        IntegratorOutputNode itemStatusNode = new IntegratorOutputNode(itemStatusSxf);
         hldgsNode.addChild("hldg", hldgNode, false);
         recordNode.addChild("marc", new IntegratorOutputNode(marcSxf), false);
         recordNode.addChild("hldgs", hldgsNode, false);
         hldgNode.addChild("items", itemsNode, false);
         itemsNode.addChild("item", itemNode, false);
-        //itemNode.addChild("itemStatuses", itemStatusesNode, false);
-        //itemStatusesNode.addChild("itemStatus", itemStatusNode, false);
+        itemNode.addChild("itemStatuses", itemStatusesNode, false);
+        itemStatusesNode.addChild("itemStatus", itemStatusNode, false);
+
         rootOutputNode.addChild("record", recordNode, false);
+        //rootOutputNode.setAggregating(true);
         boolean raw = false;
         if (!raw) {
             t.transform(new SAXSource(rootOutputNode, new InputSource()), new StreamResult("/tmp/blah.xml"));
