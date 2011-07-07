@@ -315,9 +315,11 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                                 self = true;
                                 if (lastLevel == null || level >= lastLevel) {
                                     if (level > lastLevel) {
+                                        System.out.println(name+" writing outer start element");
                                         childNodes[i].writeOuterStartElement(output, aggregating);
                                     }
                                     if (!aggregating) {
+                                        System.out.println(name+" writing inner start element");
                                         childNodes[i].writeInnerStartElement(output);
                                     }
                                     firstIndexWritten = i;
@@ -342,8 +344,10 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                             if (self == null) {
                                 self = false;
                                 if (lastLevel == null || level > lastLevel) {
+                                    System.out.println(name+" writing outer start element2");
                                     childNodes[i].writeOuterStartElement(output, false);
                                 } else if (level < lastLevel) {
+                                    System.out.println(name+" writing outer end element");
                                     childNodes[i].writeOuterEndElement(output);
                                 } else {
                                     if (level > 0 || leastId != null) {
@@ -360,12 +364,15 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     }
                 }
                 if (self != null && self && !aggregating) {
+                    System.out.println(name+" writing inner end element");
                     childNodes[firstIndexWritten].writeInnerEndElement(output);
                 }
             }
             lastLevel = level;
         }
-        childNodes[0].writeInnerEndElement(output);
+        if (!aggregating) {
+            childNodes[0].writeInnerEndElement(output);
+        }
         childNodes[0].writeOuterEndElement(output);
     }
 
