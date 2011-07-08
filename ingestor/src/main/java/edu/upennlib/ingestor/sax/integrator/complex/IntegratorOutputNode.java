@@ -296,19 +296,38 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 }
             }
             if (!activeIndexes.containsAll(requiredIndexes)) {
+                Random r = new Random();
+                int randId = r.nextInt();
+                boolean setOthersToEligible = true;
                 for (int i : activeIndexes) {
                     try {
-                        childNodes[i].skipOutput();
+                        try {
+                            //System.out.println(name + " skipping " + childElementNames[i] + ", level=" + levels[i] + "(==)" + childNodes[i].getLevel() + ", id=" + childNodes[i].getId() + ", randId=" + randId);
+                            childNodes[i].skipOutput();
+                            //System.out.println(name + " skipped " + childElementNames[i] + ", level=" + childNodes[i].getLevel() + ", id=" + childNodes[i].getId() + ", randId=" + randId);
+                            if (childNodes[i].getLevel() == levels[i]) {
+                                setOthersToEligible = false;
+                            }
+                        } catch (EOFException ex) {
+                            throw new RuntimeException(ex);
+                        }
                     } catch (IllegalStateException ex) {
                             System.out.println("exception on "+name);
                         for (int j = 0; j < levels.length; j++) {
                             try {
-                                System.out.println(childElementNames[j] + ", level=" + levels[j] + ", id=" + childNodes[j].getId());
+                                System.out.println(childElementNames[j] + ", level=" + levels[j] + ", id=" + childNodes[j].getId()+", eligible="+eligible[j]);
                             } catch (EOFException ex1) {
                                 throw new RuntimeException(ex1);
                             }
                         }
                         throw ex;
+                    }
+                }
+                if (setOthersToEligible) {
+                    for (int i = 0; i < eligible.length; i++) {
+                        if (levels[i] == level) {
+                            eligible[i] = true;
+                        }
                     }
                 }
             } else {

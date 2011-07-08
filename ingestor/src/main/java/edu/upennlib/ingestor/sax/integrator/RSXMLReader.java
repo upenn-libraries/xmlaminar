@@ -69,8 +69,8 @@ public class RSXMLReader extends SQLXMLReader {
         }
     }
 
-    private static final String lowBib = "3000620";
-    private static final String highBib = "3000700";
+    private static final String lowBib = "3032000";
+    private static final String highBib = "3033000";
     private static String host = "[host_or_ip]";
     private static String sid = "[sid]";
     private static String user = "[username]";
@@ -106,13 +106,13 @@ public class RSXMLReader extends SQLXMLReader {
         instance.setSid(sid);
         instance.setUser(user);
         instance.setPwd(pwd);
-        instance.setSql(sqlMfhd);
-        instance.setIdFieldLabels(mfhdIdFields);
+        instance.setSql(sqlItemStatus);
+        instance.setIdFieldLabels(itemStatusIdFields);
 
         SAXTransformerFactory stf = (SAXTransformerFactory)TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
         Transformer t = stf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
-        t.transform(new SAXSource(instance, new InputSource()), new StreamResult("/tmp/hldg.xml"));
+        t.transform(new SAXSource(instance, new InputSource()), new StreamResult("/tmp/item_status.xml"));
     }
 
 }

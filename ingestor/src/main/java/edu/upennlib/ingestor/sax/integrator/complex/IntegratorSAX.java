@@ -20,9 +20,11 @@ import edu.upennlib.ingestor.sax.integrator.BinaryMARCXMLReader;
 import edu.upennlib.ingestor.sax.integrator.ConnectionException;
 import edu.upennlib.ingestor.sax.integrator.RSXMLReader;
 import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,7 +45,7 @@ import org.xml.sax.SAXException;
  */
 public class IntegratorSAX {
     private static final String lowBib = "3000000";
-    private static final String highBib = "3050000";
+    private static final String highBib = "3100000";
     private static String host = "[host_or_ip]";
     private static String sid = "[sid]";
     private static String user = "[username]";
@@ -84,10 +86,11 @@ public class IntegratorSAX {
     }
 
     private void setupAndRun() throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException, ConnectionException {
-        File marcFile = new File("inputFiles/ingestor_skipping/marc.xml");
-        File hldgFile = new File("inputFiles/ingestor_skipping/hldg.xml");
-        File itemFile = new File("inputFiles/ingestor_skipping/item.xml");
-        File itemStatusFile = new File("inputFiles/ingestor_skipping/item_status.xml");
+        String inputFileFolder = "too_much_skipping";
+        File marcFile = new File("inputFiles/"+inputFileFolder+"/marc.xml");
+        File hldgFile = new File("inputFiles/"+inputFileFolder+"/hldg.xml");
+        File itemFile = new File("inputFiles/"+inputFileFolder+"/item.xml");
+        File itemStatusFile = new File("inputFiles/"+inputFileFolder+"/item_status.xml");
         StatefulXMLFilter marcSxf = new StatefulXMLFilter();
         StatefulXMLFilter hldgSxf = new StatefulXMLFilter();
         StatefulXMLFilter itemSxf = new StatefulXMLFilter();
@@ -168,7 +171,9 @@ public class IntegratorSAX {
         long start = System.currentTimeMillis();
         boolean raw = false;
         if (!raw) {
-            t.transform(new SAXSource(rootOutputNode, new InputSource()), new StreamResult("/tmp/blah.xml"));
+            FileOutputStream fos = new FileOutputStream("/tmp/blah.xml");
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            t.transform(new SAXSource(rootOutputNode, new InputSource()), new StreamResult(bos));
         } else {
             BufferingXMLFilter rawOutput = new BufferingXMLFilter();
             rootOutputNode.setContentHandler(rawOutput);

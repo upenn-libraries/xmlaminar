@@ -124,8 +124,8 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             }
         }
     }
-    private static final String lowBib = "3000620";
-    private static final String highBib = "3000700";
+    private static final String lowBib = "3032000";
+    private static final String highBib = "3033000";
     private static String host = "[host_or_ip]";
     private static String sid = "[sid]";
     private static String user = "[username]";
