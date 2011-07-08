@@ -271,7 +271,11 @@ public class BufferingXMLFilter extends MyXFI {
                 while (iter.hasNext()) {
                     Object[] next = (Object[]) iter.next();
                     if (ch == null) {
-                        System.out.println(Arrays.asList(next));
+                        if (next[0] == SaxEventType.startElement) {
+                            System.out.println("\t"+next[0]+", "+next[1]+", "+next[2]+", "+next[3]+", "+attsToString((Attributes)next[4]));
+                        } else {
+                            System.out.println("\t"+Arrays.asList(next));
+                        }
                     } else {
                         level += executor.executeSaxEvent(ch, next, writeStructural, writeNonStructural);
                     }
@@ -279,6 +283,14 @@ public class BufferingXMLFilter extends MyXFI {
             }
             return level;
         }
+    }
+
+    private static String attsToString(Attributes atts) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < atts.getLength(); i++) {
+            sb.append(atts.getQName(i)).append("=\"").append(atts.getValue(i)).append("\", ");
+        }
+        return sb.toString();
     }
 
     public Iterator iterator() {

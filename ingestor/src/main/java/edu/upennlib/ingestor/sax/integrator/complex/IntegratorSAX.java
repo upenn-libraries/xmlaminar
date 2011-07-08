@@ -42,8 +42,8 @@ import org.xml.sax.SAXException;
  * @author michael
  */
 public class IntegratorSAX {
-    private static final String lowBib = "3000620";
-    private static final String highBib = "3000700";
+    private static final String lowBib = "3000000";
+    private static final String highBib = "3050000";
     private static String host = "[host_or_ip]";
     private static String sid = "[sid]";
     private static String user = "[username]";
@@ -84,10 +84,10 @@ public class IntegratorSAX {
     }
 
     private void setupAndRun() throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException, ConnectionException {
-        File marcFile = new File("inputFiles/integrator_xml/marc.xml");
-        File hldgFile = new File("inputFiles/integrator_xml/mfhd.xml");
-        File itemFile = new File("inputFiles/integrator_xml/item.xml");
-        File itemStatusFile = new File("inputFiles/integrator_xml/item_status.xml");
+        File marcFile = new File("inputFiles/ingestor_skipping/marc.xml");
+        File hldgFile = new File("inputFiles/ingestor_skipping/hldg.xml");
+        File itemFile = new File("inputFiles/ingestor_skipping/item.xml");
+        File itemStatusFile = new File("inputFiles/ingestor_skipping/item_status.xml");
         StatefulXMLFilter marcSxf = new StatefulXMLFilter();
         StatefulXMLFilter hldgSxf = new StatefulXMLFilter();
         StatefulXMLFilter itemSxf = new StatefulXMLFilter();
@@ -165,6 +165,7 @@ public class IntegratorSAX {
 
         rootOutputNode.addChild("record", recordNode, false);
         //rootOutputNode.setAggregating(false);
+        long start = System.currentTimeMillis();
         boolean raw = false;
         if (!raw) {
             t.transform(new SAXSource(rootOutputNode, new InputSource()), new StreamResult("/tmp/blah.xml"));
@@ -178,6 +179,7 @@ public class IntegratorSAX {
             }
             rawOutput.play(null);
         }
+        System.out.println("sax integrator duration: "+(System.currentTimeMillis() - start));
     }
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
 }

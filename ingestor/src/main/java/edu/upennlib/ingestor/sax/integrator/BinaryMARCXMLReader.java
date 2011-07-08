@@ -124,6 +124,8 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             }
         }
     }
+    private static final String lowBib = "3000620";
+    private static final String highBib = "3000700";
     private static String host = "[host_or_ip]";
     private static String sid = "[sid]";
     private static String user = "[username]";
@@ -131,7 +133,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     private static String sql = "SELECT DISTINCT BIB_DATA.BIB_ID, BIB_DATA.SEQNUM, BIB_DATA.RECORD_SEGMENT "
             + "FROM PENNDB.BIB_DATA, BIB_MASTER "
             + "WHERE BIB_DATA.BIB_ID = BIB_MASTER.BIB_ID AND  BIB_MASTER.SUPPRESS_IN_OPAC = 'N' "
-            + "AND BIB_DATA.BIB_ID > 3000000 AND BIB_DATA.BIB_ID < 3000100 "
+            + "AND BIB_DATA.BIB_ID > "+lowBib+" AND BIB_DATA.BIB_ID < "+highBib+" "
             + "ORDER BY BIB_ID, SEQNUM";
 
     public static void main(String args[]) throws ConnectionException, SQLException, FileNotFoundException, IOException, SAXException, TransformerConfigurationException, TransformerException, ParserConfigurationException {
