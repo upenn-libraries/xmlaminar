@@ -43,6 +43,7 @@ import org.xml.sax.SAXException;
  * @author michael
  */
 public class IntegratorSAX {
+    private static final boolean limitRange = false;
     private static final String lowBib = "3000000";
     private static final String highBib = "3100000";
     private static String host = "[host_or_ip]";
@@ -52,7 +53,7 @@ public class IntegratorSAX {
     private static String marcSql = "SELECT DISTINCT BIB_DATA.BIB_ID, BIB_DATA.SEQNUM, BIB_DATA.RECORD_SEGMENT "
             + "FROM PENNDB.BIB_DATA, BIB_MASTER "
             + "WHERE BIB_DATA.BIB_ID = BIB_MASTER.BIB_ID AND  BIB_MASTER.SUPPRESS_IN_OPAC = 'N' "
-            + "AND BIB_DATA.BIB_ID > "+lowBib+" AND BIB_DATA.BIB_ID < "+highBib+" "
+            + (limitRange ? "AND BIB_DATA.BIB_ID > "+lowBib+" AND BIB_DATA.BIB_ID < "+highBib+" " : "")
             + "ORDER BY BIB_ID, SEQNUM";
     private static String[] marcIdFields = {"BIB_ID"};
     private static String[] marcOutputFields = {"RECORD_SEGMENT"};
@@ -60,21 +61,21 @@ public class IntegratorSAX {
             + "L.LOCATION_NAME AS TEMP_LOCATION_DISP, L.LOCATION_DISPLAY_NAME AS TEMP_LOCATION "
             + "FROM BIB_MFHD BM, MFHD_ITEM MI, ITEM I LEFT OUTER JOIN LOCATION L ON I.TEMP_LOCATION = L.LOCATION_ID "
             + "WHERE BM.MFHD_ID = MI.MFHD_ID AND MI.ITEM_ID = I.ITEM_ID "
-            + "AND BIB_ID > "+lowBib+" AND BIB_ID < "+highBib+" "
+            + (limitRange ? "AND BIB_ID > "+lowBib+" AND BIB_ID < "+highBib+" " : "")
             + "ORDER BY BIB_ID, MFHD_ID, ITEM_ID";
     private static String[] itemIdFields = {"BIB_ID", "MFHD_ID", "ITEM_ID"};
     private static String hldgSql = "SELECT BM.BIB_ID, MM.MFHD_ID, MM.DISPLAY_CALL_NO, MM.NORMALIZED_CALL_NO, MM.CREATE_DATE AS HOLD_CREATE_DATE, MAX(ACTION_DATE) AS LAST_HOLD_UPDATE, CALL_NO_TYPE, "
             + "L.LOCATION_NAME AS PERM_LOCATION_DISP, L.LOCATION_DISPLAY_NAME AS PERM_LOCATION "
             + "FROM MFHD_MASTER MM, BIB_MFHD BM, MFHD_HISTORY MH, LOCATION L "
             + "WHERE MM.MFHD_ID = BM.MFHD_ID AND MH.MFHD_ID = BM.MFHD_ID AND MM.SUPPRESS_IN_OPAC = 'N' AND MM.LOCATION_ID = L.LOCATION_ID "
-            + "AND BIB_ID > "+lowBib+" AND BIB_ID < "+highBib+" "
+            + (limitRange ? "AND BIB_ID > "+lowBib+" AND BIB_ID < "+highBib+" " : "")
             + "GROUP BY BM.BIB_ID, MM.MFHD_ID, MM.DISPLAY_CALL_NO, MM.NORMALIZED_CALL_NO, MM.CREATE_DATE, CALL_NO_TYPE, L.LOCATION_NAME, L.LOCATION_DISPLAY_NAME "
             + "ORDER BY BIB_ID, MFHD_ID";
     private static String[] hldgIdFields = {"BIB_ID", "MFHD_ID"};
     private static String itemStatusSql = "SELECT BM.BIB_ID, MI.MFHD_ID, I.ITEM_ID, IST.ITEM_STATUS_TYPE AS STATUS_ID, IST.ITEM_STATUS_DESC STATUS "
             + "FROM BIB_MFHD BM, MFHD_ITEM MI, ITEM I, ITEM_STATUS, ITEM_STATUS_TYPE IST "
             + "WHERE BM.MFHD_ID = MI.MFHD_ID AND MI.ITEM_ID = I.ITEM_ID AND I.ITEM_ID = ITEM_STATUS.ITEM_ID AND ITEM_STATUS.ITEM_STATUS = IST.ITEM_STATUS_TYPE "
-            + "AND BIB_ID > "+lowBib+" AND BIB_ID < "+highBib+" "
+            + (limitRange ? "AND BIB_ID > "+lowBib+" AND BIB_ID < "+highBib+" " : "")
             + "ORDER BY BIB_ID, MFHD_ID, ITEM_ID, STATUS_ID";
     private static String[] itemStatusIdFields = {"BIB_ID", "MFHD_ID", "ITEM_ID", "STATUS_ID"};
     private final IntegratorOutputNode rootOutputNode = new IntegratorOutputNode(null);

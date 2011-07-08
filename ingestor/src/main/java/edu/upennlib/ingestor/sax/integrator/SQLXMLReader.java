@@ -61,6 +61,7 @@ public abstract class SQLXMLReader implements XMLReader {
     Connection connection;
     ResultSet rs;
     ContentHandler ch;
+    BufferingXMLFilter buffer = new BufferingXMLFilter();
     ErrorHandler eh;
     DTDHandler dh;
     LexicalHandler lh;
@@ -204,6 +205,40 @@ public abstract class SQLXMLReader implements XMLReader {
 
     @Override
     public final void parse(InputSource input) throws IOException, SAXException {
+        if (!parsing) {
+            parsing = true;
+            buffer.setParent(this);
+            buffer.setContentHandler(ch);
+            buffer.parse(input);
+        } else {
+            try {
+                try {
+                    initializeResultSet();
+                } catch (ConnectionException ex) {
+                    throw new IOException(ex);
+                } catch (SQLException ex) {
+                    throw new IOException(ex);
+                }
+                try {
+                    outputResultSetAsSAXEvents();
+                } catch (SQLException ex) {
+                    throw new IOException(ex);
+                }
+            } finally {
+                if (rs != null) {
+                    try {
+                        rs.close();
+                    } catch (SQLException ex) {
+                        logger.error("exception closing resultset", ex);
+                    }
+                }
+            }
+            parsing = false;
+        }
+    }
+
+    //@Override
+    public final void parseOld(InputSource input) throws IOException, SAXException {
         parsing = true;
         try {
             try {
@@ -229,7 +264,7 @@ public abstract class SQLXMLReader implements XMLReader {
         }
         parsing = false;
     }
-    
+
     private void initializeResultSet() throws ConnectionException, SQLException {
         logger.trace("initializing resultset");
         rs = connection.getResultSet();
