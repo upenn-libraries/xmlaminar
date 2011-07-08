@@ -26,6 +26,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -465,8 +467,8 @@ public class BufferingXMLFilter extends MyXFI {
 
         ContentHandler ch = getContentHandler();
 
-        @Override
-        public void run() {
+        //@Override
+        public void runOld() {
             while (parsing) {
                 try {
                     playLocal(ch, true, true);
@@ -475,6 +477,38 @@ public class BufferingXMLFilter extends MyXFI {
                 }
             }
         }
+
+        @Override
+        public void run() {
+            Object[] next;
+            do {
+                next = null;
+                synchronized (eventQueue) {
+                    while (parsing && (eventQueue[0] == null || eventQueue[0].isEmpty())) {
+                        try {
+                            eventQueue.wait();
+                        } catch (InterruptedException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                    if (eventQueue[0] != null && !eventQueue[0].isEmpty()) {
+                        next = (Object[]) eventQueue[0].remove();
+                        queueSize--;
+                        if (queueSizeLimit != -1 && queueSize < queueThreshold) {
+                            eventQueue.notify();
+                        }
+                    }
+                }
+                if (next != null) {
+                    try {
+                        executor.executeSaxEvent(ch, next, true, true);
+                    } catch (SAXException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            } while (next != null);
+        }
+
     }
 
 }

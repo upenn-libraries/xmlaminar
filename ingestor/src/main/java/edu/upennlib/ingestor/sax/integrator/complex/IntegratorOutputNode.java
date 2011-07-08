@@ -21,7 +21,6 @@
 
 package edu.upennlib.ingestor.sax.integrator.complex;
 
-import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,7 +28,6 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.Random;
 import org.apache.log4j.Appender;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
