@@ -21,6 +21,7 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
+import edu.upennlib.ingestor.sax.utils.ConnectionException;
 import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

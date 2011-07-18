@@ -21,6 +21,7 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
+import edu.upennlib.ingestor.sax.utils.ConnectionException;
 import java.io.IOException;
 import java.io.Reader;
 import javax.xml.transform.OutputKeys;

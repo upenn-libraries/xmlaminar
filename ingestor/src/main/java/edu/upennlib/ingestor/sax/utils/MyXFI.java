@@ -21,8 +21,6 @@
 
 package edu.upennlib.ingestor.sax.utils;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.upennlib.ingestor.sax.integrator;
+package edu.upennlib.ingestor.sax.utils;
 
 public class ConnectionException extends Exception {
 

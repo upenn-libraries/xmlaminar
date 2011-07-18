@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.upennlib.ingestor.sax.integrator;
+package edu.upennlib.ingestor.sax.utils;
 
 import java.sql.DriverManager;
 import java.sql.ResultSet;

@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package edu.upennlib.ingestor.sax.integrator.complex;
+package edu.upennlib.ingestor.sax.integrator;
 
-import edu.upennlib.ingestor.sax.integrator.BinaryMARCXMLReader;
-import edu.upennlib.ingestor.sax.integrator.ConnectionException;
-import edu.upennlib.ingestor.sax.integrator.RSXMLReader;
+import edu.upennlib.ingestor.sax.utils.ConnectionException;
 import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import java.io.BufferedOutputStream;
 import java.io.File;

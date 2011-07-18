@@ -19,21 +19,16 @@
  * and open the template in the editor.
  */
 
-package edu.upennlib.ingestor.sax.integrator;
+package edu.upennlib.ingestor.sax.testutils;
 
-import java.io.FileInputStream;
+import edu.upennlib.ingestor.sax.utils.Connection;
+import edu.upennlib.ingestor.sax.utils.ConnectionException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
-import org.marc4j.MarcXmlReader;
 
 /**
  *

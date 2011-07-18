@@ -19,7 +19,7 @@
  * and open the template in the editor.
  */
 
-package edu.upennlib.ingestor.sax.integrator.complex;
+package edu.upennlib.ingestor.sax.integrator;
 
 import java.io.EOFException;
 import java.io.IOException;

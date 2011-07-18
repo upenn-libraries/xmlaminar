@@ -19,7 +19,7 @@
  * and open the template in the editor.
  */
 
-package edu.upennlib.ingestor.sax.integrator.complex;
+package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import edu.upennlib.ingestor.sax.xsl.SaxEventExecutor;
@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.NoSuchElementException;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

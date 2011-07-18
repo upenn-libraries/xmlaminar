@@ -19,8 +19,9 @@
  * and open the template in the editor.
  */
 
-package edu.upennlib.ingestor.sax.integrator;
+package edu.upennlib.ingestor.sax.testutils;
 
+import edu.upennlib.ingestor.sax.utils.ConnectionException;
 import edu.upennlib.ingestor.sax.utils.NoopXMLFilter;
 import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import java.io.BufferedInputStream;
