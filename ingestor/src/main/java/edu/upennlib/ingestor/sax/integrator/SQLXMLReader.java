@@ -64,6 +64,7 @@ public abstract class SQLXMLReader implements XMLReader {
     Connection connection;
     ResultSet rs;
     ContentHandler ch;
+    Boolean chInstanceOfStartElementExtension = null;
     BufferingXMLFilter buffer = new BufferingXMLFilter();
     ErrorHandler eh;
     DTDHandler dh;
@@ -135,6 +136,7 @@ public abstract class SQLXMLReader implements XMLReader {
     @Override
     public void setContentHandler(ContentHandler handler) {
         ch = handler;
+        chInstanceOfStartElementExtension = handler instanceof StartElementExtension;
     }
 
     @Override
@@ -374,7 +376,7 @@ public abstract class SQLXMLReader implements XMLReader {
         while (--i > -1) {
             if (currentId[i] != lastId[i]) {
                 if (!endElementBufferEmpty) {
-                    idFieldDepth += endElementBuffer.flush(ch);
+                    idFieldDepth += endElementBuffer.flush(ch, chInstanceOfStartElementExtension);
                     endElementBufferEmpty = true;
                 }
                 ch.endElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i]);

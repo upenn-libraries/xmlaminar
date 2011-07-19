@@ -215,14 +215,14 @@ public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
         return replayableLocal(ch, true, true);
     }
 
-    public int flush(ContentHandler ch) throws SAXException {
+    public int flush(ContentHandler ch, boolean see) throws SAXException {
         if (eventPlayer != null) {
             throw new IllegalStateException();
         }
-        return playLocal(ch, true, true);
+        return playLocal(ch, true, true, see);
     }
 
-    public int playMostRecentStructurallyInsignificant(ContentHandler ch) throws SAXException {
+    public int playMostRecentStructurallyInsignificant(ContentHandler ch, boolean see) throws SAXException {
         Iterator<Object[]> iter = reverseIterator();
         int level = 0;
         while (iter.hasNext()) {
@@ -230,12 +230,12 @@ public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
             if (SaxEventExecutor.isStructurallySignificant(next)) {
                 break;
             }
-            level += executor.executeSaxEvent(ch, next, true, true);
+            level += executor.executeSaxEvent(ch, next, true, true, see);
         }
         return level;
     }
 
-    private int playLocal(ContentHandler ch, boolean writeStructural, boolean writeNonStructural) throws SAXException {
+    private int playLocal(ContentHandler ch, boolean writeStructural, boolean writeNonStructural, boolean see) throws SAXException {
         Object[] next = null;
         int level = 0;
         synchronized (eventQueue) {
@@ -246,7 +246,7 @@ public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
         }
         while (next != null) {
             //System.out.println("on:"+ch+", "+Arrays.asList(next));
-            level += executor.executeSaxEvent(ch, next, writeStructural, writeNonStructural);
+            level += executor.executeSaxEvent(ch, next, writeStructural, writeNonStructural, see);
             synchronized (eventQueue) {
                 if (queueSize != 0) {
                     next = (Object[]) eventQueue[0].remove();
@@ -267,6 +267,7 @@ public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
             return 0;
         } else {
             int level = 0;
+            boolean see = ch instanceof StartElementExtension;
             synchronized (eventQueue) {
                 Iterator iter = eventQueue[0].iterator();
                 while (iter.hasNext()) {
@@ -278,7 +279,7 @@ public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
                             System.out.println("\t"+Arrays.asList(next));
                         }
                     } else {
-                        level += executor.executeSaxEvent(ch, next, writeStructural, writeNonStructural);
+                        level += executor.executeSaxEvent(ch, next, writeStructural, writeNonStructural, see);
                     }
                 }
             }
@@ -469,16 +470,39 @@ public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
 
     private class EventPlayer implements Runnable {
 
-        ContentHandler ch = getContentHandler();
+        private final ContentHandler ch;
+        private final boolean chImplementsStartElementExtension;
+
+        private final int STATS_UPDATE_INTERVAL = 1000;
+        private long updateCount = 0;
+        private int lastUpdatedStats = 0;
+        private double queueSizeMean = -1;
+        private double queueSizeVariance = 0;
+
+        public EventPlayer() {
+            ch = getContentHandler();
+            chImplementsStartElementExtension = ch instanceof StartElementExtension;
+        }
 
         //@Override
-        public void runOld() {
-            while (parsing) {
-                try {
-                    playLocal(ch, true, true);
-                } catch (SAXException ex) {
-                    throw new RuntimeException(ex);
-                }
+//        public void runOld() {
+//            while (parsing) {
+//                try {
+//                    playLocal(ch, true, true);
+//                } catch (SAXException ex) {
+//                    throw new RuntimeException(ex);
+//                }
+//            }
+//        }
+
+        private void updateStats() {
+            lastUpdatedStats = 0;
+            updateCount++;
+            if (updateCount == 1) { // first time
+                queueSizeMean = queueSize;
+            } else {
+                queueSizeMean += (queueSize - queueSizeMean) / updateCount;
+                queueSizeVariance += (Math.pow((queueSize - queueSizeMean), 2) - queueSizeVariance) / updateCount;
             }
         }
 
@@ -497,6 +521,9 @@ public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
                     }
                     if (eventQueue[0] != null && !eventQueue[0].isEmpty()) {
                         next = (Object[]) eventQueue[0].remove();
+                        if (++lastUpdatedStats >= STATS_UPDATE_INTERVAL) {
+                            updateStats();
+                        }
                         queueSize--;
                         if (queueSizeLimit != -1 && queueSize < queueThreshold) {
                             eventQueue.notify();
@@ -505,12 +532,20 @@ public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
                 }
                 if (next != null) {
                     try {
-                        executor.executeSaxEvent(ch, next, true, true);
+                        executor.executeSaxEvent(ch, next, true, true, chImplementsStartElementExtension);
                     } catch (SAXException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
             } while (next != null);
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("\n"+BufferingXMLFilter.this.toString());
+            sb.append("\n\tqueueSizeMean = " + queueSizeMean);
+            sb.append("\n\tqueueSizeVariance = " + queueSizeVariance);
+            sb.append("\n\tqueueSizeStdDev = " + Math.sqrt(queueSizeVariance));
+            System.out.println(sb.toString());
+
         }
 
     }

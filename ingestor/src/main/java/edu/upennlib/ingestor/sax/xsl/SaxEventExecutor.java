@@ -70,7 +70,7 @@ public class SaxEventExecutor {
         }
     }
 
-    public int executeSaxEvent(ContentHandler ch, Object[] args, boolean writeStructural, boolean writeNonStructural) throws SAXException {
+    public int executeSaxEvent(ContentHandler ch, Object[] args, boolean writeStructural, boolean writeNonStructural, boolean implementsStartElementExtension) throws SAXException {
         int level = 0;
         switch ((SaxEventType) args[0]) {
             case characters:
@@ -124,7 +124,7 @@ public class SaxEventExecutor {
                 break;
             case startElementExtended:
                 if (writeStructural) {
-                    if (ch instanceof StartElementExtension) {
+                    if (implementsStartElementExtension) {
                         ((StartElementExtension)ch).startElement((String) args[1], (String) args[2], (String) args[3], (Attributes) args[4], (Object[]) args[5]);
                     } else {
                         ch.startElement((String) args[1], (String) args[2], (String) args[3], (Attributes) args[4]);

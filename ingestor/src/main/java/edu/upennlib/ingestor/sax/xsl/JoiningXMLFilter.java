@@ -234,7 +234,7 @@ public class JoiningXMLFilter extends MyXFI {
                     }
                 }
             }
-            outputs[head].flush(ch);
+            outputs[head].flush(ch, false);
             inputs[head].clear();
             states[head] = BufferState.FREE;
             head = ++head % MAX_SIZE;
@@ -370,7 +370,7 @@ public class JoiningXMLFilter extends MyXFI {
                 try {
                     subSplitter.parse(dummyInput);
                     t.transform(new SAXSource(individualInputBuffer, new InputSource()), new SAXResult(localOutputEventBuffer));
-                    localOutputEventBuffer.flush(out);
+                    localOutputEventBuffer.flush(out, false);
                 } catch (SAXException ex) {
                     localOutputEventBuffer.clear();
                 } catch (TransformerException ex) {
@@ -462,7 +462,7 @@ public class JoiningXMLFilter extends MyXFI {
                     if (!inPreRecord) {
                         level += docLevelEventBuffer.play(getContentHandler());
                     } else {
-                        level += docLevelEventBuffer.playMostRecentStructurallyInsignificant(getContentHandler());
+                        level += docLevelEventBuffer.playMostRecentStructurallyInsignificant(getContentHandler(), false);
                     }
                 }
                 inPreRecord = false;

@@ -104,7 +104,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             if (recordFinished) {
                 try {
                     parseRecord(baos.toByteArray());
-                    outputBuffer.flush(ch);
+                    outputBuffer.flush(ch, chInstanceOfStartElementExtension);
                 } catch (Exception e) {
                     if (!logRecordAsError) {
                         logRecordAsError = true;
