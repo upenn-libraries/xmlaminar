@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
  * @author michael
  */
 public class IntegratorSAX {
-    private static final boolean limitRange = true;
+    private static final boolean limitRange = false;
     private static final String lowBib = "3000000";
     private static final String highBib = "3001000";
     private static String host = "[host_or_ip]";
