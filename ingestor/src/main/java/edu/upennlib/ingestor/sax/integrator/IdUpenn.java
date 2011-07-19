@@ -38,6 +38,15 @@ public final class IdUpenn implements Comparable {
         this.idLong = Long.parseLong(idString);
     }
 
+    public IdUpenn(String idType, long idLong) {
+        if (idType == null) {
+            throw new IllegalArgumentException();
+        }
+        this.idType = idType;
+        this.idString = Long.toString(idLong);
+        this.idLong = idLong;
+    }
+
     @Override
     public final int compareTo(Object o) {
         IdUpenn other = (IdUpenn) o;

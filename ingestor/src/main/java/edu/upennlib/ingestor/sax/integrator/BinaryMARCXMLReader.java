@@ -76,7 +76,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     private boolean printStackTraces = false;
 
     @Override
-    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, Object rawContent) throws SAXException, IOException {
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, SQLXMLReader.OutputType type, Object rawContent) throws SAXException, IOException {
         if (selfId != currentId) {
             logRecordAsError = false;
             if (baos.size() > 0) {

@@ -20,6 +20,7 @@
  */
 package edu.upennlib.ingestor.sax.xsl;
 
+import edu.upennlib.ingestor.sax.utils.StartElementExtension;
 import java.util.LinkedList;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -121,6 +122,16 @@ public class SaxEventExecutor {
                     level++;
                 }
                 break;
+            case startElementExtended:
+                if (writeStructural) {
+                    if (ch instanceof StartElementExtension) {
+                        ((StartElementExtension)ch).startElement((String) args[1], (String) args[2], (String) args[3], (Attributes) args[4], (Object[]) args[5]);
+                    } else {
+                        ch.startElement((String) args[1], (String) args[2], (String) args[3], (Attributes) args[4]);
+                    }
+                    level++;
+                }
+                break;
             case startPrefixMapping:
                 if (writeStructural) {
                     ch.startPrefixMapping((String) args[1], (String) args[2]);
@@ -165,6 +176,7 @@ public class SaxEventExecutor {
         switch ((SaxEventType) event[0]) {
             case startDocument:
             case startElement:
+            case startElementExtended:
             case startPrefixMapping:
             case endDocument:
             case endElement:

@@ -19,14 +19,16 @@
  * and open the template in the editor.
  */
 
-package edu.upennlib.ingestor.sax.xsl;
+package edu.upennlib.ingestor.sax.utils;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 /**
  *
  * @author michael
  */
-public enum SaxEventType {
-    setDocumentLocator, startDocument, endDocument, startPrefixMapping,
-    endPrefixMapping, startElement, startElementExtended, endElement, characters, ignorableWhitespace, processingInstruction, skippedEntity,
-    comment, endCDATA, endDTD, endEntity, startCDATA, startDTD, startEntity
+public interface StartElementExtension {
+
+    public void startElement(String uri, String localName, String qName, Attributes atts, Object... objectAtts) throws SAXException;
 }

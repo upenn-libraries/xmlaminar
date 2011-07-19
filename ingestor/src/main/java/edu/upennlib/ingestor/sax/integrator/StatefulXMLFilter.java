@@ -21,6 +21,7 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
+import edu.upennlib.ingestor.sax.utils.StartElementExtension;
 import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import edu.upennlib.ingestor.sax.xsl.SaxEventExecutor;
 import java.io.EOFException;
@@ -43,7 +44,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
+public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable, StartElementExtension {
 
 
     private final boolean debugging = true;
@@ -155,6 +156,21 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+        if (state != State.STEP || level < 0) {
+            startElement(uri, localName, qName, atts, (Object[]) null);
+        } else {
+            Object[] objectAtts = new Object[1];
+            try {
+                objectAtts[0] = new IdUpenn(localName, atts.getValue("id"));
+            } catch (NumberFormatException ex) {
+                throw new RuntimeException(level+", "+state+", "+uri+", "+localName+", "+qName+", "+attsToString(atts), ex);
+            }
+            startElement(uri, localName, qName, atts, objectAtts);
+        }
+    }
+
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes atts, Object... objectAtts) throws SAXException {
         level++;
         switch (state) {
             case WAIT:
@@ -171,11 +187,13 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                 pushStartBuffer();
                 workingBuffer.flush(innerStartElementBuffer);
                 setContentHandler(innerStartElementBuffer);
-                super.startElement(uri, localName, qName, atts);
+                innerStartElementBuffer.startElement(uri, localName, qName, atts, objectAtts);
+                //super.startElement(uri, localName, qName, atts);
                 if (debugging && !uri.equals(INTEGRATOR_URI)) {
                     throw new IllegalStateException(name + " expected uri: " + INTEGRATOR_URI + "; found: " + uri + ", " + localName + ", " + qName);
                 } else if (level > 0) {
-                    Comparable localId = new IdUpenn(localName, atts.getValue("id"));
+                    //Comparable localId = new IdUpenn(localName, atts.getValue("id"));
+                    Comparable localId = (Comparable) objectAtts[0];
                     id.push(localId);
                     if (level == selfLevel) {
                         selfId = true;
@@ -203,6 +221,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         }
         lastWasStartElement = true;
     }
+
     private BufferingXMLFilter outerEndElementBuffer = new BufferingXMLFilter();
     private BufferingXMLFilter innerEndElementBuffer = new BufferingXMLFilter();
     private BufferingXMLFilter innerStartElementBuffer = new BufferingXMLFilter();

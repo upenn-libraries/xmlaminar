@@ -18,6 +18,7 @@ package edu.upennlib.ingestor.sax.xsl;
 
 import edu.upennlib.ingestor.sax.utils.MyXFI;
 import edu.upennlib.ingestor.sax.utils.NoopXMLFilter;
+import edu.upennlib.ingestor.sax.utils.StartElementExtension;
 import java.io.IOException;
 import java.nio.CharBuffer;
 import java.util.Arrays;
@@ -45,7 +46,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class BufferingXMLFilter extends MyXFI {
+public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
 
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     public static final int QUEUE_ARRAY_SIZE = 2000;
@@ -180,7 +181,7 @@ public class BufferingXMLFilter extends MyXFI {
                 if (chOrig.equals(args[1])) {
                     throw new RuntimeException("not working properly");
                 }
-            } else if (args[0] == SaxEventType.startElement) {
+            } else if (args[0] == SaxEventType.startElement || args[0] == SaxEventType.startElementExtended) {
                 args[4] = new AttributesImpl((Attributes) args[4]);
             }
             //System.out.println(Arrays.asList(args));
@@ -378,6 +379,11 @@ public class BufferingXMLFilter extends MyXFI {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         bufferSaxEvent(SaxEventType.startElement, uri, localName, qName, atts);
+    }
+
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes atts, Object... objectAtts) throws SAXException {
+        bufferSaxEvent(SaxEventType.startElementExtended, uri, localName, qName, atts, objectAtts);
     }
 
     @Override
