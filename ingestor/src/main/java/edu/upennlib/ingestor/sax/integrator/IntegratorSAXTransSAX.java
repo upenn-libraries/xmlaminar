@@ -49,8 +49,8 @@ import org.xml.sax.SAXException;
  *
  * @author michael
  */
-public class IntegratorSAXTransPiped {
-    private static final boolean limitRange = true;
+public class IntegratorSAXTransSAX {
+    private static final boolean limitRange = false;
     private static final String lowBib = "3000000";
     private static final String highBib = "3010000";
     private static String host = "[host_or_ip]";
@@ -88,7 +88,7 @@ public class IntegratorSAXTransPiped {
     private final IntegratorOutputNode rootOutputNode = new IntegratorOutputNode(null);
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, FileNotFoundException, IOException, TransformerConfigurationException, TransformerException, ConnectionException {
-        IntegratorSAXTransPiped instance = new IntegratorSAXTransPiped();
+        IntegratorSAXTransSAX instance = new IntegratorSAXTransSAX();
         instance.setupAndRun();
     }
 
@@ -178,13 +178,10 @@ public class IntegratorSAXTransPiped {
         long start = System.currentTimeMillis();
         boolean raw = false;
         if (!raw) {
-            PipedOutputStream pos = new PipedOutputStream();
-            PipedInputStream pis = new PipedInputStream(pos);
-            XSLRunner runner = new XSLRunner(pis);
-            Thread outputThread = new Thread(runner);
-            outputThread.start();
-            BufferedOutputStream bos = new BufferedOutputStream(pos);
-            t.transform(new SAXSource(rootOutputNode, new InputSource()), new StreamResult(bos));
+            JoiningXMLFilter joiner = new JoiningXMLFilter();
+            FileOutputStream fos = new FileOutputStream("/tmp/blah_trans.xml");
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            joiner.transform(rootOutputNode, new File("inputFiles/fullTest.xsl"), new StreamResult(bos));
             bos.close();
         } else {
             BufferingXMLFilter rawOutput = new BufferingXMLFilter();
@@ -200,42 +197,4 @@ public class IntegratorSAXTransPiped {
     }
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
 
-    private class XSLRunner implements Runnable {
-
-        private final InputStream is;
-        
-        public XSLRunner(InputStream is) {
-            this.is = is;
-        }
-
-        @Override
-        public void run() {
-            JoiningXMLFilter joiner = new JoiningXMLFilter();
-            BufferedInputStream bis = new BufferedInputStream(is);
-            FileOutputStream fos;
-            try {
-                fos = new FileOutputStream("/tmp/blah_trans_piped.xml");
-            } catch (FileNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
-            BufferedOutputStream bos = new BufferedOutputStream(fos);
-            try {
-                joiner.transform(new InputSource(bis), new File("inputFiles/fullTest.xsl"), new StreamResult(bos));
-                bos.close();
-            } catch (ParserConfigurationException ex) {
-                throw new RuntimeException(ex);
-            } catch (SAXException ex) {
-                throw new RuntimeException(ex);
-            } catch (FileNotFoundException ex) {
-                throw new RuntimeException(ex);
-            } catch (TransformerConfigurationException ex) {
-                throw new RuntimeException(ex);
-            } catch (TransformerException ex) {
-                throw new RuntimeException(ex);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-
-    }
 }

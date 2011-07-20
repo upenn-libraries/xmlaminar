@@ -162,13 +162,13 @@ public class DBMarcToFile {
             field = decodeUTF8.decode(binaryField);
         }
         attRunner.clear();
-        attRunner.addAttribute(MARCXML_URI, FieldType.tag.localName, FieldType.tag.qName, "CDATA", tag);
+        attRunner.addAttribute("", FieldType.tag.localName, FieldType.tag.qName, "CDATA", tag);
         FieldType fieldType;
         if (tag.startsWith("00")) {
             fieldType = FieldType.controlfield;
         } else {
-            attRunner.addAttribute(MARCXML_URI, FieldType.ind1.localName, FieldType.ind1.qName, "CDATA", Character.toString(field.charAt(0)));
-            attRunner.addAttribute(MARCXML_URI, FieldType.ind2.localName, FieldType.ind2.qName, "CDATA", Character.toString(field.charAt(1)));
+            attRunner.addAttribute("", FieldType.ind1.localName, FieldType.ind1.qName, "CDATA", Character.toString(field.charAt(0)));
+            attRunner.addAttribute("", FieldType.ind2.localName, FieldType.ind2.qName, "CDATA", Character.toString(field.charAt(1)));
             fieldType = FieldType.datafield;
         }
         ch.startElement(MARCXML_URI, fieldType.localName, fieldType.qName, attRunner);
@@ -199,7 +199,7 @@ public class DBMarcToFile {
                         ch.endElement(MARCXML_URI, FieldType.subfield.localName, FieldType.subfield.qName);
                     }
                     attRunner.clear();
-                    attRunner.addAttribute(MARCXML_URI, FieldType.code.localName, FieldType.code.qName, "CDATA", Character.toString(field.charAt(++index)));
+                    attRunner.addAttribute("", FieldType.code.localName, FieldType.code.qName, "CDATA", Character.toString(field.charAt(++index)));
                     inSubfield = true;
                     ch.startElement(MARCXML_URI, FieldType.subfield.localName, FieldType.subfield.qName, attRunner);
                     cStart = -1;

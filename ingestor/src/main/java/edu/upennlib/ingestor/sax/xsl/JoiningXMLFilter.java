@@ -41,6 +41,8 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import net.sf.saxon.Controller;
+import net.sf.saxon.TransformerFactoryImpl;
+import net.sf.saxon.om.NamePool;
 import net.sf.saxon.serialize.CharacterMapIndex;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -115,6 +117,36 @@ public class JoiningXMLFilter extends MyXFI {
             }
         }
         mainController.transform(new SAXSource(this, source), result);
+    }
+
+
+    public void transform(XMLReader source, File stylesheet, StreamResult result) throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException {
+        SplittingXMLFilter sxf = new SplittingXMLFilter();
+        sxf.setParent(source);
+
+        //Dummy
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
+
+        setParent(spf.newSAXParser().getXMLReader());
+        setUpstreamSplittingFilter(sxf);
+        setStylesheet(stylesheet);
+
+        Controller mainController;
+        synchronized (tf) {
+            mainController = (Controller) tf.newTransformer();
+        }
+        synchronized (tf) {
+            try {
+                Templates th = tf.newTemplates(new StreamSource(stylesheet));
+                Controller subControllerInstance = (Controller) th.newTransformer();
+                mainController.getExecutable().setCharacterMapIndex(subControllerInstance.getExecutable().getCharacterMapIndex());
+                mainController.setOutputProperties(subControllerInstance.getOutputProperties());
+            } catch (TransformerConfigurationException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        mainController.transform(new SAXSource(this, new InputSource()), result);
     }
 
     public void setStylesheet(File stylesheet) {
@@ -294,6 +326,7 @@ public class JoiningXMLFilter extends MyXFI {
             }
         }
         private boolean parsingInitiated = false;
+        private boolean wroteRaw = false;
 
         @Override
         public void run() {
@@ -313,6 +346,13 @@ public class JoiningXMLFilter extends MyXFI {
                             }
                             SAXResult result = new SAXResult(out);
                             result.setLexicalHandler(out);
+//                            if (!wroteRaw) {
+//                                in.play(null);
+//                                Controller c = (Controller) t;
+//                                NamePool namePool = c.getNamePool();
+//                                //namePool.diagnosticDump();
+//                                wroteRaw = true;
+//                            }
                             t.transform(new SAXSource(in, new InputSource()), result);
                         } catch (TransformerException ex) {
                             subdivide(t, in, out, dummyInputSource);

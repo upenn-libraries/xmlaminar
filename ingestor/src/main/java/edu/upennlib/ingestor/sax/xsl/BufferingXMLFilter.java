@@ -277,9 +277,9 @@ public class BufferingXMLFilter extends MyXFI {
                     Object[] next = (Object[]) iter.next();
                     if (ch == null) {
                         if (next[0] == SaxEventType.startElement) {
-                            System.out.println("\t"+next[0]+", "+next[1]+", "+next[2]+", "+next[3]+", "+attsToString((Attributes)next[4]));
+                            System.out.println(hashCode()+"\t"+next[0]+", "+next[1]+", "+next[2]+", "+next[3]+", "+attsToString((Attributes)next[4]));
                         } else {
-                            System.out.println("\t"+Arrays.asList(next));
+                            System.out.println(hashCode()+"\t"+Arrays.asList(next));
                         }
                     } else {
                         level += executor.executeSaxEvent(ch, next, writeStructural, writeNonStructural);
@@ -293,8 +293,9 @@ public class BufferingXMLFilter extends MyXFI {
     private static String attsToString(Attributes atts) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < atts.getLength(); i++) {
-            sb.append(atts.getQName(i)).append("=\"").append(atts.getValue(i)).append("\", ");
+            sb.append(atts.getURI(i)).append(atts.getQName(i)).append("=\"").append(atts.getValue(i)).append("\", ");
         }
+        sb.append(atts.getClass().getCanonicalName());
         return sb.toString();
     }
 
