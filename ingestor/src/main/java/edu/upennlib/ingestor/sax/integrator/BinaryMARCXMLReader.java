@@ -158,6 +158,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("/tmp/marc.xml"));
         long start = System.currentTimeMillis();
         t.transform(new SAXSource(instance, new InputSource()), new StreamResult(bos));
+        bos.close();
         System.out.println("duration: "+(System.currentTimeMillis() - start));
     }
 

@@ -18,6 +18,8 @@ package edu.upennlib.ingestor.sax.xsl;
 
 import edu.upennlib.ingestor.sax.utils.MyXFI;
 import edu.upennlib.ingestor.sax.utils.NoopXMLFilter;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.CharBuffer;
 import java.util.Arrays;
@@ -82,7 +84,10 @@ public class BufferingXMLFilter extends MyXFI {
             System.out.println("in between");
             instance.play(new MyContentHandler());
         } else {
-            t.transform(new SAXSource(instance, input), new StreamResult("/tmp/bufferedWorking.xml"));
+            FileOutputStream fos = new FileOutputStream("/tmp/bufferedWorking.xml");
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            t.transform(new SAXSource(instance, input), new StreamResult(bos));
+            bos.close();
         }
         System.out.println("duration: " + (System.currentTimeMillis() - start));
     }

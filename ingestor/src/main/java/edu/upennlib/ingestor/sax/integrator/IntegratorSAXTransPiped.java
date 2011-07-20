@@ -18,12 +18,20 @@ package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
 import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
+import edu.upennlib.ingestor.sax.xsl.JoiningXMLFilter;
+import edu.upennlib.ingestor.sax.xsl.SplittingXMLFilter;
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
@@ -33,6 +41,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -40,7 +49,7 @@ import org.xml.sax.SAXException;
  *
  * @author michael
  */
-public class IntegratorSAX {
+public class IntegratorSAXTransPiped {
     private static final boolean limitRange = true;
     private static final String lowBib = "3000000";
     private static final String highBib = "3001000";
@@ -79,12 +88,12 @@ public class IntegratorSAX {
     private final IntegratorOutputNode rootOutputNode = new IntegratorOutputNode(null);
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, FileNotFoundException, IOException, TransformerConfigurationException, TransformerException, ConnectionException {
-        IntegratorSAX instance = new IntegratorSAX();
+        IntegratorSAXTransPiped instance = new IntegratorSAXTransPiped();
         instance.setupAndRun();
     }
 
     private void setupAndRun() throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException, ConnectionException, IOException {
-        String inputFileFolder = "integrator_xml";
+        String inputFileFolder = "too_much_skipping";
         File marcFile = new File("inputFiles/"+inputFileFolder+"/marc.xml");
         File hldgFile = new File("inputFiles/"+inputFileFolder+"/hldg.xml");
         File itemFile = new File("inputFiles/"+inputFileFolder+"/item.xml");
@@ -167,10 +176,14 @@ public class IntegratorSAX {
         rootOutputNode.addChild("record", recordNode, false);
         //rootOutputNode.setAggregating(false);
         long start = System.currentTimeMillis();
-        boolean raw = true;
+        boolean raw = false;
         if (!raw) {
-            FileOutputStream fos = new FileOutputStream("/tmp/blah.xml");
-            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            PipedOutputStream pos = new PipedOutputStream();
+            PipedInputStream pis = new PipedInputStream(pos);
+            XSLRunner runner = new XSLRunner(pis);
+            Thread outputThread = new Thread(runner);
+            outputThread.start();
+            BufferedOutputStream bos = new BufferedOutputStream(pos);
             t.transform(new SAXSource(rootOutputNode, new InputSource()), new StreamResult(bos));
             bos.close();
         } else {
@@ -186,4 +199,43 @@ public class IntegratorSAX {
         System.out.println("sax integrator duration: "+(System.currentTimeMillis() - start));
     }
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
+
+    private class XSLRunner implements Runnable {
+
+        private final InputStream is;
+        
+        public XSLRunner(InputStream is) {
+            this.is = is;
+        }
+
+        @Override
+        public void run() {
+            JoiningXMLFilter joiner = new JoiningXMLFilter();
+            BufferedInputStream bis = new BufferedInputStream(is);
+            FileOutputStream fos;
+            try {
+                fos = new FileOutputStream("/tmp/blah_trans_piped.xml");
+            } catch (FileNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            try {
+                joiner.transform(new InputSource(bis), new File("inputFiles/fullTest.xsl"), new StreamResult(bos));
+                bos.close();
+            } catch (ParserConfigurationException ex) {
+                throw new RuntimeException(ex);
+            } catch (SAXException ex) {
+                throw new RuntimeException(ex);
+            } catch (FileNotFoundException ex) {
+                throw new RuntimeException(ex);
+            } catch (TransformerConfigurationException ex) {
+                throw new RuntimeException(ex);
+            } catch (TransformerException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+    }
 }

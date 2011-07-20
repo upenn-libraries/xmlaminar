@@ -79,6 +79,7 @@ public class SplittingXMLFilter extends MyXFI {
             File file = new File("/tmp/splitOutput/testSplitOut" + String.format("%05d", nextFileNumber++) + ".xml");
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
             t.transform(new SAXSource(instance, inputSource), new StreamResult(bos));
+            bos.close();
         } while (instance.hasMoreOutput(inputSource));
         System.out.println("duration: "+(System.currentTimeMillis() - start));
     }

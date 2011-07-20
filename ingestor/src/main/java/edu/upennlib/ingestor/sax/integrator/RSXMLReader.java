@@ -22,6 +22,9 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import javax.xml.transform.OutputKeys;
@@ -98,7 +101,7 @@ public class RSXMLReader extends SQLXMLReader {
             + "ORDER BY BIB_ID, MFHD_ID, ITEM_ID, STATUS_ID";
     private static String[] itemStatusIdFields = {"BIB_ID", "MFHD_ID", "ITEM_ID", "STATUS_ID"};
 
-    public static void main(String[] args) throws TransformerConfigurationException, TransformerException, ConnectionException {
+    public static void main(String[] args) throws TransformerConfigurationException, TransformerException, ConnectionException, FileNotFoundException, IOException {
 
         RSXMLReader instance = new RSXMLReader();
         instance.logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
@@ -113,7 +116,10 @@ public class RSXMLReader extends SQLXMLReader {
         SAXTransformerFactory stf = (SAXTransformerFactory)TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
         Transformer t = stf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
-        t.transform(new SAXSource(instance, new InputSource()), new StreamResult("/tmp/item_status.xml"));
+        FileOutputStream fos = new FileOutputStream("/tmp/item_status.xml");
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
+        t.transform(new SAXSource(instance, new InputSource()), new StreamResult(bos));
+        bos.close();
     }
 
 }

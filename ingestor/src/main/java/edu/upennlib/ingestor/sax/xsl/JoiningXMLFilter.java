@@ -79,6 +79,7 @@ public class JoiningXMLFilter extends MyXFI {
 
         long start = System.currentTimeMillis();
         instance.transform(inputSource, stylesheet, new StreamResult(bos));
+        bos.close();
         System.out.println("duration: " + (System.currentTimeMillis() - start));
     }
 
