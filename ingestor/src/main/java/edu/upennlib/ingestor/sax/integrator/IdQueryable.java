@@ -21,7 +21,6 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
-import edu.upennlib.ingestor.sax.utils.StartElementExtension;
 import java.io.EOFException;
 import org.xml.sax.ContentHandler;
 
@@ -29,16 +28,16 @@ import org.xml.sax.ContentHandler;
  *
  * @author michael
  */
-public interface IdQueryable extends Runnable, StartElementExtension {
+public interface IdQueryable extends Runnable {
     public Comparable getId() throws EOFException;
     public boolean self();
     public int getLevel() throws EOFException;
     public void skipOutput();
     public void writeOutput(ContentHandler ch);
-    public void writeOuterStartElement(ContentHandler ch, boolean asSelf, boolean startElementExtension);
-    public void writeInnerStartElement(ContentHandler ch, boolean startElementExtension);
-    public void writeInnerEndElement(ContentHandler ch, boolean startElementExtension);
-    public void writeOuterEndElement(ContentHandler ch, boolean startElementExtension);
+    public void writeOuterStartElement(ContentHandler ch, boolean asSelf);
+    public void writeInnerStartElement(ContentHandler ch);
+    public void writeInnerEndElement(ContentHandler ch);
+    public void writeOuterEndElement(ContentHandler ch);
     public void step();
     public boolean isFinished();
     public void setName(String name);

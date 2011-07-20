@@ -17,7 +17,6 @@
 package edu.upennlib.ingestor.sax.xsl;
 
 import edu.upennlib.ingestor.sax.utils.MyXFI;
-import edu.upennlib.ingestor.sax.utils.StartElementExtension;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -51,7 +50,6 @@ public class SplittingXMLFilter extends MyXFI {
 
     public final boolean ENFORCE_RECORD_LEVEL_ELEMENT_CONSISTENCY = true;
     private final boolean[] parsing = new boolean[1];
-    private final boolean implementsStartElementExtension;
     boolean parsingInitiated = false;
     public final int DEFAULT_CHUNK_SIZE = 20;
     private int chunkSize = DEFAULT_CHUNK_SIZE;
@@ -83,10 +81,6 @@ public class SplittingXMLFilter extends MyXFI {
             t.transform(new SAXSource(instance, inputSource), new StreamResult(bos));
         } while (instance.hasMoreOutput(inputSource));
         System.out.println("duration: "+(System.currentTimeMillis() - start));
-    }
-
-    public SplittingXMLFilter() {
-        implementsStartElementExtension = this instanceof StartElementExtension;
     }
 
     public void setChunkSize(int chunkSize) {
@@ -143,7 +137,7 @@ public class SplittingXMLFilter extends MyXFI {
         }
         try {
             if (tmpStartElement != null) {
-                level += executor.executeSaxEvent(this, tmpStartElement, true, true, implementsStartElementExtension);
+                level += executor.executeSaxEvent(this, tmpStartElement, true, true);
             }
         } catch (SAXException ex) {
             throw new RuntimeException(ex);

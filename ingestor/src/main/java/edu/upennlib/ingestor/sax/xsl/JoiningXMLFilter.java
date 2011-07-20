@@ -30,7 +30,6 @@ import java.util.HashSet;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -73,13 +72,13 @@ public class JoiningXMLFilter extends MyXFI {
         File outputFile = new File("outputFiles/large_transform.xml");
 
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(inputFile));
-        //InputSource inputSource = new InputSource(bis);
+        InputSource inputSource = new InputSource(bis);
 
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile));
         JoiningXMLFilter instance = new JoiningXMLFilter();
 
         long start = System.currentTimeMillis();
-        instance.transform(new InputSource(bis), stylesheet, new StreamResult(bos));
+        instance.transform(inputSource, stylesheet, new StreamResult(bos));
         System.out.println("duration: " + (System.currentTimeMillis() - start));
     }
 
@@ -115,35 +114,6 @@ public class JoiningXMLFilter extends MyXFI {
             }
         }
         mainController.transform(new SAXSource(this, source), result);
-    }
-
-    public void transform(XMLReader source, File stylesheet, StreamResult result) throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException {
-        SplittingXMLFilter sxf = new SplittingXMLFilter();
-        sxf.setParent(source);
-
-        //Dummy
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setNamespaceAware(true);
-
-        setParent(spf.newSAXParser().getXMLReader());
-        setUpstreamSplittingFilter(sxf);
-        setStylesheet(stylesheet);
-
-        Controller mainController;
-        synchronized (tf) {
-            mainController = (Controller) tf.newTransformer();
-        }
-        synchronized (tf) {
-            try {
-                Templates th = tf.newTemplates(new StreamSource(stylesheet));
-                Controller subControllerInstance = (Controller) th.newTransformer();
-                mainController.getExecutable().setCharacterMapIndex(subControllerInstance.getExecutable().getCharacterMapIndex());
-                mainController.setOutputProperties(subControllerInstance.getOutputProperties());
-            } catch (TransformerConfigurationException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-        mainController.transform(new SAXSource(this, new InputSource()), result);
     }
 
     public void setStylesheet(File stylesheet) {
@@ -264,7 +234,7 @@ public class JoiningXMLFilter extends MyXFI {
                     }
                 }
             }
-            outputs[head].flush(ch, false);
+            outputs[head].flush(ch);
             inputs[head].clear();
             states[head] = BufferState.FREE;
             head = ++head % MAX_SIZE;
@@ -342,7 +312,6 @@ public class JoiningXMLFilter extends MyXFI {
                             }
                             SAXResult result = new SAXResult(out);
                             result.setLexicalHandler(out);
-                            //in.play(null);
                             t.transform(new SAXSource(in, new InputSource()), result);
                         } catch (TransformerException ex) {
                             subdivide(t, in, out, dummyInputSource);
@@ -401,7 +370,7 @@ public class JoiningXMLFilter extends MyXFI {
                 try {
                     subSplitter.parse(dummyInput);
                     t.transform(new SAXSource(individualInputBuffer, new InputSource()), new SAXResult(localOutputEventBuffer));
-                    localOutputEventBuffer.flush(out, false);
+                    localOutputEventBuffer.flush(out);
                 } catch (SAXException ex) {
                     localOutputEventBuffer.clear();
                 } catch (TransformerException ex) {
@@ -493,7 +462,7 @@ public class JoiningXMLFilter extends MyXFI {
                     if (!inPreRecord) {
                         level += docLevelEventBuffer.play(getContentHandler());
                     } else {
-                        level += docLevelEventBuffer.playMostRecentStructurallyInsignificant(getContentHandler(), false);
+                        level += docLevelEventBuffer.playMostRecentStructurallyInsignificant(getContentHandler());
                     }
                 }
                 inPreRecord = false;

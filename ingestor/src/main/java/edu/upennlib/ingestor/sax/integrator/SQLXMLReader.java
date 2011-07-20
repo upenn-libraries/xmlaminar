@@ -23,7 +23,6 @@ package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.utils.Connection;
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
-import edu.upennlib.ingestor.sax.utils.StartElementExtension;
 import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -64,15 +63,14 @@ public abstract class SQLXMLReader implements XMLReader {
     Connection connection;
     ResultSet rs;
     ContentHandler ch;
-    Boolean chInstanceOfStartElementExtension = null;
     BufferingXMLFilter buffer = new BufferingXMLFilter();
     ErrorHandler eh;
     DTDHandler dh;
     LexicalHandler lh;
-    private final Class defaultInputImplementation;
+    Class expectedInputImplementation;
 
-    public SQLXMLReader(Class defaultInputImplementation) {
-        this.defaultInputImplementation = defaultInputImplementation;
+    public SQLXMLReader(Class expectedInputImplementation) {
+        this.expectedInputImplementation = expectedInputImplementation;
     }
 
     public void setIdFieldLabels(String[] idFieldLabels) {
@@ -136,7 +134,6 @@ public abstract class SQLXMLReader implements XMLReader {
     @Override
     public void setContentHandler(ContentHandler handler) {
         ch = handler;
-        chInstanceOfStartElementExtension = handler instanceof StartElementExtension;
     }
 
     @Override
@@ -376,7 +373,7 @@ public abstract class SQLXMLReader implements XMLReader {
         while (--i > -1) {
             if (currentId[i] != lastId[i]) {
                 if (!endElementBufferEmpty) {
-                    idFieldDepth += endElementBuffer.flush(ch, chInstanceOfStartElementExtension);
+                    idFieldDepth += endElementBuffer.flush(ch);
                     endElementBufferEmpty = true;
                 }
                 ch.endElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i]);
@@ -395,59 +392,59 @@ public abstract class SQLXMLReader implements XMLReader {
                 attRunner.addAttribute("", selfAttName, selfAttName, "CDATA", "true");
             }
             idFieldDepth++;
-            ((StartElementExtension)ch).startElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i], attRunner, new IdUpenn(idFieldLabels[i], currentId[i]));
+            ch.startElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i], attRunner);
         }
     }
 
     String[] outputFieldLabels;
     int[] outputFieldColumnTypes;
 
-    public static enum OutputType {READER, INPUTSTREAM, LONG, STRING};
-
     private void outputResultSetAsSAXEvents() throws SQLException, SAXException {
         initializeOutput();
         while (rs.next()) {
             writeStructuralEvents();
             for (int i = 0; i < outputFieldLabels.length; i++) {
-                OutputType type = null;
                 Object content = null;
                 try {
                     switch (outputFieldColumnTypes[i]) {
                         case Types.NUMERIC:
-                            type = OutputType.LONG;
-                            content = rs.getLong(outputFieldLabels[i]);
+                            if (expectedInputImplementation == Reader.class) {
+                                content = new StringReader(Long.toString(rs.getLong(outputFieldLabels[i])));
+                            } else if (expectedInputImplementation == InputStream.class) {
+                                content = new ByteArrayInputStream(Long.toString(rs.getLong(outputFieldLabels[i])).getBytes());
+                            }
                             break;
                         case Types.DATE:
-                            type = OutputType.STRING;
-                            content = rs.getString(outputFieldLabels[i]);
+                            String dateString = rs.getString(outputFieldLabels[i]);
+                            if (dateString != null) {
+                                if (expectedInputImplementation == Reader.class) {
+                                    content = new StringReader(dateString);
+                                } else if (expectedInputImplementation == InputStream.class) {
+                                    content = new ByteArrayInputStream(dateString.getBytes());
+                                }
+                            }
                             break;
                         default:
-                            if (defaultInputImplementation == Reader.class) {
-                                type = OutputType.READER;
+                            if (expectedInputImplementation == Reader.class) {
                                 content = rs.getCharacterStream(outputFieldLabels[i]);
-                            } else if (defaultInputImplementation == InputStream.class) {
-                                type = OutputType.INPUTSTREAM;
+                            } else if (expectedInputImplementation == InputStream.class) {
                                 content = rs.getBinaryStream(outputFieldLabels[i]);
-                            } else {
-                                throw new RuntimeException();
                             }
                     }
                 } catch (SQLException ex) {
                     throw new RuntimeException("add special handling for java.sql.Types="+outputFieldColumnTypes[i],ex);
                 }
                 try {
-                    outputFieldAsSAXEvents(currentId[currentId.length - 1], outputFieldLabels[i], type, content);
+                    outputFieldAsSAXEvents(currentId[currentId.length - 1], outputFieldLabels[i], content);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 } finally {
                     try {
                         if (content != null) {
-                            switch (type) {
-                                case READER:
-                                    ((Reader) content).close();
-                                    break;
-                                case INPUTSTREAM:
-                                    ((InputStream) content).close();
+                            if (content instanceof Reader) {
+                                ((Reader) content).close();
+                            } else if (content instanceof InputStream) {
+                                ((InputStream) content).close();
                             }
                         }
                     } catch (IOException ex) {
@@ -478,7 +475,7 @@ public abstract class SQLXMLReader implements XMLReader {
         ch.endDocument();
     }
 
-    protected abstract void outputFieldAsSAXEvents(long selfId, String fieldLabel, OutputType type, Object content) throws SAXException, IOException;
+    protected abstract void outputFieldAsSAXEvents(long selfId, String fieldLabel, Object content) throws SAXException, IOException;
 
 
 }

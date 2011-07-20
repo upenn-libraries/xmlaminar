@@ -53,34 +53,13 @@ public class RSXMLReader extends SQLXMLReader {
     }
 
     @Override
-    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, SQLXMLReader.OutputType type, Object rawContent) throws SAXException, IOException {
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, Object rawContent) throws SAXException, IOException {
         if (rawContent != null) {
+            Reader content = (Reader) rawContent;
             attRunner.clear();
             ch.startElement("", fieldLabel, fieldLabel, attRunner);
-            switch (type) {
-                case READER:
-                    outputCharacters((Reader) rawContent);
-                    break;
-                case STRING:
-                    outputCharacters((String) rawContent);
-                    break;
-                case LONG:
-                    outputCharacters(((Long)rawContent).toString());
-                    break;
-                default:
-                    throw new RuntimeException();
-            }
+            outputCharacters(content);
             ch.endElement("", fieldLabel, fieldLabel);
-        }
-    }
-
-    private void outputCharacters(String content) throws SAXException {
-        int begin = 0;
-        while (begin < content.length()) {
-            int toRead = Math.min(characters.length, content.length());
-            content.getChars(begin, toRead, characters, 0);
-            ch.characters(characters, 0, toRead - begin);
-            begin += toRead;
         }
     }
 
