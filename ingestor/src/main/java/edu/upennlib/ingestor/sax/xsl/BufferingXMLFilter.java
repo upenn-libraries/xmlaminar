@@ -274,9 +274,9 @@ public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
                     Object[] next = (Object[]) iter.next();
                     if (ch == null) {
                         if (next[0] == SaxEventType.startElement) {
-                            System.out.println("\t"+next[0]+", "+next[1]+", "+next[2]+", "+next[3]+", "+attsToString((Attributes)next[4]));
+                            System.out.println(this+"\t"+next[0]+", "+next[1]+", "+next[2]+", "+next[3]+", "+attsToString((Attributes)next[4]));
                         } else {
-                            System.out.println("\t"+Arrays.asList(next));
+                            System.out.println(this+"\t"+Arrays.asList(next));
                         }
                     } else {
                         level += executor.executeSaxEvent(ch, next, writeStructural, writeNonStructural, see);
@@ -521,9 +521,9 @@ public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
                     }
                     if (eventQueue[0] != null && !eventQueue[0].isEmpty()) {
                         next = (Object[]) eventQueue[0].remove();
-                        if (++lastUpdatedStats >= STATS_UPDATE_INTERVAL) {
-                            updateStats();
-                        }
+//                        if (++lastUpdatedStats >= STATS_UPDATE_INTERVAL) {
+//                            updateStats();
+//                        }
                         queueSize--;
                         if (queueSizeLimit != -1 && queueSize < queueThreshold) {
                             eventQueue.notify();
@@ -539,13 +539,13 @@ public class BufferingXMLFilter extends MyXFI implements StartElementExtension {
                 }
             } while (next != null);
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("\n"+BufferingXMLFilter.this.toString());
-            sb.append("\n\tqueueSizeMean = " + queueSizeMean);
-            sb.append("\n\tqueueSizeVariance = " + queueSizeVariance);
-            sb.append("\n\tqueueSizeStdDev = " + Math.sqrt(queueSizeVariance));
-            System.out.println(sb.toString());
-
+//            StringBuilder sb = new StringBuilder();
+//            sb.append("\n"+BufferingXMLFilter.this.toString());
+//            sb.append("\n\tqueueSizeMean = " + queueSizeMean);
+//            sb.append("\n\tqueueSizeVariance = " + queueSizeVariance);
+//            sb.append("\n\tqueueSizeStdDev = " + Math.sqrt(queueSizeVariance));
+//            System.out.println(sb.toString());
+//
         }
 
     }

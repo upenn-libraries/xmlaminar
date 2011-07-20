@@ -123,7 +123,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     @Override
     public void setEntityResolver(EntityResolver resolver) {
-        throw new UnsupportedOperationException("setEntityResolver(" + resolver + ")");
+        logger.trace("ignoring setEntityResolver("+resolver+")");
     }
 
     @Override
@@ -411,7 +411,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     public IntegratorOutputNode(StatefulXMLFilter payload) {
         Appender appender = new ConsoleAppender(new TTCCLayout(), "System.out");
         logger.addAppender(appender);
-        logger.setLevel(Level.TRACE);
+        logger.setLevel(Level.WARN);
         if (payload != null) {
             this.inputFilter = payload;
         } else {
