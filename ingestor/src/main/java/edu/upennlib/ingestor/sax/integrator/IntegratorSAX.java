@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
  * @author michael
  */
 public class IntegratorSAX {
-    private static final boolean limitRange = true;
+    private static final boolean limitRange = false;
     private static final String lowBib = "3000000";
     private static final String highBib = "3001000";
     private static String host = "[host_or_ip]";
@@ -157,7 +157,7 @@ public class IntegratorSAX {
         IntegratorOutputNode itemStatusesNode = new IntegratorOutputNode(null);
         IntegratorOutputNode itemStatusNode = new IntegratorOutputNode(itemStatusSxf);
         hldgsNode.addChild("hldg", hldgNode, false);
-        recordNode.addChild("marc", new IntegratorOutputNode(marcSxf), false);
+        recordNode.addChild("marc", new IntegratorOutputNode(marcSxf), true);
         recordNode.addChild("hldgs", hldgsNode, false);
         hldgNode.addChild("items", itemsNode, false);
         itemsNode.addChild("item", itemNode, false);
@@ -167,13 +167,16 @@ public class IntegratorSAX {
         rootOutputNode.addChild("record", recordNode, false);
         //rootOutputNode.setAggregating(false);
         long start = System.currentTimeMillis();
-        boolean raw = true;
+        boolean raw = false;
         if (!raw) {
             FileOutputStream fos = new FileOutputStream("/tmp/blah.xml");
             BufferedOutputStream bos = new BufferedOutputStream(fos);
             t.transform(new SAXSource(rootOutputNode, new InputSource()), new StreamResult(bos));
             bos.close();
         } else {
+            if (fromDatabase && !limitRange) {
+                throw new RuntimeException("full database ingest to raw output (diagnostic) will cause memory issues!");
+            }
             BufferingXMLFilter rawOutput = new BufferingXMLFilter();
             rootOutputNode.setContentHandler(rawOutput);
             try {

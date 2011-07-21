@@ -52,7 +52,7 @@
                            </descriptorRefs>
                            <archive>
                                <manifestEntries>
-                                   <Main-Class>edu.upennlib.ingestor.sax.integrator.IntegratorSAXTransSAX</Main-Class>
+                                   <Main-Class>edu.upennlib.ingestor.sax.integrator.IntegratorSAX</Main-Class>
                                    <Class-Path>./</Class-Path>
                                </manifestEntries>
                            </archive>

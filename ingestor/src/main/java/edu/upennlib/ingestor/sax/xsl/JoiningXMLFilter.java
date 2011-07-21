@@ -170,7 +170,7 @@ public class JoiningXMLFilter extends MyXFI {
             splitter[0].setDTDHandler(this);
             splitter[0].setErrorHandler(this);
             splitter[0].setEntityResolver(this);
-            transformerRunnerBuffer = new TransformerOutputBuffer(this, this);
+            transformerRunnerBuffer = new TransformerOutputBuffer(this, this, splitter[0], input);
             for (int i = 0; i< TRANSFORMER_THREAD_COUNT; i++) {
                 Thread thread = new Thread(new TransformerRunner(transformerRunnerBuffer, input), "tr"+i);
                 transformerRunnerPool.add(thread);
@@ -205,8 +205,12 @@ public class JoiningXMLFilter extends MyXFI {
         final BufferingXMLFilter[] inputs = new BufferingXMLFilter[MAX_SIZE];
         final BufferingXMLFilter[] outputs = new BufferingXMLFilter[MAX_SIZE];
         BufferState[] states = new BufferState[MAX_SIZE];
+        final SplittingXMLFilter tobSplitter;
+        final InputSource dummyInputSource;
 
-        public TransformerOutputBuffer(XMLReader original, JoiningXMLFilter joiner) {
+        public TransformerOutputBuffer(XMLReader original, JoiningXMLFilter joiner, SplittingXMLFilter splitter, InputSource dummyInputSource) {
+            tobSplitter = splitter;
+            this.dummyInputSource = dummyInputSource;
             for (int i = 0; i < inputs.length; i++) {
                 inputs[i] = new BufferingXMLFilter();
                 NoopXMLFilter noop = new NoopXMLFilter();
@@ -220,7 +224,8 @@ public class JoiningXMLFilter extends MyXFI {
             }
         }
 
-        public void checkOut(TransformerRunner tr) throws EOFException {
+        private boolean parsingInitiated = false;
+        public void checkOut(TransformerRunner tr) throws EOFException, SAXException, IOException {
             synchronized(inputs) {
                 while (size >= MAX_SIZE || states[tail] != BufferState.FREE) {
                     try {
@@ -234,6 +239,13 @@ public class JoiningXMLFilter extends MyXFI {
                 }
                 inputs[tail].clear();
                 outputs[tail].clear();
+                if (parsingInitiated && !tobSplitter.hasMoreOutput(dummyInputSource)) {
+                    throw new EOFException();
+                }
+                parsingInitiated = true;
+                tobSplitter.setContentHandler(inputs[tail]);
+                tobSplitter.setProperty("http://xml.org/sax/properties/lexical-handler", inputs[tail]);
+                tobSplitter.parse(dummyInputSource);
                 tr.setIO(inputs[tail], outputs[tail], tail);
                 states[tail] = BufferState.CHECKED_OUT;
                 tail = ++tail % MAX_SIZE;
@@ -325,34 +337,18 @@ public class JoiningXMLFilter extends MyXFI {
                 }
             }
         }
-        private boolean parsingInitiated = false;
-        private boolean wroteRaw = false;
 
         @Override
         public void run() {
             try {
                 do {
-                    tob.checkOut(this);
                     try {
                         try {
-                            synchronized (splitter) {
-                                if (parsingInitiated && !splitter[0].hasMoreOutput(dummyInputSource)) {
-                                    throw new EOFException();
-                                }
-                                parsingInitiated = true;
-                                splitter[0].setContentHandler(in);
-                                splitter[0].setProperty("http://xml.org/sax/properties/lexical-handler", in);
-                                splitter[0].parse(dummyInputSource);
+                            synchronized (tob) {
+                                tob.checkOut(this);
                             }
                             SAXResult result = new SAXResult(out);
                             result.setLexicalHandler(out);
-//                            if (!wroteRaw) {
-//                                in.play(null);
-//                                Controller c = (Controller) t;
-//                                NamePool namePool = c.getNamePool();
-//                                //namePool.diagnosticDump();
-//                                wroteRaw = true;
-//                            }
                             t.transform(new SAXSource(in, new InputSource()), result);
                         } catch (TransformerException ex) {
                             subdivide(t, in, out, dummyInputSource);
