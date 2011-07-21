@@ -166,7 +166,7 @@ public class IntegratorSAXTransSAX {
         IntegratorOutputNode itemStatusesNode = new IntegratorOutputNode(null);
         IntegratorOutputNode itemStatusNode = new IntegratorOutputNode(itemStatusSxf);
         hldgsNode.addChild("hldg", hldgNode, false);
-        recordNode.addChild("marc", new IntegratorOutputNode(marcSxf), false);
+        recordNode.addChild("marc", new IntegratorOutputNode(marcSxf), true);
         recordNode.addChild("hldgs", hldgsNode, false);
         hldgNode.addChild("items", itemsNode, false);
         itemsNode.addChild("item", itemNode, false);
