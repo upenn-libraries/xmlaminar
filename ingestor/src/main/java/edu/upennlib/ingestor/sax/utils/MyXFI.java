@@ -69,7 +69,7 @@ public class MyXFI extends XMLFilterImpl implements LexicalHandler {
 
     @Override
     public void startCDATA() throws SAXException {
-        System.out.println(this+".startCDATA()");
+//        System.out.println(this+".startCDATA()");
         if (lh != null) {
             lh.startCDATA();
         }

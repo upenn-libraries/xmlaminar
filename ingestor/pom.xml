@@ -52,7 +52,7 @@
                            </descriptorRefs>
                            <archive>
                                <manifestEntries>
-                                   <Main-Class>edu.upennlib.ingestor.sax.integrator.IntegratorSAXTransSAX</Main-Class>
+                                   <Main-Class>edu.upennlib.ingestor.sax.integrator.IntegratorToSolrSAX</Main-Class>
                                    <Class-Path>./</Class-Path>
                                </manifestEntries>
                            </archive>
@@ -92,6 +92,11 @@
             <artifactId>marc4j</artifactId>
             <version>2.4</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>edu.upennlib</groupId>
+            <artifactId>solr-post-embedded</artifactId>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
  </project>

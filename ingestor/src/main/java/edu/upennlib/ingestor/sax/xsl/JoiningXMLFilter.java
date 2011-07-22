@@ -30,6 +30,7 @@ import java.util.HashSet;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Result;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -120,7 +121,7 @@ public class JoiningXMLFilter extends MyXFI {
     }
 
 
-    public void transform(XMLReader source, File stylesheet, StreamResult result) throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException {
+    public void transform(XMLReader source, File stylesheet, Result result) throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException {
         SplittingXMLFilter sxf = new SplittingXMLFilter();
         sxf.setParent(source);
 
