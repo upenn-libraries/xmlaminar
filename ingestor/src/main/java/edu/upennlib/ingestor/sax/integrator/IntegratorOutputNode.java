@@ -444,10 +444,19 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         }
     }
 
-    public IntegratorOutputNode(StatefulXMLFilter payload) {
+    private void setupLogging() {
         Appender appender = new ConsoleAppender(new TTCCLayout(), "System.out");
         logger.addAppender(appender);
         logger.setLevel(Level.WARN);
+    }
+
+    public IntegratorOutputNode() {
+        setupLogging();
+        this.inputFilter = null;
+    }
+
+    public IntegratorOutputNode(StatefulXMLFilter payload) {
+        setupLogging();
         if (payload != null) {
             this.inputFilter = payload;
         } else {

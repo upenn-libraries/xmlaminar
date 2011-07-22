@@ -81,7 +81,7 @@ public class IntegratorToSolrSAX {
             + (limitRange ? "AND BIB_ID > "+lowBib+" AND BIB_ID < "+highBib+" " : "")
             + "ORDER BY 1, 2, 3, 4";
     private static String[] itemStatusIdFields = {"BIB_ID", "MFHD_ID", "ITEM_ID", "STATUS_ID"};
-    private final IntegratorOutputNode rootOutputNode = new IntegratorOutputNode(null);
+    private final IntegratorOutputNode rootOutputNode = new IntegratorOutputNode();
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, FileNotFoundException, IOException, TransformerConfigurationException, TransformerException, ConnectionException {
         IntegratorToSolrSAX instance = new IntegratorToSolrSAX();
