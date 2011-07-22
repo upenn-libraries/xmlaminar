@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -70,7 +70,7 @@ public class TrueSAXSolrPoster implements ContentHandler, XMLReader {
     private final ByteArrayOutputStream fieldContentsOut = new ByteArrayOutputStream();
     private final OutputStreamWriter fieldContentsWriter;
     private SolrInputDocument workingInputDocument = null;
-    private Collection<SolrInputDocument> inputDocsChunk = new HashSet<SolrInputDocument>();
+    private Collection<SolrInputDocument> inputDocsChunk = new LinkedHashSet<SolrInputDocument>();
     private final XMLFilterImpl transformerInput = new XMLFilterImpl();
     private final SAXSource transformerInputSource = new SAXSource(transformerInput, new InputSource());
     private final Transformer t;
@@ -82,9 +82,22 @@ public class TrueSAXSolrPoster implements ContentHandler, XMLReader {
     private Logger logger = Logger.getLogger(getClass());
     private StreamingUpdateSolrServer server;
     public final boolean DELETE = true;
+    private boolean delete = DELETE;
 
     public void setServer(StreamingUpdateSolrServer server) {
         this.server = server;
+    }
+
+    public StreamingUpdateSolrServer getServer() {
+        return server;
+    }
+
+    public void setDelete(boolean delete) {
+        this.delete = delete;
+    }
+
+    public boolean isDelete() {
+        return delete;
     }
 
     public TrueSAXSolrPoster() {
@@ -204,7 +217,7 @@ public class TrueSAXSolrPoster implements ContentHandler, XMLReader {
 
     @Override
     public void startDocument() throws SAXException {
-        if (DELETE) {
+        if (delete) {
             try {
                 server.deleteByQuery("*:*");
             } catch (SolrServerException ex) {

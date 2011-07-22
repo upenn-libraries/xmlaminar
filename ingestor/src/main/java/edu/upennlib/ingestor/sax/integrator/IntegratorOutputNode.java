@@ -26,8 +26,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import org.apache.log4j.Appender;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
@@ -58,6 +60,45 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     private IdQueryable[] childNodes;
     private Boolean[] requireForWrite;
     private String name;
+
+    public void addDescendent(String path, XMLReader source, boolean requireForWrite) {
+        String[] pe = path.substring(1).split("/");
+        LinkedList<String> pathElements = new LinkedList<String>(Arrays.asList(pe));
+        addDescendent(pathElements, source, requireForWrite);
+    }
+
+    private void addDescendent(LinkedList<String> pathElements, XMLReader source, boolean requireForWrite) {
+        String subName = pathElements.removeFirst();
+        IntegratorOutputNode subNode;
+        int index = -1;
+        if ((index = names.indexOf(subName)) != -1) {
+            if (pathElements.isEmpty()) {
+                throw new RuntimeException("duplicate element path specification");
+            }
+            subNode = (IntegratorOutputNode) nodes.get(index);
+        } else {
+            if (pathElements.isEmpty()) {
+                StatefulXMLFilter sxf = null;
+                if (source != null) {
+                    if (source instanceof StatefulXMLFilter) {
+                        sxf = (StatefulXMLFilter) source;
+                    } else {
+                        sxf = new StatefulXMLFilter();
+                        sxf.setParent(source);
+                    }
+                }
+                subNode = new IntegratorOutputNode(sxf);
+            } else {
+                subNode = new IntegratorOutputNode(null);
+            }
+            names.add(subName);
+            nodes.add(subNode);
+            requires.add(false); // Otherwise add node manually (explicitly).
+        }
+        if (!pathElements.isEmpty()) {
+            subNode.addDescendent(pathElements, source, requireForWrite);
+        }
+    }
 
     public void setAggregating(boolean aggregating) {
         this.aggregating = aggregating;

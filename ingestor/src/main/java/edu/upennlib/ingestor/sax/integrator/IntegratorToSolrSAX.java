@@ -46,7 +46,7 @@ import org.xml.sax.SAXException;
  * @author michael
  */
 public class IntegratorToSolrSAX {
-    private static final boolean limitRange = false;
+    private static final boolean limitRange = true;
     private static final String lowBib = "3000000";
     private static final String highBib = "3010000";
     private static String host = "[host_or_ip]";
@@ -89,7 +89,7 @@ public class IntegratorToSolrSAX {
     }
 
     private void setupAndRun() throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException, ConnectionException, IOException {
-        String inputFileFolder = "integrator_xml";
+        String inputFileFolder = "too_much_skipping";
         File marcFile = new File("inputFiles/"+inputFileFolder+"/marc.xml");
         File hldgFile = new File("inputFiles/"+inputFileFolder+"/hldg.xml");
         File itemFile = new File("inputFiles/"+inputFileFolder+"/item.xml");
@@ -98,9 +98,13 @@ public class IntegratorToSolrSAX {
         StatefulXMLFilter hldgSxf = new StatefulXMLFilter();
         StatefulXMLFilter itemSxf = new StatefulXMLFilter();
         StatefulXMLFilter itemStatusSxf = new StatefulXMLFilter();
-        boolean fromDatabase = true;
+        BinaryMARCXMLReader bmxr = null;
+        RSXMLReader hxr = null;
+        RSXMLReader ixr = null;
+        RSXMLReader isxr = null;
+        boolean fromDatabase = false;
         if (fromDatabase) {
-            BinaryMARCXMLReader bmxr = new BinaryMARCXMLReader();
+            bmxr = new BinaryMARCXMLReader();
             bmxr.setHost(host);
             bmxr.setSid(sid);
             bmxr.setUser(user);
@@ -108,34 +112,30 @@ public class IntegratorToSolrSAX {
             bmxr.setSql(marcSql);
             bmxr.setIdFieldLabels(marcIdFields);
             bmxr.setOutputFieldLabels(marcOutputFields);
-            marcSxf.setParent(bmxr);
 
-            RSXMLReader hxr = new RSXMLReader();
+            hxr = new RSXMLReader();
             hxr.setHost(host);
             hxr.setSid(sid);
             hxr.setUser(user);
             hxr.setPwd(pwd);
             hxr.setSql(hldgSql);
             hxr.setIdFieldLabels(hldgIdFields);
-            hldgSxf.setParent(hxr);
 
-            RSXMLReader ixr = new RSXMLReader();
+            ixr = new RSXMLReader();
             ixr.setHost(host);
             ixr.setSid(sid);
             ixr.setUser(user);
             ixr.setPwd(pwd);
             ixr.setSql(itemSql);
             ixr.setIdFieldLabels(itemIdFields);
-            itemSxf.setParent(ixr);
 
-            RSXMLReader isxr = new RSXMLReader();
+            isxr = new RSXMLReader();
             isxr.setHost(host);
             isxr.setSid(sid);
             isxr.setUser(user);
             isxr.setPwd(pwd);
             isxr.setSql(itemStatusSql);
             isxr.setIdFieldLabels(itemStatusIdFields);
-            itemStatusSxf.setParent(isxr);
 
         } else {
             // From file
@@ -150,69 +150,29 @@ public class IntegratorToSolrSAX {
             itemStatusSxf.setParent(spf.newSAXParser().getXMLReader());
             itemStatusSxf.setInputSource(new InputSource(new FileInputStream(itemStatusFile)));
         }
-        TransformerFactory tf = TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
-        Transformer t = tf.newTransformer();
-        t.setOutputProperty(OutputKeys.INDENT, "yes");
-
-        IntegratorOutputNode recordNode = new IntegratorOutputNode(null);
-        IntegratorOutputNode hldgsNode = new IntegratorOutputNode(null);
-        IntegratorOutputNode hldgNode = new IntegratorOutputNode(hldgSxf);
-        IntegratorOutputNode itemsNode = new IntegratorOutputNode(null);
-        IntegratorOutputNode itemNode = new IntegratorOutputNode(itemSxf);
-        IntegratorOutputNode itemStatusesNode = new IntegratorOutputNode(null);
-        IntegratorOutputNode itemStatusNode = new IntegratorOutputNode(itemStatusSxf);
-        hldgsNode.addChild("hldg", hldgNode, false);
-        recordNode.addChild("marc", new IntegratorOutputNode(marcSxf), true);
-        recordNode.addChild("hldgs", hldgsNode, false);
-        hldgNode.addChild("items", itemsNode, false);
-        itemsNode.addChild("item", itemNode, false);
-        itemNode.addChild("itemStatuses", itemStatusesNode, false);
-        itemStatusesNode.addChild("itemStatus", itemStatusNode, false);
-
-        rootOutputNode.addChild("record", recordNode, false);
-        //rootOutputNode.setAggregating(false);
-        long start = System.currentTimeMillis();
-        boolean raw = false;
-        if (!raw) {
-            JoiningXMLFilter joiner = new JoiningXMLFilter();
-            TrueSAXSolrPoster poster = setupSolr();
-            joiner.transform(rootOutputNode, new File("inputFiles/fullTest.xsl"), new SAXResult(poster));
+        
+        if (fromDatabase) {
+            rootOutputNode.addDescendent("/record/marc", bmxr, true);
+            rootOutputNode.addDescendent("/record/holdings/holding", hxr, false);
+            rootOutputNode.addDescendent("/record/holdings/holding/items/item", ixr, false);
+            rootOutputNode.addDescendent("/record/holdings/holding/items/item/itemStatuses/itemStatus", isxr, false);
         } else {
-            BufferingXMLFilter rawOutput = new BufferingXMLFilter();
-            rootOutputNode.setContentHandler(rawOutput);
-            try {
-                rootOutputNode.run();
-            } catch (Exception e) {
-                e.printStackTrace(System.out);
-            }
-            rawOutput.play(null);
+            rootOutputNode.addDescendent("/record/marc", marcSxf, true);
+            rootOutputNode.addDescendent("/record/holdings/holding", hldgSxf, false);
+            rootOutputNode.addDescendent("/record/holdings/holding/items/item", itemSxf, false);
+            rootOutputNode.addDescendent("/record/holdings/holding/items/item/itemStatuses/itemStatus", itemStatusSxf, false);
         }
-        System.out.println("sax integrator duration: "+(System.currentTimeMillis() - start));
+        long start = System.currentTimeMillis();
+        JoiningXMLFilter joiner = new JoiningXMLFilter();
+        TrueSAXSolrPoster poster = setupSolr();
+        joiner.transform(rootOutputNode, new File("inputFiles/fullTest.xsl"), new SAXResult(poster));
+        System.out.println("sax integrator duration: " + (System.currentTimeMillis() - start));
     }
 
     private TrueSAXSolrPoster setupSolr() {
-        StreamingShardInterfaceImpl indexInterface = new StreamingShardInterfaceImpl();
         String solrUrl = "http://[host_or_ip]:8082/franklin";
         int queueSize = 20;
         int threadCount = 3;
-        indexInterface.setCommitThreshold(0);
-        indexInterface.setShardNum(1);
-        try {
-            indexInterface.init();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        } catch (ParserConfigurationException ex) {
-            throw new RuntimeException(ex);
-        } catch (SAXException ex) {
-            throw new RuntimeException(ex);
-        }
-        ShardedIndexer indexer = new ShardedIndexer();
-        indexer.setDelete(true);
-        indexer.setOptimize(false);
-        ArrayList<ShardedIndexInterface> list = new ArrayList<ShardedIndexInterface>();
-        list.add(indexInterface);
-        indexer.setIndexList(list);
-        indexer.init();
         TrueSAXSolrPoster poster = new TrueSAXSolrPoster();
         try {
             poster.setServer(new StreamingUpdateSolrServer(solrUrl, queueSize, threadCount));
