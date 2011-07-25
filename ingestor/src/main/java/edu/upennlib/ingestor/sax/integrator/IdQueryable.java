@@ -21,6 +21,7 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
+import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import java.io.EOFException;
 import org.xml.sax.ContentHandler;
 
@@ -28,7 +29,7 @@ import org.xml.sax.ContentHandler;
  *
  * @author michael
  */
-public interface IdQueryable extends Runnable {
+public interface IdQueryable extends Runnable, IndexedPropertyConfigurable {
     public Comparable getId() throws EOFException;
     public boolean self();
     public int getLevel() throws EOFException;
@@ -40,5 +41,4 @@ public interface IdQueryable extends Runnable {
     public void writeOuterEndElement(ContentHandler ch);
     public void step();
     public boolean isFinished();
-    public void setName(String name);
 }

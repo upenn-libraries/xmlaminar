@@ -101,10 +101,10 @@ public class DriverOptions {
         }
         List remainingArgs = line.getArgList();
 
-//        if (remainingArgs.size() != 1) {
-//            throw new ParseException("One argument past options expected: properties file");
-//        }
-//        properties.setProperty("prop", (String) remainingArgs.get(0));
+        if (remainingArgs.size() != 1) {
+            throw new ParseException("One argument past options expected: properties file");
+        }
+        properties.setProperty("prop", (String) remainingArgs.get(0));
 
         latestProps = properties;
 

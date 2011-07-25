@@ -178,6 +178,11 @@ public final class Driver {
      * @throws Exception from FileServer starting/stopping
      */
     public static void main(String[] args) throws Exception {
+        if (args.length == 0) {
+            args = new String[1];
+            args[0] = "franklin.properties";
+        }
+
         Properties properties = getCombinedProps(args);
 
         if (properties == null) {
@@ -210,7 +215,10 @@ public final class Driver {
         bpp.setInstanceNameToBeanName(instanceNameToBeanName);
 
         SAXIngestor ingestor = (SAXIngestor) context.getBean("ingestor");
+        System.out.println("starting");
+        long start = System.currentTimeMillis();
         ingestor.run();
+        System.out.println("SAX ingestor duration: "+(System.currentTimeMillis() - start));
     }
 
     public static ConfigurableApplicationContext getNewContext(Properties prop, String spring, boolean xmlFromFileSystem) {

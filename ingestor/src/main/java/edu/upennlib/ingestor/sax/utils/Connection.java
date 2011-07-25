@@ -49,9 +49,17 @@ public class Connection {
         this.host = host;
     }
 
+    public String getHost() {
+        return host;
+    }
+
     public void setSid(String sid) {
         logger.trace("set sid: " + sid);
         this.sid = sid;
+    }
+
+    public String getSid() {
+        return sid;
     }
 
     public void setSql(String sql) {
@@ -59,14 +67,26 @@ public class Connection {
         this.sql = sql;
     }
 
+    public String getSql() {
+        return sql;
+    }
+
     public void setUser(String user) {
         logger.trace("set user: " + user);
         this.user = user;
     }
 
+    public String getUser() {
+        return user;
+    }
+
     public void setPwd(String pwd) {
         logger.trace("set pwd: " + pwd);
         this.pwd = pwd;
+    }
+
+    public String getPwd() {
+        return pwd;
     }
 
     public void connect() throws ConnectionException {

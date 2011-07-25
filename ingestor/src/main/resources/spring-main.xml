@@ -4,28 +4,27 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean id="ingestor" class="edu.upennlib.ingestor.SAXIngestor" scope="singleton" lazy-init="true">
-        <property name="generator" ref="${ingestor.generator}"/>
+        <property name="integrator" ref="${ingestor.integrator}"/>
         <property name="stylesheet" value="${ingestor.stylesheet}"/>
-        <property name="poster" ref="${ingestor.solrPoster}"/>
+        <property name="solrPoster" ref="${ingestor.solrPoster}"/>
+        <property name="joiner" ref="${ingestor.joiner}"/>
     </bean>
     <bean id="rootIntegrator" class="edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode" scope="singleton" lazy-init="true" init-method="initSpring">
         <property name="subIntegratorsSpring" ref="${rootIntegrator.subIntegrators}"/>
         <property name="descendentsSpring" value="${rootIntegrator.descendents}"/>
     </bean>
-    <bean id="marcIntegrator" class="edu.upennlib.dla.integrator.MarcIntegratorUpenn" scope="prototype">
+    <bean id="marcIntegrator" class="edu.upennlib.ingestor.sax.integrator.BinaryMARCXMLReader" scope="prototype">
         <property name="name" value="${integrator.name}"/>
-        <property name="inputRecordDescription" value="${integrator.inputRecordDescription}"/>
         <property name="host" value="${integrator.host}"/>
         <property name="sid" value="${integrator.sid}"/>
         <property name="user" value="${integrator.user}"/>
         <property name="pwd" value="${integrator.pwd}"/>
         <property name="idFieldLabels" value="${integrator.idFields}"/>
-        <property name="marcBinaryFieldLabel" value="${integrator.marcBinaryFieldLabel}"/>
+        <property name="outputFieldLabels" value="${integrator.marcBinaryFieldLabel}"/>
         <property name="sql" value="${integrator.sql}"/>
     </bean>
     <bean id="rsIntegrator" class="edu.upennlib.ingestor.sax.integrator.RSXMLReader" scope="prototype">
         <property name="name" value="${integrator.name}"/>
-        <property name="inputRecordDescription" value="${integrator.inputRecordDescription}"/>
         <property name="host" value="${integrator.host}"/>
         <property name="sid" value="${integrator.sid}"/>
         <property name="user" value="${integrator.user}"/>
@@ -33,15 +32,13 @@
         <property name="idFieldLabels" value="${integrator.idFields}"/>
         <property name="sql" value="${integrator.sql}"/>
     </bean>
-    <bean class="edu.upennlib.ingestor.sax.solr.TrueSAXSolrPoster" id="solrPoster" lazy-init="true" scope="singleton">
-        <property name="server" value="${solrPoster.server}"/>
+    <bean class="edu.upennlib.ingestor.sax.solr.TrueSAXSolrPoster" id="solrPoster" lazy-init="true" scope="singleton" init-method="initSpring">
         <property name="delete" value="${solrPoster.delete}"/>
-    </bean>
-    <bean class="org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer" id="solrServer" lazy-init="true" scope="singleton">
         <property name="solrUrl" value="${solrServer.url}"/>
         <property name="queueSize" value="${solrServer.queueSize}"/>
         <property name="threadCount" value="${solrServer.threadCount}"/>
     </bean>
+    <bean id="joiner" class="edu.upennlib.ingestor.sax.xsl.JoiningXMLFilter" lazy-init="true" scope="singleton"/>
     <bean id="null" class="edu.upennlib.configurationutils.ConfigUtils$NullFactory" scope="singleton" lazy-init="true"/>
     <bean id="bpp" class="edu.upennlib.configurationutils.BPP"/>
 </beans>

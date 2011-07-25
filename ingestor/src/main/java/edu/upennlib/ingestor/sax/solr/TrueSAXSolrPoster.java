@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import javax.xml.transform.OutputKeys;
@@ -83,6 +84,41 @@ public class TrueSAXSolrPoster implements ContentHandler, XMLReader {
     private StreamingUpdateSolrServer server;
     public final boolean DELETE = true;
     private boolean delete = DELETE;
+    private String solrUrl;
+    private int queueSize;
+    private int threadCount;
+
+    public String getSolrUrl() {
+        return solrUrl;
+    }
+
+    public void setSolrUrl(String solrUrl) {
+        this.solrUrl = solrUrl;
+    }
+
+    public int getQueueSize() {
+        return queueSize;
+    }
+
+    public void setQueueSize(int queueSize) {
+        this.queueSize = queueSize;
+    }
+
+    public int getThreadCount() {
+        return threadCount;
+    }
+
+    public void setThreadCount(int threadCount) {
+        this.threadCount = threadCount;
+    }
+
+    public void initSpring() {
+        try {
+            setServer(new StreamingUpdateSolrServer(solrUrl, queueSize, threadCount));
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
     public void setServer(StreamingUpdateSolrServer server) {
         this.server = server;

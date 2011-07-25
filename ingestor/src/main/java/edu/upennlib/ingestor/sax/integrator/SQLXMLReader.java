@@ -21,6 +21,7 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
+import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.ingestor.sax.utils.Connection;
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
 import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
@@ -56,9 +57,10 @@ import org.xml.sax.helpers.AttributesImpl;
  *
  * @author michael
  */
-public abstract class SQLXMLReader implements XMLReader {
+public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigurable {
 
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
+    private String name;
     Logger logger = Logger.getLogger(getClass());
     Connection connection;
     ResultSet rs;
@@ -73,12 +75,30 @@ public abstract class SQLXMLReader implements XMLReader {
         this.expectedInputImplementation = expectedInputImplementation;
     }
 
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
     public void setIdFieldLabels(String[] idFieldLabels) {
         this.idFieldLabels = idFieldLabels;
     }
 
+    public String[] getIdFieldLabels() {
+        return idFieldLabels;
+    }
+
     public void setOutputFieldLabels(String[] outputFieldLabels) {
         this.outputFieldLabels = outputFieldLabels;
+    }
+
+    public String[] getOutputFieldLabels() {
+        return outputFieldLabels;
     }
 
     @Override
@@ -315,12 +335,28 @@ public abstract class SQLXMLReader implements XMLReader {
         connection.setHost(host);
     }
 
+    public String getHost() {
+        if (connection == null) {
+            return null;
+        } else {
+            return connection.getHost();
+        }
+    }
+
     public void setSid(String sid) throws ConnectionException {
         logger.trace("set sid: " + sid);
         if (connection == null) {
             connection = new Connection();
         }
         connection.setSid(sid);
+    }
+    
+    public String getSid() {
+        if (connection == null) {
+            return null;
+        } else {
+            return connection.getSid();
+        }
     }
 
     public void setSql(String sql) throws ConnectionException {
@@ -331,6 +367,14 @@ public abstract class SQLXMLReader implements XMLReader {
         connection.setSql(sql);
     }
 
+    public String getSql() {
+        if (connection == null) {
+            return null;
+        } else {
+            return connection.getSql();
+        }
+    }
+
     public void setUser(String user) throws ConnectionException {
         logger.trace("set user: " + user);
         if (connection == null) {
@@ -339,12 +383,28 @@ public abstract class SQLXMLReader implements XMLReader {
         connection.setUser(user);
     }
 
+    public String getUser() {
+        if (connection == null) {
+            return null;
+        } else {
+            return connection.getUser();
+        }
+    }
+
     public void setPwd(String pwd) throws ConnectionException {
         logger.trace("set pwd: " + pwd);
         if (connection == null) {
             connection = new Connection();
         }
         connection.setPwd(pwd);
+    }
+
+    public String getPwd() {
+        if (connection == null) {
+            return null;
+        } else {
+            return connection.getPwd();
+        }
     }
 
     public static final String INTEGRATOR_URI = "http://integrator";
@@ -362,7 +422,7 @@ public abstract class SQLXMLReader implements XMLReader {
 
     private BufferingXMLFilter endElementBuffer = new BufferingXMLFilter();
     private void writeStructuralEvents() throws SQLException, SAXException {
-        for (int i = 0; i < currentId.length ; i++) {
+        for (int i = 0; i < currentId.length; i++) {
             lastId[i] = currentId[i];
             currentId[i] = rs.getLong(idFieldLabels[i]);
         }

@@ -21,11 +21,13 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
+import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -60,6 +62,45 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     private IdQueryable[] childNodes;
     private Boolean[] requireForWrite;
     private String name;
+
+    private List<String> descendentsSpring = null;
+    public void setDescendentsSpring(List<String> descendentsSpring) {
+        this.descendentsSpring = descendentsSpring;
+    }
+    public List<String> getDescendentsSpring() {
+        return descendentsSpring;
+    }
+
+    private List<XMLReader> subIntegratorsSpring = null;
+    public void setSubIntegratorsSpring(List<XMLReader> writeDuplicateIdsSpring) {
+        this.subIntegratorsSpring = writeDuplicateIdsSpring;
+    }
+    public List<XMLReader> getSubIntegratorsSpring() {
+        return subIntegratorsSpring;
+    }
+
+    public void initSpring() {
+        HashMap<String, XMLReader> subIntegrators = new HashMap<String, XMLReader>();
+        for (XMLReader integrator : subIntegratorsSpring) {
+            if (!(integrator instanceof IndexedPropertyConfigurable)) {
+                throw new RuntimeException(integrator+" not an instance of "+IndexedPropertyConfigurable.class.getCanonicalName());
+            }
+            IndexedPropertyConfigurable ipc = (IndexedPropertyConfigurable) integrator;
+            if (ipc.getName() == null) {
+                throw new RuntimeException("integrator "+integrator+" must have non-null name");
+            }
+            if (subIntegrators.put(ipc.getName(), integrator) != null) {
+                throw new RuntimeException("integrator " + ipc.getName() + " (" + integrator + ") specified multiple times");
+            }
+        }
+        for (String s : descendentsSpring) {
+            String[] args = s.split("\\s*,\\s*");
+            if (args.length != 3) {
+                throw new IllegalArgumentException();
+            }
+            addDescendent(args[0], (XMLReader) subIntegrators.get(args[1]), Boolean.parseBoolean(args[2]));
+        }
+    }
 
     public void addDescendent(String path, XMLReader source, boolean requireForWrite) {
         String[] pe = path.substring(1).split("/");
@@ -114,6 +155,11 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         if (inputFilter != null) {
             inputFilter.setName(name);
         }
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override

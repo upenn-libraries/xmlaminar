@@ -67,6 +67,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         this.name = name;
     }
 
+    @Override
     public String getName() {
         return name;
     }

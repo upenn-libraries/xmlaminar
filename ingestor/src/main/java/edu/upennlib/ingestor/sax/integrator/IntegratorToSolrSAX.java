@@ -16,26 +16,18 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
-import edu.upennlib.dla.solrIndex.indexInterfaces.ShardedIndexInterface;
-import edu.upennlib.dla.solrIndex.indexInterfaces.StreamingShardInterfaceImpl;
-import edu.upennlib.dla.solrIndex.indexers.ShardedIndexer;
 import edu.upennlib.ingestor.sax.solr.TrueSAXSolrPoster;
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
-import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import edu.upennlib.ingestor.sax.xsl.JoiningXMLFilter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer;
 import org.xml.sax.InputSource;
