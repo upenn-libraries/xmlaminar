@@ -73,8 +73,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
     }
 
     public StatefulXMLFilter() {
-        logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
-        logger.setLevel(Level.TRACE);
         setContentHandler(workingBuffer);
     }
 

@@ -151,8 +151,6 @@ public class TrueSAXSolrPoster implements ContentHandler, XMLReader {
         } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException(ex);
         }
-        logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.err"));
-        logger.setLevel(Level.WARN);
     }
 
     private void enterDoc() {
