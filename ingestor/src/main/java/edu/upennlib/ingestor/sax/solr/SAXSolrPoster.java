@@ -60,7 +60,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class TrueSAXSolrPoster implements ContentHandler, XMLReader {
+public class SAXSolrPoster implements ContentHandler, XMLReader {
 
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     public static final int DOC_CHUNK_SIZE = 20;
@@ -136,7 +136,7 @@ public class TrueSAXSolrPoster implements ContentHandler, XMLReader {
         return delete;
     }
 
-    public TrueSAXSolrPoster() {
+    public SAXSolrPoster() {
         TransformerFactory tf = TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
         try {
             t = tf.newTransformer();

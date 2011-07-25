@@ -30,7 +30,7 @@ import javax.xml.transform.TransformerException;
 import org.apache.log4j.Logger;
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
-import edu.upennlib.ingestor.sax.solr.TrueSAXSolrPoster;
+import edu.upennlib.ingestor.sax.solr.SAXSolrPoster;
 import edu.upennlib.ingestor.sax.xsl.JoiningXMLFilter;
 import java.io.File;
 import javax.xml.transform.sax.SAXResult;
@@ -45,7 +45,7 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
     private String name = null;
     private IntegratorOutputNode integrator = null;
     private File stylesheet = null;
-    private TrueSAXSolrPoster solrPoster = null;
+    private SAXSolrPoster solrPoster = null;
     private JoiningXMLFilter joiner = null;
     private Logger logger = Logger.getLogger(getClass());
 
@@ -66,11 +66,11 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
         this.joiner = joiner;
     }
 
-    public TrueSAXSolrPoster getSolrPoster() {
+    public SAXSolrPoster getSolrPoster() {
         return solrPoster;
     }
 
-    public void setSolrPoster(TrueSAXSolrPoster solrPoster) {
+    public void setSolrPoster(SAXSolrPoster solrPoster) {
         this.solrPoster = solrPoster;
     }
 

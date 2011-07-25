@@ -215,7 +215,6 @@ public final class Driver {
         bpp.setInstanceNameToBeanName(instanceNameToBeanName);
 
         SAXIngestor ingestor = (SAXIngestor) context.getBean("ingestor");
-        System.out.println("starting");
         long start = System.currentTimeMillis();
         ingestor.run();
         System.out.println("SAX ingestor duration: "+(System.currentTimeMillis() - start));

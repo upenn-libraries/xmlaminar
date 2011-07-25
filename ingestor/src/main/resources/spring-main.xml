@@ -32,7 +32,7 @@
         <property name="idFieldLabels" value="${integrator.idFields}"/>
         <property name="sql" value="${integrator.sql}"/>
     </bean>
-    <bean class="edu.upennlib.ingestor.sax.solr.TrueSAXSolrPoster" id="solrPoster" lazy-init="true" scope="singleton" init-method="initSpring">
+    <bean class="edu.upennlib.ingestor.sax.solr.SAXSolrPoster" id="solrPoster" lazy-init="true" scope="singleton" init-method="initSpring">
         <property name="delete" value="${solrPoster.delete}"/>
         <property name="solrUrl" value="${solrServer.url}"/>
         <property name="queueSize" value="${solrServer.queueSize}"/>
