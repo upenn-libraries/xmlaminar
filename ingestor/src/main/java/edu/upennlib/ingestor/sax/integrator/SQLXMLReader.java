@@ -300,6 +300,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         if (outputFieldLabels == null) {
             int columnCount = rsmd.getColumnCount();
             outputFieldLabels = new String[columnCount - idFieldLabels.length + 1];
+            outputFieldLabelsLower = new String[columnCount - idFieldLabels.length + 1];
             outputFieldColumnTypes = new int[outputFieldLabels.length];
             ArrayList<String> idFieldLabelsList = new ArrayList<String>(Arrays.asList(idFieldLabels));
             idFieldLabelsList.remove(idFieldLabels[idFieldLabels.length - 1]);
@@ -309,6 +310,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
                 if (!idFieldLabelsList.contains(columnLabel)) {
                     outputFieldColumnTypes[outputFieldIndex] = rsmd.getColumnType(i);
                     outputFieldLabels[outputFieldIndex++] = columnLabel;
+                    outputFieldLabelsLower[outputFieldIndex++] = columnLabel.toLowerCase();
                 }
             }
             if (outputFieldIndex != outputFieldLabels.length) {
@@ -316,8 +318,10 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
             }
         } else {
             outputFieldColumnTypes = new int[outputFieldLabels.length];
+            outputFieldLabelsLower = new String[outputFieldLabels.length];
             for (int i = 0; i < outputFieldLabels.length; i++) {
                 outputFieldColumnTypes[i] = rsmd.getColumnType(rs.findColumn(outputFieldLabels[i]));
+                outputFieldLabelsLower[i] = outputFieldLabels[i].toLowerCase();
             }
         }
     }
@@ -457,6 +461,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     }
 
     String[] outputFieldLabels;
+    String[] outputFieldLabelsLower;
     int[] outputFieldColumnTypes;
 
     private void outputResultSetAsSAXEvents() throws SQLException, SAXException {
@@ -495,7 +500,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
                     throw new RuntimeException("add special handling for java.sql.Types="+outputFieldColumnTypes[i],ex);
                 }
                 try {
-                    outputFieldAsSAXEvents(currentId[currentId.length - 1], outputFieldLabels[i], content);
+                    outputFieldAsSAXEvents(currentId[currentId.length - 1], outputFieldLabelsLower[i], content);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 } finally {

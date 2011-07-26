@@ -31,7 +31,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
 
     private static final int MAX_STRING_ARGS_PER_EVENT = 3;
     private static final int MAX_INT_ARGS_PER_EVENT = 2;
-    private static final int CHAR_BUFFER_INIT_FACTOR = 1;
+    private static final int CHAR_BUFFER_INIT_FACTOR = 10;
     public static final int DEFAULT_BUFFER_SIZE = 1000;
     private final int bufferSize;
     private final int threshold;
@@ -86,7 +86,6 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     private void growCharArgBuffer() {
         synchronized (size) {
             while (charSize > 0) {
-                System.out.println("waiting, charSize="+charSize+", size="+size[0]);
                 size.notify();
                 try {
                     size.wait();
@@ -214,6 +213,9 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         charTail = simpleMod(charTail + length, charArgBuffer.length);
         intArgBuffer[intTail] = length;
         intTail = incrementMod(intTail, intArgBuffer.length);
+        if (charSize < 0) {
+            throw new RuntimeException("on add, charSize="+charSize);
+        }
         charSize += length;
         events[tail] = SaxEventType.characters;
         eventAdded();
@@ -395,6 +397,10 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         }
         charHead = simpleMod(charHead + intArgBuffer[ind2], charArgBuffer.length);
         charSize -= intArgBuffer[ind2];
+        int tmp;
+        if ((tmp = charSize) < 0) {
+            throw new RuntimeException("charSize="+charSize+", "+tmp);
+        }
     }
 
     private void executeIgnorableWhitespace(int index) throws SAXException {
