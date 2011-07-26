@@ -17,6 +17,7 @@
 package edu.upennlib.ingestor.sax.xsl;
 
 import java.io.IOException;
+import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -34,6 +35,8 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     private static final int CHAR_BUFFER_INIT_FACTOR = 1;
     public static final int DEFAULT_BUFFER_SIZE = 1000;
     private final int bufferSize;
+    private final boolean useInputThreshold = true;
+    private final boolean useOutputThreshold = true;
     private final int threshold;
 
     private final int[] size = new int[1];
@@ -57,10 +60,12 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     private int charHead = 0;
     private int charTail = 0;
 
+    private Logger logger = Logger.getLogger(getClass());
+
     public BoundedXMLFilterBuffer() {
         size[0] = 0;
         bufferSize = DEFAULT_BUFFER_SIZE;
-        threshold = (bufferSize / 2) + 1;
+        threshold = (bufferSize / 2);
         events = new SaxEventType[bufferSize];
         argIndex1 = new int[bufferSize];
         argIndex2 = new int[bufferSize];
@@ -73,7 +78,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     public BoundedXMLFilterBuffer(int bufferSize) {
         size[0] = 0;
         this.bufferSize = bufferSize;
-        threshold = (bufferSize / 2) + 1;
+        threshold = (bufferSize / 2);
         events = new SaxEventType[bufferSize];
         argIndex1 = new int[bufferSize];
         argIndex2 = new int[bufferSize];
@@ -86,31 +91,35 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     private void growCharArgBuffer() {
         synchronized (size) {
             while (size[0] > 0) {
+                if (useInputThreshold) {
+                    size.notify();
+                }
                 try {
                     size.wait();
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
             }
-            System.out.println("increasing charArgBuffer size to: "+(charArgBuffer.length * 2));
-            charArgBuffer = new char[charArgBuffer.length * 2];
-            charHead = 0;
-            charTail = 0;
-            charSize[0] = 0;
         }
+        logger.trace("increasing charArgBuffer size to: " + (charArgBuffer.length * 2));
+        charArgBuffer = new char[charArgBuffer.length * 2];
+        charHead = 0;
+        charTail = 0;
+        charSize[0] = 0;
     }
 
     /*
      * Buffering
      */
-
     private void blockForSpace() {
-        synchronized (size) {
-            if (size[0] >= bufferSize) {
-                try {
-                    size.wait();
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
+        if (size[0] >= bufferSize) {
+            synchronized (size) {
+                if (size[0] >= bufferSize) {
+                    try {
+                        size.wait();
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         }
@@ -120,7 +129,9 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         tail = incrementMod(tail, bufferSize);
         synchronized (size) {
             size[0]++;
-            size.notify();
+            if (!useInputThreshold || size[0] > threshold - 1) {
+                size.notify();
+            }
         }
     }
 
@@ -136,6 +147,11 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         blockForSpace();
         events[tail] = SaxEventType.endDocument;
         eventAdded();
+        if (useInputThreshold) {
+            synchronized (size) {
+                size.notify();
+            }
+        }
     }
 
     @Override
@@ -345,7 +361,9 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         head = incrementMod(head, bufferSize);
         synchronized (size) {
             size[0]--;
-            size.notify();
+            if (!useOutputThreshold || size[0] < threshold + 1) {
+                size.notify();
+            }
         }
     }
 
