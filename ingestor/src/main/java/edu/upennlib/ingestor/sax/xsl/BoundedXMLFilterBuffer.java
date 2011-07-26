@@ -31,7 +31,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
 
     private static final int MAX_STRING_ARGS_PER_EVENT = 3;
     private static final int MAX_INT_ARGS_PER_EVENT = 2;
-    private static final int CHAR_BUFFER_INIT_FACTOR = 10;
+    private static final int CHAR_BUFFER_INIT_FACTOR = 1;
     public static final int DEFAULT_BUFFER_SIZE = 1000;
     private final int bufferSize;
     private final int threshold;
@@ -53,7 +53,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     private int intTail = 0;
 
     private char[] charArgBuffer;
-    private int charSize = 0;
+    private final int[] charSize = new int[1];
     private int charHead = 0;
     private int charTail = 0;
 
@@ -85,8 +85,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
 
     private void growCharArgBuffer() {
         synchronized (size) {
-            while (charSize > 0) {
-                size.notify();
+            while (size[0] > 0) {
                 try {
                     size.wait();
                 } catch (InterruptedException ex) {
@@ -97,7 +96,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
             charArgBuffer = new char[charArgBuffer.length * 2];
             charHead = 0;
             charTail = 0;
-            charSize = 0;
+            charSize[0] = 0;
         }
     }
 
@@ -198,7 +197,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     public void characters(char[] ch, int start, int length) throws SAXException {
         blockForSpace();
         argIndex1[tail] = intTail;
-        while (charArgBuffer.length - charSize < length - 1) {
+        while (charArgBuffer.length - charSize[0] < length - 1) {
             growCharArgBuffer();
         }
         if (charTail >= charHead && charArgBuffer.length - charTail < length) {
@@ -213,10 +212,9 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         charTail = simpleMod(charTail + length, charArgBuffer.length);
         intArgBuffer[intTail] = length;
         intTail = incrementMod(intTail, intArgBuffer.length);
-        if (charSize < 0) {
-            throw new RuntimeException("on add, charSize="+charSize);
+        synchronized(charSize) {
+            charSize[0] += length;
         }
-        charSize += length;
         events[tail] = SaxEventType.characters;
         eventAdded();
     }
@@ -346,9 +344,8 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     private void eventExecuted() {
         head = incrementMod(head, bufferSize);
         synchronized (size) {
-            if (--size[0] < threshold) {
-                size.notify();
-            }
+            size[0]--;
+            size.notify();
         }
     }
 
@@ -396,10 +393,8 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
             super.characters(charArgBuffer, intArgBuffer[ind1], intArgBuffer[ind2]);
         }
         charHead = simpleMod(charHead + intArgBuffer[ind2], charArgBuffer.length);
-        charSize -= intArgBuffer[ind2];
-        int tmp;
-        if ((tmp = charSize) < 0) {
-            throw new RuntimeException("charSize="+charSize+", "+tmp);
+        synchronized(charSize) {
+            charSize[0] -= intArgBuffer[ind2];
         }
     }
 

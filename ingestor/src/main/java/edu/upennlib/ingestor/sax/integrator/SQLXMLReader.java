@@ -309,7 +309,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
                 String columnLabel = rsmd.getColumnLabel(i);
                 if (!idFieldLabelsList.contains(columnLabel)) {
                     outputFieldColumnTypes[outputFieldIndex] = rsmd.getColumnType(i);
-                    outputFieldLabels[outputFieldIndex++] = columnLabel;
+                    outputFieldLabels[outputFieldIndex] = columnLabel;
                     outputFieldLabelsLower[outputFieldIndex++] = columnLabel.toLowerCase();
                 }
             }

@@ -35,7 +35,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -48,12 +47,14 @@ import org.xml.sax.SAXException;
  */
 public class NewClass {
 
+    public static final int BUFFER_SIZE = 1024 * 8;
+
     public static void main(String[] args) throws ParserConfigurationException, SAXException, TransformerConfigurationException, TransformerException, FileNotFoundException, IOException {
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         BoundedXMLFilterBuffer buffer = new BoundedXMLFilterBuffer();
         BufferingXMLFilter oldBuffer = new BufferingXMLFilter();
-        FileInputStream fis = new FileInputStream("inputFiles/large.xml");
+        FileInputStream fis = new FileInputStream("inputFiles/largest.xml");
         BufferedInputStream bis = new BufferedInputStream(fis);
         FileOutputStream fos = new FileOutputStream("/tmp/testing.xml");
         BufferedOutputStream bos = new BufferedOutputStream(fos);
