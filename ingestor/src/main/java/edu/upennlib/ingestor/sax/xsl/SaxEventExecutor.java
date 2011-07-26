@@ -57,6 +57,42 @@ public class SaxEventExecutor {
         }
     }
 
+    public static String eventToString(Object[] event) {
+        StringBuilder sb = new StringBuilder();
+        switch ((SaxEventType)event[0]) {
+            case characters:
+                sb.append("[characters, ");
+                sb.append((char[])event[1], (Integer)event[2], (Integer)event[3]).append(']');
+                break;
+            case startElement:
+                sb.append("[startElement, ");
+                sb.append((String)event[1]).append(", ");
+                sb.append((String)event[2]).append(", ");
+                sb.append((String)event[3]);
+                sb.append(attsToString((Attributes)event[4])).append(']');
+                break;
+            default:
+        }
+        return sb.toString();
+    }
+    
+    private static String attsToString(Attributes atts) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < atts.getLength(); i++) {
+            if (i == 0) {
+                sb.append(", ").append(atts.getClass().getSimpleName()).append('[');
+            }
+            sb.append(atts.getURI(i)).append(atts.getQName(i)).append("=\"").append(atts.getValue(i));
+            if (i < atts.getLength() - 1) {
+                sb.append("\", ");
+            } else {
+                sb.append(']');
+            }
+        }
+        return sb.toString();
+    }
+
+
     private void checkFreeCharArray(Object[] args) {
         char[] ch = (char[]) args[1];
         if (ch != lastCharArrayWritten) {
