@@ -32,12 +32,13 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
 
     private static final int MAX_STRING_ARGS_PER_EVENT = 3;
     private static final int MAX_INT_ARGS_PER_EVENT = 2;
-    private static final int CHAR_BUFFER_INIT_FACTOR = 1;
-    public static final int DEFAULT_BUFFER_SIZE = 1000;
+    private static final int CHAR_BUFFER_INIT_FACTOR = 6;
+    public static final int DEFAULT_BUFFER_SIZE = 2000;
     private final int bufferSize;
     private final boolean useInputThreshold = true;
     private final boolean useOutputThreshold = true;
     private final int threshold;
+    private final int tAdd = 1;
 
     private final int[] size = new int[1];
     private int head = 0;
@@ -66,6 +67,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         size[0] = 0;
         bufferSize = DEFAULT_BUFFER_SIZE;
         threshold = (bufferSize / 2);
+        //tAdd = (bufferSize / 4);
         events = new SaxEventType[bufferSize];
         argIndex1 = new int[bufferSize];
         argIndex2 = new int[bufferSize];
@@ -79,6 +81,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         size[0] = 0;
         this.bufferSize = bufferSize;
         threshold = (bufferSize / 2);
+        //tAdd = (bufferSize / 4);
         events = new SaxEventType[bufferSize];
         argIndex1 = new int[bufferSize];
         argIndex2 = new int[bufferSize];
@@ -101,7 +104,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
                 }
             }
         }
-        logger.trace("increasing charArgBuffer size to: " + (charArgBuffer.length * 2));
+        System.out.println("increasing charArgBuffer size to: " + (charArgBuffer.length * 2));
         charArgBuffer = new char[charArgBuffer.length * 2];
         charHead = 0;
         charTail = 0;
@@ -129,7 +132,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         tail = incrementMod(tail, bufferSize);
         synchronized (size) {
             size[0]++;
-            if (!useInputThreshold || size[0] > threshold - 1) {
+            if (!useInputThreshold || size[0] > threshold - tAdd) {
                 size.notify();
             }
         }
@@ -361,7 +364,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         head = incrementMod(head, bufferSize);
         synchronized (size) {
             size[0]--;
-            if (!useOutputThreshold || size[0] < threshold + 1) {
+            if (!useOutputThreshold || size[0] < threshold + tAdd) {
                 size.notify();
             }
         }
