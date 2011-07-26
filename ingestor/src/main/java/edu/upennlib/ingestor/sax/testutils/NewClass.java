@@ -66,7 +66,7 @@ public class NewClass {
         long start = System.currentTimeMillis();
         boolean buffering = true;
         if (buffering) {
-            t.transform(new SAXSource(oldBuffer, new InputSource(bis)), new StreamResult(bos));
+            t.transform(new SAXSource(buffer, new InputSource(bis)), new StreamResult(bos));
         } else {
             t.transform(new StreamSource(bis), new StreamResult(bos));
         }

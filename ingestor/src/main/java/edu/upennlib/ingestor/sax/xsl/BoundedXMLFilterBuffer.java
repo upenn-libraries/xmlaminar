@@ -17,11 +17,6 @@
 package edu.upennlib.ingestor.sax.xsl;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import net.sf.saxon.event.ContentHandlerProxy;
-import net.sf.saxon.event.NamespaceReducer;
-import net.sf.saxon.event.ReceivingContentHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -36,8 +31,8 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
 
     private static final int MAX_STRING_ARGS_PER_EVENT = 3;
     private static final int MAX_INT_ARGS_PER_EVENT = 2;
-    private static final int CHAR_BUFFER_INIT_FACTOR = 10;
-    public static final int DEFAULT_BUFFER_SIZE = 2000;
+    private static final int CHAR_BUFFER_INIT_FACTOR = 1;
+    public static final int DEFAULT_BUFFER_SIZE = 1000;
     private final int bufferSize;
     private final int threshold;
 
@@ -91,6 +86,8 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     private void growCharArgBuffer() {
         synchronized (size) {
             while (charSize > 0) {
+                System.out.println("waiting, charSize="+charSize+", size="+size[0]);
+                size.notify();
                 try {
                     size.wait();
                 } catch (InterruptedException ex) {
@@ -202,17 +199,14 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     public void characters(char[] ch, int start, int length) throws SAXException {
         blockForSpace();
         argIndex1[tail] = intTail;
-        while (charArgBuffer.length - charSize < length) {
+        while (charArgBuffer.length - charSize < length - 1) {
             growCharArgBuffer();
         }
         if (charTail >= charHead && charArgBuffer.length - charTail < length) {
             firstChunkSize = charArgBuffer.length - charTail;
-            //System.out.println("XXX1: "+ch.length+", "+start+", "+charArgBuffer.length+", "+charTail+", "+firstChunkSize+" ("+charHead+")");
             System.arraycopy(ch, start, charArgBuffer, charTail, firstChunkSize);
-            //System.out.println("XXX2: "+ch.length+", "+(start+firstChunkSize)+", "+charArgBuffer.length+", 0, "+(length - firstChunkSize)+" ("+charHead+")");
             System.arraycopy(ch, start + firstChunkSize, charArgBuffer, 0, length - firstChunkSize);
         } else {
-            //System.out.println("XXX3: "+ch.length+", "+start+", "+charArgBuffer.length+", "+charTail+", "+length+" ("+charHead+")");
             System.arraycopy(ch, start, charArgBuffer, charTail, length);
         }
         intArgBuffer[intTail] = charTail;
@@ -220,31 +214,14 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         charTail = simpleMod(charTail + length, charArgBuffer.length);
         intArgBuffer[intTail] = length;
         intTail = incrementMod(intTail, intArgBuffer.length);
+        charSize += length;
         events[tail] = SaxEventType.characters;
         eventAdded();
     }
 
     @Override
     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
-        blockForSpace();
-        argIndex1[tail] = intTail;
-        while (charArgBuffer.length - charSize < length) {
-            growCharArgBuffer();
-        }
-        if (charTail > charHead && charArgBuffer.length - charTail < length) {
-            firstChunkSize = charArgBuffer.length - charTail;
-            System.arraycopy(ch, start, charArgBuffer, charTail, firstChunkSize);
-            System.arraycopy(ch, start + firstChunkSize, charArgBuffer, 0, length - firstChunkSize);
-        } else {
-            System.arraycopy(ch, start, charArgBuffer, charTail, length);
-        }
-        intArgBuffer[intTail] = charTail;
-        intTail = incrementMod(intTail, intArgBuffer.length);
-        charTail = simpleMod(charTail + length, charArgBuffer.length);
-        intArgBuffer[intTail] = length;
-        intTail = incrementMod(intTail, intArgBuffer.length);
-        events[tail] = SaxEventType.ignorableWhitespace;
-        eventAdded();
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -314,19 +291,21 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         @Override
         public void run() {
             while (parsing || size[0] > 0) {
-                if (size[0] < 1) {
-                    synchronized (size) {
-                        try {
-                            size.wait();
-                        } catch (InterruptedException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    }
-                } else {
+                if (size[0] > 0) {
                     try {
                         execute(head);
                     } catch (SAXException ex) {
                         throw new RuntimeException(ex);
+                    }
+                } else {
+                    synchronized (size) {
+                        while (parsing && size[0] < 1) {
+                            try {
+                                size.wait();
+                            } catch (InterruptedException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
                     }
                 }
             }
@@ -365,8 +344,9 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     private void eventExecuted() {
         head = incrementMod(head, bufferSize);
         synchronized (size) {
-            size[0]--;
-            size.notify();
+            if (--size[0] < threshold) {
+                size.notify();
+            }
         }
     }
 
@@ -418,17 +398,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     }
 
     private void executeIgnorableWhitespace(int index) throws SAXException {
-        ind1 = argIndex1[index];
-        ind2 = incrementMod(ind1, intArgBuffer.length);
-        if (intArgBuffer[ind2] > charArgBuffer.length - intArgBuffer[ind1]) {
-            executeFirstChunkSize = charArgBuffer.length - intArgBuffer[ind1];
-            super.ignorableWhitespace(charArgBuffer, intArgBuffer[ind1], executeFirstChunkSize);
-            super.ignorableWhitespace(charArgBuffer, 0, intArgBuffer[ind2] - executeFirstChunkSize);
-        } else {
-            super.ignorableWhitespace(charArgBuffer, intArgBuffer[ind1], intArgBuffer[ind2]);
-        }
-        charHead = simpleMod(charHead + intArgBuffer[ind2], charArgBuffer.length);
-        charSize -= intArgBuffer[ind2];
+        throw new UnsupportedOperationException();
     }
 
 }
