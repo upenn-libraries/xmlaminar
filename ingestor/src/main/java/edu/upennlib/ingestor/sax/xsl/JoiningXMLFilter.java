@@ -223,7 +223,8 @@ public class JoiningXMLFilter extends MyXFI {
 
         private boolean parsingInitiated = false;
         public void checkOut(TransformerRunner tr) throws EOFException, SAXException, IOException {
-            synchronized(inputs) {
+            int thisTail;
+            synchronized (inputs) {
                 while (size >= MAX_SIZE || states[tail] != BufferState.FREE) {
                     try {
                         if (states[tail] == BufferState.EOF) {
@@ -234,20 +235,23 @@ public class JoiningXMLFilter extends MyXFI {
                         throw new RuntimeException(ex);
                     }
                 }
-                inputs[tail].clear();
-                outputs[tail].clear();
                 if (parsingInitiated && !tobSplitter.hasMoreOutput(dummyInputSource)) {
                     throw new EOFException();
                 }
-                parsingInitiated = true;
-                tobSplitter.setContentHandler(inputs[tail]);
-                //tobSplitter.setProperty("http://xml.org/sax/properties/lexical-handler", inputs[tail]);
-                tobSplitter.parse(dummyInputSource);
-                tr.setIO(inputs[tail], outputs[tail], tail);
+                thisTail = tail;
                 states[tail] = BufferState.CHECKED_OUT;
-                tail = ++tail % MAX_SIZE;
+                tail = (tail + 1) % MAX_SIZE;
                 size++;
             }
+            inputs[thisTail].clear();
+            outputs[thisTail].clear();
+            parsingInitiated = true;
+            synchronized (tobSplitter) {
+                tobSplitter.setContentHandler(inputs[thisTail]);
+                //tobSplitter.setProperty("http://xml.org/sax/properties/lexical-handler", inputs[thisTail]);
+                tobSplitter.parse(dummyInputSource);
+            }
+            tr.setIO(inputs[thisTail], outputs[thisTail], thisTail);
         }
 
         public void finishedTask(int index) {
@@ -276,16 +280,14 @@ public class JoiningXMLFilter extends MyXFI {
                     }
                 }
             }
-            outputs[head].flush(ch);
-            inputs[head].clear();
+            outputs[head].play(ch);
             states[head] = BufferState.FREE;
-            head = ++head % MAX_SIZE;
-            size--;
+            head = (head + 1) % MAX_SIZE;
             synchronized (inputs) {
+                size--;
                 inputs.notify();
             }
         }
-
         boolean allFinished = false;
 
         public void inputFinished() {
