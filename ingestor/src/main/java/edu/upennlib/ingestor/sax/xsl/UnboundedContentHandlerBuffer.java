@@ -17,11 +17,19 @@
 package edu.upennlib.ingestor.sax.xsl;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
+import org.xml.sax.DTDHandler;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -36,9 +44,8 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
     private static final int CHAR_BUFFER_INIT_FACTOR = 6;
     public static final int INITIAL_BUFFER_SIZE = 1024;
 
-    private int size = 0;
     private int tail = 0;
-    private final SaxEventType[] events;
+    private SaxEventType[] events;
     private int[] argIndex1;
     private int[] argIndex2;
 
@@ -55,6 +62,9 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
     private int charTail = 0;
 
     private Logger logger = Logger.getLogger(getClass());
+    private ContentHandler subContentHandler;
+    private ErrorHandler errorHandler;
+    private DTDHandler dtdHandler;
 
     public UnboundedContentHandlerBuffer() {
         int initialBufferSize = INITIAL_BUFFER_SIZE;
@@ -77,8 +87,61 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
         charArgBuffer = new char[initialBufferSize * CHAR_BUFFER_INIT_FACTOR];
     }
 
-    private void checkSpace(int stringSpace, int attsSpace, int intSpace, int charSpace) {
+    private boolean modifiedSpace = false;
+    private int oldSize;
+    private int newSize;
 
+    private void checkSpace(int stringSpace, int attsSpace, int intSpace, int charSpace) {
+        modifiedSpace = false;
+        if (tail >= events.length) {
+            oldSize = events.length;
+            newSize = oldSize * 2;
+            SaxEventType[] tmpEvents = events;
+            events = new SaxEventType[newSize];
+            System.arraycopy(tmpEvents, 0, events, 0, oldSize);
+            int[] tmpIndex = argIndex1;
+            argIndex1 = new int[newSize];
+            System.arraycopy(tmpIndex, 0, argIndex1, 0, oldSize);
+            tmpIndex = argIndex2;
+            argIndex2 = new int[newSize];
+            System.arraycopy(tmpIndex, 0, argIndex2, 0, oldSize);
+            modifiedSpace = true;
+        }
+        if (stringSpace > 0 && stringTail + stringSpace >= stringArgBuffer.length) {
+            oldSize = stringArgBuffer.length;
+            newSize = oldSize * 2;
+            String[] tmpString = stringArgBuffer;
+            stringArgBuffer = new String[newSize];
+            System.arraycopy(tmpString, 0, stringArgBuffer, 0, oldSize);
+            modifiedSpace = true;
+        }
+        if (attsSpace > 0 && attsTail + attsSpace >= attsArgBuffer.length) {
+            oldSize = attsArgBuffer.length;
+            newSize = oldSize * 2;
+            Attributes[] tmpAtts = attsArgBuffer;
+            attsArgBuffer = new Attributes[newSize];
+            System.arraycopy(tmpAtts, 0, attsArgBuffer, 0, oldSize);
+            modifiedSpace = true;
+        }
+        if (intSpace > 0 && intTail + intSpace >= intArgBuffer.length) {
+            oldSize = intArgBuffer.length;
+            newSize = oldSize * 2;
+            int[] tmpInt = intArgBuffer;
+            intArgBuffer = new int[newSize];
+            System.arraycopy(tmpInt, 0, intArgBuffer, 0, oldSize);
+            modifiedSpace = true;
+        }
+        if (charSpace > 0 && charTail + charSpace >= charArgBuffer.length) {
+            oldSize = charArgBuffer.length;
+            newSize = oldSize * 2;
+            char[] tmpChar = charArgBuffer;
+            charArgBuffer = new char[newSize];
+            System.arraycopy(tmpChar, 0, charArgBuffer, 0, oldSize);
+            modifiedSpace = true;
+        }
+        if (modifiedSpace) {
+            checkSpace(stringSpace, attsSpace, intSpace, charSpace);
+        }
     }
 
     /*
@@ -148,7 +211,13 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
 
     @Override
     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
-        throw new UnsupportedOperationException();
+        checkSpace(0, 0, 1, length);
+        argIndex1[tail] = intTail;
+        intArgBuffer[intTail++] = charTail;
+        intArgBuffer[intTail++] = length;
+        System.arraycopy(ch, start, charArgBuffer, charTail, length);
+        charTail += length;
+        events[tail++] = SaxEventType.ignorableWhitespace;
     }
 
     @Override
@@ -165,23 +234,6 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
         throw new UnsupportedOperationException("Not supported.");
     }
 
-    private int incrementMod(int subject, int mod) {
-        int toReturn;
-        if ((toReturn = subject + 1) == mod) {
-            return 0;
-        } else {
-            return toReturn;
-        }
-    }
-
-    private int simpleMod(int subject, int mod) {
-        if (subject >= mod) {
-            return subject - mod;
-        } else {
-            return subject;
-        }
-    }
-
     /*
      * Execution
      */
@@ -190,6 +242,15 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
 
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
+        parseIgnoringInput();
+    }
+
+    @Override
+    public void parse(String systemId) throws SAXException, IOException {
+        parseIgnoringInput();
+    }
+
+    private void parseIgnoringInput() throws SAXException {
         if (parsing) {
             throw new IllegalStateException();
         }
@@ -200,11 +261,18 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
         parsing = false;
     }
 
-    @Override
-    public void parse(String systemId) throws SAXException, IOException {
-        throw new UnsupportedOperationException("not supported.");
+    public void play(ContentHandler ch) throws SAXException {
+        for (int i = 0; i < tail; i++) {
+            execute(i, ch);
+        }
     }
 
+    public void dump(PrintStream out, boolean writeWhitespaceCharacterEvents) throws SAXException {
+        for (int i = 0; i < tail; i++) {
+            dump(i, out, writeWhitespaceCharacterEvents);
+        }
+    }
+    
     private void execute(int index, ContentHandler ch) throws SAXException {
         switch (events[index]) {
             case startDocument:
@@ -230,6 +298,36 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
                 break;
             case ignorableWhitespace:
                 executeIgnorableWhitespace(index, ch);
+        }
+    }
+
+    private void dump(int index, PrintStream out, boolean writeWhitespaceCharacterEvents) throws SAXException {
+        switch (events[index]) {
+            case startDocument:
+                out.println("startDocument()");
+                break;
+            case endDocument:
+                out.println("endDocument()");
+                break;
+            case startPrefixMapping:
+                dumpStartPrefixMapping(index, out);
+                break;
+            case endPrefixMapping:
+                dumpEndPrefixMapping(index, out);
+                break;
+            case startElement:
+                dumpStartElement(index, out);
+                break;
+            case endElement:
+                dumpEndElement(index, out);
+                break;
+            case characters:
+                dumpCharacters(index, out, writeWhitespaceCharacterEvents);
+                break;
+            case ignorableWhitespace:
+                if (writeWhitespaceCharacterEvents) {
+                    dumpIgnorableWhitespace(index, out);
+                }
         }
     }
 
@@ -263,7 +361,141 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
     }
 
     private void executeIgnorableWhitespace(int index, ContentHandler ch) throws SAXException {
-        throw new UnsupportedOperationException();
+        indType1 = argIndex1[index];
+        ch.ignorableWhitespace(charArgBuffer, intArgBuffer[indType1], intArgBuffer[indType1 + 1]);
+    }
+
+    private void dumpStartPrefixMapping(int index, PrintStream out) throws SAXException {
+        indType1 = argIndex1[index];
+        out.println("startPrefixMapping("+stringArgBuffer[indType1]+", "+stringArgBuffer[indType1 + 1]+")");
+    }
+
+    private void dumpEndPrefixMapping(int index, PrintStream out) throws SAXException {
+        indType1 = argIndex1[index];
+        out.println("endPrefixMapping("+stringArgBuffer[indType1]+")");
+    }
+
+    private void dumpStartElement(int index, PrintStream out) throws SAXException {
+        indType1 = argIndex1[index];
+        indType2 = argIndex2[index];
+        out.println("startElement("+stringArgBuffer[indType1]+", "+stringArgBuffer[indType1 + 1]+", "+stringArgBuffer[indType1 + 2]+", "+attsToString(attsArgBuffer[indType2])+")");
+    }
+
+    private void dumpEndElement(int index, PrintStream out) throws SAXException {
+        indType1 = argIndex1[index];
+        out.println("endElement("+stringArgBuffer[indType1]+", "+stringArgBuffer[indType1 + 1]+", "+stringArgBuffer[indType1 + 2]+")");
+    }
+
+    private void dumpCharacters(int index, PrintStream out, boolean writeWhitespaceCharacterEvents) throws SAXException {
+        indType1 = argIndex1[index];
+        String characterString = getPrintingCharacters(charArgBuffer, intArgBuffer[indType1], intArgBuffer[indType1 + 1], writeWhitespaceCharacterEvents);
+        if (writeWhitespaceCharacterEvents || characterString != null) {
+            out.println("characters("+characterString+")");
+        }
+    }
+
+    private void dumpIgnorableWhitespace(int index, PrintStream out) throws SAXException {
+        indType1 = argIndex1[index];
+        String characterString = getPrintingCharacters(charArgBuffer, intArgBuffer[indType1], intArgBuffer[indType1 + 1], true);
+        out.println("ignorableWhitespace(" + characterString + ")");
+    }
+
+    private String getPrintingCharacters(char[] ch, int start, int length, boolean writeWhitespaceCharacterEvents) {
+        String s = new String(charArgBuffer, intArgBuffer[indType1], intArgBuffer[indType1 + 1]);
+        if (!writeWhitespaceCharacterEvents && s.matches("^\\s*$")) {
+            return null;
+        } else {
+            return s.replaceAll("\n", "\\\\n");
+        }
+    }
+
+    private static String attsToString(Attributes atts) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(atts.getClass().getSimpleName()).append('[');
+        for (int i = 0; i < atts.getLength(); i++) {
+            sb.append(atts.getURI(i)).append(atts.getQName(i)).append("=\"").append(atts.getValue(i));
+            if (i < atts.getLength() - 1) {
+                sb.append("\", ");
+            } else {
+                sb.append('"');
+            }
+        }
+        sb.append(']');
+        return sb.toString();
+    }
+
+    @Override
+    public void setDocumentLocator(Locator locator) {
+        logger.trace("ignoring setDocumentLocator(" + locator + ")");
+    }
+
+    @Override
+    public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
+        if (name.equals("http://xml.org/sax/features/namespaces")) {
+            return true;
+        }
+        throw new UnsupportedOperationException("getFeature("+name+")");
+    }
+
+    @Override
+    public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
+        if (name.equals("http://xml.org/sax/features/namespaces")) {
+            if (!value) {
+                throw new IllegalStateException("cannot set namespaces feature to false");
+            }
+        } else {
+            logger.trace("ignoring setFeature(" + name + ", " + value + ")");
+        }
+    }
+
+    @Override
+    public Object getProperty(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
+        return null;
+    }
+
+    @Override
+    public void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException {
+        logger.trace("ignoring setProperty(" + name + ", " + value + ")");
+    }
+
+    @Override
+    public void setEntityResolver(EntityResolver resolver) {
+        throw new UnsupportedOperationException("Not supported.");
+    }
+
+    @Override
+    public EntityResolver getEntityResolver() {
+        throw new UnsupportedOperationException("Not supported.");
+    }
+
+    @Override
+    public void setDTDHandler(DTDHandler handler) {
+        dtdHandler = handler;
+    }
+
+    @Override
+    public DTDHandler getDTDHandler() {
+        return dtdHandler;
+    }
+
+    @Override
+    public void setContentHandler(ContentHandler handler) {
+        subContentHandler = handler;
+    }
+
+    @Override
+    public ContentHandler getContentHandler() {
+        return subContentHandler;
+    }
+
+    @Override
+    public void setErrorHandler(ErrorHandler handler) {
+        errorHandler = handler;
+    }
+
+    @Override
+    public ErrorHandler getErrorHandler() {
+        return errorHandler;
     }
 
 }
