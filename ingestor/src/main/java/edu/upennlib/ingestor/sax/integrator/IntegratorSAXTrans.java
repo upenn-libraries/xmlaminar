@@ -17,8 +17,8 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
-import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import edu.upennlib.ingestor.sax.xsl.JoiningXMLFilter;
+import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -175,14 +175,14 @@ public class IntegratorSAXTrans {
             joiner.transform(rootOutputNode, new File("inputFiles/fullTest.xsl"), new StreamResult(bos));
             bos.close();
         } else {
-            BufferingXMLFilter rawOutput = new BufferingXMLFilter();
+            UnboundedContentHandlerBuffer rawOutput = new UnboundedContentHandlerBuffer();
             rootOutputNode.setContentHandler(rawOutput);
             try {
                 rootOutputNode.run();
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
-            rawOutput.play(null);
+            rawOutput.dump(System.out, true);
         }
         System.out.println("sax integrator duration: "+(System.currentTimeMillis() - start));
     }

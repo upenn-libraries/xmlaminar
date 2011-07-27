@@ -34,8 +34,8 @@ import org.xml.sax.SAXException;
  */
 public class SaxEventVerifier implements ContentHandler {
 
-    BufferingXMLFilter base = new BufferingXMLFilter();
-    Iterator baseIterator;
+    UnboundedContentHandlerBuffer base = new UnboundedContentHandlerBuffer();
+    int baseIndex = -1;
 
     boolean recording = false;
     boolean verifying = false;
@@ -52,25 +52,14 @@ public class SaxEventVerifier implements ContentHandler {
     public void verifyStart() {
         recording = false;
         verifying = true;
-        baseIterator = base.iterator();
+        baseIndex = 0;
     }
 
     public void verifyEnd() {
         if (verifying) {
             verifying = false;
-            if (baseIterator.hasNext()) {
-                throw new IllegalStateException("required base events not found, starting with: " + Arrays.asList((Object[])baseIterator.next()));
-            }
-        }
-    }
-
-    private void verify(Object... event) {
-        if (!baseIterator.hasNext()) {
-            throw new IllegalStateException("no corresponding base event for: " + Arrays.asList(event));
-        } else {
-            Object[] nextBase = (Object[]) baseIterator.next();
-            if (!SaxEventExecutor.equals(nextBase, event)) {
-                throw new IllegalStateException(Arrays.asList(nextBase) + "!=" + Arrays.asList(event));
+            if (baseIndex < base.size()) {
+                throw new IllegalStateException("required base events not found");
             }
         }
     }
@@ -78,7 +67,9 @@ public class SaxEventVerifier implements ContentHandler {
     @Override
     public void startDocument() throws SAXException {
         if (verifying) {
-            verify(SaxEventType.startDocument);
+            if (!base.verifyStartDocument(baseIndex++)) {
+                throw new IllegalStateException("base event verification failed");
+            }
         } else if (recording) {
             base.startDocument();
         }
@@ -87,7 +78,9 @@ public class SaxEventVerifier implements ContentHandler {
     @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
         if (verifying) {
-            verify(SaxEventType.startPrefixMapping, prefix, uri);
+            if (!base.verifyStartPrefixMapping(baseIndex++, prefix, uri)) {
+                throw new IllegalStateException("base event verification failed");
+            }
         } else if (recording) {
             base.startPrefixMapping(prefix, uri);
         }
@@ -96,7 +89,9 @@ public class SaxEventVerifier implements ContentHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         if (verifying) {
-            verify(SaxEventType.startElement, uri, localName, qName, atts);
+            if (!base.verifyStartElement(baseIndex++, uri, localName, qName, atts)) {
+                throw new IllegalStateException("base event verification failed");
+            }
         } else if (recording) {
             base.startElement(uri, localName, qName, atts);
         }
@@ -105,7 +100,9 @@ public class SaxEventVerifier implements ContentHandler {
     @Override
     public void endDocument() throws SAXException {
         if (verifying) {
-            verify(SaxEventType.endDocument);
+            if (!base.verifyEndDocument(baseIndex++)) {
+                throw new IllegalStateException("base event verification failed");
+            }
         } else if (recording) {
             base.endDocument();
         }
@@ -114,7 +111,9 @@ public class SaxEventVerifier implements ContentHandler {
     @Override
     public void endPrefixMapping(String prefix) throws SAXException {
         if (verifying) {
-            verify(SaxEventType.endPrefixMapping, prefix);
+            if (!base.verifyEndPrefixMapping(baseIndex++, prefix)) {
+                throw new IllegalStateException("base event verification failed");
+            }
         } else if (recording) {
             base.endPrefixMapping(prefix);
         }
@@ -123,7 +122,9 @@ public class SaxEventVerifier implements ContentHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (verifying) {
-            verify(SaxEventType.endElement, uri, localName, qName);
+            if (!base.verifyEndElement(baseIndex++, uri, localName, qName)) {
+                throw new IllegalStateException("base event verification failed");
+            }
         } else if (recording) {
             base.endElement(uri, localName, qName);
         }

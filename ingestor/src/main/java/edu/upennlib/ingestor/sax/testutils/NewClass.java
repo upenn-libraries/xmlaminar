@@ -22,7 +22,6 @@
 package edu.upennlib.ingestor.sax.testutils;
 
 import edu.upennlib.ingestor.sax.xsl.BoundedXMLFilterBuffer;
-import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
@@ -53,13 +52,11 @@ public class NewClass {
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         BoundedXMLFilterBuffer buffer = new BoundedXMLFilterBuffer();
-        BufferingXMLFilter oldBuffer = new BufferingXMLFilter();
         FileInputStream fis = new FileInputStream("inputFiles/largest.xml");
         BufferedInputStream bis = new BufferedInputStream(fis);
         FileOutputStream fos = new FileOutputStream("/tmp/testing.xml");
         BufferedOutputStream bos = new BufferedOutputStream(fos);
 
-        oldBuffer.setParent(spf.newSAXParser().getXMLReader());
         buffer.setParent(spf.newSAXParser().getXMLReader());
 
         TransformerFactory tf = TransformerFactory.newInstance();

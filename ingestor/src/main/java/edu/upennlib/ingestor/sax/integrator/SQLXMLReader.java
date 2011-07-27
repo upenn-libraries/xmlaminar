@@ -24,7 +24,8 @@ package edu.upennlib.ingestor.sax.integrator;
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.ingestor.sax.utils.Connection;
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
-import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
+import edu.upennlib.ingestor.sax.xsl.BoundedXMLFilterBuffer;
+import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -65,7 +66,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     Connection connection;
     ResultSet rs;
     ContentHandler ch;
-    BufferingXMLFilter buffer = new BufferingXMLFilter();
+    BoundedXMLFilterBuffer buffer = new BoundedXMLFilterBuffer();
     ErrorHandler eh;
     DTDHandler dh;
     LexicalHandler lh;
@@ -424,7 +425,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     private String idAttName = "id";
     private String selfAttName = "self";
 
-    private BufferingXMLFilter endElementBuffer = new BufferingXMLFilter();
+    private UnboundedContentHandlerBuffer endElementBuffer = new UnboundedContentHandlerBuffer();
     private void writeStructuralEvents() throws SQLException, SAXException {
         for (int i = 0; i < currentId.length; i++) {
             lastId[i] = currentId[i];

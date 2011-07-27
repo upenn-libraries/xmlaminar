@@ -21,7 +21,7 @@
 
 package edu.upennlib.testsaxparser.clean;
 
-import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
+import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilterOld;
 import java.util.Arrays;
 import java.util.Iterator;
 import org.xml.sax.helpers.AttributesImpl;
@@ -40,7 +40,7 @@ public class BufferingXMLFilterTest {
     public BufferingXMLFilterTest() {
     }
 
-    static BufferingXMLFilter instance = new BufferingXMLFilter();
+    static BufferingXMLFilterOld instance = new BufferingXMLFilterOld();
 
     @BeforeClass
     public static void setUpClass() throws Exception {

@@ -61,7 +61,7 @@ public class SplittingXMLFilter extends MyXFI {
     private Boolean inRecord = null;
     private boolean encounteredFirstRecord = false;
     private MyEndEventStack endEventStack = new MyEndEventStack();
-    private BufferingXMLFilter startEvents = new BufferingXMLFilter();
+    private UnboundedContentHandlerBuffer startEvents = new UnboundedContentHandlerBuffer();
     private SaxEventExecutor executor = new SaxEventExecutor();
 
     public static void main(String[] args) throws FileNotFoundException, SAXException, IOException, ParserConfigurationException, TransformerConfigurationException, TransformerException {
@@ -226,22 +226,22 @@ public class SplittingXMLFilter extends MyXFI {
         super.endPrefixMapping(prefix);
     }
 
-    @Override
-    public void error(SAXParseException e) throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.error(e);
-        }
-        super.error(e);
-    }
-
-    @Override
-    public void fatalError(SAXParseException e) throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.fatalError(e);
-        }
-        super.fatalError(e);
-    }
-
+//    @Override
+//    public void error(SAXParseException e) throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.error(e);
+//        }
+//        super.error(e);
+//    }
+//
+//    @Override
+//    public void fatalError(SAXParseException e) throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.fatalError(e);
+//        }
+//        super.fatalError(e);
+//    }
+//
     @Override
     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
         if (!encounteredFirstRecord) {
@@ -250,14 +250,14 @@ public class SplittingXMLFilter extends MyXFI {
         super.ignorableWhitespace(ch, start, length);
     }
 
-    @Override
-    public void notationDecl(String name, String publicId, String systemId) throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.notationDecl(name, publicId, systemId);
-        }
-        super.notationDecl(name, publicId, systemId);
-    }
-
+//    @Override
+//    public void notationDecl(String name, String publicId, String systemId) throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.notationDecl(name, publicId, systemId);
+//        }
+//        super.notationDecl(name, publicId, systemId);
+//    }
+//
     @Override
     public void processingInstruction(String target, String data) throws SAXException {
         if (!encounteredFirstRecord) {
@@ -266,14 +266,14 @@ public class SplittingXMLFilter extends MyXFI {
         super.processingInstruction(target, data);
     }
 
-    @Override
-    public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-        if (!encounteredFirstRecord) {
-            startEvents.resolveEntity(publicId, systemId);
-        }
-        return super.resolveEntity(publicId, systemId);
-    }
-
+//    @Override
+//    public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.resolveEntity(publicId, systemId);
+//        }
+//        return super.resolveEntity(publicId, systemId);
+//    }
+//
     @Override
     public void setDocumentLocator(Locator locator) {
         if (!encounteredFirstRecord) {
@@ -308,84 +308,84 @@ public class SplittingXMLFilter extends MyXFI {
         super.startPrefixMapping(prefix, uri);
     }
 
-    @Override
-    public void unparsedEntityDecl(String name, String publicId, String systemId, String notationName) throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.unparsedEntityDecl(name, publicId, systemId, notationName);
-        }
-        super.unparsedEntityDecl(name, publicId, systemId, notationName);
-    }
-
-    @Override
-    public void warning(SAXParseException e) throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.warning(e);
-        }
-        super.warning(e);
-    }
-
-    @Override
-    public void comment(char[] ch, int start, int length) throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.comment(ch, start, length);
-        }
-        super.comment(ch, start, length);
-    }
-
-    @Override
-    public void endCDATA() throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.endCDATA();
-            endEventStack.endCDATA();
-        }
-        super.endCDATA();
-    }
-
-    @Override
-    public void endDTD() throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.endDTD();
-            endEventStack.endDTD();
-        }
-        super.endDTD();
-    }
-
-    @Override
-    public void endEntity(String name) throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.endEntity(name);
-            endEventStack.endEntity(name);
-        }
-        super.endEntity(name);
-    }
-
-    @Override
-    public void startCDATA() throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.startCDATA();
-            endEventStack.startCDATA();
-        }
-        super.startCDATA();
-    }
-
-    @Override
-    public void startDTD(String name, String publicId, String systemId) throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.startDTD(name, publicId, systemId);
-            endEventStack.startDTD(name, publicId, systemId);
-        }
-        super.startDTD(name, publicId, systemId);
-    }
-
-    @Override
-    public void startEntity(String name) throws SAXException {
-        if (!encounteredFirstRecord) {
-            startEvents.startEntity(name);
-            endEventStack.startEntity(name);
-        }
-        super.startEntity(name);
-    }
-
+//    @Override
+//    public void unparsedEntityDecl(String name, String publicId, String systemId, String notationName) throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.unparsedEntityDecl(name, publicId, systemId, notationName);
+//        }
+//        super.unparsedEntityDecl(name, publicId, systemId, notationName);
+//    }
+//
+//    @Override
+//    public void warning(SAXParseException e) throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.warning(e);
+//        }
+//        super.warning(e);
+//    }
+//
+//    @Override
+//    public void comment(char[] ch, int start, int length) throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.comment(ch, start, length);
+//        }
+//        super.comment(ch, start, length);
+//    }
+//
+//    @Override
+//    public void endCDATA() throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.endCDATA();
+//            endEventStack.endCDATA();
+//        }
+//        super.endCDATA();
+//    }
+//
+//    @Override
+//    public void endDTD() throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.endDTD();
+//            endEventStack.endDTD();
+//        }
+//        super.endDTD();
+//    }
+//
+//    @Override
+//    public void endEntity(String name) throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.endEntity(name);
+//            endEventStack.endEntity(name);
+//        }
+//        super.endEntity(name);
+//    }
+//
+//    @Override
+//    public void startCDATA() throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.startCDATA();
+//            endEventStack.startCDATA();
+//        }
+//        super.startCDATA();
+//    }
+//
+//    @Override
+//    public void startDTD(String name, String publicId, String systemId) throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.startDTD(name, publicId, systemId);
+//            endEventStack.startDTD(name, publicId, systemId);
+//        }
+//        super.startDTD(name, publicId, systemId);
+//    }
+//
+//    @Override
+//    public void startEntity(String name) throws SAXException {
+//        if (!encounteredFirstRecord) {
+//            startEvents.startEntity(name);
+//            endEventStack.startEntity(name);
+//        }
+//        super.startEntity(name);
+//    }
+//
 
 
     InputState currentInputState = null;
@@ -485,7 +485,7 @@ public class SplittingXMLFilter extends MyXFI {
     private static class InputState {
         InputSource input;
         boolean hasMoreOutputL = false;
-        BufferingXMLFilter inputBuffer = new BufferingXMLFilter();
+        BoundedXMLFilterBuffer inputBuffer = new BoundedXMLFilterBuffer();
         Thread superParserThreadL;
     }
 

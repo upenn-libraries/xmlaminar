@@ -21,8 +21,6 @@
 
 package edu.upennlib.ingestor.sax.testutils;
 
-import edu.upennlib.ingestor.sax.xsl.BoundedXMLFilterBuffer;
-import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -37,10 +35,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -57,7 +52,6 @@ public class NewClass1 {
         FileOutputStream fos = new FileOutputStream("/tmp/testing.xml");
         BufferedOutputStream bos = new BufferedOutputStream(fos);
 
-        BufferingXMLFilter oldBuffer = new BufferingXMLFilter();
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer t = tf.newTransformer();
         long start = System.currentTimeMillis();

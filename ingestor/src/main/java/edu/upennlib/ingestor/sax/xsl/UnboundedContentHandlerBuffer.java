@@ -19,6 +19,9 @@ package edu.upennlib.ingestor.sax.xsl;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -52,7 +55,7 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
     private String[] stringArgBuffer;
     private int stringTail = 0;
 
-    private Attributes[] attsArgBuffer;
+    private AttributesImpl[] attsArgBuffer;
     private int attsTail = 0;
 
     private int[] intArgBuffer;
@@ -72,7 +75,7 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
         argIndex1 = new int[initialBufferSize];
         argIndex2 = new int[initialBufferSize];
         stringArgBuffer = new String[initialBufferSize * STRING_ARGS_INIT_FACTOR];
-        attsArgBuffer = new Attributes[initialBufferSize];
+        attsArgBuffer = new AttributesImpl[initialBufferSize];
         intArgBuffer = new int[initialBufferSize * INT_ARGS_INIT_FACTOR];
         charArgBuffer = new char[initialBufferSize * CHAR_BUFFER_INIT_FACTOR];
     }
@@ -82,7 +85,7 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
         argIndex1 = new int[initialBufferSize];
         argIndex2 = new int[initialBufferSize];
         stringArgBuffer = new String[initialBufferSize * STRING_ARGS_INIT_FACTOR];
-        attsArgBuffer = new Attributes[initialBufferSize];
+        attsArgBuffer = new AttributesImpl[initialBufferSize];
         intArgBuffer = new int[initialBufferSize * INT_ARGS_INIT_FACTOR];
         charArgBuffer = new char[initialBufferSize * CHAR_BUFFER_INIT_FACTOR];
     }
@@ -119,7 +122,7 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
             oldSize = attsArgBuffer.length;
             newSize = oldSize * 2;
             Attributes[] tmpAtts = attsArgBuffer;
-            attsArgBuffer = new Attributes[newSize];
+            attsArgBuffer = new AttributesImpl[newSize];
             System.arraycopy(tmpAtts, 0, attsArgBuffer, 0, oldSize);
             modifiedSpace = true;
         }
@@ -261,10 +264,26 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
         parsing = false;
     }
 
-    public void play(ContentHandler ch) throws SAXException {
+    public int play(ContentHandler ch) throws SAXException {
+        int level = 0;
         for (int i = 0; i < tail; i++) {
-            execute(i, ch);
+                level += execute(i, ch);
         }
+        return level;
+    }
+
+    public int flush(ContentHandler ch) throws SAXException {
+        int level = play(ch);
+        clear();
+        return level;
+    }
+
+    public void clear() {
+        tail = 0;
+        stringTail = 0;
+        attsTail = 0;
+        intTail = 0;
+        charTail = 0;
     }
 
     public void dump(PrintStream out, boolean writeWhitespaceCharacterEvents) throws SAXException {
@@ -272,32 +291,205 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
             dump(i, out, writeWhitespaceCharacterEvents);
         }
     }
-    
-    private void execute(int index, ContentHandler ch) throws SAXException {
+
+    private boolean isSignificant(SaxEventType type) {
+        switch (type) {
+            case startDocument:
+            case endDocument:
+            case startPrefixMapping:
+            case endPrefixMapping:
+            case startElement:
+            case endElement:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public int size() {
+        return tail;
+    }
+
+    public int playMostRecentStructurallyInsignificant(ContentHandler ch) throws SAXException {
+        int level = 0;
+        int i;
+        for (i = tail - 1; i > -1; i--) {
+            if (isSignificant(events[i])) {
+                break;
+            }
+        }
+        while (++i < tail) {
+            level += execute(i, ch);
+        }
+        return level;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof UnboundedContentHandlerBuffer)) {
+            return false;
+        }
+        UnboundedContentHandlerBuffer other = (UnboundedContentHandlerBuffer) o;
+        if (other.size() != size()) {
+            return false;
+        }
+        for (int i = 0; i < tail; i++) {
+            if (other.events[i] != events[i]) {
+                return false;
+            }
+            if (other.argIndex1[i] != argIndex1[i]) {
+                return false;
+            }
+            if (other.argIndex2[i] != argIndex2[i]) {
+                return false;
+            }
+        }
+        for (int i = 0; i < stringTail; i++) {
+            if (!stringArgBuffer[i].equals(other.stringArgBuffer[i])) {
+                return false;
+            }
+        }
+        for (int i = 0; i < attsTail; i++) {
+            if (!testAttributeEquality(attsArgBuffer[i], other.attsArgBuffer[i])) {
+                return false;
+            }
+        }
+        for (int i = 0; i < intTail; i++) {
+            if (intArgBuffer[i] != other.intArgBuffer[i]) {
+                return false;
+            }
+        }
+        for (int i = 0; i < charTail; i++) {
+            if (charArgBuffer[i] != other.charArgBuffer[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean testAttributeEquality(Attributes attOne, Attributes attTwo) {
+        if (attOne.getLength() != attTwo.getLength()) {
+            return false;
+        }
+        for (int i = 0; i < attOne.getLength(); i++) {
+            if (!attOne.getURI(i).equals(attTwo.getURI(i))) {
+                return false;
+            }
+            if (!attOne.getLocalName(i).equals(attTwo.getLocalName(i))) {
+                return false;
+            }
+            if (!attOne.getQName(i).equals(attTwo.getQName(i))) {
+                return false;
+            }
+            if (!attOne.getType(i).equals(attTwo.getType(i))) {
+                return false;
+            }
+            if (!attOne.getValue(i).equals(attTwo.getValue(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean verifyStartDocument(int index) {
+        return tail > index && events[index] == SaxEventType.startDocument;
+    }
+
+    public boolean verifyEndDocument(int index) {
+        return tail > index && events[index] == SaxEventType.endDocument;
+    }
+
+    public boolean verifyStartElement(int index, String uri, String localName, String qName, Attributes atts) {
+        if (tail <= index) {
+            return false;
+        }
+        if (events[index] != SaxEventType.startElement) {
+            return false;
+        }
+        int strInd = argIndex1[index];
+        int attsInd = argIndex2[index];
+        if (!uri.equals(stringArgBuffer[strInd])) {
+            return false;
+        }
+        if (!localName.equals(stringArgBuffer[strInd + 1])) {
+            return false;
+        }
+        if (!qName.equals(stringArgBuffer[strInd + 2])) {
+            return false;
+        }
+        return testAttributeEquality(atts, attsArgBuffer[attsInd]);
+    }
+
+    public boolean verifyEndElement(int index, String uri, String localName, String qName) {
+        if (tail <= index) {
+            return false;
+        }
+        if (events[index] != SaxEventType.endElement) {
+            return false;
+        }
+        int strInd = argIndex1[index];
+        if (!uri.equals(stringArgBuffer[strInd])) {
+            return false;
+        }
+        if (!localName.equals(stringArgBuffer[strInd + 1])) {
+            return false;
+        }
+        return qName.equals(stringArgBuffer[strInd + 2]);
+    }
+
+    public boolean verifyStartPrefixMapping(int index, String prefix, String uri) {
+        if (tail <= index) {
+            return false;
+        }
+        if (events[index] != SaxEventType.startPrefixMapping) {
+            return false;
+        }
+        int strInd = argIndex1[index];
+        if (!prefix.equals(stringArgBuffer[strInd])) {
+            return false;
+        }
+        return uri.equals(stringArgBuffer[strInd + 1]);
+    }
+
+    public boolean verifyEndPrefixMapping(int index, String prefix) {
+        if (tail <= index) {
+            return false;
+        }
+        if (events[index] != SaxEventType.endPrefixMapping) {
+            return false;
+        }
+        int strInd = argIndex1[index];
+        return prefix.equals(stringArgBuffer[strInd]);
+    }
+
+    private int execute(int index, ContentHandler ch) throws SAXException {
         switch (events[index]) {
             case startDocument:
                 ch.startDocument();
-                break;
+                return 0;
             case endDocument:
                 ch.endDocument();
-                break;
+                return 0;
             case startPrefixMapping:
                 executeStartPrefixMapping(index, ch);
-                break;
+                return 0;
             case endPrefixMapping:
                 executeEndPrefixMapping(index, ch);
-                break;
+                return 0;
             case startElement:
                 executeStartElement(index, ch);
-                break;
+                return 1;
             case endElement:
                 executeEndElement(index, ch);
-                break;
+                return -1;
             case characters:
                 executeCharacters(index, ch);
-                break;
+                return 0;
             case ignorableWhitespace:
                 executeIgnorableWhitespace(index, ch);
+                return 0;
+            default:
+                return 0;
         }
     }
 
@@ -460,7 +652,7 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
 
     @Override
     public void setEntityResolver(EntityResolver resolver) {
-        throw new UnsupportedOperationException("Not supported.");
+        logger.trace("ignoring setEntityResolver(" + resolver + ")");
     }
 
     @Override
@@ -496,6 +688,24 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
     @Override
     public ErrorHandler getErrorHandler() {
         return errorHandler;
+    }
+
+    public void writeWithFinalElementAttributes(ContentHandler ch, HashMap<String, String> attsToAdd) throws SAXException {
+        for (int i = 0; i < tail; i++) {
+            if (i == tail - 1 && attsToAdd != null && attsToAdd.size() > 0) {
+                if (events[i] != SaxEventType.startElement) {
+                    throw new IllegalStateException("called method at bad time.");
+                }
+                int strInd = argIndex1[i];
+                AttributesImpl atts = attsArgBuffer[argIndex2[i]];
+                for (Entry<String, String> e : attsToAdd.entrySet()) {
+                    atts.addAttribute("", e.getKey(), e.getKey(), "CDATA", e.getValue());
+                }
+                ch.startElement(stringArgBuffer[strInd], stringArgBuffer[strInd + 1], stringArgBuffer[strInd + 2], atts);
+            } else {
+                execute(i, ch);
+            }
+        }
     }
 
 }

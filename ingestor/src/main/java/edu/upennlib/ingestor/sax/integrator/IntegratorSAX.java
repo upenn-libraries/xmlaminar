@@ -17,7 +17,7 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
-import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
+import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -177,14 +177,14 @@ public class IntegratorSAX {
             if (fromDatabase && !limitRange) {
                 throw new RuntimeException("full database ingest to raw output (diagnostic) will cause memory issues!");
             }
-            BufferingXMLFilter rawOutput = new BufferingXMLFilter();
+            UnboundedContentHandlerBuffer rawOutput = new UnboundedContentHandlerBuffer();
             rootOutputNode.setContentHandler(rawOutput);
             try {
                 rootOutputNode.run();
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
-            rawOutput.play(null);
+            rawOutput.dump(System.out, true);
         }
         System.out.println("sax integrator duration: "+(System.currentTimeMillis() - start));
     }

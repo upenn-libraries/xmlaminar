@@ -21,17 +21,15 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
-import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
 import edu.upennlib.ingestor.sax.xsl.SaxEventExecutor;
+import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.TTCCLayout;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -202,11 +200,11 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         }
         lastWasStartElement = true;
     }
-    private BufferingXMLFilter outerEndElementBuffer = new BufferingXMLFilter();
-    private BufferingXMLFilter innerEndElementBuffer = new BufferingXMLFilter();
-    private BufferingXMLFilter innerStartElementBuffer = new BufferingXMLFilter();
-    private BufferingXMLFilter outerStartElementBuffer = new BufferingXMLFilter();
-    private BufferingXMLFilter workingBuffer = new BufferingXMLFilter();
+    private UnboundedContentHandlerBuffer outerEndElementBuffer = new UnboundedContentHandlerBuffer();
+    private UnboundedContentHandlerBuffer innerEndElementBuffer = new UnboundedContentHandlerBuffer();
+    private UnboundedContentHandlerBuffer innerStartElementBuffer = new UnboundedContentHandlerBuffer();
+    private UnboundedContentHandlerBuffer outerStartElementBuffer = new UnboundedContentHandlerBuffer();
+    private UnboundedContentHandlerBuffer workingBuffer = new UnboundedContentHandlerBuffer();
 
     private Boolean lastWasStartElement = null;
 
@@ -282,21 +280,21 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
     private boolean finished = false;
 
     private void pushStartBuffer() {
-        BufferingXMLFilter tmp = outerStartElementBuffer;
+        UnboundedContentHandlerBuffer tmp = outerStartElementBuffer;
         outerStartElementBuffer = innerStartElementBuffer;
         innerStartElementBuffer = tmp;
         innerStartElementBuffer.clear();
     }
 
     private void popStartBuffer() {
-        BufferingXMLFilter tmp = innerStartElementBuffer;
+        UnboundedContentHandlerBuffer tmp = innerStartElementBuffer;
         innerStartElementBuffer = outerStartElementBuffer;
         outerStartElementBuffer = tmp;
         outerStartElementBuffer.clear();
     }
 
     private void rotateEndBuffer() {
-        BufferingXMLFilter tmp = innerEndElementBuffer;
+        UnboundedContentHandlerBuffer tmp = innerEndElementBuffer;
         innerEndElementBuffer = outerEndElementBuffer;
         outerEndElementBuffer = tmp;
         outerEndElementBuffer.clear();
@@ -362,11 +360,25 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
 
     @Override
     public void writeOuterStartElement(ContentHandler ch, boolean asSelf) {
+        HashMap<String, String> attsToAdd = null;
+        if (asSelf) {
+            attsToAdd = new HashMap<String, String>();
+            attsToAdd.put("self", "true");
+        }
+        try {
+            outerStartElementBuffer.writeWithFinalElementAttributes(ch, attsToAdd);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public void writeOuterStartElementOld(ContentHandler ch, boolean asSelf) {
         if (state != State.WAIT) {
             throw new IllegalStateException("expected state WAIT, found: "+state);
         }
         try {
-            Iterator iter = outerStartElementBuffer.iterator();
+            Iterator iter = null;
+//            Iterator iter = outerStartElementBuffer.iterator();
             Object[] current = null;
             boolean hasNext = iter.hasNext();
             while (hasNext) {

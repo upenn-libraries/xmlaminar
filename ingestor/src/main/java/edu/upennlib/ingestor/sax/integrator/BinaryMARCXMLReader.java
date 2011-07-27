@@ -22,7 +22,8 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
-import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
+import edu.upennlib.ingestor.sax.xsl.BoundedXMLFilterBuffer;
+import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -69,7 +70,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     }
 
     private ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    private BufferingXMLFilter outputBuffer = new BufferingXMLFilter();
+    private UnboundedContentHandlerBuffer outputBuffer = new UnboundedContentHandlerBuffer();
     private long currentId = -1;
     private boolean logRecordAsError = false;
     private String logRecordErrorMessage;

@@ -22,8 +22,7 @@
 package edu.upennlib.ingestor.sax.testutils;
 
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
-import edu.upennlib.ingestor.sax.utils.NoopXMLFilter;
-import edu.upennlib.ingestor.sax.xsl.BufferingXMLFilter;
+import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -66,7 +65,7 @@ public class DBMarcToFile {
 
         FileInputStream fis = new FileInputStream("inputFiles/marc/1.mrc");
         DBMarcToFile instance = new DBMarcToFile();
-        BufferingXMLFilter bxf = new BufferingXMLFilter();
+        UnboundedContentHandlerBuffer bxf = new UnboundedContentHandlerBuffer();
         instance.ch = bxf;
         instance.parseRecord(fis);
         fis.close();
@@ -74,9 +73,6 @@ public class DBMarcToFile {
         Transformer t = tf.newTransformer();
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
-        NoopXMLFilter noop = new NoopXMLFilter();
-        noop.setParent(spf.newSAXParser().getXMLReader());
-        bxf.setParent(noop);
         t.setOutputProperty(OutputKeys.INDENT, "yes");
         t.transform(new SAXSource(bxf, new InputSource()), new StreamResult(System.out));
 

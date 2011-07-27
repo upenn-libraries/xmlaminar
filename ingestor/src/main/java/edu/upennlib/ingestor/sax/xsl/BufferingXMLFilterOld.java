@@ -47,7 +47,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class BufferingXMLFilter extends MyXFI {
+public class BufferingXMLFilterOld extends MyXFI {
 
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     public static final int QUEUE_ARRAY_SIZE = 2000;
@@ -68,7 +68,7 @@ public class BufferingXMLFilter extends MyXFI {
         SAXParser parser = spf.newSAXParser();
         TransformerFactory tf = TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
         Transformer t = tf.newTransformer();
-        BufferingXMLFilter instance = new BufferingXMLFilter();
+        BufferingXMLFilterOld instance = new BufferingXMLFilterOld();
         instance.setParent(parser.getXMLReader());
         long start = System.currentTimeMillis();
         InputSource input = new InputSource("/tmp/large.xml");
@@ -92,7 +92,7 @@ public class BufferingXMLFilter extends MyXFI {
         System.out.println("duration: " + (System.currentTimeMillis() - start));
     }
 
-    public BufferingXMLFilter() {
+    public BufferingXMLFilterOld() {
         charArray = SaxEventExecutor.getNextCharArray();
         charBuffer = CharBuffer.wrap(charArray);
     }

@@ -42,8 +42,6 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import net.sf.saxon.Controller;
-import net.sf.saxon.TransformerFactoryImpl;
-import net.sf.saxon.om.NamePool;
 import net.sf.saxon.serialize.CharacterMapIndex;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -52,8 +50,8 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.ext.LexicalHandler;
 
 /**
  *
@@ -71,7 +69,7 @@ public class JoiningXMLFilter extends MyXFI {
 
     public static void main(String[] args) throws SAXException, ParserConfigurationException, FileNotFoundException, TransformerConfigurationException, TransformerException, IOException {
         File stylesheet = new File("inputFiles/franklin_nsaware.xsl");
-        File inputFile = new File("inputFiles/large.xml");
+        File inputFile = new File("inputFiles/largest.xml");
         File outputFile = new File("outputFiles/large_transform.xml");
 
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(inputFile));
@@ -86,7 +84,7 @@ public class JoiningXMLFilter extends MyXFI {
         System.out.println("duration: " + (System.currentTimeMillis() - start));
     }
 
-    BufferingXMLFilter docLevelEventBuffer = new BufferingXMLFilter();
+    UnboundedContentHandlerBuffer docLevelEventBuffer = new UnboundedContentHandlerBuffer();
     SaxEventVerifier preRecordEventVerifier = new SaxEventVerifier();
     File stylesheet;
 
@@ -159,14 +157,14 @@ public class JoiningXMLFilter extends MyXFI {
     }
 
     private final SplittingXMLFilter[] splitter = new SplittingXMLFilter[1];
-    private BufferingXMLFilter inputEventBuffer = new BufferingXMLFilter();
+    private UnboundedContentHandlerBuffer inputEventBuffer = new UnboundedContentHandlerBuffer();
 
     @Override
     public void parse(InputSource input)
             throws SAXException, IOException {
-        NoopXMLFilter noop = new NoopXMLFilter();
-        noop.setParent(this);
-        inputEventBuffer.setParent(noop);
+//        NoopXMLFilter noop = new NoopXMLFilter();
+//        noop.setParent(this);
+//        inputEventBuffer.setParent(noop);
         if (splitter[0] != null) {
             splitter[0].setDTDHandler(this);
             splitter[0].setErrorHandler(this);
@@ -203,8 +201,8 @@ public class JoiningXMLFilter extends MyXFI {
         int size = 0;
         int head = 0;
         int tail = 0;
-        final BufferingXMLFilter[] inputs = new BufferingXMLFilter[MAX_SIZE];
-        final BufferingXMLFilter[] outputs = new BufferingXMLFilter[MAX_SIZE];
+        final UnboundedContentHandlerBuffer[] inputs = new UnboundedContentHandlerBuffer[MAX_SIZE];
+        final UnboundedContentHandlerBuffer[] outputs = new UnboundedContentHandlerBuffer[MAX_SIZE];
         BufferState[] states = new BufferState[MAX_SIZE];
         final SplittingXMLFilter tobSplitter;
         final InputSource dummyInputSource;
@@ -213,14 +211,12 @@ public class JoiningXMLFilter extends MyXFI {
             tobSplitter = splitter;
             this.dummyInputSource = dummyInputSource;
             for (int i = 0; i < inputs.length; i++) {
-                inputs[i] = new BufferingXMLFilter();
-                NoopXMLFilter noop = new NoopXMLFilter();
-                noop.setParent(original);
-                inputs[i].setParent(noop);
+                inputs[i] = new UnboundedContentHandlerBuffer();
+                //inputs[i].setParent(original);
                 inputs[i].setDTDHandler(joiner);
                 inputs[i].setEntityResolver(joiner);
                 inputs[i].setErrorHandler(joiner);
-                outputs[i] = new BufferingXMLFilter();
+                outputs[i] = new UnboundedContentHandlerBuffer();
                 states[i] = BufferState.FREE;
             }
         }
@@ -245,7 +241,7 @@ public class JoiningXMLFilter extends MyXFI {
                 }
                 parsingInitiated = true;
                 tobSplitter.setContentHandler(inputs[tail]);
-                tobSplitter.setProperty("http://xml.org/sax/properties/lexical-handler", inputs[tail]);
+                //tobSplitter.setProperty("http://xml.org/sax/properties/lexical-handler", inputs[tail]);
                 tobSplitter.parse(dummyInputSource);
                 tr.setIO(inputs[tail], outputs[tail], tail);
                 states[tail] = BufferState.CHECKED_OUT;
@@ -321,12 +317,20 @@ public class JoiningXMLFilter extends MyXFI {
         final TransformerOutputBuffer tob;
         final Transformer t;
         final InputSource dummyInputSource;
-        BufferingXMLFilter in;
-        BufferingXMLFilter out;
-        BufferingXMLFilter localOutputEventBuffer = new BufferingXMLFilter();
+        final SplittingXMLFilter subSplitter;
+        final UnboundedContentHandlerBuffer individualInputBuffer;
+        UnboundedContentHandlerBuffer in;
+        UnboundedContentHandlerBuffer out;
+        UnboundedContentHandlerBuffer localOutputEventBuffer = new UnboundedContentHandlerBuffer();
         int index = -1;
 
         public TransformerRunner(TransformerOutputBuffer tob, InputSource dummyInputSource) {
+            subSplitter = new SplittingXMLFilter();
+            subSplitter.setChunkSize(1);
+            subSplitter.setDTDHandler(JoiningXMLFilter.this);
+            subSplitter.setEntityResolver(JoiningXMLFilter.this);
+            subSplitter.setErrorHandler(JoiningXMLFilter.this);
+            individualInputBuffer = new UnboundedContentHandlerBuffer();
             this.tob = tob;
             this.dummyInputSource = dummyInputSource;
             synchronized(tf) {
@@ -349,7 +353,7 @@ public class JoiningXMLFilter extends MyXFI {
                                 tob.checkOut(this);
                             }
                             SAXResult result = new SAXResult(out);
-                            result.setLexicalHandler(out);
+                            //result.setLexicalHandler(out);
                             t.transform(new SAXSource(in, new InputSource()), result);
                         } catch (TransformerException ex) {
                             subdivide(t, in, out, dummyInputSource);
@@ -378,32 +382,26 @@ public class JoiningXMLFilter extends MyXFI {
             index = -1;
         }
 
-        public void setIO(BufferingXMLFilter in, BufferingXMLFilter out, int index) {
+        public void setIO(UnboundedContentHandlerBuffer in, UnboundedContentHandlerBuffer out, int index) {
             this.in = in;
             this.out = out;
             this.index = index;
         }
 
-        private void subdivide(Transformer t, BufferingXMLFilter in, BufferingXMLFilter out, InputSource dummyInput) throws IOException {
+        private void subdivide(Transformer t, UnboundedContentHandlerBuffer in, UnboundedContentHandlerBuffer out, InputSource dummyInput) throws IOException {
             out.clear();
-            SplittingXMLFilter subSplitter = new SplittingXMLFilter();
-            subSplitter.setChunkSize(1);
-            BufferingXMLFilter individualInputBuffer = new BufferingXMLFilter();
-            NoopXMLFilter noop = new NoopXMLFilter();
-            noop.setParent(JoiningXMLFilter.this);
-            individualInputBuffer.setParent(noop);
+            individualInputBuffer.clear();
             subSplitter.setParent(in);
             subSplitter.setContentHandler(individualInputBuffer);
-            try {
-                subSplitter.setProperty("http://xml.org/sax/properties/lexical-handler", individualInputBuffer);
-            } catch (SAXNotRecognizedException ex) {
-                throw new RuntimeException(ex);
-            } catch (SAXNotSupportedException ex) {
-                throw new RuntimeException(ex);
+            if (individualInputBuffer instanceof LexicalHandler) {
+                try {
+                    subSplitter.setProperty("http://xml.org/sax/properties/lexical-handler", individualInputBuffer);
+                } catch (SAXNotRecognizedException ex) {
+                    throw new RuntimeException(ex);
+                } catch (SAXNotSupportedException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
-            subSplitter.setDTDHandler(JoiningXMLFilter.this);
-            subSplitter.setEntityResolver(JoiningXMLFilter.this);
-            subSplitter.setErrorHandler(JoiningXMLFilter.this);
             do {
                 try {
                     subSplitter.parse(dummyInput);
@@ -540,26 +538,26 @@ public class JoiningXMLFilter extends MyXFI {
         }
     }
 
-    @Override
-    public void error(SAXParseException e) throws SAXException {
-        System.out.println("error1");
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.error(e);
-        } else {
-            super.error(e);
-        }
-    }
-
-    @Override
-    public void fatalError(SAXParseException e) throws SAXException {
-        System.out.println("error2");
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.fatalError(e);
-        } else {
-            super.fatalError(e);
-        }
-    }
-
+//    @Override
+//    public void error(SAXParseException e) throws SAXException {
+//        System.out.println("error1");
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.error(e);
+//        } else {
+//            super.error(e);
+//        }
+//    }
+//
+//    @Override
+//    public void fatalError(SAXParseException e) throws SAXException {
+//        System.out.println("error2");
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.fatalError(e);
+//        } else {
+//            super.fatalError(e);
+//        }
+//    }
+//
     @Override
     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
         if (level < RECORD_LEVEL && encounteredFirstRecord) {
@@ -569,15 +567,15 @@ public class JoiningXMLFilter extends MyXFI {
         }
     }
 
-    @Override
-    public void notationDecl(String name, String publicId, String systemId) throws SAXException {
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.notationDecl(name, publicId, systemId);
-        } else {
-            super.notationDecl(name, publicId, systemId);
-        }
-    }
-
+//    @Override
+//    public void notationDecl(String name, String publicId, String systemId) throws SAXException {
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.notationDecl(name, publicId, systemId);
+//        } else {
+//            super.notationDecl(name, publicId, systemId);
+//        }
+//    }
+//
     @Override
     public void processingInstruction(String target, String data) throws SAXException {
         if (level < RECORD_LEVEL) {
@@ -619,87 +617,87 @@ public class JoiningXMLFilter extends MyXFI {
         }
     }
 
-    @Override
-    public void unparsedEntityDecl(String name, String publicId, String systemId, String notationName) throws SAXException {
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.unparsedEntityDecl(name, publicId, systemId, notationName);
-        } else {
-            super.unparsedEntityDecl(name, publicId, systemId, notationName);
-        }
-    }
-
-    @Override
-    public void warning(SAXParseException e) throws SAXException {
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.warning(e);
-        } else {
-            super.warning(e);
-        }
-    }
-
-    @Override
-    public void comment(char[] ch, int start, int length) throws SAXException {
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.comment(ch, start, length);
-        } else {
-            super.comment(ch, start, length);
-        }
-    }
-
-    @Override
-    public void endCDATA() throws SAXException {
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.endCDATA();
-        } else {
-            super.endCDATA();
-        }
-    }
-
-    @Override
-    public void endDTD() throws SAXException {
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.endDTD();
-        } else {
-            super.endDTD();
-        }
-    }
-
-    @Override
-    public void endEntity(String name) throws SAXException {
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.endEntity(name);
-        } else {
-            super.endEntity(name);
-        }
-    }
-
-    @Override
-    public void startCDATA() throws SAXException {
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.startCDATA();
-        } else {
-            super.startCDATA();
-        }
-    }
-
-    @Override
-    public void startDTD(String name, String publicId, String systemId) throws SAXException {
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.startDTD(name, publicId, systemId);
-        } else {
-            super.startDTD(name, publicId, systemId);
-        }
-    }
-
-    @Override
-    public void startEntity(String name) throws SAXException {
-        if (level < RECORD_LEVEL && encounteredFirstRecord) {
-            docLevelEventBuffer.startEntity(name);
-        } else {
-            super.startEntity(name);
-        }
-    }
-
+//    @Override
+//    public void unparsedEntityDecl(String name, String publicId, String systemId, String notationName) throws SAXException {
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.unparsedEntityDecl(name, publicId, systemId, notationName);
+//        } else {
+//            super.unparsedEntityDecl(name, publicId, systemId, notationName);
+//        }
+//    }
+//
+//    @Override
+//    public void warning(SAXParseException e) throws SAXException {
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.warning(e);
+//        } else {
+//            super.warning(e);
+//        }
+//    }
+//
+//    @Override
+//    public void comment(char[] ch, int start, int length) throws SAXException {
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.comment(ch, start, length);
+//        } else {
+//            super.comment(ch, start, length);
+//        }
+//    }
+//
+//    @Override
+//    public void endCDATA() throws SAXException {
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.endCDATA();
+//        } else {
+//            super.endCDATA();
+//        }
+//    }
+//
+//    @Override
+//    public void endDTD() throws SAXException {
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.endDTD();
+//        } else {
+//            super.endDTD();
+//        }
+//    }
+//
+//    @Override
+//    public void endEntity(String name) throws SAXException {
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.endEntity(name);
+//        } else {
+//            super.endEntity(name);
+//        }
+//    }
+//
+//    @Override
+//    public void startCDATA() throws SAXException {
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.startCDATA();
+//        } else {
+//            super.startCDATA();
+//        }
+//    }
+//
+//    @Override
+//    public void startDTD(String name, String publicId, String systemId) throws SAXException {
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.startDTD(name, publicId, systemId);
+//        } else {
+//            super.startDTD(name, publicId, systemId);
+//        }
+//    }
+//
+//    @Override
+//    public void startEntity(String name) throws SAXException {
+//        if (level < RECORD_LEVEL && encounteredFirstRecord) {
+//            docLevelEventBuffer.startEntity(name);
+//        } else {
+//            super.startEntity(name);
+//        }
+//    }
+//
 
 
 }
