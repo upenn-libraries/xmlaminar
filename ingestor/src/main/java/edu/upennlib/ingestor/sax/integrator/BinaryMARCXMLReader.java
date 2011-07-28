@@ -303,7 +303,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         attRunner.clear();
         outputBuffer.startElement(MARCXML_URI, FieldType.record.localName, FieldType.record.qName, attRunner);
         outputBuffer.startElement(MARCXML_URI, FieldType.leader.localName, FieldType.leader.qName, attRunner);
-        outputBuffer.characters(leader.array(), leader.arrayOffset(), leader.position() - leader.arrayOffset());
+        outputBuffer.characters(leader.array(), leader.arrayOffset(), 24);
         outputBuffer.endElement(MARCXML_URI, FieldType.leader.localName, FieldType.leader.qName);
     }
 
