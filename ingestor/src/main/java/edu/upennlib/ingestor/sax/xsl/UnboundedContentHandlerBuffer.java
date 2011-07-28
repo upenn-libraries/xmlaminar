@@ -690,17 +690,15 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
         return errorHandler;
     }
 
-    public void writeWithFinalElementAttributes(ContentHandler ch, HashMap<String, String> attsToAdd) throws SAXException {
+    public void writeWithFinalElementSelfAttribute(ContentHandler ch, boolean asSelf) throws SAXException {
         for (int i = 0; i < tail; i++) {
-            if (i == tail - 1 && attsToAdd != null && attsToAdd.size() > 0) {
+            if (i == tail - 1 && asSelf) {
                 if (events[i] != SaxEventType.startElement) {
                     throw new IllegalStateException("called method at bad time.");
                 }
                 int strInd = argIndex1[i];
                 AttributesImpl atts = attsArgBuffer[argIndex2[i]];
-                for (Entry<String, String> e : attsToAdd.entrySet()) {
-                    atts.addAttribute("", e.getKey(), e.getKey(), "CDATA", e.getValue());
-                }
+                atts.addAttribute("", "self", "self", "CDATA", "true");
                 ch.startElement(stringArgBuffer[strInd], stringArgBuffer[strInd + 1], stringArgBuffer[strInd + 2], atts);
             } else {
                 execute(i, ch);

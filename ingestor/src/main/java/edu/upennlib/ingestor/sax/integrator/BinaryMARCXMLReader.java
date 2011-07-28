@@ -22,7 +22,6 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
-import edu.upennlib.ingestor.sax.xsl.BoundedXMLFilterBuffer;
 import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -186,7 +185,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         baseAddress = Integer.parseInt(leader.subSequence(12, 17).toString());
         CharBuffer directory = decodeASCII.decode(ByteBuffer.wrap(record, 24, baseAddress - 24));
         int directoryIndex = 0;
-        initializeOutput();
+        initializeOutput(leader);
         while (directoryIndex < directory.length() - 1) {
             String tag = directory.subSequence(directoryIndex, directoryIndex + 3).toString();
             int fieldLength = Integer.parseInt(directory.subSequence(directoryIndex + 3, directoryIndex + 7).toString());
@@ -299,10 +298,13 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         }
     }
 
-    private void initializeOutput() throws SAXException {
+    private void initializeOutput(CharBuffer leader) throws SAXException {
         outputBuffer.startPrefixMapping(MARCXML_PREFIX, MARCXML_URI);
         attRunner.clear();
         outputBuffer.startElement(MARCXML_URI, FieldType.record.localName, FieldType.record.qName, attRunner);
+        outputBuffer.startElement(MARCXML_URI, FieldType.leader.localName, FieldType.leader.qName, attRunner);
+        outputBuffer.characters(leader.array(), leader.arrayOffset(), leader.position() - leader.arrayOffset());
+        outputBuffer.endElement(MARCXML_URI, FieldType.leader.localName, FieldType.leader.qName);
     }
 
     private void finalizeOutput() throws SAXException {

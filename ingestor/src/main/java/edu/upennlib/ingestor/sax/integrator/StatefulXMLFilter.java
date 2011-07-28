@@ -360,13 +360,8 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
 
     @Override
     public void writeOuterStartElement(ContentHandler ch, boolean asSelf) {
-        HashMap<String, String> attsToAdd = null;
-        if (asSelf) {
-            attsToAdd = new HashMap<String, String>();
-            attsToAdd.put("self", "true");
-        }
         try {
-            outerStartElementBuffer.writeWithFinalElementAttributes(ch, attsToAdd);
+            outerStartElementBuffer.writeWithFinalElementSelfAttribute(ch, asSelf);
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }
