@@ -17,7 +17,6 @@
 package edu.upennlib.ingestor.sax.xsl;
 
 import edu.upennlib.ingestor.sax.utils.MyXFI;
-import edu.upennlib.ingestor.sax.utils.NoopXMLFilter;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.EOFException;

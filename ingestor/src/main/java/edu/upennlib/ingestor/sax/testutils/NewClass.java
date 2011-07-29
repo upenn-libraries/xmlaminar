@@ -54,7 +54,7 @@ public class NewClass {
         BoundedXMLFilterBuffer buffer = new BoundedXMLFilterBuffer();
         FileInputStream fis = new FileInputStream("inputFiles/largest.xml");
         BufferedInputStream bis = new BufferedInputStream(fis);
-        FileOutputStream fos = new FileOutputStream("/tmp/testing.xml");
+        FileOutputStream fos = new FileOutputStream("/tmp/testing_buffered.xml");
         BufferedOutputStream bos = new BufferedOutputStream(fos);
 
         buffer.setParent(spf.newSAXParser().getXMLReader());
