@@ -169,11 +169,21 @@ public class JoiningXMLFilter extends MyXFI {
             splitter[0].setErrorHandler(this);
             splitter[0].setEntityResolver(this);
             transformerRunnerBuffer = new TransformerOutputBuffer(this, this, splitter[0], input);
+
+            ThreadGroup allThreads = new ThreadGroup("allThreads") { 
+                @Override
+                public void uncaughtException(Thread t, Throwable ex) {
+                    this.getParent().uncaughtException(t, ex);
+                    if (ex instanceof RuntimeException) 
+                        System.exit(1);
+                }
+            };
+            
             for (int i = 0; i< TRANSFORMER_THREAD_COUNT; i++) {
-                Thread thread = new Thread(new TransformerRunner(transformerRunnerBuffer, input), "tr"+i);
+                Thread thread = new Thread(allThreads, new TransformerRunner(transformerRunnerBuffer, input), "tr"+i);
                 transformerRunnerPool.add(thread);
             }
-            Thread outputThread = new Thread(new OutputThread(), "outputThread");
+            Thread outputThread = new Thread(allThreads, new OutputThread(), "outputThread");
             for (Thread t : transformerRunnerPool) {
                 t.start();
             }

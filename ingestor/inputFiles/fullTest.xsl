@@ -79,9 +79,11 @@
 <field name="title_field"><xsl:value-of select="normalize-space($bibmarc/marc:datafield[@tag=245][1])"/></field>
 <!-- marc record, for searching -->
 <field name="marcrecord">
+<!--
 <xsl:text>&cdata-start;</xsl:text>
-<xsl:copy-of select="$bibmarc"></xsl:copy-of>
 <xsl:text>&cdata-end;</xsl:text>
+-->
+<xsl:copy-of select="$bibmarc"></xsl:copy-of>
 </field>
   
 </doc>
