@@ -34,6 +34,7 @@ import edu.upennlib.ingestor.sax.solr.SAXSolrPoster;
 import edu.upennlib.ingestor.sax.xsl.JoiningXMLFilter;
 import java.io.File;
 import javax.xml.transform.sax.SAXResult;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -85,7 +86,7 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
     public void run() {
         logger.trace("run() called on "+getName());
         try {
-            joiner.transform(integrator, stylesheet, new SAXResult(solrPoster));
+            joiner.transform(integrator, new InputSource(), stylesheet, new SAXResult(solrPoster));
         } catch (ParserConfigurationException ex) {
             throw new RuntimeException(ex);
         } catch (SAXException ex) {

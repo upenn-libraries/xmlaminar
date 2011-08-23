@@ -118,9 +118,9 @@ public class JoiningXMLFilter extends MyXFI {
     }
 
 
-    public void transform(XMLReader source, File stylesheet, Result result) throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException {
+    public void transform(XMLReader sourceReader, InputSource inputSource, File stylesheet, Result result) throws ParserConfigurationException, SAXException, FileNotFoundException, TransformerConfigurationException, TransformerException {
         SplittingXMLFilter sxf = new SplittingXMLFilter();
-        sxf.setParent(source);
+        sxf.setParent(sourceReader);
 
         //Dummy
         SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -136,15 +136,20 @@ public class JoiningXMLFilter extends MyXFI {
         }
         synchronized (tf) {
             try {
-                Templates th = tf.newTemplates(new StreamSource(stylesheet));
-                Controller subControllerInstance = (Controller) th.newTransformer();
+                Controller subControllerInstance;
+                if (stylesheet != null) {
+                    Templates th = tf.newTemplates(new StreamSource(stylesheet));
+                    subControllerInstance = (Controller) th.newTransformer();
+                } else {
+                    subControllerInstance = (Controller) tf.newTransformer();
+                }
                 mainController.getExecutable().setCharacterMapIndex(subControllerInstance.getExecutable().getCharacterMapIndex());
                 mainController.setOutputProperties(subControllerInstance.getOutputProperties());
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
             }
         }
-        mainController.transform(new SAXSource(this, new InputSource()), result);
+        mainController.transform(new SAXSource(this, inputSource), result);
     }
 
     public void setStylesheet(File stylesheet) {
@@ -161,9 +166,6 @@ public class JoiningXMLFilter extends MyXFI {
     @Override
     public void parse(InputSource input)
             throws SAXException, IOException {
-//        NoopXMLFilter noop = new NoopXMLFilter();
-//        noop.setParent(this);
-//        inputEventBuffer.setParent(noop);
         if (splitter[0] != null) {
             splitter[0].setDTDHandler(this);
             splitter[0].setErrorHandler(this);
@@ -344,10 +346,14 @@ public class JoiningXMLFilter extends MyXFI {
             individualInputBuffer = new UnboundedContentHandlerBuffer();
             this.tob = tob;
             this.dummyInputSource = dummyInputSource;
-            synchronized(tf) {
+            synchronized (tf) {
                 try {
-                    Templates th = tf.newTemplates(new StreamSource(stylesheet));
-                    t = th.newTransformer();
+                    if (stylesheet != null) {
+                        Templates th = tf.newTemplates(new StreamSource(stylesheet));
+                        t = th.newTransformer();
+                    } else {
+                        t = tf.newTransformer();
+                    }
                 } catch (TransformerConfigurationException ex) {
                     throw new RuntimeException(ex);
                 }

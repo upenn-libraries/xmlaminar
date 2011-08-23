@@ -157,7 +157,7 @@ public class IntegratorSAXToSolr {
         long start = System.currentTimeMillis();
         JoiningXMLFilter joiner = new JoiningXMLFilter();
         SAXSolrPoster poster = setupSolr();
-        joiner.transform(rootOutputNode, new File("inputFiles/fullTest.xsl"), new SAXResult(poster));
+        joiner.transform(rootOutputNode, new InputSource(), new File("inputFiles/fullTest.xsl"), new SAXResult(poster));
         System.out.println("sax integrator duration: " + (System.currentTimeMillis() - start));
     }
 

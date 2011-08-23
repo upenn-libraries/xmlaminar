@@ -21,12 +21,15 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import oracle.jdbc.driver.OracleConnection;
 
 import org.apache.log4j.Logger;
 
 public class Connection {
 
     private java.sql.Connection connection;
+    private static final int DEFAULT_ROW_PREFETCH = 20;
+    private int rowPrefetch = DEFAULT_ROW_PREFETCH;
     private String host;
     private String sid;
     private String sql;
@@ -89,11 +92,21 @@ public class Connection {
         return pwd;
     }
 
+    public void setRowPrefetch(int rowPrefetch) {
+        logger.trace("set pwd: " + pwd);
+        this.rowPrefetch = rowPrefetch;
+    }
+
+    public int getRowPrefetch() {
+        return rowPrefetch;
+    }
+
     public void connect() throws ConnectionException {
         logger.trace("Attempting to establish connection");
         String connectionString = "jdbc:oracle:thin:@" + host + ":1521:" + sid;
         try {
             connection = DriverManager.getConnection(connectionString, user, pwd);
+            ((OracleConnection)connection).setDefaultRowPrefetch(rowPrefetch);
         } catch (SQLException e) {
             throw new ConnectionException("Error in connection initialization: " + e.getMessage());
         }

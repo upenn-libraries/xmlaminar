@@ -172,7 +172,7 @@ public class IntegratorSAXTrans {
             JoiningXMLFilter joiner = new JoiningXMLFilter();
             FileOutputStream fos = new FileOutputStream("/tmp/blah_trans.xml");
             BufferedOutputStream bos = new BufferedOutputStream(fos);
-            joiner.transform(rootOutputNode, new File("inputFiles/fullTest.xsl"), new StreamResult(bos));
+            joiner.transform(rootOutputNode, new InputSource(), new File("inputFiles/fullTest.xsl"), new StreamResult(bos));
             bos.close();
         } else {
             UnboundedContentHandlerBuffer rawOutput = new UnboundedContentHandlerBuffer();
