@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 public class Connection {
 
     private java.sql.Connection connection;
-    private static final int DEFAULT_ROW_PREFETCH = 20;
+    private static final int DEFAULT_ROW_PREFETCH = 50;
     private int rowPrefetch = DEFAULT_ROW_PREFETCH;
     private String host;
     private String sid;
@@ -106,7 +106,7 @@ public class Connection {
         String connectionString = "jdbc:oracle:thin:@" + host + ":1521:" + sid;
         try {
             connection = DriverManager.getConnection(connectionString, user, pwd);
-            ((OracleConnection)connection).setDefaultRowPrefetch(rowPrefetch);
+            //((OracleConnection)connection).setDefaultRowPrefetch(rowPrefetch);
         } catch (SQLException e) {
             throw new ConnectionException("Error in connection initialization: " + e.getMessage());
         }

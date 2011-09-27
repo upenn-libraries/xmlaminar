@@ -427,7 +427,7 @@ public class SplittingXMLFilter extends MyXFI {
             parent.setEntityResolver(this);
             parent.setErrorHandler(this);
             SuperParser sp = new SuperParser(parent, input);
-            inputState.superParserThreadL = new Thread(sp, "superParser");
+            inputState.superParserThreadL = new Thread(sp, "superParser<-"+Thread.currentThread().getName());
             inputState.superParserThreadL.start();
         } else {
             writeSyntheticStartEvents();

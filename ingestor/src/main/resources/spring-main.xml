@@ -12,6 +12,7 @@
     <bean id="rootIntegrator" class="edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode" scope="singleton" lazy-init="true" init-method="initSpring">
         <property name="subIntegratorsSpring" ref="${rootIntegrator.subIntegrators}"/>
         <property name="descendentsSpring" value="${rootIntegrator.descendents}"/>
+        <property name="dumpFile" value="${rootIntegrator.dumpFile}"/>
     </bean>
     <bean id="marcIntegrator" class="edu.upennlib.ingestor.sax.integrator.BinaryMARCXMLReader" scope="prototype">
         <property name="name" value="${integrator.name}"/>

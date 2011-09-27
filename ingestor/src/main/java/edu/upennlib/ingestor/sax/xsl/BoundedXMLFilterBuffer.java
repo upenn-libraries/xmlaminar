@@ -45,9 +45,10 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     private final int threshold;
     private final int tAdd = 1;
 
-    private final ReentrantLock lock = new ReentrantLock();
+    private final Lock lock = new ReentrantLock();
     private final Condition notFull = lock.newCondition();
     private final Condition notEmpty = lock.newCondition();
+    private final Condition isEmpty = lock.newCondition();
     private final AtomicBoolean activeIn = new AtomicBoolean(false);
     private final AtomicBoolean activeOut = new AtomicBoolean(false);
 
@@ -72,7 +73,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     private int charHead = 0;
     private int charTail = 0;
 
-    private Logger logger = Logger.getLogger(getClass());
+    private static Logger logger = Logger.getLogger(BoundedXMLFilterBuffer.class);
 
     public BoundedXMLFilterBuffer() {
         bufferSize = DEFAULT_BUFFER_SIZE;
@@ -109,7 +110,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
                     notEmpty.signal();
                 }
                 while (size.get() > 0) {
-                    notEmpty.await();
+                    isEmpty.await();
                 }
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
@@ -310,7 +311,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
             throw new IllegalStateException();
         }
         parsing = true;
-        Thread t = new Thread(new EventPlayer(), "eventPlayerThread");
+        Thread t = new Thread(new EventPlayer(), "eventPlayer<-"+Thread.currentThread().getName());
         t.start();
         super.parse(input);
         parsing = false;
@@ -343,6 +344,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
                     try {
                         lock.lock();
                         while (parsing && size.get() < 1) {
+                            isEmpty.signal();
                             notEmpty.await();
                         }
                     } catch (InterruptedException ex) {

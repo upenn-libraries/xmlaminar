@@ -22,7 +22,9 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
+import edu.upennlib.ingestor.sax.utils.DumpingContentHandler;
 import java.io.EOFException;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -53,10 +55,21 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     private final boolean debugging = true;
     private final StatefulXMLFilter inputFilter;
     private ContentHandler output;
+    private ContentHandler rawOutput;
     private String[] childElementNames;
     private IdQueryable[] childNodes;
     private Boolean[] requireForWrite;
     private String name;
+    private File dumpFile;
+    private static Logger logger = Logger.getLogger(IntegratorOutputNode.class);
+
+    public File getDumpFile() {
+        return dumpFile;
+    }
+
+    public void setDumpFile(File file) {
+        dumpFile = file;
+    }
 
     private List<String> descendentsSpring = null;
     public void setDescendentsSpring(List<String> descendentsSpring) {
@@ -224,7 +237,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     @Override
     public ContentHandler getContentHandler() {
-        return output;
+        return rawOutput;
     }
 
     private ErrorHandler errorHandler = null;
@@ -249,11 +262,21 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    protected Logger logger = Logger.getLogger(getClass());
-
     @Override
     public void setContentHandler(ContentHandler ch) {
-        output = ch;
+        assignOutput(ch);
+    }
+
+    private void assignOutput(ContentHandler ch) {
+        rawOutput = ch;
+        if (dumpFile != null) {
+            DumpingContentHandler dumper = new DumpingContentHandler();
+            dumper.setDumpFile(dumpFile);
+            dumper.setContentHandler(ch);
+            output = dumper;
+        } else {
+            output = ch;
+        }
     }
 
     private Boolean aggregating = null;
@@ -265,7 +288,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 throw new IllegalStateException();
             } else {
                 synchronized(this) {
-                    output = inputFilter;
+                    assignOutput(inputFilter);
                     notify();
                 }
                 inputFilter.run();
@@ -273,8 +296,9 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         } else {
             if (output == null) {
                 synchronized (this) {
-                    output = new StatefulXMLFilter();
-                    ((StatefulXMLFilter)output).setName(name+"Output");
+                    StatefulXMLFilter sxf = new StatefulXMLFilter();
+                    sxf.setName(name+"Output");
+                    assignOutput(sxf);
                     notify();
                 }
             }
@@ -298,9 +322,9 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             for (int i = 0; i < childNodes.length; i++) {
                 Thread t;
                 if (childElementNames[i] != null) {
-                    t = new Thread(childNodes[i], childElementNames[i]);
+                    t = new Thread(childNodes[i], childElementNames[i]+"<-"+Thread.currentThread().getName());
                 } else {
-                    t = new Thread(childNodes[i]);
+                    t = new Thread(childNodes[i], childNodes[i].getName()+"<-"+Thread.currentThread().getName());
                 }
                 t.start();
                 if (requireForWrite[i]) {
@@ -480,8 +504,8 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     @Override
     public void step() {
-        if (!debugging || output instanceof IdQueryable) {
-            ((IdQueryable)output).step();
+        if (!debugging || rawOutput instanceof IdQueryable) {
+            ((IdQueryable)rawOutput).step();
         }
     }
 
@@ -499,8 +523,8 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     @Override
     public boolean isFinished() {
-        if (!debugging || output instanceof IdQueryable) {
-            return ((IdQueryable)output).isFinished();
+        if (!debugging || rawOutput instanceof IdQueryable) {
+            return ((IdQueryable)rawOutput).isFinished();
         } else {
             throw new IllegalStateException();
         }
@@ -508,43 +532,43 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     @Override
     public void skipOutput() {
-        if (!debugging || output instanceof IdQueryable) {
-            ((IdQueryable)output).skipOutput();
+        if (!debugging || rawOutput instanceof IdQueryable) {
+            ((IdQueryable)rawOutput).skipOutput();
         }
     }
 
     @Override
     public void writeOutput(ContentHandler ch) {
-        if (!debugging || output instanceof IdQueryable) {
-            ((IdQueryable)output).writeOutput(ch);
+        if (!debugging || rawOutput instanceof IdQueryable) {
+            ((IdQueryable)rawOutput).writeOutput(ch);
         }
     }
 
     @Override
     public void writeOuterStartElement(ContentHandler ch, boolean asSelf) {
-        if (!debugging || output instanceof IdQueryable) {
-            ((IdQueryable)output).writeOuterStartElement(ch, asSelf);
+        if (!debugging || rawOutput instanceof IdQueryable) {
+            ((IdQueryable)rawOutput).writeOuterStartElement(ch, asSelf);
         }
     }
 
     @Override
     public void writeInnerStartElement(ContentHandler ch) {
-        if (!debugging || output instanceof IdQueryable) {
-            ((IdQueryable)output).writeInnerStartElement(ch);
+        if (!debugging || rawOutput instanceof IdQueryable) {
+            ((IdQueryable)rawOutput).writeInnerStartElement(ch);
         }
     }
 
     @Override
     public void writeInnerEndElement(ContentHandler ch) {
-        if (!debugging || output instanceof IdQueryable) {
-            ((IdQueryable)output).writeInnerEndElement(ch);
+        if (!debugging || rawOutput instanceof IdQueryable) {
+            ((IdQueryable)rawOutput).writeInnerEndElement(ch);
         }
     }
 
     @Override
     public void writeOuterEndElement(ContentHandler ch) {
-        if (!debugging || output instanceof IdQueryable) {
-            ((IdQueryable)output).writeOuterEndElement(ch);
+        if (!debugging || rawOutput instanceof IdQueryable) {
+            ((IdQueryable)rawOutput).writeOuterEndElement(ch);
         }
     }
 
@@ -553,8 +577,8 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     @Override
     public boolean self() {
         blockForOutputFilterInitialization();
-        if (!debugging || output instanceof IdQueryable) {
-            return ((IdQueryable)output).self();
+        if (!debugging || rawOutput instanceof IdQueryable) {
+            return ((IdQueryable)rawOutput).self();
         } else {
             throw new IllegalStateException();
         }
@@ -563,8 +587,8 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     @Override
     public Comparable getId() throws EOFException {
         blockForOutputFilterInitialization();
-        if (!debugging || output instanceof IdQueryable) {
-            return ((IdQueryable)output).getId();
+        if (!debugging || rawOutput instanceof IdQueryable) {
+            return ((IdQueryable)rawOutput).getId();
         } else {
             throw new IllegalStateException();
         }
@@ -573,8 +597,8 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     @Override
     public int getLevel() throws EOFException {
         blockForOutputFilterInitialization();
-        if (!debugging || output instanceof IdQueryable) {
-            return ((IdQueryable)output).getLevel();
+        if (!debugging || rawOutput instanceof IdQueryable) {
+            return ((IdQueryable)rawOutput).getLevel();
         } else {
             throw new IllegalStateException();
         }
