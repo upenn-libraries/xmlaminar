@@ -101,6 +101,18 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         charArgBuffer = new char[bufferSize * CHAR_BUFFER_INIT_FACTOR];
     }
 
+    public void clear() {
+        head = 0;
+        tail = 0;
+        size.set(0);
+        charHead = 0;
+        charTail = 0;
+        charSize.set(0);
+        stringTail = 0;
+        attsTail = 0;
+        intTail = 0;
+    }
+
     private void growCharArgBuffer() {
         if (size.get() > 0) {
             activeIn.set(false);

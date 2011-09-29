@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -37,6 +34,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.TTCCLayout;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -48,27 +46,31 @@ import org.xml.sax.helpers.AttributesImpl;
  */
 public class RSXMLReader extends SQLXMLReader {
 
-    char[] characters = new char[1024];
-    AttributesImpl attRunner = new AttributesImpl();
+    private final char[] characters = new char[2048];
+    private final AttributesImpl attRunner = new AttributesImpl();
+    private static final Logger logger = Logger.getLogger(RSXMLReader.class);
 
     public RSXMLReader() {
-        super(Reader.class);
+        super(InputImplementation.CHAR_ARRAY);
     }
 
     @Override
-    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, Object rawContent) throws SAXException, IOException {
-        if (rawContent != null) {
-            Reader content = (Reader) rawContent;
-            attRunner.clear();
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, char[] content) throws SAXException, IOException {
+        if (content != null) {
             ch.startElement("", fieldLabel, fieldLabel, attRunner);
-            outputCharacters(content);
+            ch.characters(content, 0, content.length);
             ch.endElement("", fieldLabel, fieldLabel);
         }
     }
 
+    @Override
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, byte[] content) throws SAXException, IOException {
+        throw new UnsupportedOperationException();
+    }
+
     private void outputCharacters(Reader content) throws IOException, SAXException {
         int length = -1;
-        while ((length = content.read(characters)) != -1) {
+        while ((length = content.read(characters, 0, characters.length)) != -1) {
             ch.characters(characters, 0, length);
         }
     }
@@ -104,8 +106,8 @@ public class RSXMLReader extends SQLXMLReader {
     public static void main(String[] args) throws TransformerConfigurationException, TransformerException, ConnectionException, FileNotFoundException, IOException {
 
         RSXMLReader instance = new RSXMLReader();
-        instance.logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
-        instance.logger.setLevel(Level.WARN);
+        logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
+        logger.setLevel(Level.WARN);
         instance.setHost(host);
         instance.setSid(sid);
         instance.setUser(user);

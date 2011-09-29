@@ -62,17 +62,19 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
 
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     private String name;
-    Logger logger = Logger.getLogger(getClass());
-    Connection connection;
-    ResultSet rs;
-    ContentHandler ch;
-    BoundedXMLFilterBuffer buffer = new BoundedXMLFilterBuffer();
-    ErrorHandler eh;
-    DTDHandler dh;
-    LexicalHandler lh;
-    Class expectedInputImplementation;
+    private static Logger logger = Logger.getLogger(SQLXMLReader.class);
+    private Connection connection;
+    private ResultSet rs;
+    protected ContentHandler ch;
+    private final BoundedXMLFilterBuffer buffer = new BoundedXMLFilterBuffer();
+    private ErrorHandler eh;
+    private DTDHandler dh;
+    private LexicalHandler lh;
+    private final InputImplementation expectedInputImplementation;
 
-    public SQLXMLReader(Class expectedInputImplementation) {
+    protected static enum InputImplementation { CHAR_ARRAY, BYTE_ARRAY };
+
+    protected SQLXMLReader(InputImplementation expectedInputImplementation) {
         this.expectedInputImplementation = expectedInputImplementation;
     }
 
@@ -230,6 +232,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     public final void parse(InputSource input) throws IOException, SAXException {
         if (!parsing) {
             parsing = true;
+            buffer.clear();
             buffer.setParent(this);
             buffer.setContentHandler(ch);
             buffer.parse(input);
@@ -421,14 +424,15 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     private long[] currentId;
     private int idFieldDepth = -1;
 
-    private AttributesImpl attRunner = new AttributesImpl();
-    private String idAttName = "id";
-    private String selfAttName = "self";
+    private final AttributesImpl attRunner = new AttributesImpl();
+    private final String ID_ATT_NAME = "id";
+    private final String SELF_ATT_NAME = "self";
 
-    private UnboundedContentHandlerBuffer endElementBuffer = new UnboundedContentHandlerBuffer();
+    private final UnboundedContentHandlerBuffer endElementBuffer = new UnboundedContentHandlerBuffer();
     private void writeStructuralEvents() throws SQLException, SAXException {
+        System.arraycopy(currentId, 0, lastId, 0, currentId.length);
         for (int i = 0; i < currentId.length; i++) {
-            lastId[i] = currentId[i];
+            //lastId[i] = currentId[i];
             currentId[i] = rs.getLong(idFieldLabels[i]);
         }
         int i = idFieldDepth + 1;
@@ -452,66 +456,124 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         i = decreasedFieldDepthLimit;
         while (++i < currentId.length) {
             attRunner.clear();
-            attRunner.addAttribute("", idAttName, idAttName, "CDATA", Long.toString(currentId[i]));
+            attRunner.addAttribute("", ID_ATT_NAME, ID_ATT_NAME, "CDATA", Long.toString(currentId[i]));
             if (i == currentId.length - 1) {
-                attRunner.addAttribute("", selfAttName, selfAttName, "CDATA", "true");
+                attRunner.addAttribute("", SELF_ATT_NAME, SELF_ATT_NAME, "CDATA", "true");
             }
             idFieldDepth++;
             ch.startElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i], attRunner);
         }
     }
 
-    String[] outputFieldLabels;
-    String[] outputFieldLabelsLower;
-    int[] outputFieldColumnTypes;
+    private String[] outputFieldLabels;
+    private String[] outputFieldLabelsLower;
+    private int[] outputFieldColumnTypes;
 
     private void outputResultSetAsSAXEvents() throws SQLException, SAXException {
         initializeOutput();
         while (rs.next()) {
             writeStructuralEvents();
             for (int i = 0; i < outputFieldLabels.length; i++) {
-                Object content = null;
+                char[] readerContent = null;
+                byte[] binaryContent = null;
+                try {
+                    switch (expectedInputImplementation) {
+                        case CHAR_ARRAY:
+                            String s = rs.getString(outputFieldLabels[i]);
+                            if (s != null) {
+                                readerContent = s.toCharArray();
+                            }
+                            break;
+                        case BYTE_ARRAY:
+                            binaryContent = rs.getBytes(outputFieldLabels[i]);
+                    }
+                } catch (SQLException ex) {
+                    throw new RuntimeException("add special handling for java.sql.Types=" + outputFieldColumnTypes[i], ex);
+                }
+                try {
+                    switch (expectedInputImplementation) {
+                        case CHAR_ARRAY:
+                            outputFieldAsSAXEvents(currentId[currentId.length - 1], outputFieldLabelsLower[i], readerContent);
+                            break;
+                        case BYTE_ARRAY:
+                            outputFieldAsSAXEvents(currentId[currentId.length - 1], outputFieldLabelsLower[i], binaryContent);
+                    }
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+        finalizeOutput();
+    }
+
+    private void outputResultSetAsSAXEventsOld() throws SQLException, SAXException {
+        initializeOutput();
+        while (rs.next()) {
+            writeStructuralEvents();
+            for (int i = 0; i < outputFieldLabels.length; i++) {
+                Reader readerContent = null;
+                InputStream binaryContent = null;
                 try {
                     switch (outputFieldColumnTypes[i]) {
                         case Types.NUMERIC:
-                            if (expectedInputImplementation == Reader.class) {
-                                content = new StringReader(Long.toString(rs.getLong(outputFieldLabels[i])));
-                            } else if (expectedInputImplementation == InputStream.class) {
-                                content = new ByteArrayInputStream(Long.toString(rs.getLong(outputFieldLabels[i])).getBytes());
+                            switch (expectedInputImplementation) {
+                                case CHAR_ARRAY:
+                                    readerContent = new StringReader(Long.toString(rs.getLong(outputFieldLabels[i])));
+                                    break;
+                                case BYTE_ARRAY:
+                                    binaryContent = new ByteArrayInputStream(Long.toString(rs.getLong(outputFieldLabels[i])).getBytes());
                             }
                             break;
                         case Types.DATE:
                             String dateString = rs.getString(outputFieldLabels[i]);
                             if (dateString != null) {
-                                if (expectedInputImplementation == Reader.class) {
-                                    content = new StringReader(dateString);
-                                } else if (expectedInputImplementation == InputStream.class) {
-                                    content = new ByteArrayInputStream(dateString.getBytes());
+                                switch (expectedInputImplementation) {
+                                    case CHAR_ARRAY:
+                                        readerContent = new StringReader(dateString);
+                                        break;
+                                    case BYTE_ARRAY:
+                                        binaryContent = new ByteArrayInputStream(dateString.getBytes());
                                 }
                             }
                             break;
                         default:
-                            if (expectedInputImplementation == Reader.class) {
-                                content = rs.getCharacterStream(outputFieldLabels[i]);
-                            } else if (expectedInputImplementation == InputStream.class) {
-                                content = rs.getBinaryStream(outputFieldLabels[i]);
+                            switch (expectedInputImplementation) {
+                                case CHAR_ARRAY:
+                                    readerContent = rs.getCharacterStream(outputFieldLabels[i]);
+                                    //System.out.println("resultset: "+rs.getClass().getCanonicalName());
+                                    //System.out.println("reader: "+readerContent.getClass().getCanonicalName());
+                                    break;
+                                case BYTE_ARRAY:
+                                    binaryContent = rs.getBinaryStream(outputFieldLabels[i]);
+                                    //System.out.println("binary: "+binaryContent.getClass().getCanonicalName());
                             }
                     }
                 } catch (SQLException ex) {
-                    throw new RuntimeException("add special handling for java.sql.Types="+outputFieldColumnTypes[i],ex);
+                    throw new RuntimeException("add special handling for java.sql.Types=" + outputFieldColumnTypes[i], ex);
                 }
                 try {
-                    outputFieldAsSAXEvents(currentId[currentId.length - 1], outputFieldLabelsLower[i], content);
+                    switch (expectedInputImplementation) {
+                        case CHAR_ARRAY:
+                            //outputFieldAsSAXEvents(currentId[currentId.length - 1], outputFieldLabelsLower[i], readerContent);
+                            break;
+                        case BYTE_ARRAY:
+                            throw new IOException();
+                            //outputFieldAsSAXEvents(currentId[currentId.length - 1], outputFieldLabelsLower[i], binaryContent);
+                    }
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 } finally {
                     try {
-                        if (content != null) {
-                            if (content instanceof Reader) {
-                                ((Reader) content).close();
-                            } else if (content instanceof InputStream) {
-                                ((InputStream) content).close();
-                            }
+                        switch (expectedInputImplementation) {
+                            case CHAR_ARRAY:
+                                if (readerContent != null) {
+                                    readerContent.close();
+                                }
+                                break;
+                            case BYTE_ARRAY:
+                                if (binaryContent != null) {
+                                    binaryContent.close();
+                                }
                         }
                     } catch (IOException ex) {
                         logger.error(ex);
@@ -541,7 +603,8 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         ch.endDocument();
     }
 
-    protected abstract void outputFieldAsSAXEvents(long selfId, String fieldLabel, Object content) throws SAXException, IOException;
+    protected abstract void outputFieldAsSAXEvents(long selfId, String fieldLabel, char[] content) throws SAXException, IOException;
+    protected abstract void outputFieldAsSAXEvents(long selfId, String fieldLabel, byte[] content) throws SAXException, IOException;
 
 
 }

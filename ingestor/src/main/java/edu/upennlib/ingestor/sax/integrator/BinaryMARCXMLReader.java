@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -48,6 +49,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.TTCCLayout;
 import org.marc4j.converter.impl.AnselToUnicode;
 import org.xml.sax.InputSource;
@@ -65,18 +67,19 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     public static final char DE = '\u001F';
 
     public BinaryMARCXMLReader() {
-        super(InputStream.class);
+        super(InputImplementation.BYTE_ARRAY);
     }
 
-    private ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    private UnboundedContentHandlerBuffer outputBuffer = new UnboundedContentHandlerBuffer();
+    private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    private final UnboundedContentHandlerBuffer outputBuffer = new UnboundedContentHandlerBuffer();
     private long currentId = -1;
     private boolean logRecordAsError = false;
     private String logRecordErrorMessage;
     private boolean printStackTraces = false;
+    private static final Logger logger = Logger.getLogger(BinaryMARCXMLReader.class);
 
     @Override
-    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, Object rawContent) throws SAXException, IOException {
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, byte[] content) throws SAXException, IOException {
         if (selfId != currentId) {
             logRecordAsError = false;
             if (baos.size() > 0) {
@@ -85,12 +88,48 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             }
             currentId = selfId;
         }
-        if (rawContent != null) {
-            InputStream content = (InputStream) rawContent;
-            BufferedInputStream bis = new BufferedInputStream(content);
+        if (content != null) {
+            baos.write(content);
+            if (content[content.length - 1] == RT) {
+                try {
+                    parseRecord(baos.toByteArray());
+                    outputBuffer.flush(ch);
+                } catch (Exception e) {
+                    if (!logRecordAsError) {
+                        logRecordAsError = true;
+                        logRecordErrorMessage = e.toString() + " on record "+currentId;
+                    }
+                    outputBuffer.clear();
+                    if (printStackTraces) {
+                        e.printStackTrace(System.out);
+                    }
+                }
+                if (logRecordAsError) {
+                    logger.error(logRecordErrorMessage);
+                    FileOutputStream fos = new FileOutputStream("outputFiles/marcError/"+currentId+".mrc");
+                    baos.writeTo(fos);
+                    fos.close();
+                }
+                baos.reset();
+            }
+        }
+    }
+
+    //@Override
+    private void outputFieldAsSAXEventsOld(long selfId, String fieldLabel, InputStream content) throws SAXException, IOException {
+        if (selfId != currentId) {
+            logRecordAsError = false;
+            if (baos.size() > 0) {
+                logger.error("discarding some output for record: "+currentId);
+                baos.reset();
+            }
+            currentId = selfId;
+        }
+        if (content != null) {
+            //BufferedInputStream bis = new BufferedInputStream(content);
             int next = -1;
             boolean recordFinished = false;
-            while ((next = bis.read()) != -1) {
+            while ((next = content.read()) != -1) {
                 if (recordFinished) {
                     if (!logRecordAsError) {
                         logRecordAsError = true;
@@ -125,6 +164,14 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             }
         }
     }
+
+    @Override
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, char[] content) throws SAXException, IOException {
+        throw new UnsupportedOperationException();
+    }
+
+
+
     private static final String lowBib = "3032000";
     private static final String highBib = "3033000";
     private static String host = "[host_or_ip]";
