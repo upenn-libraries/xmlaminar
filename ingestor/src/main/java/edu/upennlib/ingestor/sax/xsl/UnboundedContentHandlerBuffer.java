@@ -618,7 +618,9 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
 
     @Override
     public void setDocumentLocator(Locator locator) {
-        logger.trace("ignoring setDocumentLocator(" + locator + ")");
+        if (logger.isTraceEnabled()) {
+            logger.trace("ignoring setDocumentLocator(" + locator + ")");
+        }
     }
 
     @Override
@@ -636,7 +638,9 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
                 throw new IllegalStateException("cannot set namespaces feature to false");
             }
         } else {
-            logger.trace("ignoring setFeature(" + name + ", " + value + ")");
+            if (logger.isTraceEnabled()) {
+                logger.trace("ignoring setFeature(" + name + ", " + value + ")");
+            }
         }
     }
 
@@ -647,12 +651,16 @@ public class UnboundedContentHandlerBuffer implements ContentHandler, XMLReader 
 
     @Override
     public void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException {
-        logger.trace("ignoring setProperty(" + name + ", " + value + ")");
+        if (logger.isTraceEnabled()) {
+            logger.trace("ignoring setProperty(" + name + ", " + value + ")");
+        }
     }
 
     @Override
     public void setEntityResolver(EntityResolver resolver) {
-        logger.trace("ignoring setEntityResolver(" + resolver + ")");
+        if (logger.isTraceEnabled()) {
+            logger.trace("ignoring setEntityResolver(" + resolver + ")");
+        }
     }
 
     @Override

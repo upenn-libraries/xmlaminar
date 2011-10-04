@@ -186,9 +186,13 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 throw new UnsupportedOperationException("cannot set namespaces feature to false");
             }
         } else if ("http://xml.org/sax/features/namespace-prefixes".equals(name)) {
-            logger.trace("ignoring setFeature("+name+", "+value+")");
+            if (logger.isTraceEnabled()) {
+                logger.trace("ignoring setFeature("+name+", "+value+")");
+            }
         } else if ("http://xml.org/sax/features/validation".equals(name)) {
-            logger.trace("ignoring setFeature("+name+", "+value+")");
+            if (logger.isTraceEnabled()) {
+                logger.trace("ignoring setFeature("+name+", "+value+")");
+            }
         } else {
             throw new UnsupportedOperationException("setFeature("+name+", "+value+")");
         }
@@ -215,7 +219,9 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     @Override
     public void setEntityResolver(EntityResolver resolver) {
-        logger.trace("ignoring setEntityResolver("+resolver+")");
+        if (logger.isTraceEnabled()) {
+            logger.trace("ignoring setEntityResolver("+resolver+")");
+        }
     }
 
     @Override

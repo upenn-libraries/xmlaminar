@@ -8,7 +8,9 @@
         <property name="stylesheet" value="${ingestor.stylesheet}"/>
         <property name="solrPoster" ref="${ingestor.solrPoster}"/>
         <property name="joiner" ref="${ingestor.joiner}"/>
+        <property name="performanceEvaluator" ref="evaluator"/>
     </bean>
+    <bean id="evaluator" class="edu.upennlib.ingestor.sax.utils.PerformanceEvaluator" scope="singleton" lazy-init="true"/>
     <bean id="rootIntegrator" class="edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode" scope="singleton" lazy-init="true" init-method="initSpring">
         <property name="subIntegratorsSpring" ref="${rootIntegrator.subIntegrators}"/>
         <property name="descendentsSpring" value="${rootIntegrator.descendents}"/>
@@ -23,6 +25,7 @@
         <property name="idFieldLabels" value="${integrator.idFields}"/>
         <property name="outputFieldLabels" value="${integrator.marcBinaryFieldLabel}"/>
         <property name="sql" value="${integrator.sql}"/>
+        <property name="performanceEvaluator" ref="evaluator"/>
     </bean>
     <bean id="rsIntegrator" class="edu.upennlib.ingestor.sax.integrator.RSXMLReader" scope="prototype">
         <property name="name" value="${integrator.name}"/>
@@ -32,6 +35,7 @@
         <property name="pwd" value="${integrator.pwd}"/>
         <property name="idFieldLabels" value="${integrator.idFields}"/>
         <property name="sql" value="${integrator.sql}"/>
+        <property name="performanceEvaluator" ref="evaluator"/>
     </bean>
     <bean class="edu.upennlib.ingestor.sax.solr.SAXSolrPoster" id="solrPoster" lazy-init="true" scope="singleton" init-method="initSpring">
         <property name="delete" value="${solrPoster.delete}"/>

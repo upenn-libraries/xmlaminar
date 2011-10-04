@@ -55,16 +55,30 @@ public class RSXMLReader extends SQLXMLReader {
     }
 
     @Override
-    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, char[] content) throws SAXException, IOException {
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, char[] content, int endIndex) throws SAXException, IOException {
         if (content != null) {
             ch.startElement("", fieldLabel, fieldLabel, attRunner);
-            ch.characters(content, 0, content.length);
+            ch.characters(content, 0, endIndex);
+            ch.endElement("", fieldLabel, fieldLabel);
+        }
+    }
+
+    @Override
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, Reader content) throws SAXException, IOException {
+        if (content != null) {
+            ch.startElement("", fieldLabel, fieldLabel, attRunner);
+            outputCharacters(content);
             ch.endElement("", fieldLabel, fieldLabel);
         }
     }
 
     @Override
     protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, byte[] content) throws SAXException, IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, InputStream content) throws SAXException, IOException {
         throw new UnsupportedOperationException();
     }
 

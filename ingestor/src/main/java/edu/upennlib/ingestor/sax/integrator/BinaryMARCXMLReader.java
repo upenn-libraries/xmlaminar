@@ -25,6 +25,7 @@ import edu.upennlib.ingestor.sax.utils.ConnectionException;
 import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -70,7 +71,6 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         super(InputImplementation.BYTE_ARRAY);
     }
 
-    private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     private final UnboundedContentHandlerBuffer outputBuffer = new UnboundedContentHandlerBuffer();
     private long currentId = -1;
     private boolean logRecordAsError = false;
@@ -78,21 +78,35 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     private boolean printStackTraces = false;
     private static final Logger logger = Logger.getLogger(BinaryMARCXMLReader.class);
 
+    private static final int BYTE_BUFFER_INIT_SIZE = 2048;
+    private byte[] byteBuffer = new byte[BYTE_BUFFER_INIT_SIZE];
+    private int bufferTail = 0;
+
+    private void bufferBytes(byte[] content) {
+        while (byteBuffer.length < bufferTail + content.length) {
+            byte[] old = byteBuffer;
+            byteBuffer = new byte[old.length * 2];
+            System.arraycopy(old, 0, byteBuffer, 0, bufferTail);
+        }
+        System.arraycopy(content, 0, byteBuffer, bufferTail, content.length);
+        bufferTail += content.length;
+    }
+
     @Override
     protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, byte[] content) throws SAXException, IOException {
         if (selfId != currentId) {
             logRecordAsError = false;
-            if (baos.size() > 0) {
+            if (bufferTail > 0) {
                 logger.error("discarding some output for record: "+currentId);
-                baos.reset();
+                bufferTail = 0;
             }
             currentId = selfId;
         }
         if (content != null) {
-            baos.write(content);
-            if (content[content.length - 1] == RT) {
+            bufferBytes(content);
+            if (byteBuffer[bufferTail - 1] == RT) {
                 try {
-                    parseRecord(baos.toByteArray());
+                    parseRecord(byteBuffer, bufferTail);
                     outputBuffer.flush(ch);
                 } catch (Exception e) {
                     if (!logRecordAsError) {
@@ -106,43 +120,44 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
                 }
                 if (logRecordAsError) {
                     logger.error(logRecordErrorMessage);
-                    FileOutputStream fos = new FileOutputStream("outputFiles/marcError/"+currentId+".mrc");
-                    baos.writeTo(fos);
+                    BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream("outputFiles/marcError/"+currentId+".mrc"));
+                    fos.write(byteBuffer, 0, bufferTail);
                     fos.close();
                 }
-                baos.reset();
+                bufferTail = 0;
             }
         }
     }
 
-    //@Override
-    private void outputFieldAsSAXEventsOld(long selfId, String fieldLabel, InputStream content) throws SAXException, IOException {
+    private static final int chunkSize = 2048;
+
+    private void bufferBytes(InputStream content) throws IOException {
+        int bytesRead = 0;
+        do {
+            bufferTail += bytesRead;
+            if (byteBuffer.length < bufferTail + chunkSize) {
+                byte[] old = byteBuffer;
+                byteBuffer = new byte[old.length * 2];
+                System.arraycopy(old, 0, byteBuffer, 0, bufferTail);
+            }
+        } while ((bytesRead = content.read(byteBuffer, bufferTail, chunkSize)) != -1);
+    }
+
+    @Override
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, InputStream content) throws SAXException, IOException {
         if (selfId != currentId) {
             logRecordAsError = false;
-            if (baos.size() > 0) {
+            if (bufferTail > 0) {
                 logger.error("discarding some output for record: "+currentId);
-                baos.reset();
+                bufferTail = 0;
             }
             currentId = selfId;
         }
         if (content != null) {
-            //BufferedInputStream bis = new BufferedInputStream(content);
-            int next = -1;
-            boolean recordFinished = false;
-            while ((next = content.read()) != -1) {
-                if (recordFinished) {
-                    if (!logRecordAsError) {
-                        logRecordAsError = true;
-                        logRecordErrorMessage = "early record terminator on record " + currentId;
-                    }
-                } else if (next == RT) {
-                    recordFinished = true;
-                }
-                baos.write(next);
-            }
-            if (recordFinished) {
+            bufferBytes(content);
+            if (byteBuffer[bufferTail - 1] == RT) {
                 try {
-                    parseRecord(baos.toByteArray());
+                    parseRecord(byteBuffer, bufferTail);
                     outputBuffer.flush(ch);
                 } catch (Exception e) {
                     if (!logRecordAsError) {
@@ -157,16 +172,21 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
                 if (logRecordAsError) {
                     logger.error(logRecordErrorMessage);
                     FileOutputStream fos = new FileOutputStream("outputFiles/marcError/"+currentId+".mrc");
-                    baos.writeTo(fos);
+                    fos.write(byteBuffer, 0, bufferTail);
                     fos.close();
                 }
-                baos.reset();
+                bufferTail = 0;
             }
         }
     }
 
     @Override
-    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, char[] content) throws SAXException, IOException {
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, char[] content, int endIndex) throws SAXException, IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, Reader content) throws SAXException, IOException {
         throw new UnsupportedOperationException();
     }
 
@@ -187,8 +207,8 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     public static void main(String args[]) throws ConnectionException, SQLException, FileNotFoundException, IOException, SAXException, TransformerConfigurationException, TransformerException, ParserConfigurationException {
 
         BinaryMARCXMLReader instance = new BinaryMARCXMLReader();
-        instance.logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
-        instance.logger.setLevel(Level.WARN);
+        logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
+        logger.setLevel(Level.WARN);
         instance.setHost(host);
         instance.setSid(sid);
         instance.setUser(user);
@@ -216,7 +236,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
 
     int baseAddress;
 
-    public void parseRecord(byte[] record) throws IOException, SAXException {
+    public void parseRecord(byte[] record, int length) throws IOException, SAXException {
         CharBuffer leader = decodeASCII.decode(ByteBuffer.wrap(record, 0, 24));
         switch (leader.charAt(9)) {
             case 'a':
@@ -261,12 +281,15 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         final String prefix;
         final String localName;
         final String qName;
+        final String uri;
         FieldType(String localName) {
             this.localName = localName;
             if (localName.equals("tag") || localName.equals("ind1") || localName.equals("ind2") || localName.equals("code")) {
+                this.uri = "";
                 this.prefix = "";
                 this.qName = localName;
             } else {
+                this.uri = MARCXML_URI;
                 this.prefix = MARCXML_PREFIX;
                 this.qName = MARCXML_PREFIX+":"+localName;
             }
@@ -287,18 +310,18 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             }
         }
         attRunner.clear();
-        attRunner.addAttribute("", FieldType.tag.localName, FieldType.tag.qName, "CDATA", tag);
+        attRunner.addAttribute(FieldType.tag.uri, FieldType.tag.localName, FieldType.tag.qName, "CDATA", tag);
         FieldType fieldType;
         if (tag.startsWith("00")) {
             fieldType = FieldType.controlfield;
         } else {
-            attRunner.addAttribute("", FieldType.ind1.localName, FieldType.ind1.qName, "CDATA", Character.toString(field.charAt(0)));
-            attRunner.addAttribute("", FieldType.ind2.localName, FieldType.ind2.qName, "CDATA", Character.toString(field.charAt(1)));
+            attRunner.addAttribute(FieldType.ind1.uri, FieldType.ind1.localName, FieldType.ind1.qName, "CDATA", Character.toString(field.charAt(0)));
+            attRunner.addAttribute(FieldType.ind2.uri, FieldType.ind2.localName, FieldType.ind2.qName, "CDATA", Character.toString(field.charAt(1)));
             fieldType = FieldType.datafield;
         }
-        outputBuffer.startElement(MARCXML_URI, fieldType.localName, fieldType.qName, attRunner);
+        outputBuffer.startElement(fieldType.uri, fieldType.localName, fieldType.qName, attRunner);
         handleFieldContents(field, fieldType);
-        outputBuffer.endElement(MARCXML_URI, fieldType.localName, fieldType.qName);
+        outputBuffer.endElement(fieldType.uri, fieldType.localName, fieldType.qName);
     }
 
     private void handleFieldContents(CharBuffer field, FieldType fieldType) throws SAXException {
@@ -321,18 +344,18 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
                 case DE:
                     if (inSubfield) {
                         outputBuffer.characters(field.array(), field.arrayOffset() + cStart, index - cStart);
-                        outputBuffer.endElement(MARCXML_URI, FieldType.subfield.localName, FieldType.subfield.qName);
+                        outputBuffer.endElement(FieldType.subfield.uri, FieldType.subfield.localName, FieldType.subfield.qName);
                     }
                     attRunner.clear();
-                    attRunner.addAttribute("", FieldType.code.localName, FieldType.code.qName, "CDATA", Character.toString(field.charAt(++index)));
+                    attRunner.addAttribute(FieldType.code.uri, FieldType.code.localName, FieldType.code.qName, "CDATA", Character.toString(field.charAt(++index)));
                     inSubfield = true;
-                    outputBuffer.startElement(MARCXML_URI, FieldType.subfield.localName, FieldType.subfield.qName, attRunner);
+                    outputBuffer.startElement(FieldType.subfield.uri, FieldType.subfield.localName, FieldType.subfield.qName, attRunner);
                     cStart = -1;
                     break;
                 case FT:
                     outputBuffer.characters(field.array(), field.arrayOffset() + cStart, index - cStart);
                     if (inSubfield) {
-                        outputBuffer.endElement(MARCXML_URI, FieldType.subfield.localName, FieldType.subfield.qName);
+                        outputBuffer.endElement(FieldType.subfield.uri, FieldType.subfield.localName, FieldType.subfield.qName);
                     }
                     finishedParsing = true;
                     if (index != field.length() - 1) {
@@ -348,14 +371,14 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     private void initializeOutput(CharBuffer leader) throws SAXException {
         outputBuffer.startPrefixMapping(MARCXML_PREFIX, MARCXML_URI);
         attRunner.clear();
-        outputBuffer.startElement(MARCXML_URI, FieldType.record.localName, FieldType.record.qName, attRunner);
-        outputBuffer.startElement(MARCXML_URI, FieldType.leader.localName, FieldType.leader.qName, attRunner);
+        outputBuffer.startElement(FieldType.record.uri, FieldType.record.localName, FieldType.record.qName, attRunner);
+        outputBuffer.startElement(FieldType.leader.uri, FieldType.leader.localName, FieldType.leader.qName, attRunner);
         outputBuffer.characters(leader.array(), leader.arrayOffset(), 24);
-        outputBuffer.endElement(MARCXML_URI, FieldType.leader.localName, FieldType.leader.qName);
+        outputBuffer.endElement(FieldType.leader.uri, FieldType.leader.localName, FieldType.leader.qName);
     }
 
     private void finalizeOutput() throws SAXException {
-        outputBuffer.endElement(MARCXML_URI, FieldType.record.localName, FieldType.record.qName);
+        outputBuffer.endElement(FieldType.record.uri, FieldType.record.localName, FieldType.record.qName);
         outputBuffer.endPrefixMapping(MARCXML_PREFIX);
     }
 

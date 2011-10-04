@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
 import edu.upennlib.ingestor.sax.solr.SAXSolrPoster;
+import edu.upennlib.ingestor.sax.utils.PerformanceEvaluator;
 import edu.upennlib.ingestor.sax.xsl.JoiningXMLFilter;
 import java.io.File;
 import javax.xml.transform.sax.SAXResult;
@@ -48,8 +49,16 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
     private File stylesheet = null;
     private SAXSolrPoster solrPoster = null;
     private JoiningXMLFilter joiner = null;
-    private Logger logger = Logger.getLogger(getClass());
+    private static final Logger logger = Logger.getLogger(SAXIngestor.class);
+    private PerformanceEvaluator pe;
 
+    public PerformanceEvaluator getPerformanceEvaluator() {
+        return pe;
+    }
+
+    public void setPerformanceEvaluator(PerformanceEvaluator pe) {
+        this.pe = pe;
+    }
 
     public IntegratorOutputNode getIntegrator() {
         return integrator;
@@ -86,7 +95,12 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
     public void run() {
         logger.trace("run() called on "+getName());
         try {
+            long start = System.currentTimeMillis();
             joiner.transform(integrator, new InputSource(), stylesheet, new SAXResult(solrPoster));
+            long processingStart = pe.getLastStart();
+            long end = System.currentTimeMillis();
+            System.out.println("Elapsed time: "+(end - start));
+            System.out.println("Processing time: "+(end - processingStart));
         } catch (ParserConfigurationException ex) {
             throw new RuntimeException(ex);
         } catch (SAXException ex) {
