@@ -99,8 +99,12 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
             joiner.transform(integrator, new InputSource(), stylesheet, new SAXResult(solrPoster));
             long processingStart = pe.getLastStart();
             long end = System.currentTimeMillis();
+            long processingTime = end - processingStart;
+            //long rsNextTime = integrator.rsNextEstimate();
             System.out.println("Elapsed time: "+(end - start));
-            System.out.println("Processing time: "+(end - processingStart));
+            System.out.println("Processing time: "+processingTime);
+            //System.out.println("rsNext time: "+rsNextTime);
+            //System.out.println("p-r diff: "+(rsNextTime - processingTime));
         } catch (ParserConfigurationException ex) {
             throw new RuntimeException(ex);
         } catch (SAXException ex) {

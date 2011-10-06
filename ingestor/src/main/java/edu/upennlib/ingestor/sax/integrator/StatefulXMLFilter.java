@@ -204,7 +204,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
     private UnboundedContentHandlerBuffer innerEndElementBuffer = new UnboundedContentHandlerBuffer();
     private UnboundedContentHandlerBuffer innerStartElementBuffer = new UnboundedContentHandlerBuffer();
     private UnboundedContentHandlerBuffer outerStartElementBuffer = new UnboundedContentHandlerBuffer();
-    private UnboundedContentHandlerBuffer workingBuffer = new UnboundedContentHandlerBuffer();
+    private final UnboundedContentHandlerBuffer workingBuffer = new UnboundedContentHandlerBuffer();
 
     private Boolean lastWasStartElement = null;
 
@@ -367,7 +367,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         }
     }
 
-    public void writeOuterStartElementOld(ContentHandler ch, boolean asSelf) {
+    /*public void writeOuterStartElementOld(ContentHandler ch, boolean asSelf) {
         if (state != State.WAIT) {
             throw new IllegalStateException("expected state WAIT, found: "+state);
         }
@@ -401,7 +401,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }
-    }
+    }*/
 
     @Override
     public void writeInnerStartElement(ContentHandler ch) {

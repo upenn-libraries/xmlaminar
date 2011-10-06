@@ -344,6 +344,17 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             }
         }
     }
+
+    /*public long rsNextEstimate() {
+        long toReturn = 0;
+        for (XMLReader x : subIntegratorsSpring) {
+            if (x instanceof SQLXMLReader) {
+                toReturn += ((SQLXMLReader)x).rsNextEstimate();
+            }
+        }
+        return toReturn;
+    }*/
+
     private final LinkedHashSet<Integer> requiredIndexes = new LinkedHashSet<Integer>();
 
     private String getStackTrace() {

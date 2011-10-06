@@ -494,6 +494,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         return length;
     }
 
+    //Arrays
     private void outputResultSetAsSAXEventsArrays() throws SQLException, SAXException {
         initializeOutput();
         while (rs.next()) {
@@ -528,7 +529,34 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         finalizeOutput();
     }
 
-    private void outputResultSetAsSAXEvents() throws SQLException, SAXException {
+    /*private final int REPORT_INTERVAL = 201;
+    private int lastReportedAgo = 0;
+    private double avgResponseTime = 0;
+    private long numberReports = 0;
+    private boolean statsRsNext() throws SQLException {
+        boolean next;
+        if (++lastReportedAgo >= REPORT_INTERVAL) {
+            long start = System.currentTimeMillis();
+            next = rs.next();
+            long responseTime = System.currentTimeMillis() - start;
+            avgResponseTime = avgResponseTime + ((responseTime - avgResponseTime) / ++numberReports);
+            lastReportedAgo = 0;
+        } else {
+            next = rs.next();
+        }
+        if (!next) {
+            System.out.println(getName()+" avg="+avgResponseTime+"; total="+(REPORT_INTERVAL * numberReports + lastReportedAgo) * avgResponseTime);
+        }
+        return next;
+    }
+
+    public long rsNextEstimate() {
+        double result = ((REPORT_INTERVAL * numberReports) + lastReportedAgo) * avgResponseTime;
+        return (long) result;
+    }*/
+
+    //Hybrid
+    private void outputResultSetAsSAXEventsHybrid() throws SQLException, SAXException {
         initializeOutput();
         while (rs.next()) {
             writeStructuralEvents();
@@ -596,7 +624,8 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         finalizeOutput();
     }
 
-    private void outputResultSetAsSAXEventsStreams() throws SQLException, SAXException {
+    //Streams
+    private void outputResultSetAsSAXEvents() throws SQLException, SAXException {
         initializeOutput();
         while (rs.next()) {
             writeStructuralEvents();
