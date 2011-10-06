@@ -21,20 +21,19 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
-import edu.upennlib.ingestor.sax.xsl.SaxEventExecutor;
 import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
@@ -56,9 +55,12 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
 
     private InputSource inputSource = new InputSource();
 
-    protected Logger logger = Logger.getLogger(getClass());
+    private static final Logger logger = Logger.getLogger(StatefulXMLFilter.class);
 
     private String name;
+    private final Lock lock = new ReentrantLock();
+    private final Condition stateNotWait = lock.newCondition();
+    private final Condition stateIsWait = lock.newCondition();
 
     @Override
     public void setName(String name) {
@@ -90,15 +92,27 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
     }
 
     private void block() {
-        synchronized (this) {
+        try {
+            lock.lock();
             while (state != State.WAIT) {
                 try {
-                    wait();
+                    stateIsWait.await();
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
             }
+        } finally {
+            lock.unlock();
         }
+//        stynchronized (this) {
+//            while (state != State.WAIT) {
+//                try {
+//                    wait();
+//                } catch (InterruptedException ex) {
+//                    throw new RuntimeException(ex);
+//                }
+//            }
+//        }
     }
 
     @Override
@@ -187,16 +201,29 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                     }
                 }
                 state = State.WAIT;
-                synchronized (this) {
+                try {
+                    lock.lock();
+                    stateIsWait.signal();
                     while (state == State.WAIT) {
-                        notify();
                         try {
-                            wait();
+                            stateNotWait.await();
                         } catch (InterruptedException ex) {
                             throw new RuntimeException(ex);
                         }
                     }
+                } finally {
+                    lock.unlock();
                 }
+//                stynchronized (this) {
+//                    while (state == State.WAIT) {
+//                        notify();
+//                        try {
+//                            wait();
+//                        } catch (InterruptedException ex) {
+//                            throw new RuntimeException(ex);
+//                        }
+//                    }
+//                }
         }
         lastWasStartElement = true;
     }
@@ -232,16 +259,29 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                 setContentHandler(outerEndElementBuffer);
                 super.endElement(uri, localName, qName);
                 state = State.WAIT;
-                synchronized (this) {
+                try {
+                    lock.lock();
+                    stateIsWait.signal();
                     while (state == State.WAIT) {
-                        notify();
                         try {
-                            wait();
+                            stateNotWait.await();
                         } catch (InterruptedException ex) {
                             throw new RuntimeException(ex);
                         }
                     }
+                } finally {
+                    lock.unlock();
                 }
+//                stynchronized (this) {
+//                    while (state == State.WAIT) {
+//                        notify();
+//                        try {
+//                            wait();
+//                        } catch (InterruptedException ex) {
+//                            throw new RuntimeException(ex);
+//                        }
+//                    }
+//                }
                 break;
             case SKIP:
                 if (level < refLevel) {
@@ -308,10 +348,17 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         workingBuffer.flush(outerEndElementBuffer);
         setContentHandler(outerEndElementBuffer);
         super.endDocument();
-        synchronized(this) {
+        try {
+            lock.lock();
             finished = true;
-            notify();
+            stateIsWait.signal();
+        } finally {
+            lock.unlock();
         }
+//        stynchronized(this) {
+//            finished = true;
+//            notify();
+//        }
     }
 
     @Override
@@ -331,9 +378,15 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         setContentHandler(workingBuffer);
         refLevel = level;
         state = State.SKIP;
-        synchronized(this) {
-            notify();
+        try {
+            lock.lock();
+            stateNotWait.signal();
+        } finally {
+            lock.unlock();
         }
+//        stynchronized(this) {
+//            notify();
+//        }
     }
 
     @Override
@@ -344,19 +397,30 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         setContentHandler(ch);
         refLevel = level;
         state = State.PLAY;
-        synchronized(this) {
-            notify();
-            try {
-                if (!isFinished()) {
-                    wait();
+        try {
+            lock.lock();
+            stateNotWait.signal();
+            if (!isFinished()) {
+                try {
+                    stateIsWait.await();
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
                 }
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
             }
+        } finally {
+            lock.unlock();
         }
+//        stynchronized(this) {
+//            notify();
+//            try {
+//                if (!isFinished()) {
+//                    wait();
+//                }
+//            } catch (InterruptedException ex) {
+//                throw new RuntimeException(ex);
+//            }
+//        }
     }
-
-    private final SaxEventExecutor see = new SaxEventExecutor();
 
     @Override
     public void writeOuterStartElement(ContentHandler ch, boolean asSelf) {
@@ -366,42 +430,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
             throw new RuntimeException(ex);
         }
     }
-
-    /*public void writeOuterStartElementOld(ContentHandler ch, boolean asSelf) {
-        if (state != State.WAIT) {
-            throw new IllegalStateException("expected state WAIT, found: "+state);
-        }
-        try {
-            Iterator iter = null;
-//            Iterator iter = outerStartElementBuffer.iterator();
-            Object[] current = null;
-            boolean hasNext = iter.hasNext();
-            while (hasNext) {
-                current = (Object[]) iter.next();
-                if (!(hasNext = iter.hasNext()) && asSelf) {
-                    if (debugging && !self()) {
-                        throw new IllegalStateException();
-                    }
-                    AttributesImpl selfAtts;
-                    try {
-                        if (current[4] instanceof AttributesImpl) {
-                            selfAtts = (AttributesImpl) current[4];
-                        } else {
-                            selfAtts = new AttributesImpl((Attributes) current[4]);
-                        }
-                    } catch (ArrayIndexOutOfBoundsException ex) {
-                        outerStartElementBuffer.play(null);
-                        throw new RuntimeException(""+Arrays.asList(current)+ex);
-                    }
-                    selfAtts.addAttribute("", "self", "self", "CDATA", "true");
-                    current[4] = selfAtts;
-                }
-                see.executeSaxEvent(ch, current, true, true);
-            }
-        } catch (SAXException ex) {
-            throw new RuntimeException(ex);
-        }
-    }*/
 
     @Override
     public void writeInnerStartElement(ContentHandler ch) {
@@ -450,14 +478,25 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         state = State.STEP;
         workingBuffer.clear();
         setContentHandler(workingBuffer);
-        synchronized (this) {
-            notify();
+        try {
+            lock.lock();
+            stateNotWait.signal();
             try {
-                wait();
+                stateIsWait.await();
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
+        } finally {
+            lock.unlock();
         }
+//        stynchronized (this) {
+//            notify();
+//            try {
+//                wait();
+//            } catch (InterruptedException ex) {
+//                throw new RuntimeException(ex);
+//            }
+//        }
     }
 
 }
