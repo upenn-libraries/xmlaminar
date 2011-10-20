@@ -28,7 +28,6 @@ import java.util.LinkedList;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -104,15 +103,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         } finally {
             lock.unlock();
         }
-//        stynchronized (this) {
-//            while (state != State.WAIT) {
-//                try {
-//                    wait();
-//                } catch (InterruptedException ex) {
-//                    throw new RuntimeException(ex);
-//                }
-//            }
-//        }
     }
 
     @Override
@@ -214,16 +204,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                 } finally {
                     lock.unlock();
                 }
-//                stynchronized (this) {
-//                    while (state == State.WAIT) {
-//                        notify();
-//                        try {
-//                            wait();
-//                        } catch (InterruptedException ex) {
-//                            throw new RuntimeException(ex);
-//                        }
-//                    }
-//                }
         }
         lastWasStartElement = true;
     }
@@ -272,16 +252,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                 } finally {
                     lock.unlock();
                 }
-//                stynchronized (this) {
-//                    while (state == State.WAIT) {
-//                        notify();
-//                        try {
-//                            wait();
-//                        } catch (InterruptedException ex) {
-//                            throw new RuntimeException(ex);
-//                        }
-//                    }
-//                }
                 break;
             case SKIP:
                 if (level < refLevel) {
@@ -355,10 +325,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         } finally {
             lock.unlock();
         }
-//        stynchronized(this) {
-//            finished = true;
-//            notify();
-//        }
     }
 
     @Override
@@ -384,9 +350,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         } finally {
             lock.unlock();
         }
-//        stynchronized(this) {
-//            notify();
-//        }
     }
 
     @Override
@@ -410,16 +373,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         } finally {
             lock.unlock();
         }
-//        stynchronized(this) {
-//            notify();
-//            try {
-//                if (!isFinished()) {
-//                    wait();
-//                }
-//            } catch (InterruptedException ex) {
-//                throw new RuntimeException(ex);
-//            }
-//        }
     }
 
     @Override
@@ -489,14 +442,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         } finally {
             lock.unlock();
         }
-//        stynchronized (this) {
-//            notify();
-//            try {
-//                wait();
-//            } catch (InterruptedException ex) {
-//                throw new RuntimeException(ex);
-//            }
-//        }
     }
 
 }

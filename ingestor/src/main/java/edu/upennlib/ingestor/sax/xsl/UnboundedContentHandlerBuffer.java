@@ -18,10 +18,6 @@ package edu.upennlib.ingestor.sax.xsl;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;

@@ -22,7 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -47,31 +47,29 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class BoundedXMLFilterBuffer extends XMLFilterImpl {
+public class BoundedXMLFilterBufferLock extends XMLFilterImpl {
 
     private static final int MAX_STRING_ARGS_PER_EVENT = 3;
     private static final int MAX_INT_ARGS_PER_EVENT = 2;
     private static final int CHAR_BUFFER_INIT_FACTOR = 6;
     public static final int DEFAULT_BUFFER_SIZE = 2000;
     private final int bufferSize;
+    private final boolean useInputThreshold = true;
+    private final boolean useOutputThreshold = true;
+    private final int threshold;
+    private final int tAdd = 1;
 
     private final Lock lock = new ReentrantLock();
-    private boolean notifyInput = false;
-    private boolean notifyOutput = false;
-    private boolean notifyEmpty = false;
-    private final Condition modified = lock.newCondition();
+    private final Condition notFull = lock.newCondition();
+    private final Condition notEmpty = lock.newCondition();
     private final Condition isEmpty = lock.newCondition();
+    private final AtomicBoolean activeIn = new AtomicBoolean(false);
+    private final AtomicBoolean activeOut = new AtomicBoolean(false);
 
-    private final boolean useInputNotifyThreshold = true;
-    private int inputNotifyThresholdCount = 0;
-    private final boolean useOutputNotifyThreshold = true;
-    private int outputNotifyThresholdCount = 0;
-    private final int threshold;
-
+    private final AtomicInteger size = new AtomicInteger(0);
     private int head = 0;
     private int tail = 0;
     private final SaxEventType[] events;
-    private final boolean[] writable;
     private final int[] argIndex1;
     private final int[] argIndex2;
 
@@ -89,7 +87,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     private int charHead = 0;
     private int charTail = 0;
 
-    private static Logger logger = Logger.getLogger(BoundedXMLFilterBuffer.class);
+    private static Logger logger = Logger.getLogger(BoundedXMLFilterBufferLock.class);
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
 
     public static void main(String[] args) throws FileNotFoundException, TransformerConfigurationException, ParserConfigurationException, SAXException, TransformerException, IOException {
@@ -99,7 +97,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         Transformer t = tf.newTransformer();
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
-        BoundedXMLFilterBuffer buffer = new BoundedXMLFilterBuffer();
+        BoundedXMLFilterBufferLock buffer = new BoundedXMLFilterBufferLock();
         XMLReader saxReader = spf.newSAXParser().getXMLReader();
         buffer.setParent(saxReader);
         long start = System.currentTimeMillis();
@@ -108,11 +106,11 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         System.out.println("duration="+(System.currentTimeMillis() - start));
     }
 
-    public BoundedXMLFilterBuffer() {
+    public BoundedXMLFilterBufferLock() {
         bufferSize = DEFAULT_BUFFER_SIZE;
-        threshold = (int) (bufferSize * 0.5);
+        threshold = (bufferSize / 2);
+        //tAdd = (bufferSize / 4);
         events = new SaxEventType[bufferSize];
-        writable = new boolean[bufferSize];
         argIndex1 = new int[bufferSize];
         argIndex2 = new int[bufferSize];
         stringArgBuffer = new String[bufferSize * MAX_STRING_ARGS_PER_EVENT];
@@ -121,11 +119,11 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         charArgBuffer = new char[bufferSize * CHAR_BUFFER_INIT_FACTOR];
     }
 
-    public BoundedXMLFilterBuffer(int bufferSize) {
+    public BoundedXMLFilterBufferLock(int bufferSize) {
         this.bufferSize = bufferSize;
-        threshold = (int) (bufferSize * 0.5);
+        threshold = (bufferSize / 2);
+        //tAdd = (bufferSize / 4);
         events = new SaxEventType[bufferSize];
-        writable = new boolean[bufferSize];
         argIndex1 = new int[bufferSize];
         argIndex2 = new int[bufferSize];
         stringArgBuffer = new String[bufferSize * MAX_STRING_ARGS_PER_EVENT];
@@ -137,36 +135,32 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     public void clear() {
         head = 0;
         tail = 0;
-        Arrays.fill(writable, false);
+        size.set(0);
         charHead = 0;
         charTail = 0;
         charSize.set(0);
         stringTail = 0;
         attsTail = 0;
         intTail = 0;
-        notifyInput = false;
-        notifyOutput = false;
-        notifyEmpty = false;
-        outputNotifyThresholdCount = 0;
-        inputNotifyThresholdCount = 0;
     }
 
     private void growCharArgBuffer() {
-        notifyEmpty = true;
-        try {
-            lock.lock();
-            if (notifyOutput) {
-                modified.signal();
-                outputNotifyThresholdCount = 0;
-            }
+        if (size.get() > 0) {
+            activeIn.set(false);
             try {
-                isEmpty.await();
+                lock.lock();
+                if (useInputThreshold && !activeOut.get()) {
+                    notEmpty.signal();
+                }
+                while (size.get() > 0) {
+                    isEmpty.await();
+                }
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
+            } finally {
+                lock.unlock();
+                activeIn.set(true);
             }
-            notifyEmpty = false;
-        } finally {
-            lock.unlock();
         }
         System.out.println("increasing charArgBuffer size to: " + (charArgBuffer.length * 2));
         charArgBuffer = new char[charArgBuffer.length * 2];
@@ -179,38 +173,33 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
      * Buffering
      */
     private void blockForSpace() {
-        if (writable[tail]) {
-            notifyInput = true;
+        if (size.get() >= bufferSize) {
+            activeIn.set(false);
             try {
                 lock.lock();
-                while (writable[tail]) {
-                    try {
-                        modified.await();
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                while (size.get() >= bufferSize) {
+                    notFull.await();
                 }
-                notifyInput = false;
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
             } finally {
                 lock.unlock();
+                activeIn.set(true);
             }
         }
     }
 
     private void eventAdded() {
-        writable[tail] = true;
-        if (notifyOutput) {
-            if (!useOutputNotifyThreshold || ++outputNotifyThresholdCount > threshold) {
-                try {
-                    lock.lock();
-                    modified.signal();
-                } finally {
-                    lock.unlock();
-                }
-                outputNotifyThresholdCount = 0;
+        tail = incrementMod(tail, bufferSize);
+        size.incrementAndGet();
+        if ((!useInputThreshold || size.get() > threshold - tAdd) && !activeOut.get()) {
+            try {
+                lock.lock();
+                notEmpty.signal();
+            } finally {
+                lock.unlock();
             }
         }
-        tail = incrementMod(tail, bufferSize);
     }
 
     @Override
@@ -224,8 +213,15 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     public void endDocument() throws SAXException {
         blockForSpace();
         events[tail] = SaxEventType.endDocument;
-        outputNotifyThresholdCount = bufferSize;
         eventAdded();
+        if (useInputThreshold && !activeOut.get()) {
+            try {
+                lock.lock();
+                notEmpty.signal();
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 
     @Override
@@ -287,22 +283,15 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     public void characters(char[] ch, int start, int length) throws SAXException {
         blockForSpace();
         argIndex1[tail] = intTail;
-        int charSizeSnapshot = charSize.get();
-        while (charArgBuffer.length - charSizeSnapshot < length - 1) {
+        while (charArgBuffer.length - charSize.get() < length - 1) {
             growCharArgBuffer();
         }
-        int charHeadSnapshot = charHead;
-        if (charTail >= charHeadSnapshot && charArgBuffer.length - charTail < length) {
+        if (charTail >= charHead && charArgBuffer.length - charTail < length) {
             firstChunkSize = charArgBuffer.length - charTail;
             System.arraycopy(ch, start, charArgBuffer, charTail, firstChunkSize);
             System.arraycopy(ch, start + firstChunkSize, charArgBuffer, 0, length - firstChunkSize);
         } else {
-            try {
-                System.arraycopy(ch, start, charArgBuffer, charTail, length);
-            } catch (ArrayIndexOutOfBoundsException ex) {
-                System.out.println(ch.length+", "+start+", "+charArgBuffer.length+", "+charTail+", "+length+", head="+charHeadSnapshot + ", size="+charSizeSnapshot);
-                throw ex;
-            }
+            System.arraycopy(ch, start, charArgBuffer, charTail, length);
         }
         intArgBuffer[intTail] = charTail;
         intTail = incrementMod(intTail, intArgBuffer.length);
@@ -368,6 +357,7 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
         Thread t = new Thread(new EventPlayer(), "eventPlayer<-"+Thread.currentThread().getName());
         t.start();
         super.parse(input);
+        parsing = false;
         try {
             t.join();
         } catch (InterruptedException ex) {
@@ -384,30 +374,27 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
 
         @Override
         public void run() {
-            while (parsing) {
-                if (!writable[head]) {
-                    notifyOutput = true;
+            while (parsing || size.get() > 0) {
+                if (size.get() > 0) {
+                    activeOut.set(true);
+                    try {
+                        execute(head);
+                    } catch (SAXException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                } else {
+                    activeOut.set(false);
                     try {
                         lock.lock();
-                        while (!writable[head]) {
-                            if (notifyEmpty) {
-                                isEmpty.signal();
-                            }
-                            try {
-                                modified.await();
-                            } catch (InterruptedException ex) {
-                                throw new RuntimeException(ex);
-                            }
+                        while (parsing && size.get() < 1) {
+                            isEmpty.signal();
+                            notEmpty.await();
                         }
-                        notifyOutput = false;
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
                     } finally {
                         lock.unlock();
                     }
-                }
-                try {
-                    execute(head);
-                } catch (SAXException ex) {
-                    throw new RuntimeException(ex);
                 }
             }
         }
@@ -420,7 +407,6 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
                 break;
             case endDocument:
                 super.endDocument();
-                parsing = false;
                 break;
             case startPrefixMapping:
                 executeStartPrefixMapping(index);
@@ -444,21 +430,17 @@ public class BoundedXMLFilterBuffer extends XMLFilterImpl {
     }
 
     private void eventExecuted() {
-        writable[head] = false;
-        if (notifyInput) {
-            if (!useInputNotifyThreshold || ++inputNotifyThresholdCount > threshold) {
-                try {
-                    lock.lock();
-                    modified.signal();
-                } finally {
-                    lock.unlock();
-                }
-                inputNotifyThresholdCount = 0;
+        head = incrementMod(head, bufferSize);
+        size.decrementAndGet();
+        if ((!useOutputThreshold || size.get() < threshold + tAdd) && !activeIn.get()) {
+            try {
+                lock.lock();
+                notFull.signal();
+            } finally {
+                lock.unlock();
             }
         }
-        head = incrementMod(head, bufferSize);
     }
-
     private int ind1;
     private int ind2;
     private int ind3;

@@ -26,6 +26,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -69,7 +72,7 @@ public class JoiningXMLFilter extends MyXFI {
     public static void main(String[] args) throws SAXException, ParserConfigurationException, FileNotFoundException, TransformerConfigurationException, TransformerException, IOException {
         File stylesheet = new File("inputFiles/franklin_nsaware.xsl");
         File inputFile = new File("inputFiles/largest.xml");
-        File outputFile = new File("outputFiles/large_transform.xml");
+        File outputFile = new File("/tmp/large_transform.xml");
 
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(inputFile));
         InputSource inputSource = new InputSource(bis);
@@ -217,13 +220,16 @@ public class JoiningXMLFilter extends MyXFI {
         BufferState[] states = new BufferState[MAX_SIZE];
         final SplittingXMLFilter tobSplitter;
         final InputSource dummyInputSource;
+        private final Lock tailLock = new ReentrantLock();
+        private final Condition tailNotFull = tailLock.newCondition();
+        private final Lock headLock = new ReentrantLock();
+        private final Condition headWritable = headLock.newCondition();
 
         public TransformerOutputBuffer(XMLReader original, JoiningXMLFilter joiner, SplittingXMLFilter splitter, InputSource dummyInputSource) {
             tobSplitter = splitter;
             this.dummyInputSource = dummyInputSource;
             for (int i = 0; i < inputs.length; i++) {
                 inputs[i] = new UnboundedContentHandlerBuffer();
-                //inputs[i].setParent(original);
                 inputs[i].setDTDHandler(joiner);
                 inputs[i].setEntityResolver(joiner);
                 inputs[i].setErrorHandler(joiner);
@@ -235,13 +241,14 @@ public class JoiningXMLFilter extends MyXFI {
         private boolean parsingInitiated = false;
         public void checkOut(TransformerRunner tr) throws EOFException, SAXException, IOException {
             int thisTail;
-            synchronized (inputs) {
+            try {
+                tailLock.lock();
                 while (size >= MAX_SIZE || states[tail] != BufferState.FREE) {
+                    if (states[tail] == BufferState.EOF) {
+                        throw new EOFException();
+                    }
                     try {
-                        if (states[tail] == BufferState.EOF) {
-                            throw new EOFException();
-                        }
-                        inputs.wait();
+                        tailNotFull.await();
                     } catch (InterruptedException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -253,7 +260,28 @@ public class JoiningXMLFilter extends MyXFI {
                 states[tail] = BufferState.CHECKED_OUT;
                 tail = (tail + 1) % MAX_SIZE;
                 size++;
+            } finally {
+                tailLock.unlock();
             }
+//            stynchronized (inputs) {
+//                while (size >= MAX_SIZE || states[tail] != BufferState.FREE) {
+//                    try {
+//                        if (states[tail] == BufferState.EOF) {
+//                            throw new EOFException();
+//                        }
+//                        inputs.wait();
+//                    } catch (InterruptedException ex) {
+//                        throw new RuntimeException(ex);
+//                    }
+//                }
+//                if (parsingInitiated && !tobSplitter.hasMoreOutput(dummyInputSource)) {
+//                    throw new EOFException();
+//                }
+//                thisTail = tail;
+//                states[tail] = BufferState.CHECKED_OUT;
+//                tail = (tail + 1) % MAX_SIZE;
+//                size++;
+//            }
             inputs[thisTail].clear();
             outputs[thisTail].clear();
             parsingInitiated = true;
@@ -270,54 +298,106 @@ public class JoiningXMLFilter extends MyXFI {
                 throw new IllegalStateException("state is: "+states[index]);
             }
             states[index] = BufferState.WRITEABLE;
-            synchronized(outputs) {
-                outputs.notifyAll();
+            try {
+                headLock.lock();
+                headWritable.signal();
+            } finally {
+                headLock.unlock();
             }
+//            stynchronized(outputs) {
+//                outputs.notifyAll();
+//            }
         }
 
         public void writeTo(ContentHandler ch) throws SAXException, EOFException {
-            synchronized (outputs) {
+            try {
+                headLock.lock();
                 while (states[head] != BufferState.WRITEABLE) {
+                    if (states[head] == BufferState.EOF) {
+                        throw new EOFException();
+                    }
+                    if (allFinished && states[head] == BufferState.FREE) {
+                        throw new EOFException();
+                    }
                     try {
-                        if (states[head] == BufferState.EOF) {
-                            throw new EOFException();
-                        }
-                        if (allFinished && states[head] == BufferState.FREE) {
-                            throw new EOFException();
-                        }
-                        outputs.wait();
+                        headWritable.await();
                     } catch (InterruptedException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
+            } finally {
+                headLock.unlock();
             }
+//            stynchronized (outputs) {
+//                while (states[head] != BufferState.WRITEABLE) {
+//                    try {
+//                        if (states[head] == BufferState.EOF) {
+//                            throw new EOFException();
+//                        }
+//                        if (allFinished && states[head] == BufferState.FREE) {
+//                            throw new EOFException();
+//                        }
+//                        outputs.wait();
+//                    } catch (InterruptedException ex) {
+//                        throw new RuntimeException(ex);
+//                    }
+//                }
+//            }
             outputs[head].play(ch);
             states[head] = BufferState.FREE;
             head = (head + 1) % MAX_SIZE;
-            synchronized (inputs) {
+            try {
+                tailLock.lock();
                 size--;
-                inputs.notify();
+                tailNotFull.signal();
+            } finally {
+                tailLock.unlock();
             }
+//            stynchronized (inputs) {
+//                size--;
+//                inputs.notify();
+//            }
         }
         boolean allFinished = false;
 
         public void inputFinished() {
             allFinished = true;
-            synchronized(outputs) {
-                outputs.notifyAll();
+            try {
+                headLock.lock();
+                headWritable.signal();
+            } finally {
+                headLock.unlock();
             }
+//            stynchronized(outputs) {
+//                outputs.notifyAll();
+//            }
         }
 
         public void cancelTask(int index) {
-            synchronized(outputs) {
+            try {
+                headLock.lock();
                 allFinished = true;
                 states[index] = BufferState.EOF;
                 size--;
-                outputs.notifyAll();
+                headWritable.signal();
+            } finally {
+                headLock.unlock();
             }
-            synchronized(inputs) {
-                inputs.notifyAll();
+//            stynchronized(outputs) {
+//                allFinished = true;
+//                states[index] = BufferState.EOF;
+//                size--;
+//                outputs.notifyAll();
+//            }
+            try {
+                tailLock.lock();
+                tailNotFull.signalAll();
+            } finally {
+                tailLock.unlock();
             }
+//            stynchronized(inputs) {
+//                inputs.notifyAll();
+//            }
         }
 
 

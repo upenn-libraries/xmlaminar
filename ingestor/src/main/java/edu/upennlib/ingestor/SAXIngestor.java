@@ -33,6 +33,7 @@ import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
 import edu.upennlib.ingestor.sax.solr.SAXSolrPoster;
 import edu.upennlib.ingestor.sax.utils.PerformanceEvaluator;
 import edu.upennlib.ingestor.sax.xsl.JoiningXMLFilter;
+import edu.upennlib.ingestor.sax.xsl.JoiningXMLFilterThreadPool;
 import java.io.File;
 import javax.xml.transform.sax.SAXResult;
 import org.xml.sax.InputSource;
@@ -48,7 +49,7 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
     private IntegratorOutputNode integrator = null;
     private File stylesheet = null;
     private SAXSolrPoster solrPoster = null;
-    private JoiningXMLFilter joiner = null;
+    private JoiningXMLFilterThreadPool joiner = null;
     private static final Logger logger = Logger.getLogger(SAXIngestor.class);
     private PerformanceEvaluator pe;
 
@@ -68,11 +69,11 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
         this.integrator = integrator;
     }
 
-    public JoiningXMLFilter getJoiner() {
+    public JoiningXMLFilterThreadPool getJoiner() {
         return joiner;
     }
 
-    public void setJoiner(JoiningXMLFilter joiner) {
+    public void setJoiner(JoiningXMLFilterThreadPool joiner) {
         this.joiner = joiner;
     }
 

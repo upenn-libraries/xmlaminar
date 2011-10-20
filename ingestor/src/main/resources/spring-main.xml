@@ -43,7 +43,7 @@
         <property name="queueSize" value="${solrServer.queueSize}"/>
         <property name="threadCount" value="${solrServer.threadCount}"/>
     </bean>
-    <bean id="joiner" class="edu.upennlib.ingestor.sax.xsl.JoiningXMLFilter" lazy-init="true" scope="singleton"/>
+    <bean id="joiner" class="edu.upennlib.ingestor.sax.xsl.JoiningXMLFilterThreadPool" lazy-init="true" scope="singleton"/>
     <bean id="null" class="edu.upennlib.configurationutils.ConfigUtils$NullFactory" scope="singleton" lazy-init="true"/>
     <bean id="bpp" class="edu.upennlib.configurationutils.BPP"/>
 </beans>

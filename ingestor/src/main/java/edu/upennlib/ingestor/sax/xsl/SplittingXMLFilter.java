@@ -137,13 +137,14 @@ public class SplittingXMLFilter extends MyXFI {
             throw new RuntimeException(ex);
         }
         try {
-            if (tmpStartElement != null) {
-                level += executor.executeSaxEvent(this, tmpStartElement, true, true);
+            if (tmpStartAtts != null) {
+                //level += executor.executeSaxEvent(this, tmpStartElement, true, true);
+                startElement(tmpStartStringArgs[0], tmpStartStringArgs[1], tmpStartStringArgs[2], tmpStartAtts);
             }
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }
-        tmpStartElement = null;
+        tmpStartAtts = null;
     }
 
     public boolean hasMoreOutput(InputSource input) {
@@ -154,17 +155,23 @@ public class SplittingXMLFilter extends MyXFI {
         }
     }
 
-    private Object[] tmpStartElement = null;
-    private void storeTmpStartElement(Object... args) {
-        tmpStartElement = args;
-    }
-
+    //private Object[] tmpStartElement = null;
+    private final String[] tmpStartStringArgs = new String[3];
+    private Attributes tmpStartAtts;
+//    private void storeTmpStartElement(Object... args) {
+//        tmpStartElement = args;
+//    }
+//
     @Override
     public void startElement(String uri, String localName, String name, Attributes atts) throws SAXException {
         //System.out.println(Thread.currentThread().getName()+" incrementing level");
         level++;
         if (checkRotate(uri, localName, name, atts)) {
-            storeTmpStartElement(SaxEventType.startElement, uri, localName, name, atts);
+            //storeTmpStartElement(SaxEventType.startElement, uri, localName, name, atts);
+            tmpStartStringArgs[0] = uri;
+            tmpStartStringArgs[1] = localName;
+            tmpStartStringArgs[2] = name;
+            tmpStartAtts = atts;
             writeSyntheticEndEvents();
         } else {
             Attributes myAtt = new AttributesImpl(atts);
