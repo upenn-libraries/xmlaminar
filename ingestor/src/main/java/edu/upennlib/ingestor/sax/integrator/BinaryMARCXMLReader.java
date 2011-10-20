@@ -22,11 +22,8 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
-import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
-import java.io.BufferedInputStream;
+import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -107,7 +104,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             if (byteBuffer[bufferTail - 1] == RT) {
                 try {
                     parseRecord(byteBuffer, bufferTail);
-                    outputBuffer.flush(ch);
+                    outputBuffer.flush(ch, null);
                 } catch (Exception e) {
                     if (!logRecordAsError) {
                         logRecordAsError = true;
@@ -158,7 +155,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             if (byteBuffer[bufferTail - 1] == RT) {
                 try {
                     parseRecord(byteBuffer, bufferTail);
-                    outputBuffer.flush(ch);
+                    outputBuffer.flush(ch, null);
                 } catch (Exception e) {
                     if (!logRecordAsError) {
                         logRecordAsError = true;

@@ -21,7 +21,7 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
-import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
+import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -33,6 +33,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
@@ -170,7 +171,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                     throw new IllegalStateException(buffersToString()+"contentHandler: "+getContentHandler());
                 }
                 pushStartBuffer();
-                workingBuffer.flush(innerStartElementBuffer);
+                workingBuffer.flush(innerStartElementBuffer, innerStartElementBuffer);
                 setContentHandler(innerStartElementBuffer);
                 super.startElement(uri, localName, qName, atts);
                 if (debugging && !uri.equals(INTEGRATOR_URI)) {
@@ -233,7 +234,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                 }
                 popStartBuffer();
                 if (!lastWasStartElement) {
-                    workingBuffer.flush(outerEndElementBuffer);
+                    workingBuffer.flush(outerEndElementBuffer, outerEndElementBuffer);
                 }
                 rotateEndBuffer();
                 setContentHandler(outerEndElementBuffer);
@@ -315,7 +316,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         if (getContentHandler() != workingBuffer) {
             throw new IllegalStateException();
         }
-        workingBuffer.flush(outerEndElementBuffer);
+        workingBuffer.flush(outerEndElementBuffer, outerEndElementBuffer);
         setContentHandler(outerEndElementBuffer);
         super.endDocument();
         try {
@@ -378,7 +379,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
     @Override
     public void writeOuterStartElement(ContentHandler ch, boolean asSelf) {
         try {
-            outerStartElementBuffer.writeWithFinalElementSelfAttribute(ch, asSelf);
+            outerStartElementBuffer.writeWithFinalElementSelfAttribute(ch, null, asSelf);
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }
@@ -390,7 +391,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
             throw new IllegalStateException("expected state WAIT, found: "+state);
         }
         try {
-            innerStartElementBuffer.flush(ch);
+            innerStartElementBuffer.flush(ch, null);
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }
@@ -402,7 +403,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
             throw new IllegalStateException("expected state WAIT, found: "+state);
         }
         try {
-            innerEndElementBuffer.flush(ch);
+            innerEndElementBuffer.flush(ch, null);
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }
@@ -414,7 +415,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
             throw new IllegalStateException("expected state WAIT, found: "+state);
         }
         try {
-            outerEndElementBuffer.flush(ch);
+            outerEndElementBuffer.flush(ch, null);
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }

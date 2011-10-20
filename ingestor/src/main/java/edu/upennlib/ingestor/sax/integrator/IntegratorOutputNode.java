@@ -29,10 +29,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.apache.log4j.Logger;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
@@ -170,10 +172,20 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         return name;
     }
 
+    private static final Map<String,Boolean> unmodifiableFeatures;
+
+    static {
+        Map<String, Boolean> tmpFeatures = new HashMap<String, Boolean>();
+        tmpFeatures.put("http://xml.org/sax/features/namespaces", true);
+        tmpFeatures.put("http://xml.org/sax/features/namespace-prefixes", false);
+        tmpFeatures.put("http://xml.org/sax/features/validation", false);
+        unmodifiableFeatures = Collections.unmodifiableMap(tmpFeatures);
+    }
+
     @Override
     public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
-        if ("http://xml.org/sax/features/namespaces".equals(name)) {
-            return true;
+        if (unmodifiableFeatures.containsKey(name)) {
+            return unmodifiableFeatures.get(name);
         } else {
             throw new UnsupportedOperationException("getFeature("+name+")");
         }
@@ -181,17 +193,9 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     @Override
     public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
-        if ("http://xml.org/sax/features/namespaces".equals(name)) {
-            if (!value) {
-                throw new UnsupportedOperationException("cannot set namespaces feature to false");
-            }
-        } else if ("http://xml.org/sax/features/namespace-prefixes".equals(name)) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("ignoring setFeature("+name+", "+value+")");
-            }
-        } else if ("http://xml.org/sax/features/validation".equals(name)) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("ignoring setFeature("+name+", "+value+")");
+        if (unmodifiableFeatures.containsKey(name)) {
+            if (value != unmodifiableFeatures.get(name)) {
+                throw new UnsupportedOperationException("cannot set feature "+name+" to "+value);
             }
         } else {
             throw new UnsupportedOperationException("setFeature("+name+", "+value+")");

@@ -22,9 +22,7 @@
 package edu.upennlib.ingestor;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.logging.Level;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import org.apache.log4j.Logger;
@@ -32,12 +30,17 @@ import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
 import edu.upennlib.ingestor.sax.solr.SAXSolrPoster;
 import edu.upennlib.ingestor.sax.utils.PerformanceEvaluator;
-import edu.upennlib.ingestor.sax.xsl.JoiningXMLFilter;
-import edu.upennlib.ingestor.sax.xsl.JoiningXMLFilterThreadPool;
-import java.io.File;
+import edu.upennlib.paralleltransformer.TransformingXMLFilter;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import net.sf.saxon.Controller;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -47,9 +50,8 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
 
     private String name = null;
     private IntegratorOutputNode integrator = null;
-    private File stylesheet = null;
     private SAXSolrPoster solrPoster = null;
-    private JoiningXMLFilterThreadPool joiner = null;
+    private TransformingXMLFilter joiner = null;
     private static final Logger logger = Logger.getLogger(SAXIngestor.class);
     private PerformanceEvaluator pe;
 
@@ -69,11 +71,11 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
         this.integrator = integrator;
     }
 
-    public JoiningXMLFilterThreadPool getJoiner() {
+    public TransformingXMLFilter getJoiner() {
         return joiner;
     }
 
-    public void setJoiner(JoiningXMLFilterThreadPool joiner) {
+    public void setJoiner(TransformingXMLFilter joiner) {
         this.joiner = joiner;
     }
 
@@ -85,33 +87,29 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
         this.solrPoster = solrPoster;
     }
 
-    public File getStylesheet() {
-        return stylesheet;
-    }
-
-    public void setStylesheet(File stylesheet) {
-        this.stylesheet = stylesheet;
-    }
     @Override
     public void run() {
         logger.trace("run() called on "+getName());
         try {
             long start = System.currentTimeMillis();
-            joiner.transform(integrator, new InputSource(), stylesheet, new SAXResult(solrPoster));
+            SAXTransformerFactory tf = (SAXTransformerFactory)TransformerFactory.newInstance(TransformingXMLFilter.TRANSFORMER_FACTORY_CLASS_NAME, null);
+            Transformer t = tf.newTransformer();
+            joiner.configureOutputTransformer((Controller) t);
+            BufferedOutputStream bos;
+            try {
+                bos = new BufferedOutputStream(new FileOutputStream("/tmp/transformedout.xml"));
+            } catch (FileNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
+            joiner.setStreamingParent(integrator);
+            t.transform(new SAXSource(joiner, new InputSource()), new SAXResult(solrPoster));
+            //t.transform(new SAXSource(joiner, new InputSource()), new StreamResult(bos));
             long processingStart = pe.getLastStart();
             long end = System.currentTimeMillis();
             long processingTime = end - processingStart;
             //long rsNextTime = integrator.rsNextEstimate();
             System.out.println("Elapsed time: "+(end - start));
             System.out.println("Processing time: "+processingTime);
-            //System.out.println("rsNext time: "+rsNextTime);
-            //System.out.println("p-r diff: "+(rsNextTime - processingTime));
-        } catch (ParserConfigurationException ex) {
-            throw new RuntimeException(ex);
-        } catch (SAXException ex) {
-            throw new RuntimeException(ex);
-        } catch (FileNotFoundException ex) {
-            throw new RuntimeException(ex);
         } catch (TransformerConfigurationException ex) {
             throw new RuntimeException(ex);
         } catch (TransformerException ex) {

@@ -24,6 +24,7 @@ package edu.upennlib.ingestor.sax.integrator;
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import java.io.EOFException;
 import org.xml.sax.ContentHandler;
+import org.xml.sax.ext.LexicalHandler;
 
 /**
  *

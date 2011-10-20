@@ -4,10 +4,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean id="ingestor" class="edu.upennlib.ingestor.SAXIngestor" scope="singleton" lazy-init="true">
-        <property name="integrator" ref="${ingestor.integrator}"/>
-        <property name="stylesheet" value="${ingestor.stylesheet}"/>
-        <property name="solrPoster" ref="${ingestor.solrPoster}"/>
-        <property name="joiner" ref="${ingestor.joiner}"/>
+        <property name="integrator" ref="rootIntegrator"/>
+        <property name="solrPoster" ref="solrPoster"/>
+        <property name="joiner" ref="joiner"/>
         <property name="performanceEvaluator" ref="evaluator"/>
     </bean>
     <bean id="evaluator" class="edu.upennlib.ingestor.sax.utils.PerformanceEvaluator" scope="singleton" lazy-init="true"/>
@@ -43,7 +42,9 @@
         <property name="queueSize" value="${solrServer.queueSize}"/>
         <property name="threadCount" value="${solrServer.threadCount}"/>
     </bean>
-    <bean id="joiner" class="edu.upennlib.ingestor.sax.xsl.JoiningXMLFilterThreadPool" lazy-init="true" scope="singleton"/>
+    <bean id="joiner" class="edu.upennlib.paralleltransformer.TransformingXMLFilter" lazy-init="true" scope="singleton">
+        <property name="stylesheet" value="${joiner.stylesheet}"/>
+    </bean>
     <bean id="null" class="edu.upennlib.configurationutils.ConfigUtils$NullFactory" scope="singleton" lazy-init="true"/>
     <bean id="bpp" class="edu.upennlib.configurationutils.BPP"/>
 </beans>

@@ -20,8 +20,8 @@ import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.ingestor.sax.utils.Connection;
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
 import edu.upennlib.ingestor.sax.utils.PerformanceEvaluator;
-import edu.upennlib.ingestor.sax.xsl.BoundedXMLFilterBuffer;
-import edu.upennlib.ingestor.sax.xsl.UnboundedContentHandlerBuffer;
+import edu.upennlib.xmlutils.BoundedXMLFilterBuffer;
+import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -94,6 +94,9 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     }
 
     public void setIdFieldLabels(String[] idFieldLabels) {
+        for (int i = 0; i < idFieldLabels.length; i++) {
+            idFieldLabels[i] = idFieldLabels[i].intern();
+        }
         this.idFieldLabels = idFieldLabels;
     }
 
@@ -102,6 +105,9 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     }
 
     public void setOutputFieldLabels(String[] outputFieldLabels) {
+        for (int i = 0; i < outputFieldLabels.length; i++) {
+            outputFieldLabels[i] = outputFieldLabels[i].intern();
+        }
         this.outputFieldLabels = outputFieldLabels;
     }
 
@@ -304,7 +310,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         lastId = new long[idFieldLabels.length];
         currentId = new long[idFieldLabels.length];
         for (int i = 0; i < idFieldQNames.length; i++) {
-            idFieldQNames[i] = integratorPrefix+":"+idFieldLabels[i];
+            idFieldQNames[i] = INTEGRATOR_PREFIX+":"+idFieldLabels[i];
         }
         ResultSetMetaData rsmd = rs.getMetaData();
         if (outputFieldLabels == null) {
@@ -422,7 +428,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     }
 
     public static final String INTEGRATOR_URI = "http://integrator";
-    private String integratorPrefix = "integ";
+    public static final String INTEGRATOR_PREFIX = "integ";
 
     private String[] idFieldLabels;
     private String[] idFieldQNames;
@@ -448,7 +454,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         while (--i > -1) {
             if (currentId[i] != lastId[i]) {
                 if (!endElementBufferEmpty) {
-                    idFieldDepth += endElementBuffer.flush(ch);
+                    idFieldDepth += endElementBuffer.flush(ch, null);
                     endElementBufferEmpty = true;
                 }
                 ch.endElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i]);
@@ -698,8 +704,8 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
 
     private void initializeOutput() throws SAXException {
         ch.startDocument();
-        ch.startPrefixMapping(integratorPrefix, INTEGRATOR_URI);
-        ch.startElement(INTEGRATOR_URI, rootElementName, integratorPrefix+":"+rootElementName, attRunner);
+        ch.startPrefixMapping(INTEGRATOR_PREFIX, INTEGRATOR_URI);
+        ch.startElement(INTEGRATOR_URI, rootElementName, INTEGRATOR_PREFIX+":"+rootElementName, attRunner);
     }
 
     private void finalizeOutput() throws SAXException, SQLException {
@@ -708,8 +714,8 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
             ch.endElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i]);
             idFieldDepth--;
         }
-        ch.endElement(INTEGRATOR_URI, rootElementName, integratorPrefix+":"+rootElementName);
-        ch.endPrefixMapping(integratorPrefix);
+        ch.endElement(INTEGRATOR_URI, rootElementName, INTEGRATOR_PREFIX+":"+rootElementName);
+        ch.endPrefixMapping(INTEGRATOR_PREFIX);
         ch.endDocument();
     }
 
