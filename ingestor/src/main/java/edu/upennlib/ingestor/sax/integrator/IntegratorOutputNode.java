@@ -372,11 +372,12 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         Integer lastLevel = null;
         int level;
         Comparable leastId;
+        boolean requiredInputExhausted = false;
         boolean allFinished = false;
         boolean[] eligible = new boolean[childNodes.length];
         int[] levels = new int[eligible.length];
         Arrays.fill(eligible, true);
-        while (!allFinished) {
+        while (!allFinished && !requiredInputExhausted) {
             level = -1;
             leastId = null;
             allFinished = true;
@@ -388,7 +389,9 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     }
                 } catch (EOFException ex) {
                     levels[i] = -1;
-                    // ok
+                    if (requiredIndexes.contains(i)) {
+                        requiredInputExhausted = true;
+                    }
                 }
             }
             activeIndexes.clear();

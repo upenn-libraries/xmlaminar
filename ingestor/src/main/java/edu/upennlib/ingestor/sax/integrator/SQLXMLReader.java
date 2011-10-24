@@ -21,6 +21,7 @@ import edu.upennlib.ingestor.sax.utils.Connection;
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
 import edu.upennlib.ingestor.sax.utils.PerformanceEvaluator;
 import edu.upennlib.xmlutils.BoundedXMLFilterBuffer;
+import edu.upennlib.xmlutils.SAXFeatures;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,6 +36,11 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import javax.xml.transform.TransformerException;
 import net.sf.saxon.lib.StandardErrorListener;
 import org.xml.sax.ContentHandler;
@@ -68,11 +74,36 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     private LexicalHandler lh;
     private final InputImplementation expectedInputImplementation;
     private PerformanceEvaluator pe;
+    private static final HashMap<String, Boolean> unmodifiableFeaturesAbs = new HashMap<String, Boolean>();
+    private static final HashMap<String, Boolean> featureDefaults = new HashMap<String, Boolean>();
+    private final HashMap<String, Boolean> features = new HashMap<String, Boolean>();
+    private final HashMap<String, Boolean> unmodifiableFeatures = new HashMap<String, Boolean>();
 
     protected static enum InputImplementation { CHAR_ARRAY, BYTE_ARRAY };
 
-    protected SQLXMLReader(InputImplementation expectedInputImplementation) {
+    static {
+        unmodifiableFeaturesAbs.put(SAXFeatures.NAMESPACES, true);
+        unmodifiableFeaturesAbs.put(SAXFeatures.NAMESPACE_PREFIXES, false);
+        unmodifiableFeaturesAbs.put(SAXFeatures.VALIDATION, false);
+        
+        featureDefaults.put(SAXFeatures.STRING_INTERNING, true);
+    }
+
+    protected SQLXMLReader(InputImplementation expectedInputImplementation, Map<String, Boolean> unmodifiableFeatures) {
         this.expectedInputImplementation = expectedInputImplementation;
+        for (Entry<String, Boolean> e : unmodifiableFeatures.entrySet()) {
+            if (unmodifiableFeaturesAbs.containsKey(e.getKey())) {
+                if (unmodifiableFeaturesAbs.get(e.getKey()) != e.getValue()) {
+                    throw new IllegalArgumentException();
+                }
+            } else if (!featureDefaults.containsKey(e.getKey())) {
+                throw new IllegalArgumentException();
+            }
+        }
+        this.unmodifiableFeatures.putAll(unmodifiableFeaturesAbs);
+        this.unmodifiableFeatures.putAll(unmodifiableFeatures);
+        features.putAll(featureDefaults);
+        features.keySet().removeAll(this.unmodifiableFeatures.keySet());
     }
 
     public PerformanceEvaluator getPerformanceEvaluator() {
@@ -117,15 +148,26 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
 
     @Override
     public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
-        if (name.equals("http://xml.org/sax/features/namespaces")) {
-            return true;
+        if (unmodifiableFeatures.containsKey(name)) {
+            return unmodifiableFeatures.get(name);
+        } else if (features.containsKey(name)) {
+            return features.get(name);
+        } else {
+            throw new SAXNotRecognizedException(name);
         }
-        throw new UnsupportedOperationException("getFeature("+name+")");
     }
 
     @Override
     public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
-        logger.trace("ignoring setFeature("+name+", "+value+")");
+        if (unmodifiableFeatures.containsKey(name)) {
+            if (unmodifiableFeatures.get(name) != value) {
+                throw new SAXNotSupportedException(this+" does not support setting feature "+name+" to "+ value);
+            }
+        } else if (features.containsKey(name)) {
+            features.put(name, value);
+        } else {
+            throw new SAXNotRecognizedException(name);
+        }
     }
 
     @Override
@@ -310,7 +352,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         lastId = new long[idFieldLabels.length];
         currentId = new long[idFieldLabels.length];
         for (int i = 0; i < idFieldQNames.length; i++) {
-            idFieldQNames[i] = INTEGRATOR_PREFIX+":"+idFieldLabels[i];
+            idFieldQNames[i] = (INTEGRATOR_PREFIX+":"+idFieldLabels[i]).intern();
         }
         ResultSetMetaData rsmd = rs.getMetaData();
         if (outputFieldLabels == null) {
@@ -326,7 +368,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
                 if (!idFieldLabelsList.contains(columnLabel)) {
                     outputFieldColumnTypes[outputFieldIndex] = rsmd.getColumnType(i);
                     outputFieldLabels[outputFieldIndex] = columnLabel;
-                    outputFieldLabelsLower[outputFieldIndex++] = columnLabel.toLowerCase();
+                    outputFieldLabelsLower[outputFieldIndex++] = columnLabel.toLowerCase().intern();
                 }
             }
             if (outputFieldIndex != outputFieldLabels.length) {
@@ -429,6 +471,8 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
 
     public static final String INTEGRATOR_URI = "http://integrator";
     public static final String INTEGRATOR_PREFIX = "integ";
+    private static final String ROOT_ELEMENT_NAME = "root";
+    public static final String INTEGRATOR_ROOT_QNAME = (INTEGRATOR_PREFIX+":"+ROOT_ELEMENT_NAME).intern();
 
     private String[] idFieldLabels;
     private String[] idFieldQNames;
@@ -700,12 +744,10 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         finalizeOutput();
     }
 
-    private String rootElementName = "root";
-
     private void initializeOutput() throws SAXException {
         ch.startDocument();
         ch.startPrefixMapping(INTEGRATOR_PREFIX, INTEGRATOR_URI);
-        ch.startElement(INTEGRATOR_URI, rootElementName, INTEGRATOR_PREFIX+":"+rootElementName, attRunner);
+        ch.startElement(INTEGRATOR_URI, ROOT_ELEMENT_NAME, INTEGRATOR_ROOT_QNAME, attRunner);
     }
 
     private void finalizeOutput() throws SAXException, SQLException {
@@ -714,7 +756,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
             ch.endElement(INTEGRATOR_URI, idFieldLabels[i], idFieldQNames[i]);
             idFieldDepth--;
         }
-        ch.endElement(INTEGRATOR_URI, rootElementName, INTEGRATOR_PREFIX+":"+rootElementName);
+        ch.endElement(INTEGRATOR_URI, ROOT_ELEMENT_NAME, INTEGRATOR_ROOT_QNAME);
         ch.endPrefixMapping(INTEGRATOR_PREFIX);
         ch.endDocument();
     }

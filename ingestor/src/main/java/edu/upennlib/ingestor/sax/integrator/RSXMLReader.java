@@ -17,6 +17,7 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
+import edu.upennlib.xmlutils.SAXFeatures;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -24,6 +25,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -49,9 +52,17 @@ public class RSXMLReader extends SQLXMLReader {
     private final char[] characters = new char[2048];
     private final AttributesImpl attRunner = new AttributesImpl();
     private static final Logger logger = Logger.getLogger(RSXMLReader.class);
+    private static final Map<String, Boolean> unmodifiableFeatures = new HashMap<String, Boolean>();
+
+    static {
+        unmodifiableFeatures.put(SAXFeatures.NAMESPACES, true);
+        unmodifiableFeatures.put(SAXFeatures.NAMESPACE_PREFIXES, false);
+        unmodifiableFeatures.put(SAXFeatures.STRING_INTERNING, true);
+        unmodifiableFeatures.put(SAXFeatures.VALIDATION, false);
+    }
 
     public RSXMLReader() {
-        super(InputImplementation.CHAR_ARRAY);
+        super(InputImplementation.CHAR_ARRAY, unmodifiableFeatures);
     }
 
     @Override

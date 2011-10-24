@@ -22,6 +22,7 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.ingestor.sax.utils.ConnectionException;
+import edu.upennlib.xmlutils.SAXFeatures;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
@@ -36,6 +37,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.MalformedInputException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -52,6 +55,8 @@ import org.apache.log4j.TTCCLayout;
 import org.marc4j.converter.impl.AnselToUnicode;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
@@ -65,7 +70,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     public static final char DE = '\u001F';
 
     public BinaryMARCXMLReader() {
-        super(InputImplementation.BYTE_ARRAY);
+        super(InputImplementation.BYTE_ARRAY, unmodifiableFeatures);
     }
 
     private final UnboundedContentHandlerBuffer outputBuffer = new UnboundedContentHandlerBuffer();
@@ -78,6 +83,15 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     private static final int BYTE_BUFFER_INIT_SIZE = 2048;
     private byte[] byteBuffer = new byte[BYTE_BUFFER_INIT_SIZE];
     private int bufferTail = 0;
+
+    private static final Map<String, Boolean> unmodifiableFeatures = new HashMap<String, Boolean>();
+
+    static {
+        unmodifiableFeatures.put(SAXFeatures.NAMESPACES, true);
+        unmodifiableFeatures.put(SAXFeatures.NAMESPACE_PREFIXES, false);
+        unmodifiableFeatures.put(SAXFeatures.STRING_INTERNING, true);
+        unmodifiableFeatures.put(SAXFeatures.VALIDATION, false);
+    }
 
     private void bufferBytes(byte[] content) {
         while (byteBuffer.length < bufferTail + content.length) {
@@ -260,8 +274,8 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         finalizeOutput();
     }
 
-    static final String MARCXML_URI = "http://www.loc.gov/MARC21/slim";
-    static final String MARCXML_PREFIX = "marc";
+    public static final String MARCXML_URI = "http://www.loc.gov/MARC21/slim";
+    public static final String MARCXML_PREFIX = "marc";
 
     private AttributesImpl attRunner = new AttributesImpl();
 
