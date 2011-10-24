@@ -179,6 +179,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         tmpFeatures.put("http://xml.org/sax/features/namespaces", true);
         tmpFeatures.put("http://xml.org/sax/features/namespace-prefixes", false);
         tmpFeatures.put("http://xml.org/sax/features/validation", false);
+        tmpFeatures.put("http://xml.org/sax/features/string-interning", true); // XXX Make all of these reflect parent filters!!!
         unmodifiableFeatures = Collections.unmodifiableMap(tmpFeatures);
     }
 

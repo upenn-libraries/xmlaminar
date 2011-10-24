@@ -41,8 +41,12 @@ public final class IdUpenn implements Comparable {
     @Override
     public final int compareTo(Object o) {
         IdUpenn other = (IdUpenn) o;
-        if (!other.idType.equals(idType)) {
-            throw new IllegalArgumentException("attempt to compare IdUpenn ids of different types: "+other.idType+", "+idType);
+        if (other.idType != idType) { // Final field so ok?
+            if (!other.idType.equals(idType)) {
+                throw new IllegalArgumentException("attempt to compare IdUpenn ids of different types: "+other.idType+", "+idType);
+            } else {
+                throw new IllegalStateException("bad use of string interning! fix this in code.");
+            }
         } else if (idLong > other.idLong) {
             return 1;
         } else if (idLong < other.idLong) {
