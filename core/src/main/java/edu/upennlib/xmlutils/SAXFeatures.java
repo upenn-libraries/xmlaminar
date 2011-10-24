@@ -21,10 +21,10 @@ package edu.upennlib.xmlutils;
  * @author michael
  */
 public class SAXFeatures {
-    public static final String NAMESPACES = "http://xml.org/sax/features/namespaces ";
-    public static final String NAMESPACE_PREFIXES = "http://xml.org/sax/features/namespace-prefixes ";
-    public static final String STRING_INTERNING = "http://xml.org/sax/features/string-interning ";
-    public static final String VALIDATION = "http://xml.org/sax/features/validation ";
-    public static final String EXTERNAL_GENERAL_ENTITIES = "http://xml.org/sax/features/external-general-entities ";
-    public static final String EXTERNAL_PARAMETER_ENTITIES = "http://xml.org/sax/features/external-parameter-entities ";
+    public static final String NAMESPACES = "http://xml.org/sax/features/namespaces";
+    public static final String NAMESPACE_PREFIXES = "http://xml.org/sax/features/namespace-prefixes";
+    public static final String STRING_INTERNING = "http://xml.org/sax/features/string-interning";
+    public static final String VALIDATION = "http://xml.org/sax/features/validation";
+    public static final String EXTERNAL_GENERAL_ENTITIES = "http://xml.org/sax/features/external-general-entities";
+    public static final String EXTERNAL_PARAMETER_ENTITIES = "http://xml.org/sax/features/external-parameter-entities";
 }

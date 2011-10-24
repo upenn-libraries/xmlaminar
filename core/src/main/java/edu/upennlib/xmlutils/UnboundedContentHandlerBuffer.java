@@ -370,6 +370,34 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
 
 
     //XXX intern?
+    private boolean equalsIntern(UnboundedContentHandlerBuffer other) {
+        for (int i = 0; i < stringTail; i++) {
+            if (stringArgBuffer[i] != other.stringArgBuffer[i]) {
+                return false;
+            }
+        }
+        for (int i = 0; i < attsTail; i++) {
+            if (!testAttributeEqualityIntern(attsArgBuffer[i], other.attsArgBuffer[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean equalsNoIntern(UnboundedContentHandlerBuffer other) {
+        for (int i = 0; i < stringTail; i++) {
+            if (!stringArgBuffer[i].equals(other.stringArgBuffer[i])) {
+                return false;
+            }
+        }
+        for (int i = 0; i < attsTail; i++) {
+            if (!testAttributeEqualityNoIntern(attsArgBuffer[i], other.attsArgBuffer[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof UnboundedContentHandlerBuffer)) {
@@ -390,13 +418,12 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
                 return false;
             }
         }
-        for (int i = 0; i < stringTail; i++) {
-            if (!stringArgBuffer[i].equals(other.stringArgBuffer[i])) {
+        if (stringIntern) {
+            if (!equalsIntern(other)) {
                 return false;
             }
-        }
-        for (int i = 0; i < attsTail; i++) {
-            if (!testAttributeEquality(attsArgBuffer[i], other.attsArgBuffer[i])) {
+        } else {
+            if (!equalsNoIntern(other)) {
                 return false;
             }
         }
@@ -414,7 +441,31 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
     }
 
     //XXX intern?
-    private static boolean testAttributeEquality(Attributes attOne, Attributes attTwo) {
+    private static boolean testAttributeEqualityIntern(Attributes attOne, Attributes attTwo) {
+        if (attOne.getLength() != attTwo.getLength()) {
+            return false;
+        }
+        for (int i = 0; i < attOne.getLength(); i++) {
+            if (attOne.getURI(i) != attTwo.getURI(i)) {
+                return false;
+            }
+            if (attOne.getLocalName(i) != attTwo.getLocalName(i)) {
+                return false;
+            }
+            if (attOne.getQName(i) != attTwo.getQName(i)) {
+                return false;
+            }
+            if (!attOne.getType(i).equals(attTwo.getType(i))) {
+                return false;
+            }
+            if (!attOne.getValue(i).equals(attTwo.getValue(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean testAttributeEqualityNoIntern(Attributes attOne, Attributes attTwo) {
         if (attOne.getLength() != attTwo.getLength()) {
             return false;
         }
@@ -455,16 +506,29 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
         }
         int strInd = argIndex1[index];
         int attsInd = argIndex2[index];
-        if (!uri.equals(stringArgBuffer[strInd])) {
-            return false;
+        if (stringIntern) {
+            if (uri != stringArgBuffer[strInd]) {
+                return false;
+            }
+            if (localName != stringArgBuffer[strInd + 1]) {
+                return false;
+            }
+            if (qName != stringArgBuffer[strInd + 2]) {
+                return false;
+            }
+            return testAttributeEqualityIntern(atts, attsArgBuffer[attsInd]);
+        } else {
+            if (!uri.equals(stringArgBuffer[strInd])) {
+                return false;
+            }
+            if (!localName.equals(stringArgBuffer[strInd + 1])) {
+                return false;
+            }
+            if (!qName.equals(stringArgBuffer[strInd + 2])) {
+                return false;
+            }
+            return testAttributeEqualityNoIntern(atts, attsArgBuffer[attsInd]);
         }
-        if (!localName.equals(stringArgBuffer[strInd + 1])) {
-            return false;
-        }
-        if (!qName.equals(stringArgBuffer[strInd + 2])) {
-            return false;
-        }
-        return testAttributeEquality(atts, attsArgBuffer[attsInd]);
     }
 
     public boolean verifyEndElement(int index, String uri, String localName, String qName) {
@@ -475,13 +539,23 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
             return false;
         }
         int strInd = argIndex1[index];
-        if (!uri.equals(stringArgBuffer[strInd])) {
-            return false;
+        if (stringIntern) {
+            if (uri != stringArgBuffer[strInd]) {
+                return false;
+            }
+            if (localName != stringArgBuffer[strInd + 1]) {
+                return false;
+            }
+            return qName == stringArgBuffer[strInd + 2];
+        } else {
+            if (!uri.equals(stringArgBuffer[strInd])) {
+                return false;
+            }
+            if (!localName.equals(stringArgBuffer[strInd + 1])) {
+                return false;
+            }
+            return qName.equals(stringArgBuffer[strInd + 2]);
         }
-        if (!localName.equals(stringArgBuffer[strInd + 1])) {
-            return false;
-        }
-        return qName.equals(stringArgBuffer[strInd + 2]);
     }
 
     public boolean verifyStartPrefixMapping(int index, String prefix, String uri) {
@@ -492,10 +566,17 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
             return false;
         }
         int strInd = argIndex1[index];
-        if (!prefix.equals(stringArgBuffer[strInd])) {
-            return false;
+        if (stringIntern) {
+            if (prefix != stringArgBuffer[strInd]) {
+                return false;
+            }
+            return uri == stringArgBuffer[strInd + 1];
+        } else {
+            if (!prefix.equals(stringArgBuffer[strInd])) {
+                return false;
+            }
+            return uri.equals(stringArgBuffer[strInd + 1]);
         }
-        return uri.equals(stringArgBuffer[strInd + 1]);
     }
 
     public boolean verifyEndPrefixMapping(int index, String prefix) {
@@ -506,7 +587,11 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
             return false;
         }
         int strInd = argIndex1[index];
-        return prefix.equals(stringArgBuffer[strInd]);
+        if (stringIntern) {
+            return prefix == stringArgBuffer[strInd];
+        } else {
+            return prefix.equals(stringArgBuffer[strInd]);
+        }
     }
 
     private int execute(int index, ContentHandler ch, LexicalHandler lh) throws SAXException {

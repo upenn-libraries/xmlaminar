@@ -115,11 +115,20 @@ public class SplittingXMLFilter extends XMLFilterLexicalHandlerImpl {
                         recordElementIdentifiers[2] = name;
                     }
                 }
-                // XXX intern?
-                if (recordElementIdentifiers != null && recordElementIdentifiers[0].equals(uri) && recordElementIdentifiers[1].equals(localName) && recordElementIdentifiers[2].equals(name)) {
-                    inRecord = true;
-                } else {
-                    throw new IllegalStateException("record level element consistency check failed"+recordElementIdentifiers[2]+"?="+name);
+                if (recordElementIdentifiers != null) {
+                    if (stringIntern) {
+                        if (recordElementIdentifiers[0] == uri && recordElementIdentifiers[1] == localName && recordElementIdentifiers[2] == name) {
+                            inRecord = true;
+                        } else {
+                            throw new IllegalStateException("record level element consistency check failed"+recordElementIdentifiers[2]+"?="+name);
+                        }
+                    } else {
+                        if (recordElementIdentifiers[0].equals(uri) && recordElementIdentifiers[1].equals(localName) && recordElementIdentifiers[2].equals(name)) {
+                            inRecord = true;
+                        } else {
+                            throw new IllegalStateException("record level element consistency check failed"+recordElementIdentifiers[2]+"?="+name);
+                        }
+                    }
                 }
             }
             return workingRecordCount >= chunkSize;
@@ -387,12 +396,15 @@ public class SplittingXMLFilter extends XMLFilterLexicalHandlerImpl {
         parse(input, null);
     }
 
+    private boolean stringIntern = false;
+
     private void parse(InputSource input, String systemId) throws SAXNotRecognizedException, SAXNotSupportedException {
         workingRecordCount = 0;
         level = -1;
         if (hasMoreOutput && ((input != null && input == workingInputSource) || (systemId != null && systemId.equals(workingSystemId)))) {
             writeSyntheticStartEvents();
         } else {
+            stringIntern = getFeature(SAXFeatures.STRING_INTERNING);
             workingInputSource = input;
             hasMoreOutput = true;
             if (BUFFERING) {
