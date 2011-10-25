@@ -34,21 +34,21 @@ public class Element {
     public static final Attributes EMPTY_ATTS = new UnmodifiableAttributes();
 
     public Element(String uri, String prefix, String localName) {
-        this.uri = uri;
-        this.prefix = prefix;
-        this.localName = localName;
+        this.uri = uri.intern();
+        this.prefix = prefix.intern();
+        this.localName = localName.intern();
         if (prefix.equals("")) {
-            qName = localName;
+            qName = this.localName;
         } else {
-            qName = prefix + ":" + localName;
+            qName = (prefix + ":" + localName).intern();
         }
     }
 
     public Element(String localName) {
         uri = "";
         prefix = "";
-        qName = localName;
-        this.localName = localName;
+        qName = localName.intern();
+        this.localName = localName = qName;
     }
 
     public void start(ContentHandler ch) throws SAXException {
