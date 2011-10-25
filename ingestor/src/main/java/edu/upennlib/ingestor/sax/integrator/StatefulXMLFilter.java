@@ -201,7 +201,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                     }
                 }
                 if (level > 0) {
-                    Comparable localId = new IdUpenn(localName, atts.getValue("id"));
+                    Comparable localId = new IdUpenn(localName, atts.getValue("id"), stringIntern);
                     id.push(localId);
                     if (level == selfLevel) {
                         selfId = true;

@@ -29,11 +29,13 @@ public final class IdUpenn implements Comparable {
     public final String idType;
     public final String idString;
     public final long idLong;
-    public IdUpenn(String idType, String idString) {
+    public final boolean idTypeInterned;
+    public IdUpenn(String idType, String idString, boolean idTypeInterned) {
         if (idType == null || idString == null) {
             throw new IllegalArgumentException();
         }
         this.idType = idType;
+        this.idTypeInterned = idTypeInterned;
         this.idString = idString;
         this.idLong = Long.parseLong(idString);
     }
@@ -41,13 +43,18 @@ public final class IdUpenn implements Comparable {
     @Override
     public final int compareTo(Object o) {
         IdUpenn other = (IdUpenn) o;
-        if (other.idType != idType) { // Final field so ok?
-            if (!other.idType.equals(idType)) {
-                throw new IllegalArgumentException("attempt to compare IdUpenn ids of different types: "+other.idType+", "+idType);
-            } else {
-                throw new IllegalStateException("bad use of string interning! fix this in code.");
+        if (idTypeInterned && other.idTypeInterned) {
+            if (other.idType != idType) {
+                if (!other.idType.equals(idType)) {
+                    throw new IllegalArgumentException("attempt to compare IdUpenn ids of different types: " + other.idType + ", " + idType);
+                } else {
+                    throw new IllegalStateException("bad use of string interning! fix this in code.");
+                }
             }
-        } else if (idLong > other.idLong) {
+        } else if (!other.idType.equals(idType)) {
+            throw new IllegalArgumentException("attempt to compare IdUpenn ids of different types: "+other.idType+", "+idType);
+        }
+        if (idLong > other.idLong) {
             return 1;
         } else if (idLong < other.idLong) {
             return -1;

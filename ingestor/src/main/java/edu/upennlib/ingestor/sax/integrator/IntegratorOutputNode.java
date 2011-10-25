@@ -453,6 +453,17 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                         }
                     }
                 }
+                if (requiredInputExhausted) {
+                    for (int i = 0; i < childNodes.length; i++) {
+                        while (!childNodes[i].isFinished()) {
+                            System.out.println("skipping output " + this);
+                            childNodes[i].skipOutput();
+                            while (!childNodes[i].isFinished() && !childNodes[i].self()) {
+                                childNodes[i].step();
+                            }
+                        }
+                    }
+                }
             } else {
                 Boolean self = null;
                 int firstIndexWritten = -1;

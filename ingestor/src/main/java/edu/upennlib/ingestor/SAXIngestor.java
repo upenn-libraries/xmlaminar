@@ -95,19 +95,11 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
             SAXTransformerFactory tf = (SAXTransformerFactory)TransformerFactory.newInstance(TransformingXMLFilter.TRANSFORMER_FACTORY_CLASS_NAME, null);
             Transformer t = tf.newTransformer();
             joiner.configureOutputTransformer((Controller) t);
-            BufferedOutputStream bos;
-            try {
-                bos = new BufferedOutputStream(new FileOutputStream("/tmp/transformedout.xml"));
-            } catch (FileNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
             joiner.setStreamingParent(integrator);
             t.transform(new SAXSource(joiner, new InputSource()), new SAXResult(solrPoster));
-            //t.transform(new SAXSource(joiner, new InputSource()), new StreamResult(bos));
             long processingStart = pe.getLastStart();
             long end = System.currentTimeMillis();
             long processingTime = end - processingStart;
-            //long rsNextTime = integrator.rsNextEstimate();
             System.out.println("Elapsed time: "+(end - start));
             System.out.println("Processing time: "+processingTime);
         } catch (TransformerConfigurationException ex) {
