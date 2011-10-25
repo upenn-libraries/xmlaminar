@@ -29,6 +29,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import org.xml.sax.InputSource;
 
 /**
@@ -37,16 +38,16 @@ import org.xml.sax.InputSource;
  */
 public class FilesystemXMLReaderRepo extends FilesystemXMLReader {
 
+    public static final String TRANSFORMER_FACTORY_CLASS = "net.sf.saxon.TransformerFactoryImpl";
+
     public static void main(String[] args) throws FileNotFoundException, TransformerConfigurationException, TransformerException, IOException {
         FilesystemXMLReader instance = new FilesystemXMLReaderRepo();
         instance.setFollowSymlinks(false);
         File rootFile = new File("/repo");
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("/tmp/listingRepo.xml"));
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer t = tf.newTransformer();
+        TransformerFactory tf = TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS, null);
+        Transformer t = tf.newTransformer(new StreamSource(FilesystemXMLReader.getXIncludeDirContentsXsl()));
         t.setOutputProperty(OutputKeys.INDENT, "yes");
-        t.transform(new SAXSource(instance, new InputSource(rootFile.getAbsolutePath())), new StreamResult(bos));
-        bos.close();
+        t.transform(new SAXSource(instance, new InputSource(rootFile.getAbsolutePath())), new StreamResult(System.out));
     }
 
     private static final String DFLAT_MARKER = "0=dflat";

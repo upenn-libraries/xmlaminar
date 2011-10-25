@@ -25,7 +25,7 @@
         </xsl:copy>
     </xsl:template>
 
-    <xsl:template match="/*">
+    <xsl:template match="/repoRoot/*">
         <xsl:element name="dFlatRoot">
             <xsl:for-each select="@*">
                 <xsl:choose>
