@@ -17,7 +17,7 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
-import edu.upennlib.ingestor.sax.utils.DumpingContentHandler;
+import edu.upennlib.xmlutils.DumpingContentHandler;
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
