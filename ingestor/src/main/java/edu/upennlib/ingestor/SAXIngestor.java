@@ -14,15 +14,8 @@
  * limitations under the License.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package edu.upennlib.ingestor;
 
-import java.io.FileNotFoundException;
-import java.util.logging.Level;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import org.apache.log4j.Logger;
@@ -31,14 +24,11 @@ import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
 import edu.upennlib.ingestor.sax.solr.SAXSolrPoster;
 import edu.upennlib.ingestor.sax.utils.PerformanceEvaluator;
 import edu.upennlib.paralleltransformer.TransformingXMLFilter;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.stream.StreamResult;
 import net.sf.saxon.Controller;
 import org.xml.sax.InputSource;
 

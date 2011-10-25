@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
@@ -456,7 +451,6 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 if (requiredInputExhausted) {
                     for (int i = 0; i < childNodes.length; i++) {
                         while (!childNodes[i].isFinished()) {
-                            System.out.println("skipping output " + this);
                             childNodes[i].skipOutput();
                             while (!childNodes[i].isFinished() && !childNodes[i].self()) {
                                 childNodes[i].step();

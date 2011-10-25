@@ -36,9 +36,9 @@
         <property name="sql" value="${integrator.sql}"/>
         <property name="performanceEvaluator" ref="evaluator"/>
     </bean>
-    <bean class="edu.upennlib.ingestor.sax.solr.SAXSolrPoster" id="solrPoster" lazy-init="true" scope="singleton" init-method="initSpring">
+    <bean class="edu.upennlib.ingestor.sax.solr.StreamingUpdateSolrServerPoster" id="solrPoster" lazy-init="true" scope="singleton" init-method="initSpring">
         <property name="delete" value="${solrPoster.delete}"/>
-        <property name="solrUrl" value="${solrServer.url}"/>
+        <property name="solrURL" value="${solrServer.url}"/>
         <property name="queueSize" value="${solrServer.queueSize}"/>
         <property name="threadCount" value="${solrServer.threadCount}"/>
     </bean>

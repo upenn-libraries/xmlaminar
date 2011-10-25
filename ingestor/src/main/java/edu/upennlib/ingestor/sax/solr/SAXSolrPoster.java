@@ -16,6 +16,8 @@
 
 package edu.upennlib.ingestor.sax.solr;
 
+import org.apache.solr.client.solrj.SolrServer;
+import org.xml.sax.ContentHandler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -30,23 +32,27 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+
 
 /**
  *
  * @author michael
  */
-public class SAXSolrPoster implements ContentHandler {
+public abstract class SAXSolrPoster<S extends SolrServer> implements ContentHandler {
 
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
+    public final boolean DELETE_DEFAULT = true;
+    private S server;
+    private boolean delete = DELETE_DEFAULT;
+    private String solrURL;
+
     public static final int DOC_CHUNK_SIZE = 20;
     private int level = -1;
     private boolean inDoc = false;
@@ -62,50 +68,13 @@ public class SAXSolrPoster implements ContentHandler {
     private int transformerRefLevel = -1;
     private boolean closeTransformer = false;
     private Logger logger = Logger.getLogger(getClass());
-    private StreamingUpdateSolrServer server;
-    public final boolean DELETE = true;
-    private boolean delete = DELETE;
-    private String solrUrl;
-    private int queueSize;
-    private int threadCount;
 
-    public String getSolrUrl() {
-        return solrUrl;
-    }
 
-    public void setSolrUrl(String solrUrl) {
-        this.solrUrl = solrUrl;
-    }
-
-    public int getQueueSize() {
-        return queueSize;
-    }
-
-    public void setQueueSize(int queueSize) {
-        this.queueSize = queueSize;
-    }
-
-    public int getThreadCount() {
-        return threadCount;
-    }
-
-    public void setThreadCount(int threadCount) {
-        this.threadCount = threadCount;
-    }
-
-    public void initSpring() {
-        try {
-            setServer(new StreamingUpdateSolrServer(solrUrl, queueSize, threadCount));
-        } catch (MalformedURLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public void setServer(StreamingUpdateSolrServer server) {
+    public void setServer(S server) {
         this.server = server;
     }
 
-    public StreamingUpdateSolrServer getServer() {
+    public S getServer() {
         return server;
     }
 
@@ -115,6 +84,15 @@ public class SAXSolrPoster implements ContentHandler {
 
     public boolean isDelete() {
         return delete;
+    }
+
+
+    public String getSolrURL() {
+        return solrURL;
+    }
+
+    public void setSolrURL(String solrURL) {
+        this.solrURL = solrURL;
     }
 
     public SAXSolrPoster() {
