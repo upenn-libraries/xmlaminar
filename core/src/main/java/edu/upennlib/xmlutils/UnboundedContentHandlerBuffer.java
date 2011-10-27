@@ -328,6 +328,7 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
         attsTail = 0;
         intTail = 0;
         charTail = 0;
+        parsing = false;
     }
 
     public void dump(PrintStream out, boolean writeWhitespaceCharacterEvents) throws SAXException {
