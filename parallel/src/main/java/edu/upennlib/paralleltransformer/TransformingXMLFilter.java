@@ -17,6 +17,8 @@
 package edu.upennlib.paralleltransformer;
 
 import edu.upennlib.xmlutils.JoiningXMLFilter;
+import edu.upennlib.xmlutils.LoggingErrorListener;
+import edu.upennlib.xmlutils.SimpleLocalAbsoluteSAXXPath;
 import edu.upennlib.xmlutils.SplittingXMLFilter;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.BufferedInputStream;
@@ -27,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -46,12 +49,15 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import net.sf.saxon.Controller;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.XMLFilterImpl;
 
@@ -67,17 +73,45 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
     private Templates stylesheetTemplates;
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     private static final SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
+    private static final String USAGE = "USAGE: command inputFile stylesheet outputFile";
+    private static final Logger logger = Logger.getLogger(TransformingXMLFilter.class);
 
-    public static void main(String[] args) throws SAXException, ParserConfigurationException, FileNotFoundException, TransformerConfigurationException, TransformerException, IOException {
-        File stylesheet = new File("/tmp/franklin_nsaware.xsl");
-        File inputFile = new File("/home/michael/NetBeansProjects/synch-branch/inputFiles/large.xml");
-        File outputFile = new File("/tmp/large_transform.xml");
+    private static void printUsage(String errorMessage, int exitCode) {
+        System.err.println(errorMessage);
+        System.err.println(USAGE);
+        System.exit(exitCode);
+    }
 
-        InputSource inputSource = new InputSource(new BufferedInputStream(new FileInputStream(inputFile)));
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile));
+    public static void main(String[] args) throws SAXException, ParserConfigurationException, TransformerConfigurationException, TransformerException, IOException {
+        BasicConfigurator.configure();
+        if (args.length != 3) {
+            printUsage("wrong number of arguments: "+args.length, -1);
+        }
+
+        File inputFile = new File(args[0]);
+        File stylesheet = new File(args[1]);
+        File outputFile = new File(args[2]);
 
         TransformingXMLFilter txf = new TransformingXMLFilter();
-        txf.setStylesheet(stylesheet);
+        try {
+            txf.setStylesheet(stylesheet);
+        } catch (FileNotFoundException ex) {
+            printUsage(ex.getMessage(), -1);
+        }
+
+        InputSource inputSource = null;
+        try {
+            inputSource = new InputSource(new BufferedInputStream(new FileInputStream(inputFile)));
+        } catch (FileNotFoundException ex) {
+            printUsage(ex.getMessage(), -1);
+        }
+
+        BufferedOutputStream bos = null;
+        try {
+            bos = new BufferedOutputStream(new FileOutputStream(outputFile));
+        } catch (FileNotFoundException ex) {
+            printUsage(ex.getMessage(), -1);
+        }
 
         Transformer t = stf.newTransformer();
         txf.configureOutputTransformer((Controller) t);
@@ -85,7 +119,7 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
         long start = System.currentTimeMillis();
         t.transform(new SAXSource(txf, inputSource), new StreamResult(bos));
         bos.close();
-        System.out.println("duration: " + (System.currentTimeMillis() - start));
+        System.out.println("transformation complete; duration: " + (System.currentTimeMillis() - start)+ " ms");
     }
 
     public TransformingXMLFilter() throws ParserConfigurationException, SAXException {
@@ -122,11 +156,21 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
         }
     }
 
-    public void setStylesheet(File stylesheet) throws TransformerConfigurationException {
+    public void setStylesheet(File stylesheet) throws TransformerConfigurationException, FileNotFoundException {
         if (stylesheet == null) {
             stylesheetTemplates = null;
         } else {
-            stylesheetTemplates = stf.newTemplates(new StreamSource(stylesheet));
+            FileInputStream fis = new FileInputStream(stylesheet);
+            try {
+                stylesheetTemplates = stf.newTemplates(new StreamSource(new BufferedInputStream(fis)));
+            } catch (TransformerConfigurationException ex) {
+                try {
+                    fis.close();
+                } catch (IOException ex1) {
+                    throw new RuntimeException("ignorable error closing stylesheet InputStream", ex1);
+                }
+                throw ex;
+            }
         }
         this.stylesheet = stylesheet;
     }
@@ -318,14 +362,27 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
             private State state = State.EMPTY;
             private final UnboundedContentHandlerBuffer in;
             private final UnboundedContentHandlerBuffer out;
+            private static final EnumMap<LoggingErrorListener.ErrorLevel, Level> levelMap;
+            private final LoggingErrorListener errorLogger = new LoggingErrorListener(logger, levelMap);
+            private final SimpleLocalAbsoluteSAXXPath recordXPath = new SimpleLocalAbsoluteSAXXPath(SimpleLocalAbsoluteSAXXPath.INTEGRATOR_RECORD_XPATH);
             private final InputSource dummy = new InputSource();
             private final AtomicLong blockCount;
+
+            static {
+                levelMap = new EnumMap<LoggingErrorListener.ErrorLevel, Level>(LoggingErrorListener.ErrorLevel.class);
+                levelMap.put(LoggingErrorListener.ErrorLevel.WARNING, Level.TRACE);
+                levelMap.put(LoggingErrorListener.ErrorLevel.ERROR, Level.WARN);
+                levelMap.put(LoggingErrorListener.ErrorLevel.FATAL_ERROR, Level.OFF); // Will be reported in subdivide
+            }
 
             private TransformerRunner(Transformer t, UnboundedContentHandlerBuffer in, UnboundedContentHandlerBuffer out, AtomicLong blockCount) {
                 this.blockCount = blockCount;
                 subSplitter = new SplittingXMLFilter();
                 subSplitter.setChunkSize(1);
+                singleRecordInput.setUnmodifiableParent(subSplitter);
+                singleRecordInput.setParentModifiable(false);
                 this.t = t;
+                t.setErrorListener(errorLogger);
                 this.in = in;
                 this.out = out;
             }
@@ -347,7 +404,11 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
                 try {
                     t.transform(new SAXSource(in, dummy), result);
                 } catch (TransformerException ex) {
-                    subdivide(t, in, out, dummy);
+                    try {
+                        subdivide();
+                    } catch (IOException ex1) {
+                        throw new RuntimeException(ex1);
+                    }
                 }
                 state = State.WRITABLE;
                 if (notifyOutput) {
@@ -401,20 +462,52 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
             }
             private final SplittingXMLFilter subSplitter;
             private UnboundedContentHandlerBuffer localOutputEventBuffer = new UnboundedContentHandlerBuffer();
+            private UnboundedContentHandlerBuffer singleRecordInput = new UnboundedContentHandlerBuffer();
 
-            private void subdivide(Transformer t, UnboundedContentHandlerBuffer in, UnboundedContentHandlerBuffer out, InputSource dummyInput) {
+            private void subdivide() throws IOException {
                 out.clear();
                 subSplitter.setParent(in);
+                subSplitter.setContentHandler(singleRecordInput);
+                try {
+                    subSplitter.setProperty(LEXICAL_HANDLER_PROPERTY_KEY, singleRecordInput);
+                } catch (SAXNotRecognizedException ex) {
+                    throw new RuntimeException(ex);
+                } catch (SAXNotSupportedException ex) {
+                    throw new RuntimeException(ex);
+                }
+                localOutputEventBuffer.clear();
+                Level baseLevel = errorLogger.levelMap.put(LoggingErrorListener.ErrorLevel.FATAL_ERROR, Level.ERROR);
                 do {
                     try {
-                        t.transform(new SAXSource(subSplitter, dummyInput), new SAXResult(localOutputEventBuffer));
+                        singleRecordInput.clear();
+                        subSplitter.parse(dummy);
+                        t.transform(new SAXSource(singleRecordInput, dummy), new SAXResult(localOutputEventBuffer));
                         localOutputEventBuffer.flush(out, out);
                     } catch (SAXException ex) {
+                        String message;
+                        try {
+                            message = ex.toString()+" processing record "+recordXPath.evaluate(singleRecordInput, dummy);
+                        } catch (IOException ex1) {
+                            message = ex.getMessage()+", "+ex1.toString()+" while attempting to get recordId";
+                        } catch (SAXException ex1) {
+                            message = ex.getMessage()+", "+ex1.toString()+" while attempting to get recordId";
+                        }
+                        errorLogger.writeToLog(message);
                         localOutputEventBuffer.clear();
                     } catch (TransformerException ex) {
+                        String message;
+                        try {
+                            message = ex.toString()+" processing record "+recordXPath.evaluate(singleRecordInput, dummy);
+                        } catch (IOException ex1) {
+                            message = ex.getMessage()+", "+ex1.toString()+" while attempting to get recordId";
+                        } catch (SAXException ex1) {
+                            message = ex.getMessage()+", "+ex1.toString()+" while attempting to get recordId";
+                        }
+                        errorLogger.writeToLog(message);
                         localOutputEventBuffer.clear();
                     }
-                } while (subSplitter.hasMoreOutput(dummyInput));
+                } while (subSplitter.hasMoreOutput(dummy));
+                errorLogger.levelMap.put(LoggingErrorListener.ErrorLevel.FATAL_ERROR, baseLevel);
             }
         }
     }
