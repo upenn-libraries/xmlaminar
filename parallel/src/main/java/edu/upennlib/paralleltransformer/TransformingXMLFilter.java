@@ -23,13 +23,17 @@ import edu.upennlib.xmlutils.SplittingXMLFilter;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.StringWriter;
 import java.util.EnumMap;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -38,14 +42,18 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import net.sf.saxon.Controller;
@@ -160,17 +168,7 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
         if (stylesheet == null) {
             stylesheetTemplates = null;
         } else {
-            FileInputStream fis = new FileInputStream(stylesheet);
-            try {
-                stylesheetTemplates = stf.newTemplates(new StreamSource(new BufferedInputStream(fis)));
-            } catch (TransformerConfigurationException ex) {
-                try {
-                    fis.close();
-                } catch (IOException ex1) {
-                    throw new RuntimeException("ignorable error closing stylesheet InputStream", ex1);
-                }
-                throw ex;
-            }
+            stylesheetTemplates = stf.newTemplates(new StreamSource(stylesheet));
         }
         this.stylesheet = stylesheet;
     }
@@ -372,7 +370,7 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
                 levelMap = new EnumMap<LoggingErrorListener.ErrorLevel, Level>(LoggingErrorListener.ErrorLevel.class);
                 levelMap.put(LoggingErrorListener.ErrorLevel.WARNING, Level.TRACE);
                 levelMap.put(LoggingErrorListener.ErrorLevel.ERROR, Level.WARN);
-                levelMap.put(LoggingErrorListener.ErrorLevel.FATAL_ERROR, Level.OFF); // Will be reported in subdivide
+                // FATAL_ERROR reported in subdivide
             }
 
             private TransformerRunner(Transformer t, UnboundedContentHandlerBuffer in, UnboundedContentHandlerBuffer out, AtomicLong blockCount) {
@@ -385,6 +383,14 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
                 t.setErrorListener(errorLogger);
                 this.in = in;
                 this.out = out;
+                try {
+                    synchronized (stf) {
+                        th = stf.newTransformerHandler();
+                    }
+                    th.getTransformer().setOutputProperty(OutputKeys.INDENT, "yes");
+                } catch (TransformerConfigurationException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
 
             public void checkOut() {
@@ -464,6 +470,8 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
             private UnboundedContentHandlerBuffer localOutputEventBuffer = new UnboundedContentHandlerBuffer();
             private UnboundedContentHandlerBuffer singleRecordInput = new UnboundedContentHandlerBuffer();
 
+            private final TransformerHandler th;
+
             private void subdivide() throws IOException {
                 out.clear();
                 subSplitter.setParent(in);
@@ -476,38 +484,49 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
                     throw new RuntimeException(ex);
                 }
                 localOutputEventBuffer.clear();
-                Level baseLevel = errorLogger.levelMap.put(LoggingErrorListener.ErrorLevel.FATAL_ERROR, Level.ERROR);
                 do {
+                    String errorMessage = null;
                     try {
                         singleRecordInput.clear();
                         subSplitter.parse(dummy);
                         t.transform(new SAXSource(singleRecordInput, dummy), new SAXResult(localOutputEventBuffer));
                         localOutputEventBuffer.flush(out, out);
                     } catch (SAXException ex) {
-                        String message;
-                        try {
-                            message = ex.toString()+" processing record "+recordXPath.evaluate(singleRecordInput, dummy);
-                        } catch (IOException ex1) {
-                            message = ex.getMessage()+", "+ex1.toString()+" while attempting to get recordId";
-                        } catch (SAXException ex1) {
-                            message = ex.getMessage()+", "+ex1.toString()+" while attempting to get recordId";
-                        }
-                        errorLogger.writeToLog(message);
-                        localOutputEventBuffer.clear();
+                        errorMessage = ex.toString();
                     } catch (TransformerException ex) {
-                        String message;
+                        errorMessage = ex.getMessageAndLocation();
+                    }
+                    if (errorMessage != null) {
+                        boolean dumpRecord = true;
                         try {
-                            message = ex.toString()+" processing record "+recordXPath.evaluate(singleRecordInput, dummy);
-                        } catch (IOException ex1) {
-                            message = ex.getMessage()+", "+ex1.toString()+" while attempting to get recordId";
-                        } catch (SAXException ex1) {
-                            message = ex.getMessage()+", "+ex1.toString()+" while attempting to get recordId";
+                            logger.error("record " + recordXPath.evaluate(singleRecordInput, dummy) + "; " + errorMessage);
+                            dumpRecord = false;
+                        } catch (SAXException ex) {
+                        } catch (IOException ex) {
                         }
-                        errorLogger.writeToLog(message);
+                        if (dumpRecord) {
+                            StringWriter sw = new StringWriter();
+                            th.setResult(new StreamResult(sw));
+                            try {
+                                singleRecordInput.play(th, th);
+                            } catch (SAXException ex) {
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                PrintStream ps = new PrintStream(new ByteArrayOutputStream());
+                                ps.append(ex.getMessage()+"; ");
+                                try {
+                                    singleRecordInput.dump(ps, true);
+                                } catch (SAXException ex1) {
+                                    throw new RuntimeException(ex1);
+                                }
+                                ps.flush();
+                                sw = new StringWriter();
+                                sw.append(baos.toString());
+                            }
+                            logger.error(errorMessage+"; "+sw.toString());
+                        }
                         localOutputEventBuffer.clear();
                     }
                 } while (subSplitter.hasMoreOutput(dummy));
-                errorLogger.levelMap.put(LoggingErrorListener.ErrorLevel.FATAL_ERROR, baseLevel);
             }
         }
     }
