@@ -83,6 +83,7 @@ public class SimpleLocalAbsoluteSAXXPath extends XMLFilterImpl {
     public String evaluate(XMLReader r, InputSource input) throws IOException, SAXException {
         level = -1;
         trueLevel = -1;
+        testIndex = 0;
         returnValue = new StringWriter();
         found = false;
         r.setContentHandler(this);
@@ -93,7 +94,7 @@ public class SimpleLocalAbsoluteSAXXPath extends XMLFilterImpl {
         if (found) {
             return returnValue.toString().trim();
         } else {
-            return null;
+            throw new RecordIdNotFoundException();
         }
     }
 
@@ -162,14 +163,48 @@ public class SimpleLocalAbsoluteSAXXPath extends XMLFilterImpl {
     private static final File MARCXML_FILE = new File("/home/michael/NetBeansProjects/synch-branch/inputFiles/large_bad.xml");
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
-        SimpleLocalAbsoluteSAXXPath instance = new SimpleLocalAbsoluteSAXXPath(MARCXML_RECORD_XPATH);
+        SimpleLocalAbsoluteSAXXPath instance = new SimpleLocalAbsoluteSAXXPath(INTEGRATOR_RECORD_XPATH);
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
-        String id = instance.evaluate(spf.newSAXParser().getXMLReader(), new InputSource(new FileInputStream(MARCXML_FILE)));
+        String id = instance.evaluate(spf.newSAXParser().getXMLReader(), new InputSource(new FileInputStream("/tmp/testRecord.xml")));
         System.out.println(id);
     }
 
     private static class FoundXPathException extends SAXException {
+
+        @Override
+        public synchronized Throwable fillInStackTrace() {
+            return null;
+        }
+
+        @Override
+        public StackTraceElement[] getStackTrace() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void printStackTrace() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void printStackTrace(PrintStream s) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void printStackTrace(PrintWriter s) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setStackTrace(StackTraceElement[] stackTrace) {
+            throw new UnsupportedOperationException();
+        }
+
+    }
+
+    private static class RecordIdNotFoundException extends SAXException {
 
         @Override
         public synchronized Throwable fillInStackTrace() {

@@ -28,10 +28,6 @@ import org.apache.log4j.Logger;
  */
 public class LoggingErrorListener implements ErrorListener {
 
-    private boolean hasMessages = false;
-    private String lastMessage;
-    private ErrorLevel lastErrorLevel;
-    private Level lastLogLevel;
     private final Logger logger;
     public static enum ErrorLevel { WARNING, ERROR, FATAL_ERROR };
     public final EnumMap<ErrorLevel, Level> levelMap;
@@ -41,47 +37,24 @@ public class LoggingErrorListener implements ErrorListener {
         this.levelMap = levelMapping;
     }
 
-    public void writeToLog(String prepend) {
-        if (!hasMessages) {
-            throw new IllegalStateException("no error message to write to log for: "+prepend);
-        } else {
-            logger.log(lastLogLevel, lastErrorLevel+" : " +prepend+" : "+lastMessage);
-        }
-        hasMessages = false;
-    }
-
-    public void flushToLog() {
-        if (hasMessages) {
-            logger.log(lastLogLevel, lastErrorLevel+" : " +lastMessage);
-        }
-        hasMessages = false;
-    }
-
-    protected void bufferMessage(ErrorLevel errorLevel, TransformerException exception) {
-        flushToLog();
-        Level logLevel = levelMap.get(errorLevel);
-        if (logLevel != null && logLevel != Level.OFF && logger.isEnabledFor(logLevel)) {
-            hasMessages = true;
-            lastLogLevel = logLevel;
-            lastErrorLevel = errorLevel;
-            lastMessage = exception.getMessageAndLocation();
-        } else {
-            hasMessages = false;
-        }
-    }
-
     @Override
     public void warning(TransformerException exception) throws TransformerException {
-        bufferMessage(ErrorLevel.WARNING, exception);
+        Level logLevel = levelMap.get(ErrorLevel.WARNING);
+        if (logLevel != null && logLevel != Level.OFF && logger.isEnabledFor(logLevel)) {
+            logger.log(logLevel, exception.getMessageAndLocation());
+        }
     }
 
     @Override
     public void error(TransformerException exception) throws TransformerException {
-        bufferMessage(ErrorLevel.ERROR, exception);
+        Level logLevel = levelMap.get(ErrorLevel.ERROR);
+        if (logLevel != null && logLevel != Level.OFF && logger.isEnabledFor(logLevel)) {
+            logger.log(logLevel, exception.getMessageAndLocation());
+        }
     }
 
     @Override
     public void fatalError(TransformerException exception) throws TransformerException {
-        bufferMessage(ErrorLevel.FATAL_ERROR, exception);
+        throw exception;
     }
 }

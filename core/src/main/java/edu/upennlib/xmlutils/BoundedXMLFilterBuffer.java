@@ -166,8 +166,11 @@ public class BoundedXMLFilterBuffer extends XMLFilterLexicalHandlerImpl {
         } finally {
             lock.unlock();
         }
-        System.out.println("increasing charArgBuffer size to: " + (charArgBuffer.length * 2));
-        charArgBuffer = new char[charArgBuffer.length * 2];
+        int newLength = charArgBuffer.length * 2;
+        if (logger.isInfoEnabled()) {
+            logger.info("increasing charArgBuffer size to: " + newLength);
+        }
+        charArgBuffer = new char[newLength];
         charHead = 0;
         charTail = 0;
         charSize.set(0);
