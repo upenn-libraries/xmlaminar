@@ -87,6 +87,7 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
             joiner.configureOutputTransformer((Controller) t);
             joiner.setStreamingParent(integrator);
             t.transform(new SAXSource(joiner, new InputSource()), new SAXResult(solrPoster));
+            solrPoster.shutdown();
             long processingStart = pe.getLastStart();
             long end = System.currentTimeMillis();
             long processingTime = end - processingStart;
