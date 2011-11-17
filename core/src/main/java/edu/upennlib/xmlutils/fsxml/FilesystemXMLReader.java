@@ -150,7 +150,7 @@ public abstract class FilesystemXMLReader implements XMLReader {
         }
     }
 
-    public FilesystemXMLReader newInstance() {
+    public static FilesystemXMLReader newInstance() {
         return new FilesystemXMLReaderImpl();
     }
 
