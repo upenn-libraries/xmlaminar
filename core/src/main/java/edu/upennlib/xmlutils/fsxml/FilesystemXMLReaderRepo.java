@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -39,13 +41,22 @@ import org.xml.sax.InputSource;
 public class FilesystemXMLReaderRepo extends FilesystemXMLReader {
 
     public static final String TRANSFORMER_FACTORY_CLASS = "net.sf.saxon.TransformerFactoryImpl";
+    private static final URL xIncludeDirContentsXsl;
+
+    static {
+        xIncludeDirContentsXsl = FilesystemXMLReader.class.getClassLoader().getResource("incl_repo_contents.xsl");
+    }
+
+    public static InputStream getXIncludeRepoContentsXsl() throws IOException {
+        return xIncludeDirContentsXsl.openStream();
+    }
 
     public static void main(String[] args) throws FileNotFoundException, TransformerConfigurationException, TransformerException, IOException {
         FilesystemXMLReader instance = new FilesystemXMLReaderRepo();
         instance.setFollowSymlinks(false);
         File rootFile = new File("/repo");
         TransformerFactory tf = TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS, null);
-        Transformer t = tf.newTransformer(new StreamSource(FilesystemXMLReader.getXIncludeDirContentsXsl()));
+        Transformer t = tf.newTransformer(new StreamSource(getXIncludeRepoContentsXsl()));
         t.setOutputProperty(OutputKeys.INDENT, "yes");
         t.transform(new SAXSource(instance, new InputSource(rootFile.getAbsolutePath())), new StreamResult(System.out));
     }

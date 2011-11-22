@@ -22,16 +22,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
-import java.util.logging.Level;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -66,11 +62,8 @@ public abstract class FilesystemXMLReader implements XMLReader {
     private final Element root;
     private final Map<String, String> additionalNamespaceDeclarations;
     private final Stack<String> additionalNsPrefixStack;
-    private static final URL xIncludeDirContentsXsl;
-    private static Templates xIncludeDirContentsTemplates;
 
     static {
-        xIncludeDirContentsXsl = FilesystemXMLReader.class.getClassLoader().getResource("incl_dir_contents.xsl");
         modifiableFeatures.put(NS_PREFIXES_FEATURE_KEY, false);
         Map<String, Boolean> tmpFeatures = new HashMap<String, Boolean>();
         tmpFeatures.put("http://xml.org/sax/features/namespaces", true);
@@ -78,10 +71,6 @@ public abstract class FilesystemXMLReader implements XMLReader {
         unmodifiableFeatures = Collections.unmodifiableMap(tmpFeatures);
         ignorableProperties = new HashMap<String, Object>();
         ignorableProperties.put("http://xml.org/sax/properties/lexical-handler", null); // we know we won't be generating any lexical events.
-    }
-
-    public static InputStream getXIncludeDirContentsXsl() throws IOException {
-        return xIncludeDirContentsXsl.openStream();
     }
 
     protected enum FsxmlElement {
