@@ -7,6 +7,11 @@
     <version>1.0-SNAPSHOT</version>
     <name>xml-utils-${version}</name>
     <url>http://maven.apache.org</url>
+    <parent>
+        <groupId>edu.upennlib</groupId>
+        <artifactId>upenn-parent-project</artifactId>
+        <version>0.13</version>
+    </parent>
     <build>
         <plugins>
             <plugin>
