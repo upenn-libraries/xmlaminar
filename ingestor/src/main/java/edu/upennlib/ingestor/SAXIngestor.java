@@ -91,8 +91,8 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
             long processingStart = pe.getLastStart();
             long end = System.currentTimeMillis();
             long processingTime = end - processingStart;
-            System.out.println("Elapsed time: "+(end - start));
-            System.out.println("Processing time: "+processingTime);
+            logger.info("Elapsed time: "+(end - start));
+            logger.info("Processing time: "+processingTime);
         } catch (TransformerConfigurationException ex) {
             throw new RuntimeException(ex);
         } catch (TransformerException ex) {
