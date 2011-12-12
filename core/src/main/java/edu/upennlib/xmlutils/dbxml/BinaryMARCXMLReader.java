@@ -50,8 +50,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.TTCCLayout;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
@@ -212,9 +210,15 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
 
     public static void main(String args[]) throws SQLException, FileNotFoundException, IOException, SAXException, TransformerConfigurationException, TransformerException, ParserConfigurationException, ConnectionException {
 
-        BinaryMARCXMLReader instance = new BinaryMARCXMLReader();
         logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
         logger.setLevel(Level.WARN);
+        BinaryMARCXMLReader instance = getTestInstance();
+
+        runTestInstanceToFile(instance);
+    }
+
+    public static BinaryMARCXMLReader getTestInstance() throws ConnectionException {
+        BinaryMARCXMLReader instance = new BinaryMARCXMLReader();
         instance.setHost(host);
         instance.setSid(sid);
         instance.setUser(user);
@@ -224,7 +228,10 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         instance.setIdFieldLabels(ifl);
         String[] ofl = {"RECORD_SEGMENT"};
         instance.setOutputFieldLabels(ofl);
+        return instance;
+    }
 
+    public static void runTestInstanceToFile(BinaryMARCXMLReader instance) throws TransformerConfigurationException, TransformerException, IOException {
         SAXTransformerFactory stf = (SAXTransformerFactory)TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
         Transformer t = stf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -302,6 +309,16 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         }
     }
 
+    private MARCFieldModifier fieldModifier;
+
+    public MARCFieldModifier getFieldModifier() {
+        return fieldModifier;
+    }
+
+    public void setFieldModifier(MARCFieldModifier modifier) {
+        fieldModifier = modifier;
+    }
+
     private void parseVariableField(String tag, ByteBuffer binaryField) throws CharacterCodingException, SAXException {
         CharBuffer field;
         if (marc8) {
@@ -313,8 +330,11 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             try {
                 field = decodeUTF8.decode(binaryField);
             } catch (MalformedInputException ex) {
-                throw new IllegalStateException(ex.toString()+", tag="+tag+", binaryFieldLength="+(binaryField.limit() - binaryField.position()));
+                throw new IllegalStateException(ex.toString() + ", tag=" + tag + ", binaryFieldLength=" + (binaryField.limit() - binaryField.position()));
             }
+        }
+        if (fieldModifier != null) {
+            field = fieldModifier.modifyField(tag, field);
         }
         attRunner.clear();
         attRunner.addAttribute(FieldType.tag.uri, FieldType.tag.localName, FieldType.tag.qName, "CDATA", tag);

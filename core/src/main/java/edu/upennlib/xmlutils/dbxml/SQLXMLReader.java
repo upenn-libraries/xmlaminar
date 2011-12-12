@@ -288,7 +288,9 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     private void initializeResultSet() throws ConnectionException, SQLException {
         logger.trace("initializing resultset");
         rs = connection.getResultSet();
-        pe.notifyStart();
+        if (pe != null) {
+            pe.notifyStart();
+        }
         idFieldQNames = new String[idFieldLabels.length];
         lastId = new long[idFieldLabels.length];
         currentId = new long[idFieldLabels.length];
