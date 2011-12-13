@@ -319,6 +319,9 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         fieldModifier = modifier;
     }
 
+    private char[] out = new char[10];
+    private final int[] startAndEnd = new int[2];
+
     private void parseVariableField(String tag, ByteBuffer binaryField) throws CharacterCodingException, SAXException {
         CharBuffer field;
         if (marc8) {
@@ -333,8 +336,13 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
                 throw new IllegalStateException(ex.toString() + ", tag=" + tag + ", binaryFieldLength=" + (binaryField.limit() - binaryField.position()));
             }
         }
-        if (fieldModifier != null) {
-            field = fieldModifier.modifyField(tag, field);
+        char[] array;
+        if (fieldModifier == null || (array = fieldModifier.modifyField(tag, field, out, startAndEnd)) == null) {
+            array = field.array();
+            startAndEnd[0] = field.arrayOffset() + field.position();
+            startAndEnd[1] = startAndEnd[0] + field.length();
+        } else {
+            out = array;
         }
         attRunner.clear();
         attRunner.addAttribute(FieldType.tag.uri, FieldType.tag.localName, FieldType.tag.qName, "CDATA", tag);
@@ -347,45 +355,45 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             fieldType = FieldType.datafield;
         }
         outputBuffer.startElement(fieldType.uri, fieldType.localName, fieldType.qName, attRunner);
-        handleFieldContents(field, fieldType);
+        handleFieldContents(array, startAndEnd[0], startAndEnd[1], fieldType);
         outputBuffer.endElement(fieldType.uri, fieldType.localName, fieldType.qName);
     }
 
-    private void handleFieldContents(CharBuffer field, FieldType fieldType) throws SAXException {
+    private void handleFieldContents(char[] field, int start, int end, FieldType fieldType) throws SAXException {
         boolean inSubfield = false;
         int cStart = -1;
         int index;
         switch (fieldType) {
             case controlfield:
-                index = -1;
+                index = start - 1;
                 break;
             default:
-                index = 1;
+                index = start + 1;
         }
         boolean finishedParsing = false;
-        while (!finishedParsing && ++index < field.length()) {
+        while (!finishedParsing && ++index < end) {
             if (cStart < 0) {
                 cStart = index;
             }
-            switch (field.charAt(index)) {
+            switch (field[index]) {
                 case DE:
                     if (inSubfield) {
-                        outputBuffer.characters(field.array(), field.arrayOffset() + cStart, index - cStart);
+                        outputBuffer.characters(field, cStart, index - cStart);
                         outputBuffer.endElement(FieldType.subfield.uri, FieldType.subfield.localName, FieldType.subfield.qName);
                     }
                     attRunner.clear();
-                    attRunner.addAttribute(FieldType.code.uri, FieldType.code.localName, FieldType.code.qName, "CDATA", Character.toString(field.charAt(++index)));
+                    attRunner.addAttribute(FieldType.code.uri, FieldType.code.localName, FieldType.code.qName, "CDATA", Character.toString(field[++index]));
                     inSubfield = true;
                     outputBuffer.startElement(FieldType.subfield.uri, FieldType.subfield.localName, FieldType.subfield.qName, attRunner);
                     cStart = -1;
                     break;
                 case FT:
-                    outputBuffer.characters(field.array(), field.arrayOffset() + cStart, index - cStart);
+                    outputBuffer.characters(field, cStart, index - cStart);
                     if (inSubfield) {
                         outputBuffer.endElement(FieldType.subfield.uri, FieldType.subfield.localName, FieldType.subfield.qName);
                     }
                     finishedParsing = true;
-                    if (index != field.length() - 1) {
+                    if (index != end - 1) {
                         logger.error("possible extra field terminator, record="+currentId);
                     }
             }

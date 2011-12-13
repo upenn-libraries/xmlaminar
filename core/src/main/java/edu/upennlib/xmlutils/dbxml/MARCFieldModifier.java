@@ -23,5 +23,5 @@ import java.nio.CharBuffer;
  * @author michael
  */
 public interface MARCFieldModifier {
-    public CharBuffer modifyField(String tag, CharBuffer original);
+    public char[] modifyField(String tag, CharBuffer original, char[] output, int[] startAndEnd);
 }
