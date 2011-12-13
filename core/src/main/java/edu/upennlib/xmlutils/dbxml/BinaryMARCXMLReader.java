@@ -31,6 +31,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
 import java.nio.charset.MalformedInputException;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -318,11 +319,12 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         fieldModifier = modifier;
     }
 
-    private char[] out = new char[10];
+    private char[] modifiedFieldOut = new char[10];
     private final int[] startAndEnd = new int[2];
+    private CharBuffer decodedField = CharBuffer.allocate(10);
 
     private void parseVariableField(String tag, ByteBuffer binaryField) throws CharacterCodingException, SAXException {
-        CharBuffer field;
+        CharBuffer field = decodedField;
         if (marc8) {
 //            byte[] newBecauseMarc4jNeedsIt = new byte[binaryField.limit() - binaryField.position()]; // annoying!
 //            binaryField.get(newBecauseMarc4jNeedsIt);
@@ -330,18 +332,35 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             throw new UnsupportedOperationException("marc8 character handling not implemented");
         } else {
             try {
-                field = decodeUTF8.decode(binaryField);
+                CoderResult cr;
+                boolean finishedDecoding = false;
+                field.clear();
+                while (!finishedDecoding) {
+                    cr = decodeUTF8.decode(binaryField, field, true);
+                    if (cr.isUnderflow()) {
+                        finishedDecoding = true;
+                    } else if (cr.isOverflow()) {
+                        decodedField = CharBuffer.allocate(field.capacity() * 2 + 1);
+                        field.flip();
+                        decodedField.put(field);
+                        field = decodedField;
+                    } else {
+                        cr.throwException();
+                        throw new IllegalStateException("unexpected decoder state: "+cr);
+                    }
+                }
+                field.flip();
             } catch (MalformedInputException ex) {
                 throw new IllegalStateException(ex.toString() + ", tag=" + tag + ", binaryFieldLength=" + (binaryField.limit() - binaryField.position()));
             }
         }
         char[] array;
-        if (fieldModifier == null || (array = fieldModifier.modifyField(tag, field, out, startAndEnd)) == null) {
+        if (fieldModifier == null || (array = fieldModifier.modifyField(tag, field, modifiedFieldOut, startAndEnd)) == null) {
             array = field.array();
             startAndEnd[0] = field.arrayOffset() + field.position();
             startAndEnd[1] = startAndEnd[0] + field.length();
         } else {
-            out = array;
+            modifiedFieldOut = array;
         }
         attRunner.clear();
         attRunner.addAttribute(FieldType.tag.uri, FieldType.tag.localName, FieldType.tag.qName, "CDATA", tag);
