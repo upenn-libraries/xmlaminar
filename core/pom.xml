@@ -77,10 +77,5 @@
             <artifactId>commons-dbcp</artifactId>
             <version>1.4</version>
         </dependency>
-		<dependency>
-			<groupId>oracle</groupId>
-			<artifactId>jdbc</artifactId>
-			<version>1.4</version>
-		</dependency>
     </dependencies>
 </project>
