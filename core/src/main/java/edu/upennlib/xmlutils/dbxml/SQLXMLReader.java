@@ -19,6 +19,7 @@ package edu.upennlib.xmlutils.dbxml;
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.dbutils.Connection;
 import edu.upennlib.dbutils.ConnectionException;
+import edu.upennlib.dbutils.DirectConnection;
 import edu.upennlib.xmlutils.BoundedXMLFilterBuffer;
 import edu.upennlib.xmlutils.SAXFeatures;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
@@ -58,6 +59,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     private String name;
     private Connection connection;
+    private String sql;
     private static final Logger logger = Logger.getLogger(SQLXMLReader.class);
     private ResultSet rs;
     protected ContentHandler ch;
@@ -71,6 +73,14 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     private static final HashMap<String, Boolean> featureDefaults = new HashMap<String, Boolean>();
     private final HashMap<String, Boolean> features = new HashMap<String, Boolean>();
     private final HashMap<String, Boolean> unmodifiableFeatures = new HashMap<String, Boolean>();
+    
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
+    
+    public Connection getConnection() {
+        return connection;
+    }
 
     protected static enum InputImplementation { CHAR_ARRAY, BYTE_ARRAY };
 
@@ -245,6 +255,8 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
                     throw new IOException(ex);
                 }
             } finally {
+                connection.close();
+
                 if (rs != null) {
                     try {
                         rs.close();
@@ -287,6 +299,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
 
     private void initializeResultSet() throws ConnectionException, SQLException {
         logger.trace("initializing resultset");
+        connection.setSql(sql);
         rs = connection.getResultSet();
         if (pe != null) {
             pe.notifyStart();
@@ -335,7 +348,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     public void setHost(String host) throws ConnectionException {
         logger.trace("set host: " + host);
         if (connection == null) {
-            connection = new Connection();
+            connection = new DirectConnection();
         }
         connection.setHost(host);
     }
@@ -351,7 +364,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     public void setSid(String sid) throws ConnectionException {
         logger.trace("set sid: " + sid);
         if (connection == null) {
-            connection = new Connection();
+            connection = new DirectConnection();
         }
         connection.setSid(sid);
     }
@@ -366,24 +379,17 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
 
     public void setSql(String sql) throws ConnectionException {
         logger.trace("set sql: " + sql);
-        if (connection == null) {
-            connection = new Connection();
-        }
-        connection.setSql(sql);
+		this.sql = sql;
     }
 
     public String getSql() {
-        if (connection == null) {
-            return null;
-        } else {
-            return connection.getSql();
-        }
+	    return sql;
     }
 
     public void setUser(String user) throws ConnectionException {
         logger.trace("set user: " + user);
         if (connection == null) {
-            connection = new Connection();
+            connection = new DirectConnection();
         }
         connection.setUser(user);
     }
@@ -399,7 +405,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     public void setPwd(String pwd) throws ConnectionException {
         logger.trace("set pwd: " + pwd);
         if (connection == null) {
-            connection = new Connection();
+            connection = new DirectConnection();
         }
         connection.setPwd(pwd);
     }

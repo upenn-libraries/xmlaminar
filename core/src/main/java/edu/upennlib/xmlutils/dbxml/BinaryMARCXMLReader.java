@@ -196,20 +196,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
 
 
 
-    private static final String lowBib = "3032000";
-    private static final String highBib = "3033000";
-    private static String host = "[host_or_ip]";
-    private static String sid = "[sid]";
-    private static String user = "[username]";
-    private static String pwd = "[password]";
-    private static String sql = "SELECT DISTINCT BIB_DATA.BIB_ID, BIB_DATA.SEQNUM, BIB_DATA.RECORD_SEGMENT "
-            + "FROM PENNDB.BIB_DATA, BIB_MASTER "
-            + "WHERE BIB_DATA.BIB_ID = BIB_MASTER.BIB_ID AND  BIB_MASTER.SUPPRESS_IN_OPAC = 'N' "
-            + "AND BIB_DATA.BIB_ID > "+lowBib+" AND BIB_DATA.BIB_ID < "+highBib+" "
-            + "ORDER BY BIB_ID, SEQNUM";
-
     public static void main(String args[]) throws SQLException, FileNotFoundException, IOException, SAXException, TransformerConfigurationException, TransformerException, ParserConfigurationException, ConnectionException {
-
         logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
         logger.setLevel(Level.WARN);
         BinaryMARCXMLReader instance = getTestInstance();
@@ -218,6 +205,18 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     }
 
     public static BinaryMARCXMLReader getTestInstance() throws ConnectionException {
+        final String lowBib = "3032000";
+        final String highBib = "3033000";
+        final String host = "[host_or_ip]";
+        final String sid = "[sid]";
+        final String user = "[username]";
+        final String pwd = "[password]";
+        final String sql = "SELECT DISTINCT BIB_DATA.BIB_ID, BIB_DATA.SEQNUM, BIB_DATA.RECORD_SEGMENT "
+                + "FROM PENNDB.BIB_DATA, BIB_MASTER "
+                + "WHERE BIB_DATA.BIB_ID = BIB_MASTER.BIB_ID AND  BIB_MASTER.SUPPRESS_IN_OPAC = 'N' "
+                + "AND BIB_DATA.BIB_ID > "+lowBib+" AND BIB_DATA.BIB_ID < "+highBib+" "
+                + "ORDER BY BIB_ID, SEQNUM";
+
         BinaryMARCXMLReader instance = new BinaryMARCXMLReader();
         instance.setHost(host);
         instance.setSid(sid);
