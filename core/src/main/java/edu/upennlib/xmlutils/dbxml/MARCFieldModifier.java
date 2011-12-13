@@ -23,5 +23,17 @@ import java.nio.CharBuffer;
  * @author michael
  */
 public interface MARCFieldModifier {
+    /**
+     * For modifying fields from MARC records.
+     * @param tag The marc field number
+     * @param original The contents of the original field (indicators, subfields,
+     * content, through field terminator (inclusive).
+     * @param output The destination array intended to contain the modified field.
+     * @param startAndEnd A two-element array of start (inclusive) and end (exclusive)
+     * indices of the modified field content placed in the output array.
+     * @return The output array containing the modified field contents. If the
+     * specified output array argument is not large enough to contain the modified
+     * field contents, a new array will be returned (a la Collection.toArray())
+     */
     public char[] modifyField(String tag, CharBuffer original, char[] output, int[] startAndEnd);
 }
