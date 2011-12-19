@@ -25,6 +25,14 @@
         <property name="outputFieldLabels" value="${integrator.marcBinaryFieldLabel}"/>
         <property name="sql" value="${integrator.sql}"/>
         <property name="performanceEvaluator" ref="evaluator"/>
+        <property name="fieldModifier" ref="${integrator.fieldModifier}"/>
+    </bean>
+    <bean id="subjectFieldModifier" class="edu.upennlib.subjectremediation.SubjectRemediationFieldModifier" lazy-init="true">
+        <property name="subjectRemediationTable" ref="subjectRemediationTable"/>
+    </bean>
+    <bean id="subjectRemediationTable" class="edu.upennlib.subjectremediation.SubjectNode" factory-bean="subjectRemediationTableFactory" factory-method="getSubjectRemediationTable" lazy-init="true"/>
+    <bean id="subjectRemediationTableFactory" class="edu.upennlib.subjectremediation.SubjectRemediationTableFactory" lazy-init="true">
+        <property name="skosRdfFile" value="${subjectRemediationTableFactory.skosRdfFile}"/>
     </bean>
     <bean id="rsIntegrator" class="edu.upennlib.xmlutils.dbxml.RSXMLReader" scope="prototype">
         <property name="name" value="${integrator.name}"/>
