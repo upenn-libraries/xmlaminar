@@ -363,6 +363,8 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         return sw.toString();
     }
 
+    private boolean wroteSomeOutput = false;
+
     private void run2() throws SAXException {
         LinkedHashSet<Integer> activeIndexes = new LinkedHashSet<Integer>();
         Integer lastLevel = null;
@@ -464,6 +466,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 for (int i : activeIndexes) {
                     if (!childNodes[i].isFinished()) {
                         if (childNodes[i].self()) {
+                            wroteSomeOutput = true; // XXX Placement of this statement in block?
                             if (self == null) {
                                 self = true;
                                 if (lastLevel == null || level >= lastLevel) {
@@ -505,6 +508,9 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                                     childNodes[i].writeOuterStartElement(output, false);
                                     lastLevel = level;
                                 } else if (level < lastLevel) {
+                                    if (!wroteSomeOutput) {
+                                        childNodes[i].writeInnerStartElement(output);
+                                    }
                                     childNodes[i].writeOuterEndElement(output);
                                     lastLevel = level;
                                 } else {

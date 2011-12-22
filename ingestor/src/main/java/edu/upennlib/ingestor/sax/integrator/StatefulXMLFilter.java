@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -238,7 +239,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
     private UnboundedContentHandlerBuffer outerStartElementBuffer = new UnboundedContentHandlerBuffer();
     private final UnboundedContentHandlerBuffer workingBuffer = new UnboundedContentHandlerBuffer();
 
-    private Boolean lastWasStartElement = null;
+    private boolean lastWasStartElement = true;
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -264,7 +265,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                 if (debugging && getContentHandler() != workingBuffer) {
                     throw new IllegalStateException();
                 }
-                popStartBuffer();
                 if (!lastWasStartElement) {
                     workingBuffer.flush(outerEndElementBuffer, outerEndElementBuffer);
                 }
@@ -294,7 +294,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                     if (level > -1) {
                         id.pop();
                     }
-                    popStartBuffer();
                     workingBuffer.clear();
                     setContentHandler(workingBuffer);
                 }
@@ -310,13 +309,13 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                     if (level > -1) {
                         id.pop();
                     }
-                    popStartBuffer();
                     workingBuffer.clear();
                     setContentHandler(workingBuffer);
                     state = State.STEP;
                 }
                 super.endElement(uri, localName, qName);
         }
+        popStartBuffer();
         lastWasStartElement = false;
     }
 

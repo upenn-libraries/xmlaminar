@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import java.io.EOFException;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.ext.LexicalHandler;
 
 /**
  *
