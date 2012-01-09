@@ -9,7 +9,7 @@
                 <xsl:element name="xi:include">
                     <xsl:attribute name="href">
                         <xsl:text>file:</xsl:text>
-                        <xsl:value-of select="@absolutePath"/>
+                        <xsl:value-of select="encode-for-uri(@absolutePath)"/>
                     </xsl:attribute>
                     <xsl:choose>
                         <xsl:when test="matches(@name, '\.xml$')">
