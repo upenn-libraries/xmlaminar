@@ -200,14 +200,12 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     public static void main(String args[]) throws SQLException, FileNotFoundException, IOException, SAXException, TransformerConfigurationException, TransformerException, ParserConfigurationException, ConnectionException {
         logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
         logger.setLevel(Level.WARN);
-        BinaryMARCXMLReader instance = getTestInstance();
+        BinaryMARCXMLReader instance = getTestInstance(3032000, 3033000);
 
         runTestInstanceToFile(instance);
     }
 
-    public static BinaryMARCXMLReader getTestInstance() throws ConnectionException {
-        final String lowBib = "3032000";
-        final String highBib = "3033000";
+    public static BinaryMARCXMLReader getTestInstance(int lowBibId, int highBibId) throws ConnectionException {
         final String host = "[host_or_ip]";
         final String sid = "[sid]";
         final String user = "[username]";
@@ -215,7 +213,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         final String sql = "SELECT DISTINCT BIB_DATA.BIB_ID, BIB_DATA.SEQNUM, BIB_DATA.RECORD_SEGMENT "
                 + "FROM PENNDB.BIB_DATA, BIB_MASTER "
                 + "WHERE BIB_DATA.BIB_ID = BIB_MASTER.BIB_ID AND  BIB_MASTER.SUPPRESS_IN_OPAC = 'N' "
-                + "AND BIB_DATA.BIB_ID > "+lowBib+" AND BIB_DATA.BIB_ID < "+highBib+" "
+                + "AND BIB_DATA.BIB_ID > "+lowBibId+" AND BIB_DATA.BIB_ID < "+highBibId+" "
                 + "ORDER BY BIB_ID, SEQNUM";
 
         BinaryMARCXMLReader instance = new BinaryMARCXMLReader();
