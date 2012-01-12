@@ -68,6 +68,7 @@ public abstract class FilesystemXMLReader implements XMLReader {
         Map<String, Boolean> tmpFeatures = new HashMap<String, Boolean>();
         tmpFeatures.put("http://xml.org/sax/features/namespaces", true);
         tmpFeatures.put("http://xml.org/sax/features/validation", false);
+        tmpFeatures.put("http://xml.org/sax/features/string-interning", false);
         unmodifiableFeatures = Collections.unmodifiableMap(tmpFeatures);
         ignorableProperties = new HashMap<String, Object>();
         ignorableProperties.put("http://xml.org/sax/properties/lexical-handler", null); // we know we won't be generating any lexical events.
@@ -168,7 +169,7 @@ public abstract class FilesystemXMLReader implements XMLReader {
         } else if (modifiableFeatures.containsKey(name)) {
             return modifiableFeatures.get(name);
         } else {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw new UnsupportedOperationException("Not supported yet: "+ name);
         }
     }
 
