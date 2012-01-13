@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.util.EnumMap;
@@ -78,6 +79,7 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
     private SplittingXMLFilter splitter;
     private SplittingXMLFilter privateSplitter;
     private File stylesheet;
+    private InputStream stylesheetStream;
     private Templates stylesheetTemplates;
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     private static final SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
@@ -164,6 +166,19 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
         }
     }
 
+    public void setStylesheetStream(InputStream stylesheetStream) throws TransformerConfigurationException, FileNotFoundException {
+        if (stylesheetStream == null) {
+            stylesheetTemplates = null;
+        } else {
+            stylesheetTemplates = stf.newTemplates(new StreamSource(stylesheetStream));
+        }
+        this.stylesheetStream = stylesheetStream;
+    }
+
+    public InputStream getStylesheetStream() {
+        return stylesheetStream;
+    }
+
     public void setStylesheet(File stylesheet) throws TransformerConfigurationException, FileNotFoundException {
         if (stylesheet == null) {
             stylesheetTemplates = null;
@@ -178,7 +193,7 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
     }
 
     public void configureOutputTransformer(Controller out) {
-        if (stylesheet != null) {
+        if (stylesheetTemplates != null) {
             try {
                 Controller c;
                 c = (Controller) stylesheetTemplates.newTransformer();
