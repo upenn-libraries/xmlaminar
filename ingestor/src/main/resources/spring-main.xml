@@ -27,7 +27,7 @@
         <property name="performanceEvaluator" ref="evaluator"/>
         <property name="fieldModifier" ref="${integrator.fieldModifier}"/>
     </bean>
-    <bean id="subjectFieldModifier" class="edu.upennlib.subjectremediation.SubjectRemediationFieldModifier" lazy-init="true">
+    <bean id="subjectFieldModifier" class="edu.upennlib.xmlutils.dbxml.SubjectMARCFieldModifier" lazy-init="true">
         <property name="subjectRemediationTable" ref="subjectRemediationTable"/>
     </bean>
     <bean id="subjectRemediationTable" class="edu.upennlib.subjectremediation.SubjectTrieTraverser" factory-bean="subjectTrieLoader" factory-method="load" lazy-init="true"/>
