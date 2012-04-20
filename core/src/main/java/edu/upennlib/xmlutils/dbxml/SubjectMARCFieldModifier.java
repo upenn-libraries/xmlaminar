@@ -17,9 +17,8 @@
 package edu.upennlib.xmlutils.dbxml;
 
 import edu.upennlib.dbutils.ConnectionException;
-import edu.upennlib.subjectremediation.SubjectTrieFactory;
+import edu.upennlib.subjectremediation.SubjectTrieLoader;
 import edu.upennlib.subjectremediation.SubjectTrieTraverser;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -105,9 +104,8 @@ public class SubjectMARCFieldModifier implements MARCFieldModifier {
 
     public static void main(String[] args) throws ConnectionException, TransformerConfigurationException, TransformerException, IOException {
         BasicConfigurator.configure();
-        SubjectTrieFactory stf = new SubjectTrieFactory();
-        stf.setExclusionFile(new File("./subjectRemediation/exclusions.txt"));
-        SubjectTrieTraverser lookup = stf.getSubjectRemediationTable();
+        SubjectTrieLoader stl = new SubjectTrieLoader();
+        SubjectTrieTraverser lookup = stl.load();
         SubjectMARCFieldModifier modifier = new SubjectMARCFieldModifier();
         modifier.setSubjectRemediationTable(lookup);
         BinaryMARCXMLReader bmxReader = BinaryMARCXMLReader.getTestInstance(3000000, 3100000);
