@@ -30,6 +30,8 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
@@ -58,7 +60,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     private Boolean[] requireForWrite;
     private String name;
     private File dumpFile;
-    private static Logger logger = Logger.getLogger(IntegratorOutputNode.class);
+    private static final Logger logger = Logger.getLogger(IntegratorOutputNode.class);
 
     public File getDumpFile() {
         return dumpFile;
@@ -119,7 +121,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         int index = -1;
         if ((index = names.indexOf(subName)) != -1) {
             if (pathElements.isEmpty()) {
-                throw new RuntimeException("duplicate element path specification");
+                throw new RuntimeException("duplicate element path specification: "+subName);
             }
             subNode = (IntegratorOutputNode) nodes.get(index);
         } else {
@@ -134,12 +136,13 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     }
                 }
                 subNode = new IntegratorOutputNode(sxf);
+                requires.add(requireForWrite);
             } else {
                 subNode = new IntegratorOutputNode(null);
+                requires.add(false); // Otherwise add node manually (explicitly).
             }
             names.add(subName);
             nodes.add(subNode);
-            requires.add(false); // Otherwise add node manually (explicitly).
         }
         if (!pathElements.isEmpty()) {
             subNode.addDescendent(pathElements, source, requireForWrite);
@@ -332,6 +335,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 } else {
                     t = new Thread(childNodes[i], childNodes[i].getName()+"<-"+Thread.currentThread().getName());
                 }
+                t.setUncaughtExceptionHandler(interrupter);
                 t.start();
                 if (requireForWrite[i]) {
                     requiredIndexes.add(i);
@@ -343,6 +347,18 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 throw new RuntimeException(ex);
             }
         }
+    }
+
+    private static final Thread.UncaughtExceptionHandler interrupter = new ThreadGroupInterrupter();
+
+    private static class ThreadGroupInterrupter implements Thread.UncaughtExceptionHandler {
+
+        @Override
+        public void uncaughtException(Thread t, Throwable e) {
+            e.printStackTrace(System.err);
+            t.getThreadGroup().interrupt();
+        }
+
     }
 
     /*public long rsNextEstimate() {
@@ -363,11 +379,10 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         return sw.toString();
     }
 
-    private boolean wroteSomeOutput = false;
-
     private void run2() throws SAXException {
         LinkedHashSet<Integer> activeIndexes = new LinkedHashSet<Integer>();
         Integer lastLevel = null;
+        Comparable lastId = null;
         int level;
         Comparable leastId;
         boolean requiredInputExhausted = false;
@@ -375,7 +390,10 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         boolean[] eligible = new boolean[childNodes.length];
         int[] levels = new int[eligible.length];
         Arrays.fill(eligible, true);
+        int r = new Random().nextInt();
+        int iteration = -1;
         while (!allFinished && !requiredInputExhausted) {
+            iteration++;
             level = -1;
             leastId = null;
             allFinished = true;
@@ -389,6 +407,16 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     levels[i] = -1;
                     if (requiredIndexes.contains(i)) {
                         requiredInputExhausted = true;
+                    }
+                }
+            }
+            if (level < 0) {
+                for (int i = 0; i < levels.length; i++) {
+                    if (!eligible[i] && levels[i] >= 0) {
+                        eligible[i] = true;
+                        if (levels[i] > level) {
+                            level = levels[i];
+                        }
                     }
                 }
             }
@@ -419,7 +447,12 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     // ok.
                 }
             }
+            logger.debug(r+" "+iteration+" level="+level+" leastId="+leastId+" activeIndexes="+activeIndexes);
             if (!activeIndexes.containsAll(requiredIndexes)) {
+                if (level == 1 && lastId == null) {
+                    System.out.println("hey! "+((IntegratorOutputNode)childNodes[activeIndexes.iterator().next()]).buffersToString());
+                    childNodes[activeIndexes.iterator().next()].writeOuterStartElement(output, true);
+                }
                 boolean setOthersToEligible = true;
                 for (int i : activeIndexes) {
                     try {
@@ -466,13 +499,14 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 for (int i : activeIndexes) {
                     if (!childNodes[i].isFinished()) {
                         if (childNodes[i].self()) {
-                            wroteSomeOutput = true; // XXX Placement of this statement in block?
+//                            wroteSomeOutput = true; // XXX Placement of this statement in block?
                             if (self == null) {
                                 self = true;
                                 if (lastLevel == null || level >= lastLevel) {
                                     if (level > lastLevel) {
                                         childNodes[i].writeOuterStartElement(output, aggregating);
                                         lastLevel = level;
+                                        lastId = leastId;
                                     }
                                     if (!aggregating) {
                                         childNodes[i].writeInnerStartElement(output);
@@ -507,15 +541,18 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                                 if (lastLevel == null || level > lastLevel) {
                                     childNodes[i].writeOuterStartElement(output, false);
                                     lastLevel = level;
+                                    lastId = leastId;
                                 } else if (level < lastLevel) {
-                                    if (!wroteSomeOutput) {
-                                        childNodes[i].writeInnerStartElement(output);
-                                    }
+//                                    if (!wroteSomeOutput) {
+//                                        wroteSomeOutput = true;
+//                                        childNodes[i].writeInnerStartElement(output);
+//                                    }
                                     childNodes[i].writeOuterEndElement(output);
                                     lastLevel = level;
+                                    lastId = leastId;
                                 } else {
-                                    if (level > 0 || leastId != null) {
-                                        throw new IllegalStateException("non-self levels should not repeat; level=" + level + ", id=" + leastId);
+                                    if (lastId != null && (level > 0 || leastId != null)) {
+                                        throw new IllegalStateException("non-self levels should not repeat; level=" + level + ", id=" + leastId+", lastLevel="+lastLevel+", lastId="+lastId);
                                     }
                                 }
                             } else if (self) {
@@ -528,7 +565,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     }
                 }
                 if (self != null && self && !aggregating) {
-                    childNodes[firstIndexWritten].writeInnerEndElement(output);
+                    childNodes[firstIndexWritten].writeOuterEndElement(output);
                 }
             }
         }
@@ -585,6 +622,10 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         if (!debugging || rawOutput instanceof IdQueryable) {
             ((IdQueryable)rawOutput).writeOuterStartElement(ch, asSelf);
         }
+    }
+
+    public String buffersToString() {
+        return ((StatefulXMLFilter) rawOutput).buffersToString();
     }
 
     @Override

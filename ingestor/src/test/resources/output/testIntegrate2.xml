@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<integ:root xmlns:integ="http://integrator" self="true">
+   <record id="BIB_ID-0">
+      <marc id="BIB_ID-0">
+         <bib>0</bib>
+      </marc>
+      <hldgs id="BIB_ID-0">
+         <hldg id="HLDG_ID-100">
+            <hldg>100</hldg>
+         </hldg>
+         <hldg id="HLDG_ID-200">
+            <hldg>200</hldg>
+         </hldg>
+      </hldgs>
+   </record>
+   <record id="BIB_ID-2">
+      <marc id="BIB_ID-2">
+         <bib>2</bib>
+      </marc>
+   </record>
+   <record id="BIB_ID-3">
+      <hldgs id="BIB_ID-3">
+         <hldg id="HLDG_ID-103">
+            <hldg>103</hldg>
+         </hldg>
+      </hldgs>
+   </record>
+   <record id="BIB_ID-4">
+      <marc id="BIB_ID-4">
+         <bib>4</bib>
+      </marc>
+   </record>
+   <record id="BIB_ID-6">
+      <marc id="BIB_ID-6">
+         <bib>6</bib>
+      </marc>
+      <hldgs id="BIB_ID-6">
+         <hldg id="HLDG_ID-106">
+            <hldg>106</hldg>
+         </hldg>
+         <hldg id="HLDG_ID-206">
+            <hldg>206</hldg>
+         </hldg>
+      </hldgs>
+   </record>
+   <record id="BIB_ID-8">
+      <marc id="BIB_ID-8">
+         <bib>8</bib>
+      </marc>
+   </record>
+   <record id="BIB_ID-9">
+      <hldgs id="BIB_ID-9">
+         <hldg id="HLDG_ID-109">
+            <hldg>109</hldg>
+         </hldg>
+      </hldgs>
+   </record>
+   <record id="BIB_ID-10">
+      <marc id="BIB_ID-10">
+         <bib>10</bib>
+      </marc>
+   </record>
+   <record id="BIB_ID-12">
+      <marc id="BIB_ID-12">
+         <bib>12</bib>
+      </marc>
+      <hldgs id="BIB_ID-12">
+         <hldg id="HLDG_ID-112">
+            <hldg>112</hldg>
+         </hldg>
+         <hldg id="HLDG_ID-212">
+            <hldg>212</hldg>
+         </hldg>
+      </hldgs>
+   </record>
+   <record id="BIB_ID-14">
+      <marc id="BIB_ID-14">
+         <bib>14</bib>
+      </marc>
+   </record>
+   <record id="BIB_ID-15">
+      <hldgs id="BIB_ID-15">
+         <hldg id="HLDG_ID-115">
+            <hldg>115</hldg>
+         </hldg>
+      </hldgs>
+   </record>
+   <record id="BIB_ID-16">
+      <marc id="BIB_ID-16">
+         <bib>16</bib>
+      </marc>
+   </record>
+   <record id="BIB_ID-18">
+      <marc id="BIB_ID-18">
+         <bib>18</bib>
+      </marc>
+      <hldgs id="BIB_ID-18">
+         <hldg id="HLDG_ID-118">
+            <hldg>118</hldg>
+         </hldg>
+         <hldg id="HLDG_ID-218">
+            <hldg>218</hldg>
+         </hldg>
+      </hldgs>
+   </record>
+   <record id="BIB_ID-20">
+      <marc id="BIB_ID-20">
+         <bib>20</bib>
+      </marc>
+   </record>
+   <record id="BIB_ID-21">
+      <hldgs id="BIB_ID-21">
+         <hldg id="HLDG_ID-121">
+            <hldg>121</hldg>
+         </hldg>
+      </hldgs>
+   </record>
+</integ:root>

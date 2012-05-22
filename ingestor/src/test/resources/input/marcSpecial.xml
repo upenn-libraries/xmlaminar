@@ -1,0 +1,8 @@
+<integ:root xmlns:integ="http://integrator">
+  <integ:BIB_ID id="8" self="true">
+    <bib>8</bib>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="12" self="true">
+    <bib>12</bib>
+  </integ:BIB_ID>
+</integ:root>

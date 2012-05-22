@@ -1,0 +1,35 @@
+<integ:root xmlns:integ="http://integrator">
+  <integ:BIB_ID id="0" self="true">
+    <bib>0</bib>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="2" self="true">
+    <bib>2</bib>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="4" self="true">
+    <bib>4</bib>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="6" self="true">
+    <bib>6</bib>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="8" self="true">
+    <bib>8</bib>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="10" self="true">
+    <bib>10</bib>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="12" self="true">
+    <bib>12</bib>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="14" self="true">
+    <bib>14</bib>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="16" self="true">
+    <bib>16</bib>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="18" self="true">
+    <bib>18</bib>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="20" self="true">
+    <bib>20</bib>
+  </integ:BIB_ID>
+</integ:root>

@@ -32,7 +32,7 @@ public final class IdUpenn implements Comparable {
     public final boolean idTypeInterned;
     public IdUpenn(String idType, String idString, boolean idTypeInterned) {
         if (idType == null || idString == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("null argument: idType="+idType+", idString="+idString);
         }
         this.idType = idType;
         this.idTypeInterned = idTypeInterned;

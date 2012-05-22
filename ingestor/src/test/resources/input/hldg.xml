@@ -1,0 +1,54 @@
+<integ:root xmlns:integ="http://integrator">
+  <integ:BIB_ID id="0">
+    <integ:HLDG_ID id="100" self="true">
+      <hldg>100</hldg>
+    </integ:HLDG_ID>
+    <integ:HLDG_ID id="200" self="true">
+      <hldg>200</hldg>
+    </integ:HLDG_ID>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="3">
+    <integ:HLDG_ID id="103" self="true">
+      <hldg>103</hldg>
+    </integ:HLDG_ID>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="6">
+    <integ:HLDG_ID id="106" self="true">
+      <hldg>106</hldg>
+    </integ:HLDG_ID>
+    <integ:HLDG_ID id="206" self="true">
+      <hldg>206</hldg>
+    </integ:HLDG_ID>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="9">
+    <integ:HLDG_ID id="109" self="true">
+      <hldg>109</hldg>
+    </integ:HLDG_ID>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="12">
+    <integ:HLDG_ID id="112" self="true">
+      <hldg>112</hldg>
+    </integ:HLDG_ID>
+    <integ:HLDG_ID id="212" self="true">
+      <hldg>212</hldg>
+    </integ:HLDG_ID>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="15">
+    <integ:HLDG_ID id="115" self="true">
+      <hldg>115</hldg>
+    </integ:HLDG_ID>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="18">
+    <integ:HLDG_ID id="118" self="true">
+      <hldg>118</hldg>
+    </integ:HLDG_ID>
+    <integ:HLDG_ID id="218" self="true">
+      <hldg>218</hldg>
+    </integ:HLDG_ID>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="21">
+    <integ:HLDG_ID id="121" self="true">
+      <hldg>121</hldg>
+    </integ:HLDG_ID>
+  </integ:BIB_ID>
+</integ:root>
