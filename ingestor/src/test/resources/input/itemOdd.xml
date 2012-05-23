@@ -1,10 +1,10 @@
 <integ:root xmlns:integ="http://integrator">
   <integ:BIB_ID id="0">
     <integ:HLDG_ID id="100">
-      <integ:ITEM_ID id="1001">
+      <integ:ITEM_ID id="1001" self="true">
 	<item>1001</item>
       </integ:ITEM_ID>
-      <integ:ITEM_ID id="1003"> 
+      <integ:ITEM_ID id="1003" self="true"> 
 	<item>1003</item>
       </integ:ITEM_ID>
     </integ:HLDG_ID>

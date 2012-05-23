@@ -1,11 +1,37 @@
 <integ:root xmlns:integ="http://integrator">
   <integ:BIB_ID id="0">
-    <integ:HLDG_ID id="100">
-      <integ:ITEM_ID id="1000">
-	<item>1000</item>
+    <integ:HLDG_ID id="200">
+      <integ:ITEM_ID id="2000" self="true">
+	<item>2000</item>
       </integ:ITEM_ID>
-      <integ:ITEM_ID id="1002"> 
-	<item>1002</item>
+      <integ:ITEM_ID id="2001" self="true"> 
+	<item>2001</item>
+      </integ:ITEM_ID>
+    </integ:HLDG_ID>
+    <integ:HLDG_ID id="201">
+      <integ:ITEM_ID id="2010" self="true">
+	<item>2010</item>
+      </integ:ITEM_ID>
+      <integ:ITEM_ID id="2011" self="true"> 
+	<item>2011</item>
+      </integ:ITEM_ID>
+    </integ:HLDG_ID>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="4">
+    <integ:HLDG_ID id="400">
+      <integ:ITEM_ID id="4000" self="true">
+	<item>4000</item>
+      </integ:ITEM_ID>
+      <integ:ITEM_ID id="4001" self="true"> 
+	<item>4001</item>
+      </integ:ITEM_ID>
+    </integ:HLDG_ID>
+    <integ:HLDG_ID id="401">
+      <integ:ITEM_ID id="4010" self="true">
+	<item>4010</item>
+      </integ:ITEM_ID>
+      <integ:ITEM_ID id="4011" self="true"> 
+	<item>4011</item>
       </integ:ITEM_ID>
     </integ:HLDG_ID>
   </integ:BIB_ID>

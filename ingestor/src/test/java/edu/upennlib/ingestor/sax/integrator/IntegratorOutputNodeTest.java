@@ -154,7 +154,7 @@ public class IntegratorOutputNodeTest {
         IntegratorOutputNode root = new IntegratorOutputNode();
         root.addDescendent("/record/marcEmpty1", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marcEmpty.xml"))), false);
         root.addDescendent("/record/marcEmpty2", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marcEmpty.xml"))), false);
-        verify(root, testId.concat(".xml"), false);
+        verify(root, testId.concat(".xml"), true);
     }
 
     /*
@@ -167,7 +167,7 @@ public class IntegratorOutputNodeTest {
         IntegratorOutputNode root = new IntegratorOutputNode();
         root.addDescendent("/record/marc", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marc.xml"))), true);
         root.addDescendent("/record/marcOdd", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marcOdd.xml"))), true);
-        verify(root, testId.concat(".xml"), false);
+        verify(root, testId.concat(".xml"), true);
     }
 
     /*
@@ -181,7 +181,7 @@ public class IntegratorOutputNodeTest {
         root.addDescendent("/record/marc", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marc.xml"))), false);
         root.addDescendent("/record/hldgs/hldg", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/hldg.xml"))), false);
         root.addDescendent("/record/hldgs/hldg/items/itemEven", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/itemEven.xml"))), false);
-        verify(root, testId.concat(".xml"), false);
+        verify(root, testId.concat(".xml"), true);
     }
 
     private static void verify(IntegratorOutputNode root, String fileName, boolean verify) throws TransformerConfigurationException, TransformerException, IOException, ParserConfigurationException, SAXException {

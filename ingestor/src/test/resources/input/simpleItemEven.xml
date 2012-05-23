@@ -1,0 +1,38 @@
+<integ:root xmlns:integ="http://integrator">
+  <integ:BIB_ID id="2">
+    <integ:HLDG_ID id="2">
+      <integ:ITEM_ID id="8" self="true">
+	<item>8</item>
+      </integ:ITEM_ID>
+      <integ:ITEM_ID id="10" self="true">
+	<item>10</item>
+      </integ:ITEM_ID>
+    </integ:HLDG_ID>
+    <integ:HLDG_ID id="4">
+      <integ:ITEM_ID id="6" self="true">
+	<item>6</item>
+      </integ:ITEM_ID>
+      <integ:ITEM_ID id="8" self="true">
+	<item>8</item>
+      </integ:ITEM_ID>
+    </integ:HLDG_ID>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="4">
+    <integ:HLDG_ID id="2">
+      <integ:ITEM_ID id="4" self="true">
+	<item>4</item>
+      </integ:ITEM_ID>
+      <integ:ITEM_ID id="6" self="true">
+	<item>6</item>
+      </integ:ITEM_ID>
+    </integ:HLDG_ID>
+    <integ:HLDG_ID id="4">
+      <integ:ITEM_ID id="2" self="true">
+	<item>2</item>
+      </integ:ITEM_ID>
+      <integ:ITEM_ID id="4" self="true">
+	<item>4</item>
+      </integ:ITEM_ID>
+    </integ:HLDG_ID>
+  </integ:BIB_ID>
+</integ:root>
