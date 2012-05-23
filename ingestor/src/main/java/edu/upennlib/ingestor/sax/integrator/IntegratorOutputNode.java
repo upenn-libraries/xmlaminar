@@ -18,12 +18,9 @@ package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.xmlutils.DumpingContentHandler;
-import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,8 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -41,7 +36,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
@@ -333,12 +327,10 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 requires.addFirst(true);
                 if (aggregating == null) {
                     aggregating = false;
-                    System.out.println(this+"assigned aggregating="+aggregating);
                 }
             } else {
                 if (aggregating == null) {
                     aggregating = nodes.size() == 1;
-                    System.out.println(this+"assigned aggregating="+aggregating);
                 }
             }
             int size = nodes.size();

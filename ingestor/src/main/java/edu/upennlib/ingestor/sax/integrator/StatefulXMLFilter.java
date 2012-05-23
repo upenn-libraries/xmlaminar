@@ -289,20 +289,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                 }
                 pop();
                 super.endElement(uri, localName, qName);
-//                state = State.WAIT;
-//                try {
-//                    lock.lock();
-//                    stateIsWait.signal();
-//                    while (state == State.WAIT) {
-//                        try {
-//                            stateNotWait.await();
-//                        } catch (InterruptedException ex) {
-//                            throw new RuntimeException(ex);
-//                        }
-//                    }
-//                } finally {
-//                    lock.unlock();
-//                }
                 break;
             case SKIP:
                 if (level <= refLevel) {
@@ -378,42 +364,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
     }
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
-    }
-
-    private static void echoBuffers() throws ParserConfigurationException, SAXException, EOFException {
-        BasicConfigurator.configure();
-        logger.setLevel(Level.TRACE);
-        Logger.getRootLogger().setLevel(Level.TRACE);
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setNamespaceAware(true);
-        StatefulXMLFilter sxf = new StatefulXMLFilter(10);
-        sxf.setParent(spf.newSAXParser().getXMLReader());
-        Thread t = new ParseThread(sxf);
-        t.start();
-        ContentHandler out = new EchoingContentHandler();
-        while (!sxf.isFinished()) {
-            if (!sxf.self()) {
-                do {
-                    System.out.println("\nXXXA"+sxf.getId());
-                    System.out.print(sxf.buffersToString(10));
-                    sxf.step();
-                } while (!sxf.isFinished() && !sxf.self());
-                if (!sxf.isFinished()) {
-                    System.out.println("XXXB"+sxf.getId());
-                    System.out.print(sxf.buffersToString(10));
-                    sxf.writeOutput(out);
-                }
-            } else {
-                System.out.println("\nXXXC" + sxf.getId());
-                System.out.print(sxf.buffersToString(10));
-                sxf.writeOutput(out);
-            }
-        }
-        System.out.println("done!");
-        System.out.print(sxf.buffersToString(10));
-    }
-
-    private static void serialize() throws EOFException, ParserConfigurationException, SAXException {
         BasicConfigurator.configure();
         logger.setLevel(Level.TRACE);
         Logger.getRootLogger().setLevel(Level.TRACE);
@@ -492,9 +442,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
 
     @Override
     public void writeRootElement(ContentHandler ch) throws SAXException {
-        startElementEventStack[0].dump(System.out, false);
         startElementEventStack[0].play(ch, null);
-        endElementEventStack[0].dump(System.out, false);
         endElementEventStack[0].play(ch, null);
     }
 
@@ -534,10 +482,10 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         }
         if (aggregating) {
             int aggregateSelfLevel = level - 1;
-            for (int i = lowerLevel; i < aggregateSelfLevel; i++) {
-                startElementEventStack[i].play(ch, null);
-            }
             if (aggregateSelfLevel >= lowerLevel) {
+                for (int i = lowerLevel; i < aggregateSelfLevel; i++) {
+                    startElementEventStack[i].play(ch, null);
+                }
                 startElementEventStack[aggregateSelfLevel].writeWithFinalElementSelfAttribute(ch, null, true);
             }
         } else {
@@ -566,7 +514,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
     }
 
     private void pop() {
-        //startElementEventStack[level].clear();
         if (lastWasEndElement) {
             UnboundedContentHandlerBuffer tmp = endElementEventStack[level + 1];
             endElementEventStack[level + 1] = tmpBuffer;
