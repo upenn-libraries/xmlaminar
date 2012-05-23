@@ -412,6 +412,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             level = -1;
             leastId = null;
             allFinished = true;
+//        Arrays.fill(eligible, true);
             for (int i = 0; i < levels.length; i++) {
                 try {
                     levels[i] = childNodes[i].getLevel();

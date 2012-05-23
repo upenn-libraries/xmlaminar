@@ -181,7 +181,7 @@ public class IntegratorOutputNodeTest {
         root.addDescendent("/record/marc", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marc.xml"))), false);
         root.addDescendent("/record/hldgs/hldg", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/hldg.xml"))), false);
         root.addDescendent("/record/hldgs/hldg/items/itemEven", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/itemEven.xml"))), false);
-        verify(root, testId.concat(".xml"), true);
+        verify(root, testId.concat(".xml"), false);
     }
 
     private static void verify(IntegratorOutputNode root, String fileName, boolean verify) throws TransformerConfigurationException, TransformerException, IOException, ParserConfigurationException, SAXException {
