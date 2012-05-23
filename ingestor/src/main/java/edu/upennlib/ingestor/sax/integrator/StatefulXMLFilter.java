@@ -298,7 +298,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                     if (level > 0) {
                         id.pop();
                     }
-                    pop(); // XXX ?
+                    pop();
                     super.endElement(uri, localName, qName);
                 }
                 break;
@@ -315,7 +315,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                     if (level > 0) {
                         id.pop();
                     }
-                    pop(); // XXX ?
+                    pop();
                     super.endElement(uri, localName, qName);
                     state = State.STEP;
                 }
