@@ -181,7 +181,20 @@ public class IntegratorOutputNodeTest {
         root.addDescendent("/record/marc", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marc.xml"))), false);
         root.addDescendent("/record/hldgs/hldg", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/hldg.xml"))), false);
         root.addDescendent("/record/hldgs/hldg/items/itemEven", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/itemEven.xml"))), false);
-        verify(root, testId.concat(".xml"), false);
+        verify(root, testId.concat(".xml"), true);
+    }
+
+    /*
+     * Interleaving with empty, no-overlap, empty stream required
+     */
+    @Test
+    public void testIntegrate9() throws TransformerConfigurationException, TransformerException, ParserConfigurationException, SAXException, IOException {
+        String testId = "testIntegrate9";
+        System.out.println("running test: "+testId);
+        IntegratorOutputNode root = new IntegratorOutputNode();
+        root.addDescendent("/itemEven", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/simpleItemEven.xml"))), false);
+        root.addDescendent("/itemOdd", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/simpleItemOdd.xml"))), false);
+        verify(root, testId.concat(".xml"), true);
     }
 
     private static void verify(IntegratorOutputNode root, String fileName, boolean verify) throws TransformerConfigurationException, TransformerException, IOException, ParserConfigurationException, SAXException {

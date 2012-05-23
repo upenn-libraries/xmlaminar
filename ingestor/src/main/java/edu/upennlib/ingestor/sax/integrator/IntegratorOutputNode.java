@@ -398,6 +398,8 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     private void run2() throws SAXException {
         LinkedHashSet<Integer> activeIndexes = new LinkedHashSet<Integer>();
+        // TODO I expect that lastLevel is no longer useful, and removing it
+        // would greatly simplify the code.
         Integer lastLevel = null;
         int level;
         Comparable leastId;
@@ -405,34 +407,21 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         int dipLevel = 0;
         boolean requiredInputExhausted = false;
         boolean allFinished = false;
-        boolean[] eligible = new boolean[childNodes.length];
-        int[] levels = new int[eligible.length];
-        Arrays.fill(eligible, true);
+        int[] levels = new int[childNodes.length];
         while (!allFinished && !requiredInputExhausted) {
             level = -1;
             leastId = null;
             allFinished = true;
-//        Arrays.fill(eligible, true);
             for (int i = 0; i < levels.length; i++) {
                 try {
                     levels[i] = childNodes[i].getLevel();
-                    if (levels[i] > level && eligible[i]) {
+                    if (levels[i] > level) {
                         level = levels[i];
                     }
                 } catch (EOFException ex) {
                     levels[i] = -1;
                     if (requiredIndexes.contains(i)) {
                         requiredInputExhausted = true;
-                    }
-                }
-            }
-            if (level < 0) {
-                for (int i = 0; i < levels.length; i++) {
-                    if (!eligible[i] && levels[i] >= 0) {
-                        eligible[i] = true;
-                        if (levels[i] > level) {
-                            level = levels[i];
-                        }
                     }
                 }
             }
@@ -447,18 +436,11 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                         Comparable tmpId = childNodes[i].getId();
                         if (!leastIdExplicitlySet || (leastId != null && tmpId != null && tmpId.compareTo(leastId) < 0)) {
                             leastIdExplicitlySet = true;
-                            for (int j : activeIndexes) {
-                                eligible[j] = false;
-                            }
                             activeIndexes.clear();
-                            eligible[i] = true;
                             activeIndexes.add(i);
                             leastId = tmpId;
                         } else if ((leastId == null && tmpId == null) || tmpId.compareTo(leastId) == 0) { //tmpId should never be null.
-                            eligible[i] = true;
                             activeIndexes.add(i);
-                        } else if (tmpId.compareTo(leastId) > 0) {
-                            eligible[i] = false;
                         }
                     }
                     allFinished = false;
@@ -466,48 +448,19 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     // ok.
                 }
             }
-            System.out.println("level="+level+", leastId="+leastId);
-            for (int i = 0; i < childNodes.length; i++) {
-                IntegratorOutputNode child = (IntegratorOutputNode) childNodes[i];
-                try {
-                    System.out.println("\t" + childElementNames[i] + ": " + child.getLevel() + ", " + child.getId()+", active="+activeIndexes.contains(i));
-                } catch (EOFException ex) {
-                    // ok
-                }
-            }
             if (!activeIndexes.containsAll(requiredIndexes)) {
-                boolean setOthersToEligible = true;
                 for (int i : activeIndexes) {
-                    try {
-                        try {
-                            childNodes[i].skipOutput();
-                            if (childNodes[i].getLevel() == levels[i]) {
-                                setOthersToEligible = false;
-                            }
-                        } catch (EOFException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    } catch (IllegalStateException ex) {
-                            System.out.println("exception on "+name);
-                        for (int j = 0; j < levels.length; j++) {
-                            try {
-                                System.out.println(childElementNames[j] + ", level=" + levels[j] + ", id=" + childNodes[j].getId()+", eligible="+eligible[j]);
-                            } catch (EOFException ex1) {
-                                throw new RuntimeException(ex1);
-                            }
-                        }
-                        throw ex;
-                    }
-                }
-                if (setOthersToEligible) {
-                    for (int i = 0; i < eligible.length; i++) {
-                        if (levels[i] == level) {
-                            eligible[i] = true;
-                        }
-                    }
+                    childNodes[i].skipOutput();
                 }
                 if (requiredInputExhausted) {
                     for (int i = 0; i < childNodes.length; i++) {
+                        /*
+                         * the getId() calls are present only for logging and to
+                         * block for child to be at equilibrium.  A better solution
+                         * would be to have the isFinished() and self() methods block
+                         * while child is not at equilibrium, to avoid retrieving state
+                         * from an object that is in the process of changing state.
+                         */
                         Comparable consumeId;
                         while (!childNodes[i].isFinished()) {
                             try {
