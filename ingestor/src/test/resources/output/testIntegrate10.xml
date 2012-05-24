@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<integ:root xmlns:integ="http://integrator">
+  <integ:BIB_ID id="2">
+      <integ:HLDG_ID id="2">
+         <integ:ITEM_ID id="7" self="true">
+            <itemOdd id="ITEM_ID-7">
+	              <item>7</item>
+            </itemOdd>
+         </integ:ITEM_ID>
+      
+         <integ:ITEM_ID id="8" self="true">
+            <itemEven id="ITEM_ID-8">
+	              <item>8</item>
+            </itemEven>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="9" self="true">
+            <itemOdd id="ITEM_ID-9">
+	              <item>9</item>
+            </itemOdd>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="10" self="true">
+            <itemEven id="ITEM_ID-10">
+	              <item>10</item>
+            </itemEven>
+         </integ:ITEM_ID>
+      </integ:HLDG_ID>
+      <integ:HLDG_ID id="4">
+         <integ:ITEM_ID id="5" self="true">
+            <itemOdd id="ITEM_ID-5">
+	              <item>5</item>
+            </itemOdd>
+         </integ:ITEM_ID>
+      
+         <integ:ITEM_ID id="6" self="true">
+            <itemEven id="ITEM_ID-6">
+	              <item>6</item>
+            </itemEven>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="7" self="true">
+            <itemOdd id="ITEM_ID-7">
+	              <item>7</item>
+            </itemOdd>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="8" self="true">
+            <itemEven id="ITEM_ID-8">
+	              <item>8</item>
+            </itemEven>
+         </integ:ITEM_ID>
+      </integ:HLDG_ID>
+  </integ:BIB_ID>
+  <integ:BIB_ID id="3">
+      <integ:HLDG_ID id="2">
+         <integ:ITEM_ID id="3" self="true">
+            <itemOdd id="ITEM_ID-3">
+	              <item>3</item>
+            </itemOdd>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="5" self="true">
+            <itemOdd id="ITEM_ID-5">
+	              <item>5</item>
+            </itemOdd>
+         </integ:ITEM_ID>
+      </integ:HLDG_ID>
+      <integ:HLDG_ID id="4">
+         <integ:ITEM_ID id="1" self="true">
+            <itemOdd id="ITEM_ID-1">
+	              <item>1</item>
+            </itemOdd>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="3" self="true">
+            <itemOdd id="ITEM_ID-3">
+	              <item>3</item>
+            </itemOdd>
+         </integ:ITEM_ID>
+      </integ:HLDG_ID>
+  </integ:BIB_ID>
+   <integ:BIB_ID id="4">
+      <integ:HLDG_ID id="2">
+         <integ:ITEM_ID id="4" self="true">
+            <itemEven id="ITEM_ID-4">
+	              <item>4</item>
+            </itemEven>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="6" self="true">
+            <itemEven id="ITEM_ID-6">
+	              <item>6</item>
+            </itemEven>
+         </integ:ITEM_ID>
+      </integ:HLDG_ID>
+      <integ:HLDG_ID id="4">
+         <integ:ITEM_ID id="2" self="true">
+            <itemEven id="ITEM_ID-2">
+	              <item>2</item>
+            </itemEven>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="4" self="true">
+            <itemEven id="ITEM_ID-4">
+	              <item>4</item>
+            </itemEven>
+         </integ:ITEM_ID>
+      </integ:HLDG_ID>
+  </integ:BIB_ID>
+</integ:root>

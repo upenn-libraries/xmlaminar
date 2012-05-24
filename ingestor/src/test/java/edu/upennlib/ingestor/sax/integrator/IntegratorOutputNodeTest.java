@@ -154,7 +154,7 @@ public class IntegratorOutputNodeTest {
         IntegratorOutputNode root = new IntegratorOutputNode();
         root.addDescendent("/record/marcEmpty1", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marcEmpty.xml"))), false);
         root.addDescendent("/record/marcEmpty2", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marcEmpty.xml"))), false);
-        verify(root, testId.concat(".xml"), true);
+        verify(root, testId.concat(".xml"), false);
     }
 
     /*
@@ -184,12 +184,24 @@ public class IntegratorOutputNodeTest {
         verify(root, testId.concat(".xml"), true);
     }
 
+    @Test
+    public void testIntegrate9() throws TransformerConfigurationException, TransformerException, ParserConfigurationException, SAXException, IOException {
+        String testId = "testIntegrate9";
+        System.out.println("running test: "+testId);
+        IntegratorOutputNode root = new IntegratorOutputNode();
+        root.addDescendent("/record/marc", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/real/marc.xml"))), false);
+        root.addDescendent("/record/holdings/holding", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/real/hldg.xml"))), false);
+        root.addDescendent("/record/holdings/holding/items/item", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/real/item.xml"))), false);
+        root.addDescendent("/record/holdings/holding/items/item/itemStatuses/itemStatus", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/real/itemStatus.xml"))), false);
+        verify(root, testId.concat(".xml"), true);
+    }
+
     /*
      * Interleaving with empty, no-overlap, empty stream required
      */
     @Test
-    public void testIntegrate9() throws TransformerConfigurationException, TransformerException, ParserConfigurationException, SAXException, IOException {
-        String testId = "testIntegrate9";
+    public void testIntegrate10() throws TransformerConfigurationException, TransformerException, ParserConfigurationException, SAXException, IOException {
+        String testId = "testIntegrate10";
         System.out.println("running test: "+testId);
         IntegratorOutputNode root = new IntegratorOutputNode();
         root.addDescendent("/itemEven", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/simpleItemEven.xml"))), false);

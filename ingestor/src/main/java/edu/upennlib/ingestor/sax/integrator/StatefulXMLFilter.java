@@ -16,6 +16,7 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
+import edu.upennlib.xmlutils.DevNullContentHandler;
 import edu.upennlib.xmlutils.SAXFeatures;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.ByteArrayOutputStream;
@@ -180,11 +181,16 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
             sb.append('\t').append(i).append(": ").append(bToS(startElementEventStack[i], ps, baos));
         }
         sb.append("EndBuffer: \n");
-        for (int i = depth - 1; i >= level && i >= 0; i--) {
+        for (int i = depth - 1; i >= 0; i--) {
             sb.append('\t').append(i).append(": ").append(bToS(endElementEventStack[i], ps, baos));
         }
         sb.append("tmpBuffer: ").append(bToS(tmpBuffer, ps, baos));
         return sb.toString();
+    }
+
+    @Override
+    public String buffersToString() {
+        return buffersToString(startElementEventStack.length);
     }
 
     private static String bToS(UnboundedContentHandlerBuffer buffer, PrintStream ps, ByteArrayOutputStream baos) {
@@ -236,7 +242,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                     if (level == selfLevel) {
                         selfId = true;
                         if (debugging && !"true".equals(atts.getValue("self"))) {
-                            throw new IllegalArgumentException();
+                            throw new IllegalArgumentException(Thread.currentThread()+" expected self at level "+level+", found "+id);
                         }
                     } else if (selfLevel == -1) {
                         if ("true".equals(atts.getValue("self"))) {
@@ -245,6 +251,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
                         }
                     }
                 }
+                writingOutput = false;
                 state = State.WAIT;
                 try {
                     lock.lock();
@@ -345,6 +352,8 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         return finished;
     }
 
+    private static final ContentHandler devNullContentHandler = new DevNullContentHandler();
+
     @Override
     public void skipOutput() {
         if (state != State.WAIT) {
@@ -355,6 +364,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         }
         refLevel = level;
         state = State.SKIP;
+        setContentHandler(devNullContentHandler);
         try {
             lock.lock();
             stateNotWait.signal();
@@ -424,6 +434,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         }
         setContentHandler(ch);
         refLevel = level;
+        writingOutput = true;
         state = State.PLAY;
         try {
             lock.lock();
@@ -439,6 +450,8 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
             lock.unlock();
         }
     }
+
+    private volatile boolean writingOutput = false;
 
     @Override
     public void writeRootElement(ContentHandler ch) throws SAXException {
@@ -515,9 +528,11 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
 
     private void pop() {
         if (lastWasEndElement) {
-            UnboundedContentHandlerBuffer tmp = endElementEventStack[level + 1];
-            endElementEventStack[level + 1] = tmpBuffer;
-            tmpBuffer = tmp;
+            if (writingOutput) {
+                UnboundedContentHandlerBuffer tmp = endElementEventStack[level + 1];
+                endElementEventStack[level + 1] = tmpBuffer;
+                tmpBuffer = tmp;
+            }
             tmpBuffer.clear();
         }
         setContentHandler(tmpBuffer);

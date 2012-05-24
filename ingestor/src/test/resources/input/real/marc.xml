@@ -1,0 +1,2823 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<integ:root xmlns:integ="http://integrator">
+   <integ:BIB_ID id="12" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>02882cas a2200565 a 4500</marc:leader>
+         <marc:controlfield tag="001">12</marc:controlfield>
+         <marc:controlfield tag="005">20120516144735.0</marc:controlfield>
+         <marc:controlfield tag="008">800610c19599999dcumr p       0   a0eng c</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   87657516 </marc:subfield>
+            <marc:subfield code="z">sn 86013771 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm06451257</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">PIT</marc:subfield>
+            <marc:subfield code="c">PIT</marc:subfield>
+            <marc:subfield code="d">CLU</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">AIP</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">AIP</marc:subfield>
+            <marc:subfield code="d">OCL</marc:subfield>
+            <marc:subfield code="d">AIP</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">OCL</marc:subfield>
+            <marc:subfield code="d">AIP</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">HUL</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">NLC</marc:subfield>
+            <marc:subfield code="d">WAU</marc:subfield>
+            <marc:subfield code="d">HUL</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">HUL</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">MXC</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">HUL</marc:subfield>
+            <marc:subfield code="d">HLS</marc:subfield>
+            <marc:subfield code="d">GUA</marc:subfield>
+            <marc:subfield code="d">WAU</marc:subfield>
+            <marc:subfield code="d">OCLCQ</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">NLGGC</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">DST</marc:subfield>
+            <marc:subfield code="d">ZCU</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">ZP2</marc:subfield>
+            <marc:subfield code="d">WAU</marc:subfield>
+            <marc:subfield code="d">OCLCQ</marc:subfield>
+            <marc:subfield code="d">MOF</marc:subfield>
+            <marc:subfield code="d">UKMGB</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="016" ind1="7" ind2=" ">
+            <marc:subfield code="a">012416401</marc:subfield>
+            <marc:subfield code="2">Uk</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="019" ind1=" " ind2=" ">
+            <marc:subfield code="a">44513109</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="022" ind1="0" ind2=" ">
+            <marc:subfield code="a">0027-9358</marc:subfield>
+            <marc:subfield code="l">0027-9358</marc:subfield>
+            <marc:subfield code="y">1536-6596</marc:subfield>
+            <marc:subfield code="2">1</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="030" ind1=" " ind2=" ">
+            <marc:subfield code="a">NGGMAF</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="032" ind1=" " ind2=" ">
+            <marc:subfield code="a">373140</marc:subfield>
+            <marc:subfield code="b">USPS</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)6451257</marc:subfield>
+            <marc:subfield code="z">(OCoLC)44513109</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">nsdp</marc:subfield>
+            <marc:subfield code="a">pcc</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">G1</marc:subfield>
+            <marc:subfield code="b">.N27</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1="1" ind2="4">
+            <marc:subfield code="a">910</marc:subfield>
+            <marc:subfield code="2">11</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="210" ind1="0" ind2=" ">
+            <marc:subfield code="a">Natl. geogr.</marc:subfield>
+            <marc:subfield code="b">(Print)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="222" ind1=" " ind2="0">
+            <marc:subfield code="a">National geographic</marc:subfield>
+            <marc:subfield code="b">(Print)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">National geographic.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="1" ind2="3">
+            <marc:subfield code="a">National geographic magazine</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">[Washington, D.C.] :</marc:subfield>
+            <marc:subfield code="b">National Geographic Society,</marc:subfield>
+            <marc:subfield code="c">c1959-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">v. :</marc:subfield>
+            <marc:subfield code="b">ill. (some col.), ports., maps (some fold., some col.) ;</marc:subfield>
+            <marc:subfield code="c">26 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Monthly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">Vol. 116, no. 6 (Dec. 1959)-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Title from cover.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Some vols. accompanied by supplements, some called 'special report' or 'special edition'.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Latest issue consulted: Vol. 215, no. 4 (Apr. 2009).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="515" ind1=" " ind2=" ">
+            <marc:subfield code="a">Issued in two yearly vols. of 6 issues each.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="530" ind1=" " ind2=" ">
+            <marc:subfield code="a">Also issued on microfilm and microfiche by University Microfilms, and online.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="550" ind1=" " ind2=" ">
+            <marc:subfield code="a">Official journal of: National Geographic Society.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="555" ind1=" " ind2=" ">
+            <marc:subfield code="a">Vols. 91 (1947)-161 (1983). 1 v. (Includes index to the journal under its earlier title); v. 1 (1888)-174 (1988). 1 v. (Includes index to the journal under its earlier title).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="555" ind1=" " ind2=" ">
+            <marc:subfield code="a">Indexes kept up-to-date with supplements.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Geography</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="2">
+            <marc:subfield code="a">Geography</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1="1" ind2="7">
+            <marc:subfield code="a">Sociale geografie.</marc:subfield>
+            <marc:subfield code="2">gtt</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">National Geographic Society (U.S.)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="776" ind1="0" ind2="8">
+            <marc:subfield code="i">Also issued annually in a CD-ROM version (includes issues of the journal under its earlier title) with title:</marc:subfield>
+            <marc:subfield code="t">Complete National geographic</marc:subfield>
+            <marc:subfield code="x">1939-9235</marc:subfield>
+            <marc:subfield code="w">(DLC)  2002252154</marc:subfield>
+            <marc:subfield code="w">(OCoLC)48770184</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="776" ind1="1" ind2=" ">
+            <marc:subfield code="t">National geographic (Online)</marc:subfield>
+            <marc:subfield code="x">1931-1524</marc:subfield>
+            <marc:subfield code="w">(DLC)  2006212228</marc:subfield>
+            <marc:subfield code="w">(OCoLC)60637636</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="776" ind1="0" ind2="8">
+            <marc:subfield code="i">Online version:</marc:subfield>
+            <marc:subfield code="t">National geographic</marc:subfield>
+            <marc:subfield code="w">(OCoLC)676714149</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="0" ind2="0">
+            <marc:subfield code="t">National geographic magazine</marc:subfield>
+            <marc:subfield code="x">1044-6613</marc:subfield>
+            <marc:subfield code="w">(DLC)   14007038</marc:subfield>
+            <marc:subfield code="w">(OCoLC)1643684</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="787" ind1="0" ind2=" ">
+            <marc:subfield code="t">National geographic (Collector's ed.)</marc:subfield>
+            <marc:subfield code="x">1536-6596</marc:subfield>
+            <marc:subfield code="w">(DLC)  2001215511</marc:subfield>
+            <marc:subfield code="w">(OCoLC)47778532</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="850" ind1=" " ind2=" ">
+            <marc:subfield code="a">ArU</marc:subfield>
+            <marc:subfield code="a">CSt</marc:subfield>
+            <marc:subfield code="a">CU-S</marc:subfield>
+            <marc:subfield code="a">CaNSCS</marc:subfield>
+            <marc:subfield code="a">CaOOEDC</marc:subfield>
+            <marc:subfield code="a">CaOONL</marc:subfield>
+            <marc:subfield code="a">CaOTDT</marc:subfield>
+            <marc:subfield code="a">CoU</marc:subfield>
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="a">DeU</marc:subfield>
+            <marc:subfield code="a">ICL</marc:subfield>
+            <marc:subfield code="a">ICarbS</marc:subfield>
+            <marc:subfield code="a">IaAS</marc:subfield>
+            <marc:subfield code="a">InU</marc:subfield>
+            <marc:subfield code="a">MH</marc:subfield>
+            <marc:subfield code="a">MH-BA</marc:subfield>
+            <marc:subfield code="a">MH-CS</marc:subfield>
+            <marc:subfield code="a">MH-Hi</marc:subfield>
+            <marc:subfield code="a">MH-Lm</marc:subfield>
+            <marc:subfield code="a">MH-SD</marc:subfield>
+            <marc:subfield code="a">MiDW</marc:subfield>
+            <marc:subfield code="a">MiEM</marc:subfield>
+            <marc:subfield code="a">NcD</marc:subfield>
+            <marc:subfield code="a">NcRS</marc:subfield>
+            <marc:subfield code="a">NjR</marc:subfield>
+            <marc:subfield code="a">OCU</marc:subfield>
+            <marc:subfield code="a">TU</marc:subfield>
+            <marc:subfield code="a">ViU</marc:subfield>
+            <marc:subfield code="a">WaU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="2" ind2="0">
+            <marc:subfield code="9">853</marc:subfield>
+            <marc:subfield code="8">1</marc:subfield>
+            <marc:subfield code="a">v.</marc:subfield>
+            <marc:subfield code="b">no.</marc:subfield>
+            <marc:subfield code="u">6</marc:subfield>
+            <marc:subfield code="v">r</marc:subfield>
+            <marc:subfield code="i">(year)</marc:subfield>
+            <marc:subfield code="j">(month)</marc:subfield>
+            <marc:subfield code="w">m</marc:subfield>
+            <marc:subfield code="x">01,07</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="4" ind2="1">
+            <marc:subfield code="9">863</marc:subfield>
+            <marc:subfield code="8">1.1</marc:subfield>
+            <marc:subfield code="a">&lt;199&gt;</marc:subfield>
+            <marc:subfield code="b">&lt;6&gt;</marc:subfield>
+            <marc:subfield code="i">&lt;2001&gt;</marc:subfield>
+            <marc:subfield code="j">06</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="15" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>01581cas a2200493 a 4500</marc:leader>
+         <marc:controlfield tag="001">15</marc:controlfield>
+         <marc:controlfield tag="005">20090520144608.0</marc:controlfield>
+         <marc:controlfield tag="008">750920c19259999fi  x m       0   a0eng d</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   50047780 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm01639720</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">MUL</marc:subfield>
+            <marc:subfield code="c">MUL</marc:subfield>
+            <marc:subfield code="d">COO</marc:subfield>
+            <marc:subfield code="d">YUS</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">YUS</marc:subfield>
+            <marc:subfield code="d">HUL</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">OCL</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">SYS</marc:subfield>
+            <marc:subfield code="d">OCLCQ</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="019" ind1=" " ind2=" ">
+            <marc:subfield code="a">6265635</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="022" ind1=" " ind2=" ">
+            <marc:subfield code="a">0039-3282</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)1639720</marc:subfield>
+            <marc:subfield code="z">(OCoLC)6265635</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="041" ind1="0" ind2=" ">
+            <marc:subfield code="a">engfreger</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">lc</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">ae-----</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">PJ9</marc:subfield>
+            <marc:subfield code="b">.S86</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1="0" ind2=" ">
+            <marc:subfield code="a">490/.5</marc:subfield>
+            <marc:subfield code="2">19</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="222" ind1=" " ind2="0">
+            <marc:subfield code="a">Studia orientalia</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Studia orientalia /</marc:subfield>
+            <marc:subfield code="c">edited by the Finnish Oriental Society.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Helsinki :</marc:subfield>
+            <marc:subfield code="b">The Society</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">v. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">25-28 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Irregular</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="1" ind2=" ">
+            <marc:subfield code="a">Began in 1925.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Description based on: Vol. 51; title from cover.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Latest issue consulted: Vol. 74, published in 1995.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="530" ind1=" " ind2=" ">
+            <marc:subfield code="a">Also issued online.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">English, French, and German.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="555" ind1=" " ind2=" ">
+            <marc:subfield code="a">Vols. 1 (1925)-39 (1968). 1 v.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="651" ind1=" " ind2="0">
+            <marc:subfield code="a">East Asia</marc:subfield>
+            <marc:subfield code="x">Study and teaching.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Oriental philology.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Suomen Itämainen Seura.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="850" ind1=" " ind2=" ">
+            <marc:subfield code="a">CU</marc:subfield>
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="a">DeU</marc:subfield>
+            <marc:subfield code="a">InU</marc:subfield>
+            <marc:subfield code="a">MH-HY</marc:subfield>
+            <marc:subfield code="a">NcD</marc:subfield>
+            <marc:subfield code="a">OU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="0" ind2="2">
+            <marc:subfield code="9">853</marc:subfield>
+            <marc:subfield code="8">1</marc:subfield>
+            <marc:subfield code="a">v.</marc:subfield>
+            <marc:subfield code="i">(year)</marc:subfield>
+            <marc:subfield code="w">x</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="4" ind2="0">
+            <marc:subfield code="9">863</marc:subfield>
+            <marc:subfield code="8">1</marc:subfield>
+            <marc:subfield code="a">&lt;10&gt;-</marc:subfield>
+            <marc:subfield code="i">&lt;1941&gt;-</marc:subfield>
+            <marc:subfield code="x">provisional</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="0" ind2="2">
+            <marc:subfield code="9">853</marc:subfield>
+            <marc:subfield code="8">2</marc:subfield>
+            <marc:subfield code="a">v.</marc:subfield>
+            <marc:subfield code="i">(year)</marc:subfield>
+            <marc:subfield code="w">02</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="4" ind2="0">
+            <marc:subfield code="9">863</marc:subfield>
+            <marc:subfield code="8">2</marc:subfield>
+            <marc:subfield code="a">&lt;47&gt;-</marc:subfield>
+            <marc:subfield code="i">&lt;1977&gt;</marc:subfield>
+            <marc:subfield code="x">provisional</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="0" ind2="2">
+            <marc:subfield code="9">853</marc:subfield>
+            <marc:subfield code="8">3</marc:subfield>
+            <marc:subfield code="a">v.</marc:subfield>
+            <marc:subfield code="i">(year)</marc:subfield>
+            <marc:subfield code="w">a</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="4" ind2="1">
+            <marc:subfield code="9">863</marc:subfield>
+            <marc:subfield code="8">3</marc:subfield>
+            <marc:subfield code="a">&lt;51&gt;</marc:subfield>
+            <marc:subfield code="i">&lt;1981&gt;</marc:subfield>
+            <marc:subfield code="x">provisional</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="1" ind2="2">
+            <marc:subfield code="9">853</marc:subfield>
+            <marc:subfield code="8">4</marc:subfield>
+            <marc:subfield code="a">v.</marc:subfield>
+            <marc:subfield code="i">(year)</marc:subfield>
+            <marc:subfield code="w">02</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="4" ind2="0">
+            <marc:subfield code="9">863</marc:subfield>
+            <marc:subfield code="8">4</marc:subfield>
+            <marc:subfield code="a">&lt;52&gt;-</marc:subfield>
+            <marc:subfield code="i">&lt;1982&gt;-</marc:subfield>
+            <marc:subfield code="x">provisional</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="80" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>04347cas a2200817|a 4500</marc:leader>
+         <marc:controlfield tag="001">80</marc:controlfield>
+         <marc:controlfield tag="005">20030825153640.0</marc:controlfield>
+         <marc:controlfield tag="008">751101u18239999enkwr p       0uuu 0eng  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">sf 82002015 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="022" ind1=" " ind2=" ">
+            <marc:subfield code="a">0099-5355</marc:subfield>
+            <marc:subfield code="z">0023-7507</marc:subfield>
+            <marc:subfield code="y">0140-6736</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)PAUG1755507-S</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="9">AAA0079</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(PUVoyagerBIBID)80</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="c">MUL</marc:subfield>
+            <marc:subfield code="d">OCoLC</marc:subfield>
+            <marc:subfield code="d">NIC</marc:subfield>
+            <marc:subfield code="d">MH</marc:subfield>
+            <marc:subfield code="d">N</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">SER</marc:subfield>
+            <marc:subfield code="d">RCS</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">lc</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2=" ">
+            <marc:subfield code="a">R31</marc:subfield>
+            <marc:subfield code="b">.L3</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="130" ind1="0" ind2="0">
+            <marc:subfield code="a">Lancet (London, England)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="4">
+            <marc:subfield code="a">The Lancet.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1="0" ind2="0">
+            <marc:subfield code="a">London :</marc:subfield>
+            <marc:subfield code="b">J. Onwhyn,</marc:subfield>
+            <marc:subfield code="c">1823-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">v. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">22-27 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Weekly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">Vol. 1, no. 1 (Oct. 5, 1823)-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="515" ind1=" " ind2=" ">
+            <marc:subfield code="a">Volume designation varies: v. 1-12 issued 1823-1827; from 1827 to 1907 two unnumbered vols. issued annually; from 1907-1960 vols. numbered 174-279; from 1960-   two unnumbered volumes issued annually.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="530" ind1=" " ind2=" ">
+            <marc:subfield code="a">Also available in online editions.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Also issued 1842-1892 in an American edition called: London lancet; 189 -196 , in a New York edition; and July 1966-   in a North American edition.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="590" ind1=" " ind2=" ">
+            <marc:subfield code="a">In U. of P. Libraries, beginning with vols. for 1966, the edition held is the North American edition, which has identical editorial content as    the London edition.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Medicine</marc:subfield>
+            <marc:subfield code="x">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="775" ind1="1" ind2=" ">
+            <marc:subfield code="t">London lancet</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="775" ind1="1" ind2=" ">
+            <marc:subfield code="t">Lancet (New York)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="775" ind1="1" ind2=" ">
+            <marc:subfield code="t">Lancet (North American edition)</marc:subfield>
+            <marc:subfield code="x">0099-5355</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="776" ind1="1" ind2=" ">
+            <marc:subfield code="t">Lancet interactive</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="776" ind1="1" ind2=" ">
+            <marc:subfield code="t">Lancet (London, England : Online)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="856" ind1="4" ind2="0">
+            <marc:subfield code="u">http://hdl.library.upenn.edu/1017/4789</marc:subfield>
+            <marc:subfield code="z">From: ScienceDirect</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="856" ind1="4" ind2="0">
+            <marc:subfield code="u">http://hdl.library.upenn.edu/1017/4788</marc:subfield>
+            <marc:subfield code="z">From: The Lancet</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="856" ind1="4" ind2="0">
+            <marc:subfield code="u">http://hdl.library.upenn.edu/1017/4789</marc:subfield>
+            <marc:subfield code="z">From: The Lancet</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="l">VPL</marc:subfield>
+            <marc:subfield code="e">100,104,106\\Other\sets in\Dent\PER\\NBC\Vet\</marc:subfield>
+            <marc:subfield code="e">105\\see also\film\cont.\436\</marc:subfield>
+            <marc:subfield code="v">1823-1879</marc:subfield>
+            <marc:subfield code="i">02/03/88 RL</marc:subfield>
+            <marc:subfield code="h">04/30/84 C</marc:subfield>
+            <marc:subfield code="h">03/01/84 N ?104:rme ?105:rsl</marc:subfield>
+            <marc:subfield code="h">01/01/01 N</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="l">DENT</marc:subfield>
+            <marc:subfield code="b">\PER\</marc:subfield>
+            <marc:subfield code="z">Currently received. Unbound issues in Dental Library</marc:subfield>
+            <marc:subfield code="i">02/03/88 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="e">104\\Current.\rec'd\</marc:subfield>
+            <marc:subfield code="v">y.1969-June 1985, Apr.-Dec.1986,Jan.-Mar.1987</marc:subfield>
+            <marc:subfield code="z">Currently received</marc:subfield>
+            <marc:subfield code="p">3</marc:subfield>
+            <marc:subfield code="i">02/03/88 N</marc:subfield>
+            <marc:subfield code="h">10/08/87 C</marc:subfield>
+            <marc:subfield code="h">09/08/87 C</marc:subfield>
+            <marc:subfield code="h">05/01/87 C</marc:subfield>
+            <marc:subfield code="h">08/15/86 C</marc:subfield>
+            <marc:subfield code="h">11/13/85 C</marc:subfield>
+            <marc:subfield code="h">09/03/85 C</marc:subfield>
+            <marc:subfield code="h">05/03/85 C</marc:subfield>
+            <marc:subfield code="h">01/17/85 C</marc:subfield>
+            <marc:subfield code="h">06/20/84 C</marc:subfield>
+            <marc:subfield code="h">04/30/84 C</marc:subfield>
+            <marc:subfield code="h">03/01/84 N ?105:rsl</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="a">610.5</marc:subfield>
+            <marc:subfield code="b">L22</marc:subfield>
+            <marc:subfield code="e">104\\Current.\rec'd\</marc:subfield>
+            <marc:subfield code="v">yJuly1948, 1958-1987 Some vols. inc.</marc:subfield>
+            <marc:subfield code="z">Currently received</marc:subfield>
+            <marc:subfield code="p">3</marc:subfield>
+            <marc:subfield code="i">02/03/88 N</marc:subfield>
+            <marc:subfield code="h">12/02/87 C</marc:subfield>
+            <marc:subfield code="h">06/29/87 C</marc:subfield>
+            <marc:subfield code="h">05/28/87 C</marc:subfield>
+            <marc:subfield code="h">12/23/86 C</marc:subfield>
+            <marc:subfield code="h">11/13/86 C</marc:subfield>
+            <marc:subfield code="h">10/28/86 C</marc:subfield>
+            <marc:subfield code="h">06/30/86 C</marc:subfield>
+            <marc:subfield code="h">04/21/86 C</marc:subfield>
+            <marc:subfield code="h">11/18/85 C</marc:subfield>
+            <marc:subfield code="h">05/21/85 C</marc:subfield>
+            <marc:subfield code="h">11/16/84 C</marc:subfield>
+            <marc:subfield code="h">10/31/84 C</marc:subfield>
+            <marc:subfield code="h">05/23/84 C</marc:subfield>
+            <marc:subfield code="h">04/30/84 C</marc:subfield>
+            <marc:subfield code="h">03/01/84 N ?105:rsl</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">DENT</marc:subfield>
+            <marc:subfield code="q">ser. DT</marc:subfield>
+            <marc:subfield code="i">02/03/88 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VPL</marc:subfield>
+            <marc:subfield code="q">g.Med.Lib.</marc:subfield>
+            <marc:subfield code="s">SHELFLIST FILED IN SERIALS DEPT</marc:subfield>
+            <marc:subfield code="h">03/01/84 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(Ap-Je 1983)</marc:subfield>
+            <marc:subfield code="q">Vet.Lib.</marc:subfield>
+            <marc:subfield code="s">SHELFLIST FOR EARLIER VOLS IN SERIALS DEPT</marc:subfield>
+            <marc:subfield code="h">03/01/84 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(Jl-S 1983)</marc:subfield>
+            <marc:subfield code="h">04/30/84 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(O-D 1983)</marc:subfield>
+            <marc:subfield code="h">06/20/84 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(Ja-Mr 1984)</marc:subfield>
+            <marc:subfield code="h">01/17/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(Ap-Je 1984)</marc:subfield>
+            <marc:subfield code="h">01/17/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(Jl-S 1984)</marc:subfield>
+            <marc:subfield code="h">05/03/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(O-D 1984)</marc:subfield>
+            <marc:subfield code="h">05/03/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(Ja-Mr 1985)</marc:subfield>
+            <marc:subfield code="h">09/03/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(Ap-Je 1985)</marc:subfield>
+            <marc:subfield code="h">11/13/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(Ja-Mr 1986)</marc:subfield>
+            <marc:subfield code="h">08/15/86 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(Ap-Je 1986)</marc:subfield>
+            <marc:subfield code="h">05/01/87 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(Ja-Mr 1987)</marc:subfield>
+            <marc:subfield code="h">09/08/87 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(Jl-S 1986)</marc:subfield>
+            <marc:subfield code="h">10/08/87 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:(O-D 1986)</marc:subfield>
+            <marc:subfield code="h">10/08/87 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VPL</marc:subfield>
+            <marc:subfield code="h">03/01/84 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(Jl-S 1983 no.8340-8352)</marc:subfield>
+            <marc:subfield code="q">ser.SF</marc:subfield>
+            <marc:subfield code="s">SHELFLIST FOR EARLIER VOLS IN SERIALS DEPT</marc:subfield>
+            <marc:subfield code="h">03/01/84 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(O-D 1983 no. 8353-8364)</marc:subfield>
+            <marc:subfield code="h">04/30/84 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(Ja-Mr 1984 no.8367-8378)</marc:subfield>
+            <marc:subfield code="h">05/23/84 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(Ap-Je 1984 no.8380-8392)</marc:subfield>
+            <marc:subfield code="h">10/31/84 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(Jl-S 1984 no.8393-8405)</marc:subfield>
+            <marc:subfield code="h">11/16/84 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(0-D 1984 no.8406-8417/8)</marc:subfield>
+            <marc:subfield code="h">05/21/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(Ja-Mr 1985 no.8419-8431)</marc:subfield>
+            <marc:subfield code="h">05/21/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(Jl-S 1985 pp1-738)</marc:subfield>
+            <marc:subfield code="h">11/18/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(O-D 1985 pp739-1444)</marc:subfield>
+            <marc:subfield code="h">04/21/86 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(Ja-Mr 1986 pp1-754)</marc:subfield>
+            <marc:subfield code="h">06/30/86 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(Ap-Je 1986 pp755-1572)</marc:subfield>
+            <marc:subfield code="h">10/28/86 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(Jl-S 1986 pp1-762)</marc:subfield>
+            <marc:subfield code="h">12/23/86 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(O-D 1986 pp763-1474)</marc:subfield>
+            <marc:subfield code="h">05/28/87 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(Ja-Mr 1987 pp1-760)</marc:subfield>
+            <marc:subfield code="h">06/29/87 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(Jl-S 1987 pp.1-756)</marc:subfield>
+            <marc:subfield code="h">12/02/87 C</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="30580" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>01359cas a2200289Ma 4500</marc:leader>
+         <marc:controlfield tag="001">30580</marc:controlfield>
+         <marc:controlfield tag="005">20081202103225.0</marc:controlfield>
+         <marc:controlfield tag="008">870717d18681944gw uu p       0   a0ger d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocn219854722</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">AU@</marc:subfield>
+            <marc:subfield code="b">eng</marc:subfield>
+            <marc:subfield code="c">AU@</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)219854722</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1=" " ind2="4">
+            <marc:subfield code="a">QD1</marc:subfield>
+            <marc:subfield code="b">.D4</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="110" ind1="2" ind2=" ">
+            <marc:subfield code="a">Deutsche Chemische Gesellschaft.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Berichte der Deutschen Chemischen Gesellschaft zu Berlin.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="3" ind2="3">
+            <marc:subfield code="a">Berichte der Deutschen Chemischen Gesellschaft</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Berlin :</marc:subfield>
+            <marc:subfield code="b">F. Dümmlers Verlagsbuchh.,</marc:subfield>
+            <marc:subfield code="c">1868-1944.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">77 v. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">22-24 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">1. Jahrg. (1868)-77. Jahrg. (1944).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Title varies slightly: 10. Jahrg.-77 Jahrg., Berichte der Deutschen Chemischen Gesellschaft.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="515" ind1=" " ind2=" ">
+            <marc:subfield code="a">Vol. 78-79 omitted in numbering.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="555" ind1=" " ind2=" ">
+            <marc:subfield code="a">General register, vols. 1-10, 1868-77, 1 v.; vols. 11-20, 1878-87, 2 v.; vols. 21-29, 1888-96, 2 v. in 3; Autoren-General Register, vols. 30-40, 1897-1907, 1 v.; vols. 41-50, 1908-17, with index to v. 30-40; vols. 51-60, 1918-27. 1 v. Vols. 61-70, 1928-37, 1 v.; vols. 71-77/79, 1938-44/46, 1 v.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="610" ind1="2" ind2="0">
+            <marc:subfield code="a">Deutsche Chemische Gesellschaft</marc:subfield>
+            <marc:subfield code="x">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemistry</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Deutsche Chemische Gesellschaft.</marc:subfield>
+            <marc:subfield code="t">Berichte der Deutschen Chemischen Gesellschaft.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="0" ind2="0">
+            <marc:subfield code="t">Chemische Berichte</marc:subfield>
+            <marc:subfield code="x">0009-2940</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="49090" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>02474cas a2200613   4500</marc:leader>
+         <marc:controlfield tag="001">49090</marc:controlfield>
+         <marc:controlfield tag="005">20090205075822.0</marc:controlfield>
+         <marc:controlfield tag="008">760712d19791994gw mr p       0   b0ger d</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   80644142 </marc:subfield>
+            <marc:subfield code="z">sn 80012916 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm04719928</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">IAD</marc:subfield>
+            <marc:subfield code="c">IAD</marc:subfield>
+            <marc:subfield code="d">COO</marc:subfield>
+            <marc:subfield code="d">OCL</marc:subfield>
+            <marc:subfield code="d">NLM</marc:subfield>
+            <marc:subfield code="d">MUL</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">SER</marc:subfield>
+            <marc:subfield code="d">RCS</marc:subfield>
+            <marc:subfield code="d">AIP</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">AIP</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">CUS</marc:subfield>
+            <marc:subfield code="d">NYG</marc:subfield>
+            <marc:subfield code="d">GUA</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">AGL</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">OCLCQ</marc:subfield>
+            <marc:subfield code="d">NLGGC</marc:subfield>
+            <marc:subfield code="d">LVB</marc:subfield>
+            <marc:subfield code="d">MYG</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="016" ind1="7" ind2=" ">
+            <marc:subfield code="a">7907963</marc:subfield>
+            <marc:subfield code="2">DNLM</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="016" ind1="7" ind2=" ">
+            <marc:subfield code="a">L08300000</marc:subfield>
+            <marc:subfield code="2">DNLM</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="022" ind1="0" ind2=" ">
+            <marc:subfield code="a">0170-2041</marc:subfield>
+            <marc:subfield code="2">z</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="030" ind1=" " ind2=" ">
+            <marc:subfield code="a">LACHDL</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="032" ind1=" " ind2=" ">
+            <marc:subfield code="a">346490</marc:subfield>
+            <marc:subfield code="b">USPS</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)4719928</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="041" ind1="0" ind2=" ">
+            <marc:subfield code="a">gereng</marc:subfield>
+            <marc:subfield code="b">eng</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">nsdp</marc:subfield>
+            <marc:subfield code="a">lc</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">QD1</marc:subfield>
+            <marc:subfield code="b">.L7</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="060" ind1="0" ind2="0">
+            <marc:subfield code="a">W1</marc:subfield>
+            <marc:subfield code="b">LI26</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="070" ind1="0" ind2=" ">
+            <marc:subfield code="a">384</marc:subfield>
+            <marc:subfield code="b">An7</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="072" ind1=" " ind2="0">
+            <marc:subfield code="a">X500</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="210" ind1="0" ind2=" ">
+            <marc:subfield code="a">Liebigs Ann. Chem.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="222" ind1=" " ind2="0">
+            <marc:subfield code="a">Liebigs Annalen der Chemie</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="242" ind1="0" ind2="0">
+            <marc:subfield code="a">Liebig's annals of chemistry.</marc:subfield>
+            <marc:subfield code="y">eng</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Liebigs Annalen der Chemie.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="3" ind2="0">
+            <marc:subfield code="a">Annalen der Chemie</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Weinheim [Ger.],</marc:subfield>
+            <marc:subfield code="a">Deerfield Beach, Fla.,</marc:subfield>
+            <marc:subfield code="b">VCH Verlagsgesellschaft [etc.]</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">16 v.</marc:subfield>
+            <marc:subfield code="b">ill.</marc:subfield>
+            <marc:subfield code="c">24-28 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Monthly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">Jan. 1979-Dec. 1994.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="510" ind1="2" ind2=" ">
+            <marc:subfield code="a">Chemical abstracts</marc:subfield>
+            <marc:subfield code="x">0009-2258</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="515" ind1=" " ind2=" ">
+            <marc:subfield code="a">Vols. have also inclusive numbering each year.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="530" ind1=" " ind2=" ">
+            <marc:subfield code="a">Also issued online.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">German and English, with summaries in English.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="550" ind1=" " ind2=" ">
+            <marc:subfield code="a">Published under the auspices of the Gesellschaft Deutscher Chemiker, -1994.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Merged with: Part B (Organic chemistry) of Chemische Berichte, ISSN 0009-2940, to form: Liebigs Annalen, ISSN 0947-3440.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemistry, Organic</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Biochemistry</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="2">
+            <marc:subfield code="a">Chemistry</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1="1" ind2="7">
+            <marc:subfield code="a">Chemie.</marc:subfield>
+            <marc:subfield code="2">gtt</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="6">
+            <marc:subfield code="a">Chimie</marc:subfield>
+            <marc:subfield code="v">Périodiques.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="6">
+            <marc:subfield code="a">Pharmacie</marc:subfield>
+            <marc:subfield code="v">Périodiques.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Liebig, Justus,</marc:subfield>
+            <marc:subfield code="c">Freiherr von,</marc:subfield>
+            <marc:subfield code="d">1803-1873.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Gesellschaft Deutscher Chemiker.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="0" ind2="0">
+            <marc:subfield code="t">Justus Liebigs Annalen der Chemie</marc:subfield>
+            <marc:subfield code="w">(DLC)   08036877</marc:subfield>
+            <marc:subfield code="w">(OCoLC)1754927</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Chemische Berichte</marc:subfield>
+            <marc:subfield code="x">0009-2940</marc:subfield>
+            <marc:subfield code="w">(DLC)sn 80001781</marc:subfield>
+            <marc:subfield code="w">(OCoLC)1554024</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Liebigs Annalen</marc:subfield>
+            <marc:subfield code="x">0947-3440</marc:subfield>
+            <marc:subfield code="w">(DLC)   95652030</marc:subfield>
+            <marc:subfield code="w">(OCoLC)31871296</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="850" ind1=" " ind2=" ">
+            <marc:subfield code="a">AU</marc:subfield>
+            <marc:subfield code="a">ArU</marc:subfield>
+            <marc:subfield code="a">AzTeS</marc:subfield>
+            <marc:subfield code="a">AzU</marc:subfield>
+            <marc:subfield code="a">CU-A</marc:subfield>
+            <marc:subfield code="a">CaMWU</marc:subfield>
+            <marc:subfield code="a">CaNBFU</marc:subfield>
+            <marc:subfield code="a">CoFS</marc:subfield>
+            <marc:subfield code="a">CtW</marc:subfield>
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="a">DNAL</marc:subfield>
+            <marc:subfield code="a">FU</marc:subfield>
+            <marc:subfield code="a">GU</marc:subfield>
+            <marc:subfield code="a">InU</marc:subfield>
+            <marc:subfield code="a">InU-M</marc:subfield>
+            <marc:subfield code="a">KyU</marc:subfield>
+            <marc:subfield code="a">MShM</marc:subfield>
+            <marc:subfield code="a">MdU</marc:subfield>
+            <marc:subfield code="a">MiDW</marc:subfield>
+            <marc:subfield code="a">MnU</marc:subfield>
+            <marc:subfield code="a">MsSM</marc:subfield>
+            <marc:subfield code="a">MsU</marc:subfield>
+            <marc:subfield code="a">N</marc:subfield>
+            <marc:subfield code="a">NBC</marc:subfield>
+            <marc:subfield code="a">NNC</marc:subfield>
+            <marc:subfield code="a">NNStJ</marc:subfield>
+            <marc:subfield code="a">NSyU</marc:subfield>
+            <marc:subfield code="a">NcCU</marc:subfield>
+            <marc:subfield code="a">NcD</marc:subfield>
+            <marc:subfield code="a">NcU</marc:subfield>
+            <marc:subfield code="a">NjR</marc:subfield>
+            <marc:subfield code="a">OO</marc:subfield>
+            <marc:subfield code="a">PPT</marc:subfield>
+            <marc:subfield code="a">PPiU</marc:subfield>
+            <marc:subfield code="a">TxArU</marc:subfield>
+            <marc:subfield code="a">TxU</marc:subfield>
+            <marc:subfield code="a">WM</marc:subfield>
+            <marc:subfield code="a">WvU</marc:subfield>
+            <marc:subfield code="a">WyU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="l">CHEM</marc:subfield>
+            <marc:subfield code="a">QD1</marc:subfield>
+            <marc:subfield code="b">.L7</marc:subfield>
+            <marc:subfield code="i">01/01/01 N</marc:subfield>
+            <marc:subfield code="x">034</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">CHEM</marc:subfield>
+            <marc:subfield code="c">1:1979-1993:June</marc:subfield>
+            <marc:subfield code="s">ncr</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="108319" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>04259cas a2200721 a 4500</marc:leader>
+         <marc:controlfield tag="001">108319</marc:controlfield>
+         <marc:controlfield tag="005">20101122125040.0</marc:controlfield>
+         <marc:controlfield tag="008">850522d19851997fr br p   o   0   b0fre c</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">sn 86015884 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm12067665</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">ABC</marc:subfield>
+            <marc:subfield code="c">ABC</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">OCL</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">OCL</marc:subfield>
+            <marc:subfield code="d">BSS</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">MYG</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">HUL</marc:subfield>
+            <marc:subfield code="d">OCLCQ</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">NLGGC</marc:subfield>
+            <marc:subfield code="d">LVB</marc:subfield>
+            <marc:subfield code="d">OCLCQ</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="016" ind1="7" ind2=" ">
+            <marc:subfield code="a">B54420000</marc:subfield>
+            <marc:subfield code="2">DNLM</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="022" ind1=" " ind2=" ">
+            <marc:subfield code="a">0037-8968</marc:subfield>
+            <marc:subfield code="l">0037-8968</marc:subfield>
+            <marc:subfield code="2">z</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="030" ind1=" " ind2=" ">
+            <marc:subfield code="a">BSCFAS</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)12067665</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="041" ind1="0" ind2=" ">
+            <marc:subfield code="a">freeng</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">pcc</marc:subfield>
+            <marc:subfield code="a">nsdp</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">QD1</marc:subfield>
+            <marc:subfield code="b">.S4</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="130" ind1="0" ind2=" ">
+            <marc:subfield code="a">Bulletin de la Société chimique de France (Paris, France : 1985)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="210" ind1="0" ind2=" ">
+            <marc:subfield code="a">Bull. Soc. chim. Fr.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="222" ind1=" " ind2="0">
+            <marc:subfield code="a">Bulletin de la Société chimique de France</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Bulletin de la Société chimique de France.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Paris, France :</marc:subfield>
+            <marc:subfield code="b">Société française de chimie,</marc:subfield>
+            <marc:subfield code="c">1985-c1997.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">v. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">30 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Bimonthly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">Janv./févr. 1985-134, 10 &amp; 11 (Nov.-Dec. 1997).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Title from cover.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Publishers: Elsevier : Socíeté française de chimie, -Nov./Dec. 1997.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="515" ind1=" " ind2=" ">
+            <marc:subfield code="a">Issues for 1992-1997 called: v. 129-v.134 in continuation of: Bulletin de la Société chimique de Paris, which began in 1863.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">Text in French with summaries in English, 1985- ; text in French and English, -Nov./Dec. 1997.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="550" ind1=" " ind2=" ">
+            <marc:subfield code="a">"Publié sous l'égide de la Société française de chimie."</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Formed by the union of: Bulletin de la Société chimique de France. Ptie 1: Physicochimie des systèmes liquides, electrochimie, catalyse, génie chimique, and: Bulletin de la Société chimique de France. Partie 2: Chimie moléculaire, organique et biologique.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Merged with the inorganic parts of: Bulletin des sociétés chimiques belges; Chemische Berichte/Recueil; and: Gazzetta chimica Italiana, to form: European journal of inorganic chemistry.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Merged with Liebigs Annalen/Recueil, and with the organic parts of: Bulletin des sociétés chimiques belges; Chemische Berichte/Recueil; and: Gazzetta chimica Italiana; to form: European journal of organic chemistry.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemistry, Analytic</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemistry, Organic</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemistry, Physical and theoretical</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemical engineering</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Biochemistry</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Catalysis</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Electrochemistry</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1="1" ind2="7">
+            <marc:subfield code="a">Chemie.</marc:subfield>
+            <marc:subfield code="2">gtt</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="6">
+            <marc:subfield code="a">Chimie analytique</marc:subfield>
+            <marc:subfield code="v">Périodiques.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="6">
+            <marc:subfield code="a">Chimie organique</marc:subfield>
+            <marc:subfield code="v">Périodiques.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="6">
+            <marc:subfield code="a">Chimie physique et théorique</marc:subfield>
+            <marc:subfield code="v">Périodiques.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="6">
+            <marc:subfield code="a">Génie chimique</marc:subfield>
+            <marc:subfield code="v">Périodiques.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="6">
+            <marc:subfield code="a">Catalyse</marc:subfield>
+            <marc:subfield code="v">Périodiques.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="6">
+            <marc:subfield code="a">Électrochimie</marc:subfield>
+            <marc:subfield code="v">Périodiques.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="6">
+            <marc:subfield code="a">Biochimie</marc:subfield>
+            <marc:subfield code="v">Périodiques.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Société chimique de France.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Société française de chimie.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="1" ind2="4">
+            <marc:subfield code="t">Bulletin de la Société chimique de France. Ptie 1, Physicochimie des systèmes liquides, electrochimie, catalyse, génie chimique</marc:subfield>
+            <marc:subfield code="x">0037-8968</marc:subfield>
+            <marc:subfield code="w">(DLC)sn 86015887</marc:subfield>
+            <marc:subfield code="w">(OCoLC)10730010</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="1" ind2="4">
+            <marc:subfield code="t">Bulletin de la Société chimique de France. Partie 2, Chimie moléculaire, organique et biologique</marc:subfield>
+            <marc:subfield code="x">0037-8968</marc:subfield>
+            <marc:subfield code="w">(DLC)sn 84011431</marc:subfield>
+            <marc:subfield code="w">(OCoLC)7079108</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Bulletin des sociétés chimiques belges</marc:subfield>
+            <marc:subfield code="x">0037-9646</marc:subfield>
+            <marc:subfield code="w">(DLC)   52025365</marc:subfield>
+            <marc:subfield code="w">(OCoLC)6112872</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Chemische Berichte/Recueil</marc:subfield>
+            <marc:subfield code="w">(DLC)sn 97047233</marc:subfield>
+            <marc:subfield code="w">(OCoLC)36290071</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Gazzetta chimica Italiana</marc:subfield>
+            <marc:subfield code="x">0016-5603</marc:subfield>
+            <marc:subfield code="w">(DLC)   21006544</marc:subfield>
+            <marc:subfield code="w">(OCoLC)1780898</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Liebigs Annalen/Recueil</marc:subfield>
+            <marc:subfield code="w">(DLC)sn 97036183</marc:subfield>
+            <marc:subfield code="w">(OCoLC)36290117</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">European journal of inorganic chemistry</marc:subfield>
+            <marc:subfield code="x">1434-1948</marc:subfield>
+            <marc:subfield code="w">(DLC)   98660732</marc:subfield>
+            <marc:subfield code="w">(OCoLC)38192665</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">European journal of organic chemistry</marc:subfield>
+            <marc:subfield code="x">1434-193X</marc:subfield>
+            <marc:subfield code="w">(DLC)   98660733</marc:subfield>
+            <marc:subfield code="w">(OCoLC)38235760</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="776" ind1="0" ind2="8">
+            <marc:subfield code="i">Online version:</marc:subfield>
+            <marc:subfield code="t">Bulletin de la Société chimique de France (Paris, France : 1985)</marc:subfield>
+            <marc:subfield code="w">(OCoLC)630991692</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="850" ind1=" " ind2=" ">
+            <marc:subfield code="a">AU</marc:subfield>
+            <marc:subfield code="a">CU</marc:subfield>
+            <marc:subfield code="a">CU-I</marc:subfield>
+            <marc:subfield code="a">CaNBFU</marc:subfield>
+            <marc:subfield code="a">CaNSHD</marc:subfield>
+            <marc:subfield code="a">CaOWA</marc:subfield>
+            <marc:subfield code="a">CaSSU</marc:subfield>
+            <marc:subfield code="a">CtY-M</marc:subfield>
+            <marc:subfield code="a">DeU</marc:subfield>
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="a">ICarbS</marc:subfield>
+            <marc:subfield code="a">InLP</marc:subfield>
+            <marc:subfield code="a">InU</marc:subfield>
+            <marc:subfield code="a">MChB</marc:subfield>
+            <marc:subfield code="a">MiU</marc:subfield>
+            <marc:subfield code="a">MsU</marc:subfield>
+            <marc:subfield code="a">NcD</marc:subfield>
+            <marc:subfield code="a">NCH</marc:subfield>
+            <marc:subfield code="a">NcRS</marc:subfield>
+            <marc:subfield code="a">NcWsW</marc:subfield>
+            <marc:subfield code="a">NhU</marc:subfield>
+            <marc:subfield code="a">NjR</marc:subfield>
+            <marc:subfield code="a">PBL</marc:subfield>
+            <marc:subfield code="a">PU</marc:subfield>
+            <marc:subfield code="a">RPB-S</marc:subfield>
+            <marc:subfield code="a">TU</marc:subfield>
+            <marc:subfield code="a">TxDaM</marc:subfield>
+            <marc:subfield code="a">UU</marc:subfield>
+            <marc:subfield code="a">ViBlbV</marc:subfield>
+            <marc:subfield code="a">ViU</marc:subfield>
+            <marc:subfield code="a">ViW</marc:subfield>
+            <marc:subfield code="a">WaU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="221318" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>01695cam a2200445 i 4500</marc:leader>
+         <marc:controlfield tag="001">221318</marc:controlfield>
+         <marc:controlfield tag="003">PU</marc:controlfield>
+         <marc:controlfield tag="008">740927s1975    paua     b    00110 eng  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   78081821 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0721641024 (v. 1)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)PAUG1057726-B</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CaOTULAS)185104742</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="9">ABE8533</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">PU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1=" " ind2="4">
+            <marc:subfield code="a">SF761</marc:subfield>
+            <marc:subfield code="b">.S65 1975</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="060" ind1=" " ind2=" ">
+            <marc:subfield code="a">SF761 S623a</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1=" " ind2=" ">
+            <marc:subfield code="a">636.089/1</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="090" ind1=" " ind2=" ">
+            <marc:subfield code="a">SF761</marc:subfield>
+            <marc:subfield code="b">.S65 1975</marc:subfield>
+            <marc:subfield code="i">10/27/87 CT</marc:subfield>
+            <marc:subfield code="h">09/05/85 CT</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2="0">
+            <marc:subfield code="a">Sisson, Septimus,</marc:subfield>
+            <marc:subfield code="d">1865-1924.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Sisson and Grossman's The anatomy of the domestic animals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">5th ed. /</marc:subfield>
+            <marc:subfield code="b">Robert Getty, with editorial coordination and completion by Cynthia Ellenport Rosenbaum, N. G. Ghoshal, Daniel Hillman.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1="0" ind2=" ">
+            <marc:subfield code="a">Philadelphia :</marc:subfield>
+            <marc:subfield code="b">Saunders,</marc:subfield>
+            <marc:subfield code="c">1975.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">2 v. (xxxv, 2095, xlvi p.) :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">27 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographies and indexes.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Veterinary anatomy</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="2">
+            <marc:subfield code="a">Anatomy, Veterinary.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2="0">
+            <marc:subfield code="a">Grossman, James Daniels,</marc:subfield>
+            <marc:subfield code="d">1884-1961.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2="0">
+            <marc:subfield code="a">Getty, Robert.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="740" ind1="4" ind2="1">
+            <marc:subfield code="a">The anatomy of the domestic animals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="e">100\\OTHER\COPIES\Vet.\</marc:subfield>
+            <marc:subfield code="v">2 v.</marc:subfield>
+            <marc:subfield code="i">10/27/87 N</marc:subfield>
+            <marc:subfield code="h">09/05/85 N ?102:rsl</marc:subfield>
+            <marc:subfield code="h">01/01/01 N</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="i">10/27/87 C</marc:subfield>
+            <marc:subfield code="h">09/05/85 C</marc:subfield>
+            <marc:subfield code="h">01/01/01 N</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:v.1</marc:subfield>
+            <marc:subfield code="q">g Vet Lib</marc:subfield>
+            <marc:subfield code="h">09/05/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">NBC</marc:subfield>
+            <marc:subfield code="c">1:v.2</marc:subfield>
+            <marc:subfield code="q">g.Vet Lib</marc:subfield>
+            <marc:subfield code="h">09/05/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">1:(v.1-2)</marc:subfield>
+            <marc:subfield code="q">g.Vet.</marc:subfield>
+            <marc:subfield code="h">09/05/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">2:(v.1-2)</marc:subfield>
+            <marc:subfield code="q">g.Vet.</marc:subfield>
+            <marc:subfield code="h">09/05/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">2:v.4</marc:subfield>
+            <marc:subfield code="q">Dolbey's</marc:subfield>
+            <marc:subfield code="i">10/27/87 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">3:(v.1-2)</marc:subfield>
+            <marc:subfield code="q">g.Dr.D.Lee</marc:subfield>
+            <marc:subfield code="h">09/05/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">4:v.1</marc:subfield>
+            <marc:subfield code="q">g.Dolbey</marc:subfield>
+            <marc:subfield code="h">09/05/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">5:v.1</marc:subfield>
+            <marc:subfield code="q">g.Dolbey</marc:subfield>
+            <marc:subfield code="h">09/05/85 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">VET</marc:subfield>
+            <marc:subfield code="c">6:v.1</marc:subfield>
+            <marc:subfield code="q">Dolbey's</marc:subfield>
+            <marc:subfield code="h">09/05/85 C</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="602828" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>02464cas a2200505   4500</marc:leader>
+         <marc:controlfield tag="001">602828</marc:controlfield>
+         <marc:controlfield tag="005">20000816132310.0</marc:controlfield>
+         <marc:controlfield tag="008">880906d19451997be mr p       0 uub0eng d</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">52025365//r822</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="022" ind1=" " ind2=" ">
+            <marc:subfield code="a">0037-9646</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CStRLIN)PAUG88-S1937</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CaOTULAS)159504292</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="9">ACZ4981</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">PPiU</marc:subfield>
+            <marc:subfield code="c">PPiU</marc:subfield>
+            <marc:subfield code="d">N</marc:subfield>
+            <marc:subfield code="d">InU</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">SER</marc:subfield>
+            <marc:subfield code="d">RCS</marc:subfield>
+            <marc:subfield code="d">AIP</marc:subfield>
+            <marc:subfield code="d">OCoLC</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">PU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="041" ind1="0" ind2=" ">
+            <marc:subfield code="a">dutengfreger</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">lc</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">e-be---</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2=" ">
+            <marc:subfield code="a">QD1</marc:subfield>
+            <marc:subfield code="b">.S35</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="090" ind1=" " ind2=" ">
+            <marc:subfield code="a">QD1</marc:subfield>
+            <marc:subfield code="b">.S35</marc:subfield>
+            <marc:subfield code="n">#39</marc:subfield>
+            <marc:subfield code="n">#343</marc:subfield>
+            <marc:subfield code="p">1</marc:subfield>
+            <marc:subfield code="i">09/06/88 CT</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="210" ind1="0" ind2=" ">
+            <marc:subfield code="a">Bull. soc. chim. belg.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="222" ind1="0" ind2="0">
+            <marc:subfield code="a">Bulletin des sociétés chimiques belges</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Bulletin des sociétés chimiques belges.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1="0" ind2="0">
+            <marc:subfield code="a">Bruxelles :</marc:subfield>
+            <marc:subfield code="b">[s.n.]</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">v. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">25 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Monthly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">Vol. 54 (1945)-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="1" ind2=" ">
+            <marc:subfield code="a">Ceased with v. 106 (1997)?</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="550" ind1="0" ind2=" ">
+            <marc:subfield code="a">Issued by the Société chimique de Belgique and the Vlaamse Chemische Vereniging.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="550" ind1="1" ind2=" ">
+            <marc:subfield code="a">"Publié avec le concours de la Fondation universitaire de Belgique et du Ministère de l'éducation nationale et de la culture."</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Merged with: Liebings Annalen/Recueil; Chemische Berichte/Recueil; Bulletin de la Société chimique de France (Paris, France : 1985); and: Gazzetta chimica italiana; to form: European journal of organic chemistry, for organic chemistry topics; and: European journal of inorganic chemistry, for inorganic chemistry topics.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemistry</marc:subfield>
+            <marc:subfield code="x">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2="1">
+            <marc:subfield code="a">Fondation universitaire de Belgique.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="1" ind2="1">
+            <marc:subfield code="a">Belgium.</marc:subfield>
+            <marc:subfield code="b">Ministère de l'éducation nationale et de la culture.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2="0">
+            <marc:subfield code="a">Vlaamse Chemische Vereniging.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2="0">
+            <marc:subfield code="a">Société chimique de Belgique.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="0" ind2="0">
+            <marc:subfield code="t">Bulletin de la Société chimique de Belgique</marc:subfield>
+            <marc:subfield code="w">(OCoLC)2445565</marc:subfield>
+            <marc:subfield code="w">(DLC)sf 82003116</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Bulletin de la Société chimique de France (Paris, France : 1985)</marc:subfield>
+            <marc:subfield code="x">0037-8968</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Chemische Berichte/Recueil</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Gazzetta chimica Italiana</marc:subfield>
+            <marc:subfield code="x">0016-5603</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Liebigs Annalen/Recueil</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">European journal of inorganic chemistry</marc:subfield>
+            <marc:subfield code="x">1434-1948</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">European journal of organic chemistry</marc:subfield>
+            <marc:subfield code="x">1434-193X</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="l">CHEM</marc:subfield>
+            <marc:subfield code="v">v.65(1945)-v.60(1951), v.62(1953)-v.73(1964), v.75(1966)-v.85(1976 inc.), v.86(1977)-v.91(1982 inc.), v.92(1983)-v.95,no.7(July1986)</marc:subfield>
+            <marc:subfield code="z">Not currently received</marc:subfield>
+            <marc:subfield code="i">09/06/88 C ?110:\CA-Ser.\</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="955" ind1=" " ind2=" ">
+            <marc:subfield code="l">CHEM</marc:subfield>
+            <marc:subfield code="q">pur.FIL</marc:subfield>
+            <marc:subfield code="s">SHELFLIST ON PENNLIN</marc:subfield>
+            <marc:subfield code="i">09/06/88 C</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="999" ind1=" " ind2=" ">
+            <marc:subfield code="a">f</marc:subfield>
+            <marc:subfield code="b">2000/08/16</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="1041094" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>00926cam a22002651  4500</marc:leader>
+         <marc:controlfield tag="001">1041094</marc:controlfield>
+         <marc:controlfield tag="005">20100106121726.0</marc:controlfield>
+         <marc:controlfield tag="008">860609s1963    mnua     b    00010 eng  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   63002057 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">MIUG86-B61682</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CLSI)001285126</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="9">AHE0922</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">MRC00507795</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="c">MiU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1=" " ind2=" ">
+            <marc:subfield code="a">136.7354</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Hathaway, Starke R.</marc:subfield>
+            <marc:subfield code="q">(Starke Rosecrans),</marc:subfield>
+            <marc:subfield code="d">1903-1984</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Adolescent personality and behavior;</marc:subfield>
+            <marc:subfield code="b">MMPI patterns of normal, delinquent, dropout, and other outcomes,</marc:subfield>
+            <marc:subfield code="c">by Starke R. Hathaway and Elio D. Monachesi.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Minneapolis,</marc:subfield>
+            <marc:subfield code="b">University of Minnesota Press</marc:subfield>
+            <marc:subfield code="c">[1963]</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">xiii, 193 p.</marc:subfield>
+            <marc:subfield code="b">tables,</marc:subfield>
+            <marc:subfield code="c">27 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Bibliography: p. [187]-188.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Adolescence.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Minnesota multiphasic personality inventory.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Monachesi, Elio David,</marc:subfield>
+            <marc:subfield code="d">1905-</marc:subfield>
+            <marc:subfield code="e">joint author.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="852" ind1="1" ind2=" ">
+            <marc:subfield code="b">vanp</marc:subfield>
+            <marc:subfield code="h">136.7354 H2841</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="999" ind1=" " ind2=" ">
+            <marc:subfield code="a">f</marc:subfield>
+            <marc:subfield code="b">1999/10/12</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="1043702" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>01123cam a22002891  4500</marc:leader>
+         <marc:controlfield tag="001">1043702</marc:controlfield>
+         <marc:controlfield tag="008">920129s1924    nyu           001 0 eng d</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   24019986 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">CKPG92-B1481</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(CLSI)005494443</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="9">AHE3582</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">MRC00529274</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">PSt</marc:subfield>
+            <marc:subfield code="c">PSt</marc:subfield>
+            <marc:subfield code="d">COPL</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="090" ind1=" " ind2=" ">
+            <marc:subfield code="a">176</marc:subfield>
+            <marc:subfield code="b">DAVENPORT</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Davenport, Frances Isabel,</marc:subfield>
+            <marc:subfield code="d">1880-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="1" ind2="0">
+            <marc:subfield code="a">Salvaging of American girlhood :</marc:subfield>
+            <marc:subfield code="b">a substitution of normal psychology for superstition and mysticism in the education of girls /</marc:subfield>
+            <marc:subfield code="c">by Isabel Davenport ...</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">New York :</marc:subfield>
+            <marc:subfield code="b">E. P. Dutton &amp; company,</marc:subfield>
+            <marc:subfield code="c">[c1924].</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">ixp.,1 l.,302p. ;</marc:subfield>
+            <marc:subfield code="c">19 1/2cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes index.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="503" ind1=" " ind2=" ">
+            <marc:subfield code="a">"The contents of this book are based upon an investigation made by the author under the auspices of the Department of psychology of Columbia university, and published in monograph form under the title Adolescent interests."--Pref.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Adolescence.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Sex.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Young women.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="852" ind1="1" ind2=" ">
+            <marc:subfield code="b">vanp</marc:subfield>
+            <marc:subfield code="h">179.4 D273</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="987" ind1=" " ind2=" ">
+            <marc:subfield code="a">MULTIPLE COPIES</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="987" ind1=" " ind2=" ">
+            <marc:subfield code="a">match points : missing?</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="999" ind1=" " ind2=" ">
+            <marc:subfield code="a">f</marc:subfield>
+            <marc:subfield code="b">1999/10/12</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="1867903" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>02368cas a2200601 a 4500</marc:leader>
+         <marc:controlfield tag="001">1867903</marc:controlfield>
+         <marc:controlfield tag="005">20090910075525.0</marc:controlfield>
+         <marc:controlfield tag="008">950125d19951996gw mr p       0    0eng d</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   95652030 </marc:subfield>
+            <marc:subfield code="z">sn 95039481 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm31871296</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">COP</marc:subfield>
+            <marc:subfield code="c">COP</marc:subfield>
+            <marc:subfield code="d">CUS</marc:subfield>
+            <marc:subfield code="d">NYG</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">IXA</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">CAS</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">OCL</marc:subfield>
+            <marc:subfield code="d">NLM</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">IXA</marc:subfield>
+            <marc:subfield code="d">NLM</marc:subfield>
+            <marc:subfield code="d">AGL</marc:subfield>
+            <marc:subfield code="d">OCLCQ</marc:subfield>
+            <marc:subfield code="d">NLGGC</marc:subfield>
+            <marc:subfield code="d">LVB</marc:subfield>
+            <marc:subfield code="d">MYG</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="016" ind1="7" ind2=" ">
+            <marc:subfield code="a">9506946</marc:subfield>
+            <marc:subfield code="2">DNLM</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="016" ind1="7" ind2=" ">
+            <marc:subfield code="a">SR0083759</marc:subfield>
+            <marc:subfield code="2">DNLM</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="022" ind1=" " ind2=" ">
+            <marc:subfield code="a">0947-3440</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="030" ind1=" " ind2=" ">
+            <marc:subfield code="a">LANAEM</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="032" ind1=" " ind2=" ">
+            <marc:subfield code="a">346490</marc:subfield>
+            <marc:subfield code="b">USPS</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)31871296</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="037" ind1=" " ind2=" ">
+            <marc:subfield code="b">VCH Publishers, 303 N.W. 12th Ave., Deerfield Beach, FL 334421788</marc:subfield>
+            <marc:subfield code="c">$1150.00</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="041" ind1="0" ind2=" ">
+            <marc:subfield code="a">engger</marc:subfield>
+            <marc:subfield code="b">eng</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">lc</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">QD241</marc:subfield>
+            <marc:subfield code="b">.L54</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="060" ind1="0" ind2="0">
+            <marc:subfield code="a">W1</marc:subfield>
+            <marc:subfield code="b">LI26</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1="0" ind2="0">
+            <marc:subfield code="a">547/.005</marc:subfield>
+            <marc:subfield code="2">20</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="210" ind1="0" ind2=" ">
+            <marc:subfield code="a">Liebigs Ann.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="222" ind1=" " ind2="0">
+            <marc:subfield code="a">Liebigs Annalen</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Liebigs Annalen :</marc:subfield>
+            <marc:subfield code="b">organic and bioorganic chemistry.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Weinheim :</marc:subfield>
+            <marc:subfield code="b">VCH,</marc:subfield>
+            <marc:subfield code="c">c1995-c1996.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">2 v. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">28 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Monthly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">95/1 (Jan. 1995)-96/12 (Dec. 1996).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Title from cover.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="510" ind1="2" ind2=" ">
+            <marc:subfield code="a">Chemical abstracts</marc:subfield>
+            <marc:subfield code="x">0009-2258</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="530" ind1=" " ind2=" ">
+            <marc:subfield code="a">Also issued online.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">English and German; summaries in English.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="550" ind1=" " ind2=" ">
+            <marc:subfield code="a">Published under the auspices of: German Chemical Society (GDCh).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Formed by the union of: Liebigs Annalen der Chemie, and: Part B (Organic Chemistry) of Chemische Berichte.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Merged with: Recueil (Koninklijke Nederlandse Chemische Vereniging), to form: Liebigs Annalen/Recueil.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemistry</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemistry, Organic</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Bioorganic chemistry</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="2">
+            <marc:subfield code="a">Biochemistry</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="2">
+            <marc:subfield code="a">Chemistry, Organic</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1="1" ind2="7">
+            <marc:subfield code="a">Organische chemie.</marc:subfield>
+            <marc:subfield code="2">gtt</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="6">
+            <marc:subfield code="a">Chimie organique</marc:subfield>
+            <marc:subfield code="v">Périodiques.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="6">
+            <marc:subfield code="a">Chimie bio-organique</marc:subfield>
+            <marc:subfield code="v">Périodiques.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Gesellschaft Deutscher Chemiker.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="1" ind2="4">
+            <marc:subfield code="t">Liebigs Annalen der Chemie</marc:subfield>
+            <marc:subfield code="x">0170-2041</marc:subfield>
+            <marc:subfield code="w">(DLC)   80644142</marc:subfield>
+            <marc:subfield code="w">(OCoLC)4719928</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="1" ind2="4">
+            <marc:subfield code="t">Chemische Berichte</marc:subfield>
+            <marc:subfield code="x">0009-2940</marc:subfield>
+            <marc:subfield code="w">(DLC)sn 80001781</marc:subfield>
+            <marc:subfield code="w">(OCoLC)1554024</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Recueil (Koninklijke Nederlandse Chemische Vereniging)</marc:subfield>
+            <marc:subfield code="w">(DLC)   82644191</marc:subfield>
+            <marc:subfield code="w">(OCoLC)6899170</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Liebigs Annalen/Recueil</marc:subfield>
+            <marc:subfield code="w">(DLC)sn 97036183</marc:subfield>
+            <marc:subfield code="w">(OCoLC)36290117</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="850" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="a">DNAL</marc:subfield>
+            <marc:subfield code="a">DNLM</marc:subfield>
+            <marc:subfield code="a">InU</marc:subfield>
+            <marc:subfield code="a">N</marc:subfield>
+            <marc:subfield code="a">TxU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="2197241" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>01563cas a2200397 a 4500</marc:leader>
+         <marc:controlfield tag="001">2197241</marc:controlfield>
+         <marc:controlfield tag="003">CStRLIN</marc:controlfield>
+         <marc:controlfield tag="005">19970805084913.0</marc:controlfield>
+         <marc:controlfield tag="008">970805d19801996ne mr p       0    0eng b</marc:controlfield>
+         <marc:datafield tag="022" ind1=" " ind2=" ">
+            <marc:subfield code="y">0165-0513</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(IaU)notisADQ3444</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">IAUGADQ3444-S</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DNLM</marc:subfield>
+            <marc:subfield code="c">DNLM</marc:subfield>
+            <marc:subfield code="d">DNLM</marc:subfield>
+            <marc:subfield code="d">IaU</marc:subfield>
+            <marc:subfield code="d">CStRLIN</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="041" ind1="0" ind2=" ">
+            <marc:subfield code="a">engfreger</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="060" ind1="0" ind2=" ">
+            <marc:subfield code="a">W1</marc:subfield>
+            <marc:subfield code="b">RE115M</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="130" ind1="0" ind2=" ">
+            <marc:subfield code="a">Recueil (Koninklijke Nederlandse Chemische Vereniging)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Recueil :</marc:subfield>
+            <marc:subfield code="b">journal of the Royal Netherlands Chemical Society.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="1" ind2="3">
+            <marc:subfield code="a">Journal of the Royal Netherlands Chemical Society</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="1" ind2="3">
+            <marc:subfield code="a">Recueil des travaux chimiques des Pays-Bas</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Hague, Netherlands :</marc:subfield>
+            <marc:subfield code="b">The Society,</marc:subfield>
+            <marc:subfield code="c">c1980-c1996.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">17 v. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">30 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Monthly</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">Vol. 99, 01 (Jan. 1980)-v. 115, 11/12 (Nov./Dec. 1996).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Title from cover.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Published: Elsevier Science Publishers, 1993?-1996.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="546" ind1=" " ind2=" ">
+            <marc:subfield code="a">Articles and summaries in English, French and German.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Merged in part with: Liebigs Annalen, to form: Liebigs Annalen/Recueil; and in part with: Chemische Berichte, to form: Chemische Berichte/Recueil.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemistry</marc:subfield>
+            <marc:subfield code="x">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Koninklijke Nederlandse Chemische Vereniging.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="0" ind2="0">
+            <marc:subfield code="t">Recueil des travaux chimiques des Pays-Bas (Leiden, Netherlands : 1920)</marc:subfield>
+            <marc:subfield code="x">0165-0513</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Liebigs Annalen</marc:subfield>
+            <marc:subfield code="x">0947-3440</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Liebigs Annalen/Recueil</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Chemische Berichte</marc:subfield>
+            <marc:subfield code="x">0009-2940</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="1" ind2="7">
+            <marc:subfield code="t">Chemische Berichte/Recueil</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="998" ind1=" " ind2=" ">
+            <marc:subfield code="s">9662</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="950" ind1=" " ind2=" ">
+            <marc:subfield code="b">none</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="2230303" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>03385cas a2200721 a 4500</marc:leader>
+         <marc:controlfield tag="001">2230303</marc:controlfield>
+         <marc:controlfield tag="005">20110728142643.0</marc:controlfield>
+         <marc:controlfield tag="008">980113c19989999gw jx p       0    0eng c</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   98660732 </marc:subfield>
+            <marc:subfield code="z">sn 98038012 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm38192665</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">JNA</marc:subfield>
+            <marc:subfield code="c">JNA</marc:subfield>
+            <marc:subfield code="d">MYG</marc:subfield>
+            <marc:subfield code="d">EYM</marc:subfield>
+            <marc:subfield code="d">TJC</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">UMC</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">AGL</marc:subfield>
+            <marc:subfield code="d">HUL</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">GUA</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">CUS</marc:subfield>
+            <marc:subfield code="d">SYS</marc:subfield>
+            <marc:subfield code="d">OCL</marc:subfield>
+            <marc:subfield code="d">GUA</marc:subfield>
+            <marc:subfield code="d">NLM</marc:subfield>
+            <marc:subfield code="d">TJC</marc:subfield>
+            <marc:subfield code="d">OCLCQ</marc:subfield>
+            <marc:subfield code="d">OCL</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">NLGGC</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">OCLCQ</marc:subfield>
+            <marc:subfield code="d">CLU</marc:subfield>
+            <marc:subfield code="d">SERSO</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="016" ind1="7" ind2=" ">
+            <marc:subfield code="a">9892036</marc:subfield>
+            <marc:subfield code="2">DNLM</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="016" ind1="7" ind2=" ">
+            <marc:subfield code="a">SR0092725</marc:subfield>
+            <marc:subfield code="2">DNLM</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="022" ind1=" " ind2=" ">
+            <marc:subfield code="a">1434-1948</marc:subfield>
+            <marc:subfield code="l">1434-1948</marc:subfield>
+            <marc:subfield code="2">6</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="030" ind1=" " ind2=" ">
+            <marc:subfield code="a">EJICFO</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="032" ind1=" " ind2=" ">
+            <marc:subfield code="a">346350</marc:subfield>
+            <marc:subfield code="b">USPS</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)38192665</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">pcc</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">QD146</marc:subfield>
+            <marc:subfield code="b">.E87</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="070" ind1="0" ind2=" ">
+            <marc:subfield code="a">QD146.E97</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="072" ind1=" " ind2="0">
+            <marc:subfield code="a">X500</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1="0" ind2="0">
+            <marc:subfield code="a">546</marc:subfield>
+            <marc:subfield code="2">21</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="210" ind1="0" ind2=" ">
+            <marc:subfield code="a">Eur. j. inorg. chem.</marc:subfield>
+            <marc:subfield code="b">(Print)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="222" ind1=" " ind2="0">
+            <marc:subfield code="a">European journal of inorganic chemistry</marc:subfield>
+            <marc:subfield code="b">(Print)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">European journal of inorganic chemistry.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="1" ind2="3">
+            <marc:subfield code="a">EurJIC</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="1" ind2="8">
+            <marc:subfield code="a">Eur. J. Inorg. Chem.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Weinheim, Germany :</marc:subfield>
+            <marc:subfield code="b">Wiley-VCH,</marc:subfield>
+            <marc:subfield code="c">c1998-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">v. :</marc:subfield>
+            <marc:subfield code="b">ill. ;</marc:subfield>
+            <marc:subfield code="c">28 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">36 times a year,</marc:subfield>
+            <marc:subfield code="b">2007-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="321" ind1=" " ind2=" ">
+            <marc:subfield code="a">Monthly,</marc:subfield>
+            <marc:subfield code="b">1998-2002</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="321" ind1=" " ind2=" ">
+            <marc:subfield code="a">Semimonthly,</marc:subfield>
+            <marc:subfield code="b">2003-2005</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">No. 1 (Jan. 1998)-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Title from cover.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Latest issue consulted: 7/2010 (Mar. 1, 2010).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="510" ind1="0" ind2=" ">
+            <marc:subfield code="a">Chemical abstracts</marc:subfield>
+            <marc:subfield code="x">0009-2258</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="515" ind1=" " ind2=" ">
+            <marc:subfield code="a">Issues for Jan. 1998- also called: 98/1-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="550" ind1=" " ind2=" ">
+            <marc:subfield code="a">Issued under the auspices of: Gesellschaft Deutscher Chemiker, Koninklijke Nederlandse Chemische Vereniging, Koninklijke Vlaamse Chemische Vereniging, Société royale de chimie (Belgium), Società chimica italiana, and Société française de chimie; and also ChemPubSoc Europe, &lt;2010-&gt;</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="580" ind1=" " ind2=" ">
+            <marc:subfield code="a">Continues all areas of inorganic chemistry from the following journals: Bulletin des sociétés chimiques belges; Bulletin de la Société chimique de France (Paris, France : 1985); Gazzetta chimica Italiana; and Chemische Berichte/Recueil.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Chemistry, Inorganic</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Organometallic chemistry</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Bioinorganic chemistry</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Solid state chemistry</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1="1" ind2="7">
+            <marc:subfield code="a">Anorganische chemie.</marc:subfield>
+            <marc:subfield code="2">gtt</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1="1" ind2="7">
+            <marc:subfield code="a">Organometaalchemie.</marc:subfield>
+            <marc:subfield code="2">gtt</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Gesellschaft Deutscher Chemiker.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Koninklijke Nederlandse Chemische Vereniging.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Koninklijke Vlaamse Chemische Vereniging.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Société royale de chimie (Belgium)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Società chimica italiana.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Société française de chimie.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">ChemPubSoc Europe.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="776" ind1="0" ind2="8">
+            <marc:subfield code="i">Online version</marc:subfield>
+            <marc:subfield code="t">European journal of inorganic chemistry (Online)</marc:subfield>
+            <marc:subfield code="x">1099-0682</marc:subfield>
+            <marc:subfield code="w">(DLC)  2001212416</marc:subfield>
+            <marc:subfield code="w">(OCoLC)41602558</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="1" ind2="1">
+            <marc:subfield code="t">Bulletin des sociétés chimiques belges</marc:subfield>
+            <marc:subfield code="x">0037-9646</marc:subfield>
+            <marc:subfield code="w">(DLC)   52025365</marc:subfield>
+            <marc:subfield code="w">(OCoLC)6112872</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="1" ind2="1">
+            <marc:subfield code="t">Bulletin de la Société chimique de France (Paris, France : 1985)</marc:subfield>
+            <marc:subfield code="x">0037-8968</marc:subfield>
+            <marc:subfield code="w">(DLC)sn 86015884</marc:subfield>
+            <marc:subfield code="w">(OCoLC)12067665</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="1" ind2="1">
+            <marc:subfield code="t">Gazzetta chimica Italiana</marc:subfield>
+            <marc:subfield code="x">0016-5603</marc:subfield>
+            <marc:subfield code="w">(DLC)   21006544</marc:subfield>
+            <marc:subfield code="w">(OCoLC)1780898</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="780" ind1="1" ind2="1">
+            <marc:subfield code="t">Chemische Berichte/Recueil</marc:subfield>
+            <marc:subfield code="w">(DLC)sn 97047233</marc:subfield>
+            <marc:subfield code="w">(OCoLC)36290071</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="776" ind1="0" ind2="8">
+            <marc:subfield code="i">Online version:</marc:subfield>
+            <marc:subfield code="t">European journal of inorganic chemistry</marc:subfield>
+            <marc:subfield code="w">(OCoLC)630747629</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="850" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="a">DNAL</marc:subfield>
+            <marc:subfield code="a">GU</marc:subfield>
+            <marc:subfield code="a">InU</marc:subfield>
+            <marc:subfield code="a">MCM</marc:subfield>
+            <marc:subfield code="a">MdU</marc:subfield>
+            <marc:subfield code="a">MiU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="2" ind2="0">
+            <marc:subfield code="9">853</marc:subfield>
+            <marc:subfield code="8">1</marc:subfield>
+            <marc:subfield code="a">(year)</marc:subfield>
+            <marc:subfield code="b">no.</marc:subfield>
+            <marc:subfield code="u">12</marc:subfield>
+            <marc:subfield code="v">r</marc:subfield>
+            <marc:subfield code="i">(year)</marc:subfield>
+            <marc:subfield code="j">(month)</marc:subfield>
+            <marc:subfield code="w">m</marc:subfield>
+            <marc:subfield code="x">01</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="891" ind1="4" ind2="1">
+            <marc:subfield code="9">863</marc:subfield>
+            <marc:subfield code="8">1.1</marc:subfield>
+            <marc:subfield code="a">1998</marc:subfield>
+            <marc:subfield code="b">1</marc:subfield>
+            <marc:subfield code="i">1998</marc:subfield>
+            <marc:subfield code="j">01</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="4100000" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>02012cam a22003254a 4500</marc:leader>
+         <marc:controlfield tag="001">4100000</marc:controlfield>
+         <marc:controlfield tag="005">20070319083236.0</marc:controlfield>
+         <marc:controlfield tag="008">061002s2005    sp       b    100 0 spa  </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">  2007365211</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm74884424</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">PL#</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">8497425103</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">9788497425100</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="029" ind1="1" ind2=" ">
+            <marc:subfield code="a">PL#</marc:subfield>
+            <marc:subfield code="b">060020339</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">e-sp---</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">PQ6670.E4</marc:subfield>
+            <marc:subfield code="b">Z83 2005</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="3">
+            <marc:subfield code="a">La poesía amorosa de José Luis Tejada :</marc:subfield>
+            <marc:subfield code="b">[Actas del Seminario celebrado en El Puerto de Santa Maria los días 10, 11 y 12 de diciembre de 2001 y 25 de abril, 30 de mayo y 10 de junio de 2003, organizado por el Ayuntamiento de El Puerto de Santa María y la Fundación José Luis Tejada] /</marc:subfield>
+            <marc:subfield code="c">Luis García Jambrina y Mercedes Gómez Blesa (eds.)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Madrid :</marc:subfield>
+            <marc:subfield code="b">Biblioteca Nueva,</marc:subfield>
+            <marc:subfield code="c">c2005.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">229 p. ;</marc:subfield>
+            <marc:subfield code="c">21 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="440" ind1=" " ind2="0">
+            <marc:subfield code="a">Colección Estudios críticos de literatura ;</marc:subfield>
+            <marc:subfield code="v">21</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes anthology of José Luis Tejada's poems (p. 173-225).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references (p. 165-167).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="505" ind1="0" ind2=" ">
+            <marc:subfield code="a">José Luis Tejada entre las dos afroditas / Angel L. Prieto de Paula -- La escritura como amante / Alberto González Troyano -- José Luis Tejada y la tradición amorosa / José María Pozuelo Yvancos -- El lenguaje del amor en José Luis Tejada / Hernán Loyola -- Razón de ser de un aprendiz de amante / Luis García Jambrina -- Del amor y del olvido en la poesía de José Luis Tejada / Manuel Angel Vázquez Medel -- La poesía de José Luis Tejada: su representación linguistica del amor / Jaime Siles -- Un poema de José Luis Tejada: Consolación por la carne / Leopoldo de Luis.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="600" ind1="1" ind2="0">
+            <marc:subfield code="a">Tejada, José Luis,</marc:subfield>
+            <marc:subfield code="d">1927-</marc:subfield>
+            <marc:subfield code="x">Criticism and interpretation.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Love poetry, Spanish</marc:subfield>
+            <marc:subfield code="x">History and criticism.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">García Jambrina, Luis M.</marc:subfield>
+            <marc:subfield code="q">(Luis Miguel)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Gómez Blesa, Mercedes,</marc:subfield>
+            <marc:subfield code="d">1964-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2="2">
+            <marc:subfield code="a">Tejada, José Luis,</marc:subfield>
+            <marc:subfield code="d">1927-</marc:subfield>
+            <marc:subfield code="t">Poems.</marc:subfield>
+            <marc:subfield code="k">Selections.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="4175864" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>01474cas a2200325 a 4500</marc:leader>
+         <marc:controlfield tag="001">4175864</marc:controlfield>
+         <marc:controlfield tag="005">20090417080609.0</marc:controlfield>
+         <marc:controlfield tag="008">830328u19uuuuuuua ar     s  f0   f0arar </marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   83642240 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm09353057</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="c">DLC</marc:subfield>
+            <marc:subfield code="d">OCLCQ</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="029" ind1="1" ind2=" ">
+            <marc:subfield code="a">AU@</marc:subfield>
+            <marc:subfield code="b">000025560847</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)9353057</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">lc</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">f-ua---</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">HD1491.E3</marc:subfield>
+            <marc:subfield code="b">N28</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="3">
+            <marc:subfield code="6">880-01</marc:subfield>
+            <marc:subfield code="a">al-Nashrah al-sanawīyah lil-nashāṭ al-taʻāwunī bi-al-qiṭāʻ al-zirāʻī bi-Jumhūrīyat Miṣr al-ʻArabīyah /</marc:subfield>
+            <marc:subfield code="c">al-Jihāz al-Markazī lil-Taʻbiʼah al-ʻĀmmah wa-al-Iḥṣāʼ.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="6">880-02</marc:subfield>
+            <marc:subfield code="a">Madīnat Naṣr, al-Qāhirah :</marc:subfield>
+            <marc:subfield code="b">al-Jihāz</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">v. ;</marc:subfield>
+            <marc:subfield code="c">28 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Annual</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Description based on: 1976.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Last issue consulted: 2004/2005 (November 2007).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Agriculture, Cooperative</marc:subfield>
+            <marc:subfield code="z">Egypt</marc:subfield>
+            <marc:subfield code="v">Statistics</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="1" ind2=" ">
+            <marc:subfield code="6">880-03</marc:subfield>
+            <marc:subfield code="a">Egypt.</marc:subfield>
+            <marc:subfield code="b">Jihāz al-Markazī lil-Taʻbiʼah al-ʻĀmmah wa-al-Iḥṣāʼ.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="850" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="880" ind1="0" ind2="2">
+            <marc:subfield code="6">245-01/r</marc:subfield>
+            <marc:subfield code="a">النشرة السنوية للنشاط التعاونى بالقطاع الزراعى بحمهورية مصر العربية /</marc:subfield>
+            <marc:subfield code="c">الجهاز المركزى للتعبئة العامة والإحصاء.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="880" ind1=" " ind2=" ">
+            <marc:subfield code="6">260-02/r</marc:subfield>
+            <marc:subfield code="a">مدينة نصر، القاهرة :</marc:subfield>
+            <marc:subfield code="b">الجهاز</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="880" ind1="1" ind2=" ">
+            <marc:subfield code="6">710-03/r</marc:subfield>
+            <marc:subfield code="a">Egypt.</marc:subfield>
+            <marc:subfield code="b">جهاز المركزي للتعبئة العامة والاحصاء.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="4621774" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>02000cas a2200505   4500</marc:leader>
+         <marc:controlfield tag="001">4621774</marc:controlfield>
+         <marc:controlfield tag="005">20091104121555.0</marc:controlfield>
+         <marc:controlfield tag="008">750824d19101996mdumn p       0   a0eng d</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">   13002608 </marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocm01565450</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">MUL</marc:subfield>
+            <marc:subfield code="c">MUL</marc:subfield>
+            <marc:subfield code="d">BTI</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">DLC</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">AIP</marc:subfield>
+            <marc:subfield code="d">OCL</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">WAU</marc:subfield>
+            <marc:subfield code="d">NST</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">NYG</marc:subfield>
+            <marc:subfield code="d">WAU</marc:subfield>
+            <marc:subfield code="d">HLS</marc:subfield>
+            <marc:subfield code="d">WAU</marc:subfield>
+            <marc:subfield code="d">IUL</marc:subfield>
+            <marc:subfield code="d">OCL</marc:subfield>
+            <marc:subfield code="d">OCLCQ</marc:subfield>
+            <marc:subfield code="d">NSD</marc:subfield>
+            <marc:subfield code="d">NLGGC</marc:subfield>
+            <marc:subfield code="d">OCLCG</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="019" ind1=" " ind2=" ">
+            <marc:subfield code="a">1565448</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="022" ind1="0" ind2=" ">
+            <marc:subfield code="a">0011-1422</marc:subfield>
+            <marc:subfield code="2">1</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="032" ind1=" " ind2=" ">
+            <marc:subfield code="a">564900</marc:subfield>
+            <marc:subfield code="b">USPS</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)1565450</marc:subfield>
+            <marc:subfield code="z">(OCoLC)1565448</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="042" ind1=" " ind2=" ">
+            <marc:subfield code="a">nsdp</marc:subfield>
+            <marc:subfield code="a">lc</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="043" ind1=" " ind2=" ">
+            <marc:subfield code="a">n-us---</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1="0" ind2="0">
+            <marc:subfield code="a">E185.5</marc:subfield>
+            <marc:subfield code="b">.C92</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1=" " ind2="4">
+            <marc:subfield code="a">973/.04/96073</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="210" ind1="0" ind2=" ">
+            <marc:subfield code="a">Crisis</marc:subfield>
+            <marc:subfield code="b">(N.Y.N.Y.)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="222" ind1=" " ind2="4">
+            <marc:subfield code="a">The Crisis</marc:subfield>
+            <marc:subfield code="b">(New York, N.Y.)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Crisis.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">[New York,</marc:subfield>
+            <marc:subfield code="b">Crisis Pub. Co.]</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">103 v.</marc:subfield>
+            <marc:subfield code="b">ill.</marc:subfield>
+            <marc:subfield code="c">20-28 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="310" ind1=" " ind2=" ">
+            <marc:subfield code="a">Monthly (except bimonthly Feb./Mar., May/June, Aug./Sept., Nov./Dec.)</marc:subfield>
+            <marc:subfield code="b">-1996</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="321" ind1=" " ind2=" ">
+            <marc:subfield code="a">Monthly (except bimonthly June/July and Aug./Sept.),</marc:subfield>
+            <marc:subfield code="b">&lt;Aug./Sept. 1977- &gt;</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="321" ind1=" " ind2=" ">
+            <marc:subfield code="a">Monthly,</marc:subfield>
+            <marc:subfield code="b">1910-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="362" ind1="0" ind2=" ">
+            <marc:subfield code="a">v. 1-103, no. 2; Nov. 1910-Feb./Mar. 1996.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">"The most progressive voice of black America."</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Editor: Nov. 1910-July 1934, W.E.B. Du Bois.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Title varies slightly.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Published in Baltimore, Mar. 1987-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="515" ind1=" " ind2=" ">
+            <marc:subfield code="a">Issues for Jan. and Feb. 1981 combined.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="515" ind1=" " ind2=" ">
+            <marc:subfield code="a">Issues for Mar. 1987-Mar. 1989 unnumbered but constitute v. 94, no. 3-v. 96, no. 3.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="530" ind1=" " ind2=" ">
+            <marc:subfield code="a">Also issued online.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="550" ind1=" " ind2=" ">
+            <marc:subfield code="a">Official organ of the National Association for the Advancement of Colored People.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">African Americans</marc:subfield>
+            <marc:subfield code="v">Periodicals.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1="1" ind2="7">
+            <marc:subfield code="a">Gekleurde rassen.</marc:subfield>
+            <marc:subfield code="2">gtt</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1="1" ind2="7">
+            <marc:subfield code="a">Sociaal-economische situatie.</marc:subfield>
+            <marc:subfield code="2">gtt</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Du Bois, W. E. B.</marc:subfield>
+            <marc:subfield code="q">(William Edward Burghardt),</marc:subfield>
+            <marc:subfield code="d">1868-1963,</marc:subfield>
+            <marc:subfield code="e">ed.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">National Association for the Advancement of Colored People.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="785" ind1="0" ind2="0">
+            <marc:subfield code="t">New crisis (Baltimore. Md.)</marc:subfield>
+            <marc:subfield code="x">1559-1603</marc:subfield>
+            <marc:subfield code="w">(DLC)sn 98053999</marc:subfield>
+            <marc:subfield code="w">(OCoLC)39328440</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="850" ind1=" " ind2=" ">
+            <marc:subfield code="a">DLC</marc:subfield>
+            <marc:subfield code="a">InU</marc:subfield>
+            <marc:subfield code="a">N</marc:subfield>
+            <marc:subfield code="a">NcRS</marc:subfield>
+            <marc:subfield code="a">WaU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="5446179" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>01171nam a22003138a 4500</marc:leader>
+         <marc:controlfield tag="001">5446179</marc:controlfield>
+         <marc:controlfield tag="005">20120313140855.0</marc:controlfield>
+         <marc:controlfield tag="006">m        d</marc:controlfield>
+         <marc:controlfield tag="007">cr_|n---____</marc:controlfield>
+         <marc:controlfield tag="008">090331s1996||||enk     o     ||1 0|eng|d</marc:controlfield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">9780511522130 (ebook)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">9780521419055 (hardback)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(UkCbUP)CBOCR9780511522130</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(UkCbUP)CR9780511522130</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">UkCbUP</marc:subfield>
+            <marc:subfield code="c">UkCbUP</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="082" ind1="0" ind2="0">
+            <marc:subfield code="a">332/.01/5193</marc:subfield>
+            <marc:subfield code="2">20</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Zenios, Stavros A..</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Financial Optimization </marc:subfield>
+            <marc:subfield code="h">[electronic resource]. /</marc:subfield>
+            <marc:subfield code="c">Edited by Stavros A. Zenios.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">Cambridge :</marc:subfield>
+            <marc:subfield code="b">Cambridge University Press,</marc:subfield>
+            <marc:subfield code="c">1993</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">1 online resource (372 p.) :</marc:subfield>
+            <marc:subfield code="b">digital, PDF file(s)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="538" ind1=" " ind2=" ">
+            <marc:subfield code="a">Mode of access: World Wide Web.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Title from publishers bibliographic system (viewed on 02 Mar 2012).</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="506" ind1=" " ind2=" ">
+            <marc:subfield code="a">Restricted for use by site license.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="530" ind1=" " ind2=" ">
+            <marc:subfield code="a">Also available in print.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Finance</marc:subfield>
+            <marc:subfield code="x">Mathematical models</marc:subfield>
+            <marc:subfield code="x">Congresses.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Mathematical optimization</marc:subfield>
+            <marc:subfield code="x">Congresses.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="776" ind1="0" ind2="8">
+            <marc:subfield code="i">Print version: </marc:subfield>
+            <marc:subfield code="z">9780521419055</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="830" ind1=" " ind2="0">
+            <marc:subfield code="a">Cambridge books online.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="856" ind1="4" ind2="0">
+            <marc:subfield code="u">http://hdl.library.upenn.edu/1017.12/928551</marc:subfield>
+            <marc:subfield code="z">Connect to full text</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+</integ:root>

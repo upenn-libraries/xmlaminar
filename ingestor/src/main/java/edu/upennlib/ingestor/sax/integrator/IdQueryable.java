@@ -55,4 +55,6 @@ public interface IdQueryable extends Runnable, IndexedPropertyConfigurable {
 
     public boolean isFinished();
 
+    public String buffersToString();
+
 }

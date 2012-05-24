@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<integ:root xmlns:integ="http://integrator">
+   <integ:BIB_ID id="15">
+      <integ:MFHD_ID id="30">
+         <integ:ITEM_ID id="39" self="true">
+            <item_id>39</item_id>
+            <item_enum>v.30 no.5</item_enum>
+            <num_holds>0</num_holds>
+            <temp_location>53</temp_location>
+            <perm_location>2</perm_location>
+            <temp_location_code>judaica</temp_location_code>
+            <perm_location_code>vanp</perm_location_code>
+            <temp_location_name>VP Judaica Seminar</temp_location_name>
+            <perm_location_name>A Van Pelt Library</perm_location_name>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="221318">
+      <integ:MFHD_ID id="265278">
+         <integ:ITEM_ID id="250174" self="true">
+            <item_id>250174</item_id>
+            <item_enum>v.2</item_enum>
+            <num_holds>0</num_holds>
+            <temp_location>148</temp_location>
+            <perm_location>148</perm_location>
+            <temp_location_code>veterese</temp_location_code>
+            <perm_location_code>veterese</perm_location_code>
+            <temp_location_name>Veterinary Reserve</temp_location_name>
+            <perm_location_name>Veterinary Reserve</perm_location_name>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+      <integ:MFHD_ID id="265279">
+         <integ:ITEM_ID id="250175" self="true">
+            <item_id>250175</item_id>
+            <item_enum>v.2</item_enum>
+            <num_holds>0</num_holds>
+            <temp_location>148</temp_location>
+            <perm_location>148</perm_location>
+            <temp_location_code>veterese</temp_location_code>
+            <perm_location_code>veterese</perm_location_code>
+            <temp_location_name>Veterinary Reserve</temp_location_name>
+            <perm_location_name>Veterinary Reserve</perm_location_name>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+      <integ:MFHD_ID id="265280">
+         <integ:ITEM_ID id="250176" self="true">
+            <item_id>250176</item_id>
+            <item_enum>v.1</item_enum>
+            <num_holds>0</num_holds>
+            <temp_location>148</temp_location>
+            <perm_location>148</perm_location>
+            <temp_location_code>veterese</temp_location_code>
+            <perm_location_code>veterese</perm_location_code>
+            <temp_location_name>Veterinary Reserve</temp_location_name>
+            <perm_location_name>Veterinary Reserve</perm_location_name>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="250177" self="true">
+            <item_id>250177</item_id>
+            <item_enum>v.2</item_enum>
+            <num_holds>0</num_holds>
+            <temp_location>148</temp_location>
+            <perm_location>148</perm_location>
+            <temp_location_code>veterese</temp_location_code>
+            <perm_location_code>veterese</perm_location_code>
+            <temp_location_name>Veterinary Reserve</temp_location_name>
+            <perm_location_name>Veterinary Reserve</perm_location_name>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+      <integ:MFHD_ID id="265281">
+         <integ:ITEM_ID id="250178" self="true">
+            <item_id>250178</item_id>
+            <item_enum>v.1</item_enum>
+            <num_holds>0</num_holds>
+            <temp_location>148</temp_location>
+            <perm_location>148</perm_location>
+            <temp_location_code>veterese</temp_location_code>
+            <perm_location_code>veterese</perm_location_code>
+            <temp_location_name>Veterinary Reserve</temp_location_name>
+            <perm_location_name>Veterinary Reserve</perm_location_name>
+         </integ:ITEM_ID>
+         <integ:ITEM_ID id="250179" self="true">
+            <item_id>250179</item_id>
+            <item_enum>v.2</item_enum>
+            <num_holds>0</num_holds>
+            <temp_location>148</temp_location>
+            <perm_location>148</perm_location>
+            <temp_location_code>veterese</temp_location_code>
+            <perm_location_code>veterese</perm_location_code>
+            <temp_location_name>Veterinary Reserve</temp_location_name>
+            <perm_location_name>Veterinary Reserve</perm_location_name>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+      <integ:MFHD_ID id="265283">
+         <integ:ITEM_ID id="250180" self="true">
+            <item_id>250180</item_id>
+            <item_enum>v.1</item_enum>
+            <num_holds>0</num_holds>
+            <temp_location>148</temp_location>
+            <perm_location>148</perm_location>
+            <temp_location_code>veterese</temp_location_code>
+            <perm_location_code>veterese</perm_location_code>
+            <temp_location_name>Veterinary Reserve</temp_location_name>
+            <perm_location_name>Veterinary Reserve</perm_location_name>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+      <integ:MFHD_ID id="265284">
+         <integ:ITEM_ID id="250181" self="true">
+            <item_id>250181</item_id>
+            <item_enum>v.1</item_enum>
+            <num_holds>0</num_holds>
+            <temp_location>148</temp_location>
+            <perm_location>148</perm_location>
+            <temp_location_code>veterese</temp_location_code>
+            <perm_location_code>veterese</perm_location_code>
+            <temp_location_name>Veterinary Reserve</temp_location_name>
+            <perm_location_name>Veterinary Reserve</perm_location_name>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+</integ:root>
