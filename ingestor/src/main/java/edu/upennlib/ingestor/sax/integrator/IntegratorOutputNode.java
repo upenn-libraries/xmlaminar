@@ -384,7 +384,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         IntegratorOutputNode root = new IntegratorOutputNode();
         root.addDescendent("/record/marc", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/marc.xml")), false);
         root.addDescendent("/record/holdings/holding", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/hldg.xml")), false);
-        root.addDescendent("/record/holdings/holding/items/item", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/item.xml")), false);
+        root.addDescendent("/record/holdings/holding/items/item", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/itemAll.xml")), false);
         root.addDescendent("/record/holdings/holding/items/item/itemStatuses/itemStatus", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/itemStatus.xml")), false);
 //        root.addDescendent("/items/item", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/item.xml")), false);
 //        root.addDescendent("/items/item/itemStatuses/itemStatus", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/itemStatus.xml")), false);
@@ -464,14 +464,6 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     // ok.
                 }
             }
-            System.out.println("level="+level+", leastId="+leastId);
-            for (int i= 0; i < childNodes.length; i++) {
-                try {
-                    System.out.println("\t"+childElementNames[i] + ": level=" + childNodes[i].getLevel() + ", id=" + childNodes[i].getId() + ", active=" + activeIndexes.contains(i)+", required="+requiredIndexes.contains(i));
-                } catch (EOFException ex) {
-                    //
-                }
-            }
             if (!activeIndexes.containsAll(requiredIndexes)) {
                 for (int i : activeIndexes) {
                     try {
@@ -514,17 +506,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                         if (childNodes[i].self()) {
                             if (self == null) {
                                 if (lastOutputIndex >= 0) {
-                                    if (((IdUpenn)leastId).idType.equals("ITEM_ID") && leastId.compareTo(new IdUpenn("ITEM_ID", "250174", true)) == 0) {
-                                        UnboundedContentHandlerBuffer tmp = new UnboundedContentHandlerBuffer();
-                                        childNodes[lastOutputIndex].writeEndElements(tmp, dipLevel, aggregating);
-                                        System.out.println("writing end elements for special id, "+dipLevel);
-                                        tmp.dump(System.out, false);
-                                        System.out.println("end end elements for special id");
-                                        System.out.println(childElementNames[lastOutputIndex]+", buffers="+childNodes[lastOutputIndex].buffersToString());
-                                        tmp.flush(output, null);
-                                    } else {
-                                        childNodes[lastOutputIndex].writeEndElements(output, dipLevel, aggregating);
-                                    }
+                                    childNodes[lastOutputIndex].writeEndElements(output, dipLevel, aggregating);
                                 }
                                 try {
                                     childNodes[i].writeStartElements(output, dipLevel, aggregating);

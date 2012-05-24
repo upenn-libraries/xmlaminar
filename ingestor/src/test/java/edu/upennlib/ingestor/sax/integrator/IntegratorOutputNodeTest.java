@@ -154,7 +154,7 @@ public class IntegratorOutputNodeTest {
         IntegratorOutputNode root = new IntegratorOutputNode();
         root.addDescendent("/record/marcEmpty1", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marcEmpty.xml"))), false);
         root.addDescendent("/record/marcEmpty2", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marcEmpty.xml"))), false);
-        verify(root, testId.concat(".xml"), false);
+        verify(root, testId.concat(".xml"), true);
     }
 
     /*
