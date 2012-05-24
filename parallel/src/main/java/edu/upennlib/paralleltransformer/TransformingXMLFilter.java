@@ -81,6 +81,7 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
     private File stylesheet;
     private InputStream stylesheetStream;
     private Templates stylesheetTemplates;
+    private int chunkSize;
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     private static final SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
     private static final String USAGE = "USAGE: command inputFile stylesheet outputFile";
@@ -143,6 +144,20 @@ public class TransformingXMLFilter extends JoiningXMLFilter {
         privateSplitter.setParent(reader);
     }
 
+    public void init() {
+        if (privateSplitter != null) 
+            privateSplitter.setChunkSize(chunkSize);
+        
+        if (splitter != null) {
+            splitter.setChunkSize(chunkSize);
+        }
+
+    }
+
+    public void setChunkSize(int chunkSize) {
+        this.chunkSize = chunkSize;
+    }
+    
     @Override
     public void setParent(XMLReader parent) {
         super.setParent(parent);
