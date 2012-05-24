@@ -106,7 +106,7 @@
         <dependency>
             <groupId>edu.upennlib</groupId>
             <artifactId>parallel-transformer</artifactId>
-            <version>1.0</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
