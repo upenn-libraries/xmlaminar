@@ -64,6 +64,32 @@ public final class IdUpenn implements Comparable {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final IdUpenn other = (IdUpenn) obj;
+        if ((this.idType == null) ? (other.idType != null) : !this.idType.equals(other.idType)) {
+            return false;
+        }
+        if (this.idLong != other.idLong) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 47 * hash + (this.idType != null ? this.idType.hashCode() : 0);
+        hash = 47 * hash + (int) (this.idLong ^ (this.idLong >>> 32));
+        return hash;
+    }
+
+    @Override
     public String toString() {
         return idType+"-"+idString;
     }

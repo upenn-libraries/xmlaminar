@@ -113,27 +113,11 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         }
     }
 
-    private void block() {
-        try {
-            lock.lock();
-            while (state != State.WAIT) {
-                try {
-                    stateIsWait.await();
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
-
     @Override
     public boolean self() {
-        if (debugging && isFinished()) {
+        if (isFinished()) {
             throw new IllegalStateException();
         } else {
-            block();
             return selfId;
         }
     }
@@ -143,7 +127,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         if (isFinished()) {
             throw new EOFException();
         } else {
-            block();
             return level;
         }
     }
@@ -153,7 +136,6 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         if (isFinished()) {
             throw new EOFException();
         } else {
-            block();
             return id.peek();
         }
     }
@@ -349,7 +331,19 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
 
     @Override
     public boolean isFinished() {
-        return finished;
+        try {
+            lock.lock();
+            while (state != State.WAIT) {
+                try {
+                    stateIsWait.await();
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            return finished;
+        } finally {
+            lock.unlock();
+        }
     }
 
     private static final ContentHandler devNullContentHandler = new DevNullContentHandler();
@@ -439,7 +433,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         try {
             lock.lock();
             stateNotWait.signal();
-            if (!isFinished()) {
+            if (!finished) {
                 try {
                     stateIsWait.await();
                 } catch (InterruptedException ex) {

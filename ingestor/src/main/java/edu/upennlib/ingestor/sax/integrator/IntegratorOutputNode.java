@@ -22,6 +22,7 @@ import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -413,21 +414,19 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     }
 
     private void run2() throws SAXException {
-        LinkedHashSet<Integer> activeIndexes = new LinkedHashSet<Integer>();
-        // TODO I expect that lastLevel is no longer useful, and removing it
-        // would greatly simplify the code.
-        Integer lastLevel = null;
-        int level;
-        Comparable leastId;
+        ArrayList<Integer> activeIndexes = new ArrayList<Integer>();
         int lastOutputIndex = -1;
         int dipLevel = 0;
         boolean requiredInputExhausted = false;
         boolean allFinished = false;
         int[] levels = new int[childNodes.length];
         while (!allFinished && !requiredInputExhausted) {
-            level = -1;
-            leastId = null;
+            int level = -1;
+            Comparable leastId = null;
+            activeIndexes.clear();
             allFinished = true;
+            
+            // Get active level
             for (int i = 0; i < levels.length; i++) {
                 try {
                     levels[i] = childNodes[i].getLevel();
@@ -444,7 +443,8 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             if (level < dipLevel) {
                 dipLevel = level;
             }
-            activeIndexes.clear();
+
+            // Get active indexes and active (least) id
             boolean leastIdExplicitlySet = false;
             for (int i = 0; i < childNodes.length; i++) {
                 try {
@@ -464,102 +464,52 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     // ok.
                 }
             }
+
+            // Skip, write output, or step to next level
             if (!activeIndexes.containsAll(requiredIndexes)) {
                 for (int i : activeIndexes) {
-                    try {
-                        Comparable skipId = childNodes[i].getId();
-                        childNodes[i].skipOutput();
-                        logger.trace("skipped output for " + childElementNames[i] + "from id="+skipId+" to id=" + childNodes[i].getId()+childNodes[i].buffersToString());
-                    } catch (EOFException ex) {
-                    }
+                    childNodes[i].skipOutput();
                 }
                 if (requiredInputExhausted) {
                     for (int i = 0; i < childNodes.length; i++) {
-                        /*
-                         * the getId() calls are present only for logging and to
-                         * block for child to be at equilibrium.  A better solution
-                         * would be to have the isFinished() and self() methods block
-                         * while child is not at equilibrium, to avoid retrieving state
-                         * from an object that is in the process of changing state.
-                         */
-                        Comparable consumeId;
                         while (!childNodes[i].isFinished()) {
-                            try {
-                                consumeId = childNodes[i].getId();
-                                logger.trace(childElementNames[i]+ " consuming id: "+consumeId);
-                                childNodes[i].skipOutput();
-                                while (!childNodes[i].isFinished() && !childNodes[i].self()) {
-                                    consumeId = childNodes[i].getId();
-                                    logger.trace(childElementNames[i]+ " consuming id: "+consumeId);
-                                    childNodes[i].step();
-                                }
-                            } catch (EOFException ex) {
-                                logger.trace(childElementNames[i] + " finished consuming content");
-                            }
+                            childNodes[i].skipOutput();
                         }
                     }
                 }
             } else {
                 Boolean self = null;
                 for (int i : activeIndexes) {
-                    if (!childNodes[i].isFinished()) {
-                        if (childNodes[i].self()) {
-                            if (self == null) {
-                                if (lastOutputIndex >= 0) {
-                                    childNodes[lastOutputIndex].writeEndElements(output, dipLevel, aggregating);
-                                }
-                                try {
-                                    childNodes[i].writeStartElements(output, dipLevel, aggregating);
-                                } catch (IllegalArgumentException ex) {
-                                    System.out.println("caught on "+childElementNames[i]+", "+childNodes[i].buffersToString()+", "+dipLevel+", ("+Arrays.toString(childElementNames)+")");
-                                    throw ex;
-                                }
-                                self = true;
-                                if (lastLevel == null || level > lastLevel) {
-                                    lastLevel = level;
-                                } else if (level < lastLevel) {
-                                    throw new IllegalStateException("level=" + level + ", lastLevel=" + lastLevel);
-                                }
-                            } else if (!self) {
-                                try {
-                                    throw new IllegalStateException(name + childElementNames[i]+", "+childNodes[i].getId()+", childLevel="+childNodes[i].getLevel());
-                                } catch (EOFException ex) {
-                                    throw new RuntimeException(ex);
-                                }
+                    if (childNodes[i].self()) {
+                        if (self == null) {
+                            self = true;
+                            // write structural events once for current leastId
+                            if (lastOutputIndex >= 0) {
+                                childNodes[lastOutputIndex].writeEndElements(output, dipLevel, aggregating);
                             }
-                            if (lastLevel == null || level >= lastLevel) {
-                                if (childElementNames[i] != null) {
-                                    attRunner.clear();
-                                    if (leastId != null) {
-                                        attRunner.addAttribute("", "id", "id", "CDATA", leastId.toString());
-                                    }
-                                    output.startElement("", childElementNames[i], childElementNames[i], attRunner);
-                                }
-                                childNodes[i].writeOutput(output);
-                                if (childElementNames[i] != null) {
-                                    output.endElement("", childElementNames[i], childElementNames[i]);
-                                }
-                                lastOutputIndex = i;
-                                dipLevel = level; // selfLevel (highest)
-                            }
-                        } else {
-                            if (self == null) {
-                                self = false;
-                                if (lastLevel == null || level > lastLevel) {
-                                    lastLevel = level;
-                                } else if (level < lastLevel) {
-                                    lastLevel = level;
-                                } else {
-                                    if (level > 0 || leastId != null) {
-                                        throw new IllegalStateException("non-self levels should not repeat; level=" + level + ", id=" + leastId+", lastLevel="+lastLevel);
-                                    }
-                                }
-                            } else if (self) {
-                                throw new IllegalStateException("inconsistent child selfness for "+childElementNames[i]+", asserted level=" + level + ", id=" + leastId);
-                            }
-                            if (!childNodes[i].isFinished()) {
-                                childNodes[i].step();
-                            }
+                            childNodes[i].writeStartElements(output, dipLevel, aggregating);
+                            dipLevel = level; // reset to selfLevel (highest)
+                        } else if (!self) {
+                            throw new IllegalStateException("inconsistent child selfness for " + childElementNames[i] + ", asserted level=" + level + ", id=" + leastId);
+                        }
+                        if (childElementNames[i] != null) {
+                            attRunner.clear();
+                            attRunner.addAttribute("", "id", "id", "CDATA", leastId.toString());
+                            output.startElement("", childElementNames[i], childElementNames[i], attRunner);
+                        }
+                        childNodes[i].writeOutput(output);
+                        if (childElementNames[i] != null) {
+                            output.endElement("", childElementNames[i], childElementNames[i]);
+                        }
+                        lastOutputIndex = i; // an index to get endElement events from.
+                    } else {
+                        if (self == null) {
+                            self = false;
+                        } else if (self) {
+                            throw new IllegalStateException("inconsistent child selfness for " + childElementNames[i] + ", asserted level=" + level + ", id=" + leastId);
+                        }
+                        if (!childNodes[i].isFinished()) {
+                            childNodes[i].step();
                         }
                     }
                 }
