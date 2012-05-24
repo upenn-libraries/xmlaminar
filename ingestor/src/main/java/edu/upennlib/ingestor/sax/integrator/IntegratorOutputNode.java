@@ -358,7 +358,15 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 }
             }
             try {
-                run2();
+                if (childNodes.length <= Integer.SIZE) {
+                    int requiredIndexesBitflags = 0;
+                    for (int i : requiredIndexes) {
+                        requiredIndexesBitflags |= bitMasks[i];
+                    }
+                    run2(requiredIndexesBitflags);
+                } else {
+                    run2();
+                }
             } catch (SAXException ex) {
                 throw new RuntimeException(ex);
             }
@@ -425,7 +433,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             Comparable leastId = null;
             activeIndexes.clear();
             allFinished = true;
-            
+
             // Get active level
             for (int i = 0; i < levels.length; i++) {
                 try {
@@ -480,6 +488,132 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             } else {
                 Boolean self = null;
                 for (int i : activeIndexes) {
+                    if (childNodes[i].self()) {
+                        if (self == null) {
+                            self = true;
+                            // write structural events once for current leastId
+                            if (lastOutputIndex >= 0) {
+                                childNodes[lastOutputIndex].writeEndElements(output, dipLevel, aggregating);
+                            }
+                            childNodes[i].writeStartElements(output, dipLevel, aggregating);
+                            dipLevel = level; // reset to selfLevel (highest)
+                        } else if (!self) {
+                            throw new IllegalStateException("inconsistent child selfness for " + childElementNames[i] + ", asserted level=" + level + ", id=" + leastId);
+                        }
+                        if (childElementNames[i] != null) {
+                            attRunner.clear();
+                            attRunner.addAttribute("", "id", "id", "CDATA", leastId.toString());
+                            output.startElement("", childElementNames[i], childElementNames[i], attRunner);
+                        }
+                        childNodes[i].writeOutput(output);
+                        if (childElementNames[i] != null) {
+                            output.endElement("", childElementNames[i], childElementNames[i]);
+                        }
+                        lastOutputIndex = i; // an index to get endElement events from.
+                    } else {
+                        if (self == null) {
+                            self = false;
+                        } else if (self) {
+                            throw new IllegalStateException("inconsistent child selfness for " + childElementNames[i] + ", asserted level=" + level + ", id=" + leastId);
+                        }
+                        if (!childNodes[i].isFinished()) {
+                            childNodes[i].step();
+                        }
+                    }
+                }
+            }
+        }
+        if (lastOutputIndex < 0) {
+            childNodes[0].writeRootElement(output);
+        } else {
+            childNodes[lastOutputIndex].writeEndElements(output, 0, aggregating);
+        }
+    }
+
+    private static final int[] bitMasks = new int[Integer.SIZE];
+    private static final int[] notBitMasks = new int[Integer.SIZE];
+
+    static {
+        for (int i = 0; i < Integer.SIZE; i++) {
+            bitMasks[i] = 0x80000000 >>> i;
+            notBitMasks[i] = ~bitMasks[i];
+        }
+    }
+
+    /**
+     * DO NOT MODIFY THIS METHOD!  It should be a derivative of the run2()
+     * reference implementation method! 
+     * @param requiredIndexesBitflags
+     * @throws SAXException
+     */
+    private void run2(int requiredIndexesBitflags) throws SAXException {
+        int lastOutputIndex = -1;
+        int dipLevel = 0;
+        boolean requiredInputExhausted = false;
+        boolean allFinished = false;
+        int[] levels = new int[childNodes.length];
+        while (!allFinished && !requiredInputExhausted) {
+            int level = -1;
+            Comparable leastId = null;
+            int activeIndexesBitflags = 0;
+            allFinished = true;
+
+            // Get active level
+            for (int i = 0; i < levels.length; i++) {
+                try {
+                    levels[i] = childNodes[i].getLevel();
+                    if (levels[i] > level) {
+                        level = levels[i];
+                    }
+                } catch (EOFException ex) {
+                    levels[i] = -1;
+                    if ((requiredIndexesBitflags & bitMasks[i]) != 0) {
+                        requiredInputExhausted = true;
+                    }
+                }
+            }
+            if (level < dipLevel) {
+                dipLevel = level;
+            }
+
+            // Get active indexes and active (least) id
+            boolean leastIdExplicitlySet = false;
+            for (int i = 0; i < childNodes.length; i++) {
+                try {
+                    if (levels[i] == level) {
+                        Comparable tmpId = childNodes[i].getId();
+                        if (!leastIdExplicitlySet || (leastId != null && tmpId != null && tmpId.compareTo(leastId) < 0)) {
+                            leastIdExplicitlySet = true;
+                            activeIndexesBitflags = 0;
+                            activeIndexesBitflags |= bitMasks[i];
+                            leastId = tmpId;
+                        } else if ((leastId == null && tmpId == null) || tmpId.compareTo(leastId) == 0) { //tmpId should never be null.
+                            activeIndexesBitflags |= bitMasks[i];
+                        }
+                    }
+                    allFinished = false;
+                } catch (EOFException ex) {
+                    // ok.
+                }
+            }
+
+            // Skip, write output, or step to next level
+            if ((requiredIndexesBitflags & activeIndexesBitflags) != requiredIndexesBitflags) {
+                int copy = activeIndexesBitflags; // for loop over activeIndexes
+                for (int i = Integer.numberOfLeadingZeros(copy); i != Integer.SIZE; i = Integer.numberOfLeadingZeros(copy &= notBitMasks[i])) {
+                    childNodes[i].skipOutput();
+                }
+                if (requiredInputExhausted) {
+                    for (int i = 0; i < childNodes.length; i++) {
+                        while (!childNodes[i].isFinished()) {
+                            childNodes[i].skipOutput();
+                        }
+                    }
+                }
+            } else {
+                Boolean self = null;
+                int copy = activeIndexesBitflags; // for loop over activeIndexes
+                for (int i = Integer.numberOfLeadingZeros(copy); i != Integer.SIZE; i = Integer.numberOfLeadingZeros(copy &= notBitMasks[i])) {
                     if (childNodes[i].self()) {
                         if (self == null) {
                             self = true;
