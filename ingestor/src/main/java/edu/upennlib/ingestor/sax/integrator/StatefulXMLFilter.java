@@ -23,7 +23,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -45,15 +46,15 @@ import org.xml.sax.helpers.XMLFilterImpl;
 public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
 
 
-    private final boolean debugging = true;
+    private static final boolean debugging = true;
     public static final String INTEGRATOR_URI = "http://integrator";
     public static enum State {WAIT, SKIP, STEP, PLAY}
-    private State state = State.STEP;
-    private int level = -1;
-    private int refLevel = -1;
+    private volatile State state = State.STEP;
+    private volatile int level = -1;
+    private volatile int refLevel = -1;
 
-    private boolean selfId = false;
-    private LinkedList<Comparable> id = new LinkedList<Comparable>();
+    private volatile boolean selfId = false;
+    private Deque<Comparable> id = new ArrayDeque<Comparable>();
 
     private InputSource inputSource = new InputSource();
 
@@ -313,7 +314,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         lastWasEndElement = true;
     }
 
-    private boolean finished = false;
+    private volatile boolean finished = false;
 
     @Override
     public void endDocument() throws SAXException {
