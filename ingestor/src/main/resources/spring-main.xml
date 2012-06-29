@@ -46,8 +46,8 @@
         <property name="server" ref="solrServer"/>
         <property name="delete" value="${solrPoster.delete}"/>
     </bean>
-    <bean id="solrServer" class="org.apache.solr.client.solrj.impl.StreamingUpdateSolrServer" factory-bean="solrServerFactory" factory-method="getServer" scope="singleton" lazy-init="true"/>
-    <bean id="solrServerFactory" class="edu.upennlib.solrposter.StreamingUpdateSolrServerFactory" scope="singleton" lazy-init="true">
+    <bean id="solrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer" factory-bean="solrServerFactory" factory-method="getServer" scope="singleton" lazy-init="true"/>
+    <bean id="solrServerFactory" class="edu.upennlib.solrposter.ConcurrentUpdateSolrServerFactory" scope="singleton" lazy-init="true">
         <property name="solrURL" value="${solrServer.url}"/>
         <property name="queueSize" value="${solrServer.queueSize}"/>
         <property name="threadCount" value="${solrServer.threadCount}"/>
