@@ -68,7 +68,7 @@
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>saxon</artifactId>
-            <version>9.3.0.5</version>
+            <version>9.4.0.3</version>
             <type>jar</type>
             <scope>runtime</scope>
         </dependency>
