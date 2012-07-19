@@ -209,6 +209,26 @@ public class IntegratorOutputNodeTest {
         verify(root, testId.concat(".xml"), true);
     }
 
+    /*
+     * One of these integrators throws an exception, should kill all (the other) and
+     * exit with error instead of hanging.
+     */
+    @Test
+    public void testIntegrate11() throws TransformerConfigurationException, TransformerException, ParserConfigurationException, SAXException, IOException {
+        String testId = "testIntegrate11";
+        System.out.println("running test: "+testId);
+        IntegratorOutputNode root = new IntegratorOutputNode();
+        root.addDescendent("/record/marc", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marc.xml"))), false);
+        root.addDescendent("/record/marcOdd", new PreConfiguredXMLReader(new InputSource(cl.getResourceAsStream("input/marcOddPartial.xml"))), false);
+        try {
+            verify(root, null, true);
+            assertFalse("invocation did not throw exception!", true);
+        } catch (RuntimeException ex) {
+            assertTrue(ex.getCause() instanceof InterruptedException);
+        }
+
+    }
+
     private static void verify(IntegratorOutputNode root, String fileName, boolean verify) throws TransformerConfigurationException, TransformerException, IOException, ParserConfigurationException, SAXException {
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
