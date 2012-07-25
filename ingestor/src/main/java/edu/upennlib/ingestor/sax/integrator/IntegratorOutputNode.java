@@ -343,13 +343,14 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             childElementNames = names.toArray(new String[size]);
             requireForWrite = requires.toArray(new Boolean[size]);
 
+            ThreadGroup threadGroup = new ThreadGroup("integratorThreads");
             for (int i = 0; i < childNodes.length; i++) {
                 Thread t;
                 if (childElementNames[i] != null) {
                     childNodes[i].setName(childElementNames[i]);
-                    t = new Thread(childNodes[i], childElementNames[i]+"<-"+Thread.currentThread().getName());
+                    t = new Thread(threadGroup, childNodes[i], childElementNames[i]+"<-"+Thread.currentThread().getName());
                 } else {
-                    t = new Thread(childNodes[i], childNodes[i].getName()+"<-"+Thread.currentThread().getName());
+                    t = new Thread(threadGroup, childNodes[i], childNodes[i].getName()+"<-"+Thread.currentThread().getName());
                 }
                 t.setUncaughtExceptionHandler(interrupter);
                 t.start();
