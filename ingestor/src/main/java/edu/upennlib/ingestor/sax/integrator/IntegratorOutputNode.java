@@ -344,6 +344,8 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             requireForWrite = requires.toArray(new Boolean[size]);
 
             ThreadGroup threadGroup = new ThreadGroup("integratorThreads");
+            Thread.UncaughtExceptionHandler interrupter = new ThreadGroupInterrupter(Thread.currentThread());
+            
             for (int i = 0; i < childNodes.length; i++) {
                 Thread t;
                 if (childElementNames[i] != null) {
@@ -374,14 +376,19 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         }
     }
 
-    private static final Thread.UncaughtExceptionHandler interrupter = new ThreadGroupInterrupter();
-
     private static class ThreadGroupInterrupter implements Thread.UncaughtExceptionHandler {
 
+        private final Thread target;
+
+        private ThreadGroupInterrupter(Thread target) {
+            this.target = target;
+        }
+        
         @Override
         public void uncaughtException(Thread t, Throwable e) {
             e.printStackTrace(System.err);
             t.getThreadGroup().interrupt();
+            target.interrupt();
         }
 
     }
