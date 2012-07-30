@@ -26,9 +26,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
@@ -39,7 +36,6 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -144,18 +140,23 @@ public class JoiningXMLFilter extends XMLFilterImpl {
 
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
+        setupParse();
+        super.parse(input);
+    }
+
+    @Override
+    public void parse(String systemId) throws SAXException, IOException {
+        setupParse();
+        super.parse(systemId);
+    }
+
+    private void setupParse() {
         if (!initialized) {
             initialized = true;
             super.setContentHandler(initialEventContentHandler);
         } else {
             super.setContentHandler(devNullContentHandler);
         }
-        super.parse(input);
-    }
-
-    @Override
-    public void parse(String systemId) throws SAXException, IOException {
-        throw new UnsupportedOperationException();
     }
 
     public void finished() throws SAXException {

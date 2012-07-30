@@ -16,10 +16,8 @@
 
 package edu.upennlib.paralleltransformer;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -30,8 +28,6 @@ import java.util.Iterator;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -85,7 +81,6 @@ public class SplittingXMLFilter extends XMLFilterImpl {
         initParser.setParent(this);
         repeatParser.setParent(this);
     }
-
 
     private static class MyXMLReaderCallback implements XMLReaderCallback {
 
@@ -184,19 +179,37 @@ public class SplittingXMLFilter extends XMLFilterImpl {
         }
     }
 
-    private void doParse(InputSource input) throws SAXException, IOException {
+    private void parseLoop(InputSource input, String systemId) throws SAXException, IOException {
         parsing = true;
-        xmlReaderCallback.callback(initParser, input);
-        while (parsing) {
-            xmlReaderCallback.callback(repeatParser, input);
+        try {
+            if (input != null) {
+                xmlReaderCallback.callback(initParser, input);
+                while (parsing) {
+                    xmlReaderCallback.callback(repeatParser, input);
+                }
+            } else {
+                xmlReaderCallback.callback(initParser, systemId);
+                while (parsing) {
+                    xmlReaderCallback.callback(repeatParser, systemId);
+                }
+            }
+        } catch (Exception ex) {
+            handleCallbackException(ex);
         }
     }
 
-    private void doParse(String systemId) throws SAXException, IOException {
-        parsing = true;
-        xmlReaderCallback.callback(initParser, systemId);
-        while (parsing) {
-            xmlReaderCallback.callback(repeatParser, systemId);
+    private void handleCallbackException(Exception ex) throws SAXException, IOException {
+        if (ex != sourceException) {
+            reset(false);
+        } else {
+            doReset();
+        }
+        if (ex instanceof SAXException) {
+            throw (SAXException) ex;
+        } else if (ex instanceof IOException) {
+            throw (IOException) ex;
+        } else {
+            throw (RuntimeException) ex;
         }
     }
 
@@ -270,12 +283,12 @@ public class SplittingXMLFilter extends XMLFilterImpl {
 
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
-        doParse(input);
+        parseLoop(input, null);
     }
 
     @Override
     public void parse(String systemId) throws SAXException, IOException {
-        doParse(systemId);
+        parseLoop(null, systemId);
     }
 
     public XMLReaderCallback getXMLReaderCallback() {
