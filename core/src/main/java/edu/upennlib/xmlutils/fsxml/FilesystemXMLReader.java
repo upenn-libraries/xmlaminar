@@ -74,7 +74,7 @@ public abstract class FilesystemXMLReader implements XMLReader {
         ignorableProperties.put("http://xml.org/sax/properties/lexical-handler", null); // we know we won't be generating any lexical events.
     }
 
-    protected enum FsxmlElement {
+    public enum FsxmlElement {
         file(URI, PREFIX, "file"),
         dir(URI, PREFIX, "dir"),
         symlink(URI, PREFIX, "symlink"),
@@ -92,7 +92,7 @@ public abstract class FilesystemXMLReader implements XMLReader {
             }
         }
     }
-    private enum FsxmlAttribute {
+    public enum FsxmlAttribute {
         symlink("", "", "symlink"),
         symlinkTarget("", "", "symlinkTarget"),
         length("", "", "length"),
