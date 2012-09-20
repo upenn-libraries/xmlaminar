@@ -17,13 +17,9 @@
 package edu.upennlib.xmlutils.fsxml;
 
 import edu.upennlib.xmlutils.Element;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -31,8 +27,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import org.xml.sax.InputSource;
+import org.xml.sax.XMLFilter;
 
 /**
  *
@@ -41,24 +37,17 @@ import org.xml.sax.InputSource;
 public class FilesystemXMLReaderRepo extends FilesystemXMLReader {
 
     public static final String TRANSFORMER_FACTORY_CLASS = "net.sf.saxon.TransformerFactoryImpl";
-    private static final URL xIncludeDirContentsXsl;
-
-    static {
-        xIncludeDirContentsXsl = FilesystemXMLReader.class.getClassLoader().getResource("incl_repo_contents.xsl");
-    }
-
-    public static InputStream getXIncludeRepoContentsXsl() throws IOException {
-        return xIncludeDirContentsXsl.openStream();
-    }
 
     public static void main(String[] args) throws FileNotFoundException, TransformerConfigurationException, TransformerException, IOException {
         FilesystemXMLReader instance = new FilesystemXMLReaderRepo();
         instance.setFollowSymlinks(false);
-        File rootFile = new File("/repo");
+        XMLFilter inclRepoContents = new IncludeRepoContentsXMLFilter();
+        inclRepoContents.setParent(instance);
+        File rootFile = new File("/repo/3");
         TransformerFactory tf = TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS, null);
-        Transformer t = tf.newTransformer(new StreamSource(getXIncludeRepoContentsXsl()));
+        Transformer t = tf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
-        t.transform(new SAXSource(instance, new InputSource(rootFile.getAbsolutePath())), new StreamResult(System.out));
+        t.transform(new SAXSource(inclRepoContents, new InputSource(rootFile.getAbsolutePath())), new StreamResult(System.out));
     }
 
     private static final String DFLAT_MARKER = "0=dflat";
