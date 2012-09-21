@@ -1,0 +1,1451 @@
+<locations>
+<location location_code="afro">
+  <specific_location>Van Pelt - Africana Studies Resource Room</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Africana Studies Resource Room (305)</display>
+</location>
+<location location_code="annbcirc">
+  <specific_location>Annenberg Library - Circulation Desk</specific_location>
+  <library>Annenberg Library</library>
+  <display>Annenberg Library - Circulation Desk</display>
+</location>
+<location location_code="annbfilm">
+  <specific_location>Annenberg Library - Microforms</specific_location>
+  <library>Annenberg Library</library>
+  <display>Annenberg Library - Microforms</display>
+</location>
+<location location_code="annbgovt">
+  <specific_location></specific_location>
+  <library>Annenberg Library</library>
+  <display>For this item write docdel@asc.upenn.edu or call 898-7027</display>
+</location>
+<location location_code="annbperi">
+  <specific_location>Annenberg Library - Periodicals</specific_location>
+  <library>Annenberg Library</library>
+  <display>Annenberg Library - Periodicals</display>
+</location>
+<location location_code="annbrefe">
+  <specific_location>Annenberg Library - Reference</specific_location>
+  <library>Annenberg Library</library>
+  <display>Annenberg Library - Reference</display>
+</location>
+<location location_code="annbrese">
+  <specific_location>Annenberg Library - Reserve</specific_location>
+  <library>Annenberg Library</library>
+  <library>Reserve</library>
+  <display>Annenberg Library - Reserve</display>
+</location>
+<location location_code="annbthes">
+  <specific_location>Annenberg Library - Theses</specific_location>
+  <library>Annenberg Library</library>
+  <display>Annenberg Library - Theses</display>
+</location>
+<location location_code="arbor">
+  <specific_location>Morris Arboretum</specific_location>
+  <library>Morris Arboretum</library>
+  <display>Morris Arboretum, 215-247-5777</display>
+</location>
+<location location_code="archarch">
+  <specific_location>Architectural Archives</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Architectural Archives, 215 898-8323</display>
+</location>
+<location location_code="biom">
+  <specific_location>Biomedical Library</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Biomedical Library</library>
+  <display>Biomedical Library</display>
+</location>
+<location location_code="biomclin">
+  <specific_location>Biomedical Library - Clinical Reading Room</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Biomedical Library</library>
+  <display>Biomedical Library - Clinical Reading Room</display>
+</location>
+<location location_code="biomhist">
+  <specific_location>Biomedical Library - Historical Collection</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Biomedical Library</library>
+  <display>Biomedical Library - Historical Collection</display>
+</location>
+<location location_code="biomlibr">
+  <specific_location>Biomedical Library - Librarian's Office</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Biomedical Library</library>
+  <display>Biomedical Library - Librarian's Office</display>
+</location>
+<location location_code="biomonli">
+  <specific_location>Biomedical Library - Online Office</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Biomedical Library</library>
+  <display>Biomedical Library - Online Office</display>
+</location>
+<location location_code="biomperi">
+  <specific_location>Biomedical Library - Periodicals</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Biomedical Library</library>
+  <display>Biomedical Library - Periodicals</display>
+</location>
+<location location_code="biomrede">
+  <specific_location>Biomedical Library - Reference Desk</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Biomedical Library</library>
+  <display>Biomedical Library - Reference Desk</display>
+</location>
+<location location_code="biomrefe">
+  <specific_location>Biomedical Library - Reference</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Biomedical Library</library>
+  <display>Biomedical Library - Reference</display>
+</location>
+<location location_code="biomrese">
+  <specific_location>Biomedical Library - Reserve</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Biomedical Library</library>
+  <library>Reserve</library>
+  <display>Biomedical Library - Reserve</display>
+</location>
+<location location_code="chem">
+  <specific_location>Chemistry Library - Books</specific_location>
+  <library>Chemistry Library</library>
+  <display>Chemistry Library - Books</display>
+</location>
+<location location_code="chemnewbk">
+  <specific_location>Chemistry Library - New Books</specific_location>
+  <library>Chemistry Library</library>
+  <display>Chemistry Library - New Book Shelf</display>
+</location>
+<location location_code="chemperi">
+  <specific_location>Chemistry Library - Periodicals</specific_location>
+  <library>Chemistry Library</library>
+  <display>Chemistry Library - Periodicals</display>
+</location>
+<location location_code="chemrdrm">
+  <specific_location>Chemistry Library - Reading Room</specific_location>
+  <library>Chemistry Library</library>
+  <display>Chemistry Library - Reading Room</display>
+</location>
+<location location_code="chemrefe">
+  <specific_location>Chemistry Library - Reference</specific_location>
+  <library>Chemistry Library</library>
+  <display>Chemistry Library - Reference</display>
+</location>
+<location location_code="chemrese">
+  <specific_location>Chemistry Library - Reserve</specific_location>
+  <library>Chemistry Library</library>
+  <library>Reserve</library>
+  <display>Chemistry Library - Reserve</display>
+</location>
+<location location_code="cjs">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Stacks</display>
+</location>
+<location location_code="cjsambx">
+  <specific_location>Library at the Katz Center - Archives</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Archives Americana</display>
+</location>
+<location location_code="cjsarc">
+  <specific_location>Library at the Katz Center - Archives</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Archives Room</display>
+</location>
+<location location_code="cjsarcbox1">
+  <specific_location>Library at the Katz Center - Archives</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Archives Box 1</display>
+</location>
+<location location_code="cjsarcms">
+  <specific_location>Library at the Katz Center - Archives</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Archives Room Manuscript</display>
+</location>
+<location location_code="cjsarcths">
+  <specific_location>Library at the Katz Center - Archives</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Archives Thesis</display>
+</location>
+<location location_code="cjsartif">
+  <specific_location>Library at the Katz Center - Reading Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Artifacts</display>
+</location>
+<location location_code="cjsbox1">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Stacks Box 1</display>
+</location>
+<location location_code="cjsbox2">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Stacks Box 2</display>
+</location>
+<location location_code="cjsbox3">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Stacks Box 3</display>
+</location>
+<location location_code="cjsbox4">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Stacks Box 4</display>
+</location>
+<location location_code="cjscdrom">
+  <specific_location>Library at the Katz Center - Reading Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - CD-ROM</display>
+</location>
+<location location_code="cjscirc">
+  <specific_location>Library at the Katz Center - Reading Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Circulation</display>
+</location>
+<location location_code="cjscomp">
+  <specific_location>Library at the Katz Center - Reading Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Computer Room</display>
+</location>
+<location location_code="cjsdir">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Director's Office</display>
+</location>
+<location location_code="cjsencyc">
+  <specific_location>Library at the Katz Center - Reading Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Reference Encyclopedia</display>
+</location>
+<location location_code="cjsfiche">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Microfiche</display>
+</location>
+<location location_code="cjsfilm">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Microfilm</display>
+</location>
+<location location_code="cjsfol">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Stacks Folio</display>
+</location>
+<location location_code="cjsgf">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Genizah Fragments</display>
+</location>
+<location location_code="cjsgrc">
+  <specific_location>Library at the Katz Center - Archives</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Graphics Collection</display>
+</location>
+<location location_code="cjshur">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Hurowitz Collection</display>
+</location>
+<location location_code="cjsincun">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Incunabula</display>
+</location>
+<location location_code="cjsmar">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Margolis Collection</display>
+</location>
+<location location_code="cjsmemor">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Memorial Collection</display>
+</location>
+<location location_code="cjsmini">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Miniatures Stacks</display>
+</location>
+<location location_code="cjsoffice">
+  <specific_location>Library at the Katz Center - Reading Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Office</display>
+</location>
+<location location_code="cjsover">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Oversize Stacks</display>
+</location>
+<location location_code="cjsperb1">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Periodicals B1</display>
+</location>
+<location location_code="cjsperb2">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Periodicals B2</display>
+</location>
+<location location_code="cjsperbox1">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Periodicals Box 1</display>
+</location>
+<location location_code="cjsperbox2">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Periodicals Box 2</display>
+</location>
+<location location_code="cjsperfol">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Periodicals Folio</display>
+</location>
+<location location_code="cjspergal">
+  <specific_location>Library at the Katz Center - Reading Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Periodicals Gallery</display>
+</location>
+<location location_code="cjsperover">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Periodicals Oversize</display>
+</location>
+<location location_code="cjsrar">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Room</display>
+</location>
+<location location_code="cjsraram">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Americana</display>
+</location>
+<location location_code="cjsrarbx1">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Box 1</display>
+</location>
+<location location_code="cjsrarbx2">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Box 2</display>
+</location>
+<location location_code="cjsrarbx3">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Box 3</display>
+</location>
+<location location_code="cjsrarbx4">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Box 4</display>
+</location>
+<location location_code="cjsrarfol">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Folio</display>
+</location>
+<location location_code="cjsrargiga">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Giant</display>
+</location>
+<location location_code="cjsrarmini">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Miniature</display>
+</location>
+<location location_code="cjsrarms">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Manuscript</display>
+</location>
+<location location_code="cjsrarover">
+  <specific_location>Library at the Katz Center - Rare Book Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Rare Book Oversize</display>
+</location>
+<location location_code="cjsref">
+  <specific_location>Library at the Katz Center - Reading Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Reference Room</display>
+</location>
+<location location_code="cjsreffol">
+  <specific_location>Library at the Katz Center - Reading Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Reference Folio</display>
+</location>
+<location location_code="cjsreffol+">
+  <specific_location>Library at the Katz Center - Reading Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Reference Oversize</display>
+</location>
+<location location_code="cjsres">
+  <specific_location>Library at the Katz Center - Reading Room</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <library>Reserve</library>
+  <display>Library at the Katz Center - Reserves</display>
+</location>
+<location location_code="cjsspec">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Special</display>
+</location>
+<location location_code="cjsvideo">
+  <specific_location>Library at the Katz Center - Stacks</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Library at the Katz Center - Video</display>
+</location>
+<location location_code="classics">
+  <specific_location>Van Pelt - Classics Resource Room</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Classics Resource Room (301)</display>
+</location>
+<location location_code="dent">
+  <specific_location>Dental Library - Stacks</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Dental Library</library>
+  <display>Dental Library - Stacks</display>
+</location>
+<location location_code="dentrare">
+  <specific_location>Dental Library - Rare Books</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Dental Library</library>
+  <display>Dental Library - Rare Books</display>
+</location>
+<location location_code="dentrefe">
+  <specific_location>Dental Library - Reference</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Dental Library</library>
+  <display>Dental Library - Reference</display>
+</location>
+<location location_code="dentrese">
+  <specific_location>Dental Library - Reserve</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Dental Library</library>
+  <library>Reserve</library>
+  <display>Dental Library - Reserve</display>
+</location>
+<location location_code="dncirc">
+  <specific_location>Dental Library - Circulation</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Dental Library</library>
+  <display>Dental Library - Circulation</display>
+</location>
+<location location_code="easiacom">
+  <specific_location>Van Pelt - East Asia Compact Shelving</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - East Asia Compact Shelving</display>
+</location>
+<location location_code="easiasem">
+  <specific_location>Van Pelt - East Asia Seminar Room</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - East Asia Seminar Room (526)</display>
+</location>
+<location location_code="eastasia">
+  <specific_location>Van Pelt - East Asia Collection</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - East Asia</display>
+</location>
+<location location_code="engi">
+  <specific_location>Engineering Library</specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library</display>
+</location>
+<location location_code="engicirc">
+  <specific_location>Engineering Library - Circulation Desk</specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library - Circulation Desk</display>
+</location>
+<location location_code="enginewbk">
+  <specific_location>Engineering Library - New Book</specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library - New Book</display>
+</location>
+<location location_code="engiperi">
+  <specific_location>Engineering Library - Periodicals</specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library - Periodicals (alphabetical by title)</display>
+</location>
+<location location_code="engirefe">
+  <specific_location>Engineering Library - Reference</specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library - Reference</display>
+</location>
+<location location_code="engirese">
+  <specific_location>Engineering Library - Reserve</specific_location>
+  <library>Engineering Library</library>
+  <library>Reserve</library>
+  <display>Engineering Library - Reserve</display>
+</location>
+<location location_code="engsc">
+  <specific_location>Engineering Library - Study Collection</specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library - Study Collection</display>
+</location>
+<location location_code="eres">
+  <display>E-reserves</display>
+</location>
+<location location_code="fine">
+  <specific_location>Fisher Fine Arts Library</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Fine Arts Library</display>
+</location>
+<location location_code="finecage">
+  <specific_location>Fisher Fine Arts Library - Cage</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Fine Arts Library - Cage (ask at desk)</display>
+</location>
+<location location_code="finecirc">
+  <specific_location>Fisher Fine Arts Library - Circulation Desk</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Fine Arts Library - Circulation Desk</display>
+</location>
+<location location_code="finelock">
+  <specific_location>Fisher Fine Arts Library - Locked Case</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Fine Arts Library - Locked Case (ask at desk)</display>
+</location>
+<location location_code="finemaps">
+  <specific_location>Fisher Fine Arts Library - Map Collection</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Fine Arts Library - Map Collection</display>
+</location>
+<location location_code="finerare">
+  <specific_location>Fisher Fine Arts Library - Rare Book</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Fine Arts Library - Rare Book (ask at desk)</display>
+</location>
+<location location_code="fineraremp">
+  <specific_location>Fisher Fine Arts Library - Rare Maps</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Fine Arts Library - Rare Map Collection</display>
+</location>
+<location location_code="finerarept">
+  <specific_location>Fisher Fine Arts Library - Rare Print</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Fine Arts Library - Rare Print Collection</display>
+</location>
+<location location_code="finerefe">
+  <specific_location>Fisher Fine Arts Library - Reference</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Fine Arts Library - Reference</display>
+</location>
+<location location_code="finerese">
+  <specific_location>Fisher Fine Arts Library - Reserve</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <library>Reserve</library>
+  <display>Fine Arts Library - Reserve</display>
+</location>
+<location location_code="fineslid">
+  <specific_location>Fisher Fine Arts Library - Image</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Fine Arts Library - Slide Collection</display>
+</location>
+<location location_code="finestudio">
+  <specific_location>Fisher Fine Arts Library - Studio Collection</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Fine Arts Library - Studio Collection</display>
+</location>
+<location location_code="HARR">
+  <display></display>
+</location>
+<location location_code="judaica">
+  <specific_location>Van Pelt - Judaica and Ancient Near East Resource Room</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Judaica/Ancient Near East Resource Room (401)</display>
+</location>
+<location location_code="libspec">
+  <specific_location>LIBRA</specific_location>
+  <library>LIBRA</library>
+  <display>Research Annex (LIBRA)</display>
+</location>
+<location location_code="lipp">
+  <specific_location>Lippincott Library</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <display>Lippincott Library</display>
+</location>
+<location location_code="lippb10">
+  <specific_location>LIBRA</specific_location>
+  <library>LIBRA</library>
+  <display>Research Annex (LIBRA)</display>
+</location>
+<location location_code="lippbusc">
+  <specific_location>Lippincott Library - Business Collection</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <display>Lippincott Library - Business Collection</display>
+</location>
+<location location_code="lippcomp">
+  <specific_location>Lippincott Library - Class of 1956 Computer Area</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <display>Lippincott Library - Class of 1956 Computer Area</display>
+</location>
+<location location_code="lipplipm">
+  <specific_location>Lippincott Library - Lipman Collection</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <display>Lippincott Library - Lipman Collection (ask staff)</display>
+</location>
+<location location_code="lipppeck">
+  <specific_location>Lippincott Library - Peck Collection</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <display>Lippincott Library - Peck Collection</display>
+</location>
+<location location_code="lipprefdsk">
+  <specific_location>Lippincott Library - Reference Desk</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <display>Lippincott Library - Reference Desk</display>
+</location>
+<location location_code="lipprefe">
+  <specific_location>Lippincott Library - Reference</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <display>Lippincott Library - Reference Stacks</display>
+</location>
+<location location_code="lipprefs">
+  <specific_location>Lippincott Library - Reference Services</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <display>Lippincott Library - Reference Services</display>
+</location>
+<location location_code="lipprein">
+  <specific_location>Lippincott Library - Reference Indexes</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <display>Lippincott Library - Reference Indexes</display>
+</location>
+<location location_code="lipprese">
+  <specific_location>Lippincott Library - Reserve</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <library>Reserve</library>
+  <display>Lippincott Library - Reserve</display>
+</location>
+<location location_code="lippreseds">
+  <specific_location>Lippincott Library - Reserve Desk</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <library>Reserve</library>
+  <display>Lippincott Library - Reserve Desk</display>
+</location>
+<location location_code="lippsnyd">
+  <specific_location>Lippincott Library - Snyder Computer Area</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Lippincott Library</library>
+  <display>Lippincott Library - Snyder Computer Area</display>
+</location>
+<location location_code="math">
+  <specific_location>Math/Physics/Astronomy Library</specific_location>
+  <library>Math/Physics/Astronomy Library</library>
+  <library>Math/Physics/Astronomy Library</library>
+  <display>Math/Physics/Astronomy Library</display>
+</location>
+<location location_code="mathcirc">
+  <specific_location>Math/Physics/Astronomy Library - Circulation Desk</specific_location>
+  <library>Math/Physics/Astronomy Library</library>
+  <display>Math/Physics/Astronomy - Circulation Desk</display>
+</location>
+<location location_code="mathnewbk">
+  <specific_location>Math/Physics/Astronomy Library - New Book Shelf</specific_location>
+  <library>Math/Physics/Astronomy Library</library>
+  <display>Math/Physics/Astronomy - New Book Shelf</display>
+</location>
+<location location_code="mathperi">
+  <specific_location>Math/Physics/Astronomy Library - Periodicals</specific_location>
+  <library>Math/Physics/Astronomy Library</library>
+  <display>Math/Physics/Astronomy - Periodicals (alphabetical by title)</display>
+</location>
+<location location_code="mathrefe">
+  <specific_location>Math/Physics/Astronomy Library - Reference</specific_location>
+  <library>Math/Physics/Astronomy Library</library>
+  <display>Math/Physics/Astronomy - Reference</display>
+</location>
+<location location_code="mathrese">
+  <specific_location>Math/Physics/Astronomy Library - Reserve</specific_location>
+  <library>Math/Physics/Astronomy Library</library>
+  <library>Reserve</library>
+  <display>Math/Physics/Astronomy - Reserve</display>
+</location>
+<location location_code="medieval">
+  <specific_location>Van Pelt - Medieval Studies Resource Room</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Medieval Studies Resource Room (405)</display>
+</location>
+<location location_code="mideast">
+  <specific_location>Van Pelt - Middle East Seminar Room</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Middle East Seminar Room (523)</display>
+</location>
+<location location_code="mideastres">
+  <specific_location>Van Pelt - Middle East Seminar Reserve</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Reserve</library>
+  <display>Van Pelt - Middle East Seminar Reserve</display>
+</location>
+<location location_code="moor">
+  <specific_location>Engineering Library</specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library</display>
+</location>
+<location location_code="moorrefe">
+  <specific_location>Engineering Library - Reference</specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library - Reference</display>
+</location>
+<location location_code="moorrese">
+  <specific_location>Engineering Library - Reserve</specific_location>
+  <library>Engineering Library</library>
+  <library>Reserve</library>
+  <display>Engineering Library - Reserve</display>
+</location>
+<location location_code="muse">
+  <specific_location>University Museum Library</specific_location>
+  <library>University Museum Library</library>
+  <display>University Museum Library</display>
+</location>
+<location location_code="musearch">
+  <specific_location>University Museum Archives</specific_location>
+  <library>University Museum Archives</library>
+  <display>University Museum Archives, 215-898-8304</display>
+</location>
+<location location_code="musebrin">
+  <specific_location>University Museum Library - Brinton Collection</specific_location>
+  <library>University Museum Library</library>
+  <display>University Museum Library - Brinton Collection</display>
+</location>
+<location location_code="musedesk">
+  <specific_location>University Museum Library - Circulation</specific_location>
+  <library>University Museum Library</library>
+  <display>University Museum Library - Desk</display>
+</location>
+<location location_code="museegyp">
+  <specific_location>University Museum Library - Egyptian</specific_location>
+  <library>University Museum Library</library>
+  <display>University Museum Library - Egyptian Collection</display>
+</location>
+<location location_code="musekolb">
+  <specific_location>University Museum Library - Kolb</specific_location>
+  <library>University Museum Library</library>
+  <display>University Museum Library - Kolb</display>
+</location>
+<location location_code="muselock">
+  <specific_location>University Museum Library - Locked</specific_location>
+  <library>University Museum Library</library>
+  <display>University Museum Library - Locked Cases (ask staff)</display>
+</location>
+<location location_code="muserefe">
+  <specific_location>University Museum Library - Reference</specific_location>
+  <library>University Museum Library</library>
+  <display>University Museum Library - Reference</display>
+</location>
+<location location_code="muserese">
+  <specific_location>University Museum Library - Reserve</specific_location>
+  <library>University Museum Library</library>
+  <library>Reserve</library>
+  <display>University Museum Library - Reserve</display>
+</location>
+<location location_code="musiclist">
+  <specific_location>Van Pelt - Ormandy Center</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Ormandy Music and Media Center</display>
+</location>
+<location location_code="musicrese">
+  <specific_location>Van Pelt - Ormandy Center</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Reserve</library>
+  <display>Van Pelt - Ormandy Reserve</display>
+</location>
+<location location_code="musicsem">
+  <specific_location>Van Pelt - Marian Anderson Music Study Center</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Marian Anderson Music Study Center (452)</display>
+</location>
+<location location_code="musictech">
+  <display>Music Library Technical Services</display>
+</location>
+<location location_code="musicup">
+  <specific_location>Van Pelt - Ormandy Center</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Ormandy University Performances</display>
+</location>
+<location location_code="musinwbk">
+  <specific_location>Van Pelt - Music Library New Book Shelf</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Music Library New Book Shelf</display>
+</location>
+<location location_code="musisemres">
+  <specific_location>Van Pelt - Marian Anderson Study Center Reserve</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Reserve</library>
+  <display>Van Pelt - Marian Anderson Study Center Reserve</display>
+</location>
+<location location_code="newb">
+  <specific_location>New Bolton Library</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>New Bolton Library</library>
+  <display>New Bolton Library</display>
+</location>
+<location location_code="newbcirc">
+  <specific_location>New Bolton Library - Circulation Desk</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>New Bolton Library</library>
+  <display>New Bolton Library - Circulation Desk</display>
+</location>
+<location location_code="newbofc">
+  <specific_location>New Bolton Library - Office</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>New Bolton Library</library>
+  <display>New Bolton Library - Office</display>
+</location>
+<location location_code="newbrare">
+  <specific_location>Rare Book &amp; Manuscript Library - Fairman Rogers Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Fairman Rogers Coll.</display>
+</location>
+<location location_code="newbrefe">
+  <specific_location>New Bolton Library - Reference</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>New Bolton Library</library>
+  <display>New Bolton Library - Reference</display>
+</location>
+<location location_code="newbrese">
+  <specific_location>New Bolton Library - Reserve</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>New Bolton Library</library>
+  <library>Reserve</library>
+  <display>New Bolton Library - Reserve</display>
+</location>
+<location location_code="nursarch">
+  <specific_location>Nursing Archives</specific_location>
+  <library>Nursing Archives</library>
+  <display>Barbara Bates Center for History of Nursing - Fagin Hall 2U</display>
+</location>
+<location location_code="oobiom">
+  <specific_location>On Order</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Biomedical Library</library>
+  <display>Ordered for Biomedical Library</display>
+</location>
+<location location_code="oochem">
+  <specific_location>On Order</specific_location>
+  <library>Chemistry Library</library>
+  <display>Ordered for Chemistry Library</display>
+</location>
+<location location_code="oocjs">
+  <specific_location>On Order</specific_location>
+  <library>Library at the Katz Center for Advanced Judaic Studies</library>
+  <display>Ordered for Center for Judaic Studies Library</display>
+</location>
+<location location_code="oodental">
+  <specific_location>On Order</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Dental Library</library>
+  <display>Ordered for Dental Library</display>
+</location>
+<location location_code="ooeastasia">
+  <specific_location>On Order</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Ordered for East Asia</display>
+</location>
+<location location_code="ooengi">
+  <specific_location>On Order</specific_location>
+  <library>Engineering Library</library>
+  <display>Ordered for Engineering Library</display>
+</location>
+<location location_code="oofine">
+  <specific_location>On Order</specific_location>
+  <library>Fisher Fine Arts Library</library>
+  <display>Ordered for Fine Arts Library</display>
+</location>
+<location location_code="oolipp">
+  <specific_location>On Order</specific_location>
+  <library>Lippincott Library</library>
+  <display>Ordered for Lippincott Library</display>
+</location>
+<location location_code="oomath">
+  <specific_location>On Order</specific_location>
+  <library>Math/Physics/Astronomy Library</library>
+  <display>Ordered for Math-Physics-Astronomy Library</display>
+</location>
+<location location_code="oomuse">
+  <specific_location>On Order</specific_location>
+  <library>University Museum Library</library>
+  <display>Ordered for Museum Library</display>
+</location>
+<location location_code="oomusic">
+  <specific_location>On Order</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Ordered for Music Library</display>
+</location>
+<location location_code="oonewbolt">
+  <specific_location>On Order</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>New Bolton Library</library>
+  <display>Ordered for New Bolton Library</display>
+</location>
+<location location_code="ooormandy">
+  <specific_location>On Order</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Ordered for Ormandy Center</display>
+</location>
+<location location_code="oostor">
+  <specific_location>On Order</specific_location>
+  <library>LIBRA</library>
+  <display>Ordered for Research Annex (LIBRA)</display>
+</location>
+<location location_code="oovanp">
+  <specific_location>On Order</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Ordered for Van Pelt Library</display>
+</location>
+<location location_code="oovete">
+  <specific_location>On Order</specific_location>
+  <library>Health Sciences Libraries</library>
+  <display>Ordered for Veterinary Library</display>
+</location>
+<location location_code="ooyarn">
+  <specific_location>On Order</specific_location>
+  <library>Yarnall Collection</library>
+  <display>Ordered for Yarnall collection</display>
+</location>
+<location location_code="pah">
+  <specific_location>Pennsylvania Hospital Library</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library</display>
+</location>
+<location location_code="paharch">
+  <specific_location>Pennsylvania Hospital Library - Archivist's Office</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - Archivist's Office</display>
+</location>
+<location location_code="pahcirc">
+  <specific_location>Pennsylvania Hospital Library - Circulation</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - Circulation</display>
+</location>
+<location location_code="pahhall">
+  <specific_location>Pennsylvania Hospital Library - Hall Closet</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - Hall Closet</display>
+</location>
+<location location_code="pahhc">
+  <specific_location>Pennsylvania Hospital Library - Historic Collection</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - Historic Collection</display>
+</location>
+<location location_code="pahhist">
+  <specific_location>Pennsylvania Hospital Library - History</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - History</display>
+</location>
+<location location_code="pahiph">
+  <specific_location>Pennsylvania Hospital Library - IPH Collection</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - IPH Collection</display>
+</location>
+<location location_code="pahiphf">
+  <specific_location>Pennsylvania Hospital Library - IPH Collection</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - IPH Collection Freud</display>
+</location>
+<location location_code="pahiphhist">
+  <specific_location>Pennsylvania Hospital Library - IPH Collection</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - IPH Collection History</display>
+</location>
+<location location_code="pahiphref">
+  <specific_location>Pennsylvania Hospital Library - IPH Collection</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - IPH Collection Reference</display>
+</location>
+<location location_code="pahiphrr">
+  <specific_location>Pennsylvania Hospital Library - IPH Collection</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - IPH Collection Reading Room</display>
+</location>
+<location location_code="pahiphstk">
+  <specific_location>Pennsylvania Hospital Library - IPH Collection</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - IPH Collection Psych Stacks</display>
+</location>
+<location location_code="pahref">
+  <specific_location>Pennsylvania Hospital Library - Reference</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - Reference</display>
+</location>
+<location location_code="pahres">
+  <specific_location>Pennsylvania Hospital Library - Reserve</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <library>Reserve</library>
+  <display>Pennsylvania Hospital Library - Reserve</display>
+</location>
+<location location_code="pahresrm">
+  <specific_location>Pennsylvania Hospital Library - Reserve Room</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <library>Reserve</library>
+  <display>Pennsylvania Hospital Library - Reserve Room</display>
+</location>
+<location location_code="pahstk">
+  <specific_location>Pennsylvania Hospital Library - Stacks</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Pennsylvania Hospital Library</library>
+  <display>Pennsylvania Hospital Library - Stacks</display>
+</location>
+<location location_code="religious">
+  <specific_location>Van Pelt - Medieval Studies Resource Room</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Medieval Studies Resource Room (405)</display>
+</location>
+<location location_code="rosedesk">
+  <specific_location>Van Pelt - Rosengarten Reserve</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Reserve</library>
+  <display>Van Pelt - Rosengarten Reserve Desk</display>
+</location>
+<location location_code="roserefe">
+  <specific_location>Van Pelt - Rosengarten Reserve</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Reserve</library>
+  <display>Van Pelt - Rosengarten Reserve Reference</display>
+</location>
+<location location_code="roserese">
+  <specific_location>Van Pelt - Rosengarten Reserve</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Reserve</library>
+  <display>Van Pelt - Rosengarten Reserve</display>
+</location>
+<location location_code="rotc">
+  <display>ROTC Library,  J.P.W.  Library, 3205 Lancaster Ave. 590-8808</display>
+</location>
+<location location_code="sasiarefe">
+  <specific_location>Van Pelt - South Asia Studies Reading Room</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - South Asia Studies Reading Room (551)</display>
+</location>
+<location location_code="sasiarese">
+  <specific_location>Van Pelt - South Asian Reserve</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Reserve</library>
+  <display>Van Pelt - South Asia Reserve (551)</display>
+</location>
+<location location_code="scg123">
+  <specific_location>Rare Book &amp; Manuscript Library - Rare Book Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Rare Book Collection 123</display>
+</location>
+<location location_code="sc1100c">
+  <specific_location>Rare Book &amp; Manuscript Library - 1100C Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - 1100C Collection</display>
+</location>
+<location location_code="scblank">
+  <specific_location>Rare Book &amp; Manuscript Library - Blank Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Blank Collection</display>
+</location>
+<location location_code="scbyron">
+  <specific_location>Rare Book &amp; Manuscript Library - Byron Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Byron Collection</display>
+</location>
+<location location_code="sccomics">
+  <specific_location>Rare Book &amp; Manuscript Library - Comics Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Comics Collection</display>
+</location>
+<location location_code="sccurt">
+  <specific_location>Rare Book &amp; Manuscript Library - Curtis Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Curtis Collection</display>
+</location>
+<location location_code="scdech">
+  <specific_location>Rare Book &amp; Manuscript Library - Dechert Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Dechert Collection</display>
+</location>
+<location location_code="scdreis">
+  <specific_location>Rare Book &amp; Manuscript Library - Dreiser Library</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Dreiser Library</display>
+</location>
+<location location_code="scdrey">
+  <specific_location>Rare Book &amp; Manuscript Library - Dreyfus Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Dreyfus Collection</display>
+</location>
+<location location_code="scelias">
+  <specific_location>Rare Book &amp; Manuscript Library - Swift's Reading Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Swift's Reading Collection</display>
+</location>
+<location location_code="scelz">
+  <specific_location>Rare Book &amp; Manuscript Library - Elzevier Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Elzevier Collection</display>
+</location>
+<location location_code="scfast">
+  <specific_location>Rare Book &amp; Manuscript Library - Fast Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Fast Collection</display>
+</location>
+<location location_code="scforr">
+  <specific_location>Rare Book &amp; Manuscript Library - Forrest Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Forrest Collection</display>
+</location>
+<location location_code="scfoun">
+  <specific_location>Rare Book &amp; Manuscript Library - Founders Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Founders Collection</display>
+</location>
+<location location_code="scfreed">
+  <specific_location>Freedman Jewish Sound Archives</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Freedman Jewish Sound Archives</display>
+</location>
+<location location_code="scfurn">
+  <specific_location>Rare Book &amp; Manuscript Library - Furness Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Furness Collection</display>
+</location>
+<location location_code="scfurnst">
+  <specific_location>Rare Book &amp; Manuscript Library - Furness Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Furness Storage</display>
+</location>
+<location location_code="scinc">
+  <specific_location>Rare Book &amp; Manuscript Library - Incunables</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Incunables</display>
+</location>
+<location location_code="sclea">
+  <specific_location>Rare Book &amp; Manuscript Library - Lea Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Lea Collection</display>
+</location>
+<location location_code="scmap">
+  <specific_location>Rare Book &amp; Manuscript Library - Rare Book Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Rare Book Collection</display>
+</location>
+<location location_code="scmss">
+  <specific_location>Rare Book &amp; Manuscript Library - Manuscripts</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Manuscripts</display>
+</location>
+<location location_code="scmst">
+  <specific_location>Rare Book &amp; Manuscript Library - Manuscripts Storage</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Manuscripts Storage, contact <a href="mailto:shawcros@pobox.upenn.edu,ameyh@pobox.upenn.edu">Manuscripts staff</a></display>
+</location>
+<location location_code="scmsw">
+  <specific_location>Rare Book &amp; Manuscript Library - Web</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Web</display>
+</location>
+<location location_code="scparts">
+  <specific_location>Rare Book &amp; Manuscript Library - Books-in-Parts Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Books-in-Parts Collection</display>
+</location>
+<location location_code="scpspa">
+  <specific_location>Rare Book &amp; Manuscript Library - Phila. Society for Promoting Agriculture Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Phila. Society for Promoting Agriculture Collection</display>
+</location>
+<location location_code="scrare">
+  <specific_location>Rare Book &amp; Manuscript Library - Rare Book Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Rare Book Collection</display>
+</location>
+<location location_code="screfe">
+  <specific_location>Rare Book &amp; Manuscript Library - Reference Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Reference Collection</display>
+</location>
+<location location_code="scsing">
+  <specific_location>Rare Book &amp; Manuscript Library - Singer-Mendenhall Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Singer-Mendenhall Collection</display>
+</location>
+<location location_code="scsmith">
+  <specific_location>Rare Book &amp; Manuscript Library - E.F. Smith Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - E.F. Smith Collection</display>
+</location>
+<location location_code="scsmithst">
+  <specific_location>Rare Book &amp; Manuscript Library - E.F. Smith Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - E.F. Smith Collection Storage</display>
+</location>
+<location location_code="scstor">
+  <specific_location>Rare Book &amp; Manuscript Library - Rare Book Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Rare Book Collection Storage</display>
+</location>
+<location location_code="scteer">
+  <specific_location>Rare Book &amp; Manuscript Library - Teerink Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Teerink Collection</display>
+</location>
+<location location_code="scwhit">
+  <specific_location>Rare Book &amp; Manuscript Library - Whitman Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Rare Book &amp; Manuscript Library - Whitman Collection</display>
+</location>
+<location location_code="scyarn">
+  <specific_location>Rare Book &amp; Manuscript Library - Yarnall Collection</specific_location>
+  <library>Rare Book &amp; Manuscript Library</library>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Yarnall Collection</library>
+  <display>Rare Book &amp; Manuscript Library - Yarnall Collection</display>
+</location>
+<location location_code="stor">
+  <specific_location>LIBRA</specific_location>
+  <library>LIBRA</library>
+  <display>Research Annex (LIBRA)</display>
+</location>
+<location location_code="storcirc">
+  <specific_location>LIBRA</specific_location>
+  <library>LIBRA</library>
+  <display>Research Annex (LIBRA) - Circulation</display>
+</location>
+<location location_code="storm">
+  <specific_location>LIBRA</specific_location>
+  <library>LIBRA</library>
+  <display>Research Annex (LIBRA) - Music</display>
+</location>
+<location location_code="town">
+  <specific_location>Engineering Library</specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library</display>
+</location>
+<location location_code="townrefe">
+  <specific_location>Engineering Library - Reference</specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library - Reference</display>
+</location>
+<location location_code="townrese">
+  <specific_location>Engineering Library - Reserve</specific_location>
+  <library>Engineering Library</library>
+  <library>Reserve</library>
+  <display>Engineering Library - Reserve</display>
+</location>
+<location location_code="townthes">
+  <specific_location>Engineering Library - Theses</specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library - Theses</display>
+</location>
+<location location_code="twcirc">
+  <specific_location></specific_location>
+  <library>Engineering Library</library>
+  <display>Engineering Library - Circulation Desk</display>
+</location>
+<location location_code="univarch">
+  <specific_location>University Archives</specific_location>
+  <library>University Archives</library>
+  <display>University Archives, 215-898-7024</display>
+</location>
+<location location_code="vanp">
+  <specific_location>Van Pelt - Stacks</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt Library</display>
+</location>
+<location location_code="vanpbest">
+  <specific_location>Van Pelt - Bestsellers Collection</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Bestsellers Collection</display>
+</location>
+<location location_code="vanpchil">
+  <specific_location>Van Pelt - Illman Carter Children's Collection</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Illman Carter Children's Collection</display>
+</location>
+<location location_code="vanpmicro">
+  <specific_location>Van Pelt - Microtext</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Microtext</display>
+</location>
+<location location_code="vanpmiddle">
+  <display>Van Pelt - Middle East Tech Services</display>
+</location>
+<location location_code="vanpvideo">
+  <specific_location>Van Pelt - Video Collection</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Video Collection (ask at Circulation Desk)</display>
+</location>
+<location location_code="vete">
+  <specific_location>Veterinary Library</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Veterinary Library</library>
+  <display>Veterinary Library</display>
+</location>
+<location location_code="vetedisp">
+  <specific_location>Veterinary Library - Display</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Veterinary Library</library>
+  <display>Veterinary Library - Display</display>
+</location>
+<location location_code="vetelibr">
+  <specific_location>Veterinary Library - Librarian's Office</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Veterinary Library</library>
+  <display>Veterinary Library - Librarian's Office</display>
+</location>
+<location location_code="veteover">
+  <specific_location>Veterinary Library - Oversize</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Veterinary Library</library>
+  <display>Veterinary Library - Oversize</display>
+</location>
+<location location_code="veterefe">
+  <specific_location>Veterinary Library - Reference</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Veterinary Library</library>
+  <display>Veterinary Library - Reference</display>
+</location>
+<location location_code="veterefov">
+  <specific_location>Veterinary Library - Reference Oversize</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Veterinary Library</library>
+  <display>Veterinary Library - Reference Oversize</display>
+</location>
+<location location_code="veterese">
+  <specific_location>Veterinary Library - Reserve</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Veterinary Library</library>
+  <library>Reserve</library>
+  <display>Veterinary Library - Reserve</display>
+</location>
+<location location_code="veteresov">
+  <specific_location>Veterinary Library - Reserve Oversize</specific_location>
+  <library>Health Sciences Libraries</library>
+  <library>Veterinary Library</library>
+  <library>Reserve</library>
+  <display>Veterinary Library - Reserve Oversize</display>
+</location>
+<location location_code="vpnewbook">
+  <specific_location>Van Pelt - New Book Display</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - New Book Display</display>
+</location>
+<location location_code="vpref">
+  <specific_location>Van Pelt Reference - Stacks</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Van Pelt Reference</library>
+  <display>Van Pelt Reference - Stacks</display>
+</location>
+<location location_code="vprefatlas">
+  <specific_location>Van Pelt Reference - Atlas Cases</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Van Pelt Reference</library>
+  <display>Van Pelt Reference - Atlas Cases</display>
+</location>
+<location location_code="vprefbip">
+  <specific_location>Van Pelt Reference - Books-in-Print</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Van Pelt Reference</library>
+  <display>Van Pelt Reference - Books-in-Print</display>
+</location>
+<location location_code="vprefdoc">
+  <specific_location>Van Pelt Reference - Government Documents</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Van Pelt Reference</library>
+  <display>Van Pelt Reference - Government Documents</display>
+</location>
+<location location_code="vprefdsk">
+  <specific_location>Van Pelt Reference - Desk</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Van Pelt Reference</library>
+  <display>Van Pelt Reference - Desk</display>
+</location>
+<location location_code="vpreffin">
+  <specific_location>Van Pelt Reference - Financial Aid</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Van Pelt Reference</library>
+  <display>Van Pelt Reference - Financial Aid</display>
+</location>
+<location location_code="vprefmoel">
+  <specific_location>Van Pelt Reference - Moelis CD Area</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Van Pelt Reference</library>
+  <display>Van Pelt Reference - Moelis CD Area</display>
+</location>
+<location location_code="vprefover">
+  <specific_location>Van Pelt Reference - Oversize</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Van Pelt Reference</library>
+  <display>Van Pelt Reference - Oversize</display>
+</location>
+<location location_code="vpwicref">
+  <specific_location>Van Pelt - Weigle Information Commons Reference</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <display>Van Pelt - Weigle Information Commons Reference</display>
+</location>
+<location location_code="web">
+  <specific_location>Penn Library Web</specific_location>
+  <library>Penn Library Web</library>
+  <display>Penn Library Web</display>
+</location>
+<location location_code="yarn">
+  <specific_location>Van Pelt - Yarnall Collection</specific_location>
+  <library>Van Pelt-Dietrich Library Center</library>
+  <library>Yarnall Collection</library>
+  <display>Van Pelt - Yarnall Collection</display>
+</location>
+</locations>

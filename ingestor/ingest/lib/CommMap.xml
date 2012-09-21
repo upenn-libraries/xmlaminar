@@ -1,0 +1,1221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CommList>
+	<community>
+		<name>African Studies</name>
+		<prefix>DT</prefix>
+		<prefix>ML 35025</prefix>
+		<range>
+			<lowend>N 7380</lowend>
+			<highend>N 7399</highend>
+		</range>
+		<range>
+			<lowend>PL 8000</lowend>
+			<highend>PL 8844</highend>
+		</range>
+	</community>
+	<community>
+		<name>African-American Studies</name>
+		<range>
+			<lowend>E 1845</lowend>
+			<highend>E 18598</highend>
+		</range>
+		<range>
+			<lowend>E 441</lowend>
+			<highend>E 453</highend>
+		</range>
+		<range>
+			<lowend>HT 851</lowend>
+			<highend>HT 1595</highend>
+		</range>
+		<prefix>DT 14</prefix>
+		<prefix>PS 153 N 5</prefix>
+		<prefix>PS 508 N 3</prefix>
+		<prefix>PS 508 N 4</prefix>
+		<prefix>Z 1361 N 39</prefix>
+		<subjecthead>afro american</subjecthead>
+	</community>
+	<community>
+		<name>Aging Studies</name>
+		<range>
+			<lowend>HQ 1060</lowend>
+			<highend>HQ 1064</highend>
+		</range>
+		<range>
+			<lowend>HV 1450</lowend>
+			<highend>HV 1494</highend>
+		</range>
+		<range>
+			<lowend>RC 952</lowend>
+			<highend>RC 9546</highend>
+		</range>
+		<subjecthead>aged</subjecthead>
+		<subjecthead>aging</subjecthead>
+		<subjecthead>age factors</subjecthead>
+		<subjecthead>elderly</subjecthead>
+		<subjecthead>geriatric</subjecthead>
+		<subjecthead>gerontolog</subjecthead>
+		<subjecthead>old age</subjecthead>
+	</community>
+	<community>
+		<name>Anthropology and Archaeology</name>
+		<prefix>GN</prefix>
+		<prefix>CC</prefix>
+	</community>
+	<community>
+		<name>Architecture</name>
+		<prefix>NA</prefix>
+	</community>
+	<community>
+		<name>Asian-American Studies</name>
+		<prefix>PS 153 A 84</prefix>
+		<prefix>E 18406</prefix>
+		<prefix>NX 5123 A 83</prefix>
+		<prefix>RA 4485 A 83</prefix>
+		<prefix>LC 2632 A 847</prefix>
+		<prefix>KF 47575 A 75</prefix>
+		<subjecthead>asian american</subjecthead>
+		<subjecthead>chinese american</subjecthead>
+		<subjecthead>japanese american</subjecthead>
+		<subjecthead>korean american</subjecthead>
+		<subjecthead>vietnamese american</subjecthead>
+		<subjecthead>cambodian american</subjecthead>
+		<subjecthead>laotian american</subjecthead>
+	</community>
+	<community>
+		<name>Biology</name>
+		<prefix>QH</prefix>
+		<prefix>QK</prefix>
+		<prefix>QL</prefix>
+		<prefix>QM</prefix>
+		<prefix>QP</prefix>
+		<prefix>QR</prefix>
+		<prefix>S </prefix>
+		<prefix>SB</prefix>
+		<prefix>SD</prefix>
+		<prefix>SF</prefix>
+		<prefix>SH</prefix>
+		<prefix>SK</prefix>
+	</community>
+	<community>
+		<name>Biomedical Research</name>
+		<prefix>QH</prefix>
+		<prefix>QL</prefix>
+		<prefix>QM</prefix>
+		<prefix>QP</prefix>
+		<prefix>QR</prefix>
+		<prefix>R 858</prefix>
+		<prefix>RA 409</prefix>
+		<prefix>TB</prefix>
+		<prefix>RC 261</prefix>
+		<range>
+			<lowend>RM 300</lowend>
+			<highend>RM 670</highend>
+		</range>
+	</community>
+	<community>
+		<name>Business</name>
+		<prefix>HD</prefix>
+		<prefix>HF</prefix>
+		<prefix>HG</prefix>
+	</community>
+	<community>
+		<name>Chemistry and Chemical Engineering</name>
+		<prefix>QD</prefix>
+		<prefix>TP</prefix>
+	</community>
+	<community>
+		<name>Cinema Studies</name>
+		<range>
+			<lowend>PN 1993</lowend>
+			<highend>PN 1999</highend>
+		</range>
+		<subjecthead>film</subjecthead>
+		<subjecthead>motion picture</subjecthead>
+		<subjecthead>motion pictures</subjecthead>
+		<subjecthead>cinematography</subjecthead>
+		<subjecthead>filmmakers</subjecthead>
+	</community>
+	<community>
+		<name>City and Regional Planning</name>
+		<range>
+			<lowend>HT 101</lowend>
+			<highend>HT 395</highend>
+		</range>
+	</community>
+	<community>
+		<name>Classical Studies</name>
+		<range>
+			<lowend>D 51</lowend>
+			<highend>D 95</highend>
+		</range>
+		<prefix>DE</prefix>
+		<range>
+			<lowend>DF 10</lowend>
+			<highend>DF 285</highend>
+		</range>
+		<range>
+			<lowend>DG 11</lowend>
+			<highend>DG 365</highend>
+		</range>
+		<prefix>PA</prefix>
+	</community>
+	<community>
+		<name>Clinical Medicine</name>
+		<prefix>R </prefix>
+		<prefix>RA</prefix>
+		<prefix>RB</prefix>
+		<prefix>RC</prefix>
+		<prefix>RD</prefix>
+		<prefix>RE</prefix>
+		<prefix>RF</prefix>
+		<prefix>RG</prefix>
+		<prefix>RJ</prefix>
+		<prefix>RK</prefix>
+		<prefix>RL</prefix>
+		<prefix>RM</prefix>
+		<prefix>RS</prefix>
+		<prefix>RT</prefix>
+		<prefix>RV</prefix>
+		<prefix>RX</prefix>
+		<prefix>RZ</prefix>
+	</community>
+	<community>
+		<name>Communication</name>
+		<range>
+			<lowend>BF 712</lowend>
+			<highend>BF 72485</highend>
+		</range>
+		<range>
+			<lowend>BF 8398</lowend>
+			<highend>BF 885</highend>
+		</range>
+		<range>
+			<lowend>BF 889</lowend>
+			<highend>BF 905</highend>
+		</range>
+		<range>
+			<lowend>BF 2050</lowend>
+			<highend>BF 2055</highend>
+		</range>
+		<range>
+			<lowend>BH 1</lowend>
+			<highend>BH 301</highend>
+		</range>
+		<range>
+			<lowend>BH 81</lowend>
+			<highend>BH 208</highend>
+		</range>
+		<prefix>BH 301</prefix>
+		<range>
+			<lowend>HA 29</lowend>
+			<highend>HA 32</highend>
+		</range>
+		<range>
+			<lowend>HE 7601</lowend>
+			<highend>HE 87009</highend>
+		</range>
+		<range>
+			<lowend>HE 8660</lowend>
+			<highend>HE 8688</highend>
+		</range>
+		<range>
+			<lowend>HE 8689</lowend>
+			<highend>HE 870095</highend>
+		</range>
+		<range>
+			<lowend>HE 8701</lowend>
+			<highend>HE 96807</highend>
+		</range>
+		<range>
+			<lowend>HE 9713</lowend>
+			<highend>HE 9715</highend>
+		</range>
+		<range>
+			<lowend>HE 9719</lowend>
+			<highend>HE 9721</highend>
+		</range>
+		<range>
+			<lowend>HE 9723</lowend>
+			<highend>HE 9737</highend>
+		</range>
+		<range>
+			<lowend>HE 9751</lowend>
+			<highend>HE 9756</highend>
+		</range>
+		<range>
+			<lowend>HF 5410</lowend>
+			<highend>HF 54175</highend>
+		</range>
+		<range>
+			<lowend>HF 5717</lowend>
+			<highend>HF 57347</highend>
+		</range>
+		<range>
+			<lowend>HF 5801</lowend>
+			<highend>HF 6182</highend>
+		</range>
+		<range>
+			<lowend>HM 435</lowend>
+			<highend>HM 477</highend>
+		</range>
+		<range>
+			<lowend>HM 461</lowend>
+			<highend>HM 473</highend>
+		</range>
+		<range>
+			<lowend>HM 481</lowend>
+			<highend>HM 554</highend>
+		</range>
+		<range>
+			<lowend>HM 621</lowend>
+			<highend>HM 656</highend>
+		</range>
+		<range>
+			<lowend>HM 1001</lowend>
+			<highend>HM 1281</highend>
+		</range>
+		<range>
+			<lowend>HM 1041</lowend>
+			<highend>HM 1101</highend>
+		</range>
+		<range>
+			<lowend>HM 1106</lowend>
+			<highend>HM 1171</highend>
+		</range>
+		<range>
+			<lowend>HM 1176</lowend>
+			<highend>HM 1281</highend>
+		</range>
+		<range>
+			<lowend>P 87</lowend>
+			<highend>P 96</highend>
+		</range>
+		<prefix>P 947</prefix>
+		<range>
+			<lowend>P 99</lowend>
+			<highend>P 994</highend>
+		</range>
+		<range>
+			<lowend>P 995</lowend>
+			<highend>P 996</highend>
+		</range>
+		<range>
+			<lowend>P 302</lowend>
+			<highend>P 30287</highend>
+		</range>
+		<range>
+			<lowend>PN 4001</lowend>
+			<highend>PN 4355</highend>
+		</range>
+		<range>
+			<lowend>PN 4071</lowend>
+			<highend>PN 4095</highend>
+		</range>
+		<range>
+			<lowend>PN 4699</lowend>
+			<highend>PN 5650</highend>
+		</range>
+		<range>
+			<lowend>PN 4735</lowend>
+			<highend>PN 4748</highend>
+		</range>
+		<range>
+			<lowend>PN 4775</lowend>
+			<highend>PN 4784</highend>
+		</range>
+		<range>
+			<lowend>PN 4825</lowend>
+			<highend>PN 4830</highend>
+		</range>
+		<range>
+			<lowend>PN 4832</lowend>
+			<highend>PN 4836</highend>
+		</range>
+		<range>
+			<lowend>PN 4840</lowend>
+			<highend>PN 5648</highend>
+		</range>
+		<prefix>PN 5650</prefix>
+		<range>
+			<lowend>T 105</lowend>
+			<highend>T 119</highend>
+		</range>
+		<range>
+			<lowend>TR 624</lowend>
+			<highend>TR 835</highend>
+		</range>
+		<range>
+			<lowend>TR 845</lowend>
+			<highend>TR 899</highend>
+		</range>
+		<range>
+			<lowend>Z 4</lowend>
+			<highend>Z 8</highend>
+		</range>
+		<range>
+			<lowend>Z 40</lowend>
+			<highend>Z 1045</highend>
+		</range>
+		<range>
+			<lowend>Z 41</lowend>
+			<highend>Z 425</highend>
+		</range>
+		<range>
+			<lowend>Z 43</lowend>
+			<highend>Z 45</highend>
+		</range>
+		<prefix>Z 48</prefix>
+		<range>
+			<lowend>Z 49</lowend>
+			<highend>Z 515</highend>
+		</range>
+		<range>
+			<lowend>Z 52</lowend>
+			<highend>Z 525</highend>
+		</range>
+		<range>
+			<lowend>Z 53</lowend>
+			<highend>Z 102</highend>
+		</range>
+		<range>
+			<lowend>Z 1025</lowend>
+			<highend>Z 1045</highend>
+		</range>
+		<prefix>Z 116 A 2</prefix>
+		<range>
+			<lowend>Z 124</lowend>
+			<highend>Z 228</highend>
+		</range>
+		<range>
+			<lowend>Z 278</lowend>
+			<highend>Z 549</highend>
+		</range>
+		<range>
+			<lowend>Z 551</lowend>
+			<highend>Z 656</highend>
+		</range>
+		<range>
+			<lowend>Z 657</lowend>
+			<highend>Z 659</highend>
+		</range>
+		<range>
+			<lowend>ZA 3038</lowend>
+			<highend>ZA 5190</highend>
+		</range>
+		<range>
+			<lowend>ZA 3150</lowend>
+			<highend>ZA 3159</highend>
+		</range>
+		<range>
+			<lowend>ZA 3201</lowend>
+			<highend>ZA 3250</highend>
+		</range>
+		<range>
+			<lowend>ZA 4050</lowend>
+			<highend>ZA 4775</highend>
+		</range>
+		<range>
+			<lowend>ZA 4050</lowend>
+			<highend>ZA 4480</highend>
+		</range>
+		<range>
+			<lowend>ZA 4150</lowend>
+			<highend>ZA 4380</highend>
+		</range>
+		<range>
+			<lowend>ZA 4450</lowend>
+			<highend>ZA 4460</highend>
+		</range>
+		<range>
+			<lowend>ZA 4550</lowend>
+			<highend>ZA 4575</highend>
+		</range>
+		<range>
+			<lowend>ZA 4650</lowend>
+			<highend>ZA 4675</highend>
+		</range>
+		<range>
+			<lowend>ZA 4750</lowend>
+			<highend>ZA 4775</highend>
+		</range>
+	</community>
+	<community>
+		<name>Comparative Literature and Literary Theory</name>
+		<prefix>PN</prefix>
+		<subjecthead>literature comparative</subjecthead>
+	</community>
+	<community>
+		<name>Computers and Electronics</name>
+		<range>
+			<lowend>QA 74</lowend>
+			<highend>QA 769</highend>
+		</range>
+		<range>
+			<lowend>TK 780</lowend>
+			<highend>TK 8404</highend>
+		</range>
+	</community>
+	<community>
+		<name>Criminology</name>
+		<range>
+			<lowend>HV 6000</lowend>
+			<highend>HV 9960</highend>
+		</range>
+		<range>
+			<lowend>GT 6550</lowend>
+			<highend>GT 6715</highend>
+		</range>
+		<prefix>HF 55495 E 43</prefix>
+		<range>
+			<lowend>HQ 101</lowend>
+			<highend>HQ 2709</highend>
+		</range>
+		<range>
+			<lowend>HV 5000</lowend>
+			<highend>HV 5582</highend>
+		</range>
+		<range>
+			<lowend>KF 9201</lowend>
+			<highend>KF 9827</highend>
+		</range>
+		<prefix>LB 30133</prefix>
+		<prefix>RC 4514 P 68</prefix>
+		<prefix>RC 4514 V 53</prefix>
+		<prefix>RJ 506 J 88</prefix>
+		<subjecthead>abused</subjecthead>
+		<subjecthead>abuse of</subjecthead>
+		<subjecthead>abusive</subjecthead>
+		<subjecthead>aggressiveness</subjecthead>
+		<subjecthead>crime</subjecthead>
+		<subjecthead>delinquen</subjecthead>
+		<subjecthead>gangs</subjecthead>
+		<subjecthead>imprisonment</subjecthead>
+		<subjecthead>jails</subjecthead>
+		<subjecthead>enforcement</subjecthead>
+		<subjecthead>penal</subjecthead>
+		<subjecthead>police</subjecthead>
+		<subjecthead>policing</subjecthead>
+		<subjecthead>prison</subjecthead>
+		<subjecthead>punishment</subjecthead>
+		<subjecthead>violen</subjecthead>
+	</community>
+	<community>
+		<name>Dental Medicine</name>
+		<prefix>RK</prefix>
+	</community>
+	<community>
+		<name>Earth and Environmental Studies</name>
+		<prefix>G </prefix>
+		<prefix>GA</prefix>
+		<prefix>GB</prefix>
+		<prefix>GC</prefix>
+		<prefix>GE</prefix>
+		<prefix>QE</prefix>
+		<prefix>TD</prefix>
+	</community>
+	<community>
+		<name>East Asian Studies</name>
+		<prefix>DS</prefix>
+		<prefix>PL</prefix>
+	</community>
+	<community>
+		<name>Economics</name>
+		<prefix>HB</prefix>
+		<prefix>HC</prefix>
+		<prefix>HD</prefix>
+	</community>
+	<community>
+		<name>Education</name>
+		<prefix>L </prefix>
+		<prefix>LA</prefix>
+		<prefix>LB</prefix>
+		<prefix>LC</prefix>
+		<prefix>LE</prefix>
+		<prefix>LF</prefix>
+		<prefix>LH</prefix>
+		<prefix>LJ</prefix>
+		<prefix>LT</prefix>
+	</community>
+	<community>
+		<name>Electrical Engineering</name>
+		<prefix>TK</prefix>
+	</community>
+	<community>
+		<name>Energy</name>
+		<range>
+			<lowend>HD 9502</lowend>
+			<highend>HD 95025</highend>
+		</range>
+		<range>
+			<lowend>QC 72</lowend>
+			<highend>QC 738</highend>
+		</range>
+		<prefix>QC 1768</prefix>
+		<range>
+			<lowend>TJ 163</lowend>
+			<highend>TJ 1635</highend>
+		</range>
+		<range>
+			<lowend>TJ 807</lowend>
+			<highend>TJ 830</highend>
+		</range>
+		<range>
+			<lowend>TK 2980</lowend>
+			<highend>TK 2985</highend>
+		</range>
+		<subjecthead>energy</subjecthead>
+	</community>
+	<community>
+		<name>Engineering</name>
+		<prefix>T </prefix>
+		<prefix>TA</prefix>
+		<prefix>TC</prefix>
+		<prefix>TD</prefix>
+		<prefix>TE</prefix>
+		<prefix>TF</prefix>
+		<prefix>TG</prefix>
+		<prefix>TH</prefix>
+		<prefix>TJ</prefix>
+		<prefix>TK</prefix>
+		<prefix>TL</prefix>
+		<prefix>TN</prefix>
+	</community>
+	<community>
+		<name>English</name>
+		<range>
+			<lowend>PN 1010</lowend>
+			<highend>PN 6790</highend>
+		</range>
+		<prefix>PR</prefix>
+		<prefix>PS</prefix>
+		<prefix>PZ</prefix>
+	</community>
+	<community>
+		<name>Finance</name>
+		<prefix>HG</prefix>
+		<prefix>HJ</prefix>
+	</community>
+	<community>
+		<name>Folklore and Folklife</name>
+		<prefix>GR</prefix>
+		<prefix>GT</prefix>
+	</community>
+	<community>
+		<name>French Studies</name>
+		<prefix>DC</prefix>
+		<range>
+			<lowend>PC 2011</lowend>
+			<highend>PC 3777</highend>
+		</range>
+		<range>
+			<lowend>PQ 1</lowend>
+			<highend>PQ 3999</highend>
+		</range>
+		<subjecthead>france</subjecthead>
+		<subjecthead>french</subjecthead>
+	</community>
+	<community>
+		<name>Gay Lesbian Bisexual and Transgendered Studies</name>
+		<range>
+			<lowend>HQ 71</lowend>
+			<highend>HQ 779</highend>
+		</range>
+		<subjecthead>homosexuality</subjecthead>
+		<subjecthead>gay</subjecthead>
+		<subjecthead>lesbian</subjecthead>
+		<subjecthead>bisexual</subjecthead>
+		<subjecthead>transsexual</subjecthead>
+		<subjecthead>transvest</subjecthead>
+		<subjecthead>sexual orientation</subjecthead>
+		<subjecthead>gender identity</subjecthead>
+	</community>
+	<community>
+		<name>German Studies</name>
+		<prefix>DD</prefix>
+		<range>
+			<lowend>PF 3001</lowend>
+			<highend>PF 5999</highend>
+		</range>
+		<range>
+			<lowend>PT 1</lowend>
+			<highend>PT 4897</highend>
+		</range>
+		<subjecthead>german</subjecthead>
+		<subjecthead>germany</subjecthead>
+	</community>
+	<community>
+		<name>Health and Societies</name>
+		<range>
+			<lowend>GN 296</lowend>
+			<highend>GN 299</highend>
+		</range>
+		<prefix>GR 880</prefix>
+		<range>
+			<lowend>HA 38</lowend>
+			<highend>HA 39</highend>
+		</range>
+		<range>
+			<lowend>HB 848</lowend>
+			<highend>HB 3697</highend>
+		</range>
+		<range>
+			<lowend>HV 1551</lowend>
+			<highend>HV 3024</highend>
+		</range>
+		<range>
+			<lowend>R 131</lowend>
+			<highend>R 710</highend>
+		</range>
+		<range>
+			<lowend>R 722</lowend>
+			<highend>R 7275</highend>
+		</range>
+		<range>
+			<lowend>RA 1</lowend>
+			<highend>RA 419</highend>
+		</range>
+		<range>
+			<lowend>RA 565</lowend>
+			<highend>RA 602</highend>
+		</range>
+		<range>
+			<lowend>RA 619</lowend>
+			<highend>RA 954</highend>
+		</range>
+		<range>
+			<lowend>RC 81</lowend>
+			<highend>RC 82</highend>
+		</range>
+		<prefix>RV</prefix>
+		<prefix> RX</prefix>
+		<prefix> RZ</prefix>
+	</community>
+	<community>
+		<name>Health Care Policy and Management</name>
+		<prefix>RA</prefix>
+	</community>
+	<community>
+		<name>Historic Preservation</name>
+		<range>
+			<lowend>CC 135</lowend>
+			<highend>CC 137</highend>
+		</range>
+		<subjecthead>cultural property protection</subjecthead>
+		<subjecthead>historic preservation</subjecthead>
+		<subjecthead>conservation and restoration</subjecthead>
+	</community>
+	<community>
+		<name>History</name>
+		<range>
+			<lowend>C </lowend>
+			<highend>FZ</highend>
+		</range>
+	</community>
+	<community>
+		<name>History and Sociology of Science</name>
+		<range>
+			<lowend>Q 125</lowend>
+			<highend>Q 175</highend>
+		</range>
+	</community>
+	<community>
+		<name>History of Art</name>
+		<range>
+			<lowend>N </lowend>
+			<highend>NX</highend>
+		</range>
+	</community>
+	<community>
+		<name>Immigration</name>
+		<prefix>GN 370</prefix>
+		<range>
+			<lowend>HB 1951</lowend>
+			<highend>HB 2578</highend>
+		</range>
+		<prefix>HT 215</prefix>
+		<prefix>HT 382</prefix>
+		<prefix>HT 455</prefix>
+		<range>
+			<lowend>HV 4005</lowend>
+			<highend>HV 4013</highend>
+		</range>
+		<prefix>HV 6181</prefix>
+		<range>
+			<lowend>JV 6001</lowend>
+			<highend>JV 9480</highend>
+		</range>
+		<range>
+			<lowend>JZ 1308</lowend>
+			<highend>JZ 1323</highend>
+		</range>
+		<range>
+			<lowend>K 3274</lowend>
+			<highend>K 3277</highend>
+		</range>
+		<prefix>KF 3807</prefix>
+		<range>
+			<lowend>KF 4800</lowend>
+			<highend>KF 4848</highend>
+		</range>
+		<prefix>KZ 1269</prefix>
+		<prefix>KZ 6530</prefix>
+		<prefix>PN 19959 E 44</prefix>
+		<prefix>PN 56 E 59</prefix>
+		<prefix>PS 228 E 55</prefix>
+		<prefix>PS 595 E 54</prefix>
+		<prefix>Z 7164 I 3</prefix>
+		<subjecthead>acculturation</subjecthead>
+		<subjecthead>agricultural laborers</subjecthead>
+		<subjecthead>alien detention</subjecthead>
+		<subjecthead>alien labor</subjecthead>
+		<subjecthead>aliens</subjecthead>
+		<subjecthead>americanization</subjecthead>
+		<subjecthead>assimilation</subjecthead>
+		<subjecthead>brain drain</subjecthead>
+		<subjecthead>colonization</subjecthead>
+		<subjecthead>cosmopolitanism</subjecthead>
+		<subjecthead>deportation</subjecthead>
+		<subjecthead>emigra</subjecthead>
+		<subjecthead>employment in foreign countries</subjecthead>
+		<subjecthead>ethnic</subjecthead>
+		<subjecthead>exile</subjecthead>
+		<subjecthead>exit permits</subjecthead>
+		<subjecthead>freedom of movement</subjecthead>
+		<subjecthead>frontier workers</subjecthead>
+		<subjecthead>green cards</subjecthead>
+		<subjecthead>identification cards</subjecthead>
+		<subjecthead>immigra</subjecthead>
+		<subjecthead>international travel</subjecthead>
+		<subjecthead>internationalism</subjecthead>
+		<subjecthead>latin americans</subjecthead>
+		<subjecthead>migrant labor</subjecthead>
+		<subjecthead>migrant</subjecthead>
+		<subjecthead>migrat</subjecthead>
+		<subjecthead>minorities</subjecthead>
+		<subjecthead>naturalization</subjecthead>
+		<subjecthead>nonimmigra</subjecthead>
+		<subjecthead>passports</subjecthead>
+		<subjecthead>population transfers</subjecthead>
+		<subjecthead>ports of entry</subjecthead>
+		<subjecthead>refugee</subjecthead>
+		<subjecthead>repatriation</subjecthead>
+		<subjecthead>stateless</subjecthead>
+		<subjecthead>temporary admission</subjecthead>
+		<subjecthead>transnationalism</subjecthead>
+		<subjecthead>visas</subjecthead>
+		<subjecthead>italian american</subjecthead>
+		<subjecthead>irish american</subjecthead>
+		<subjecthead>german american</subjecthead>
+		<subjecthead>british american</subjecthead>
+		<subjecthead>scottish american</subjecthead>
+		<subjecthead>french american</subjecthead>
+		<subjecthead>swedish american</subjecthead>
+		<subjecthead>norwegian american</subjecthead>
+		<subjecthead> dutch american</subjecthead>
+		<subjecthead>greek american</subjecthead>
+		<subjecthead>polish american</subjecthead>
+		<subjecthead>russian american</subjecthead>
+		<subjecthead>asian american</subjecthead>
+		<subjecthead>chinese american</subjecthead>
+		<subjecthead>japanese american</subjecthead>
+		<subjecthead>east indian american</subjecthead>
+		<subjecthead>korean american</subjecthead>
+		<subjecthead>filipino american</subjecthead>
+		<subjecthead>hispanic american</subjecthead>
+		<subjecthead>latin americans</subjecthead>
+		<subjecthead>mexican american</subjecthead>
+		<subjecthead>cuban american</subjecthead>
+		<subjecthead>caribbean american</subjecthead>
+		<subjecthead>west indian american</subjecthead>
+	</community>
+	<community>
+		<name>Italian Studies</name>
+		<prefix>DG</prefix>
+		<range>
+			<lowend>PC 1001</lowend>
+			<highend>PC 1977</highend>
+		</range>
+		<range>
+			<lowend>PQ 4001</lowend>
+			<highend>PQ 5999</highend>
+		</range>
+	</community>
+	<community>
+		<name>Judaic Studies</name>
+		<prefix>BM</prefix>
+		<range>
+			<lowend>BS 701</lowend>
+			<highend>BS 2830</highend>
+		</range>
+		<range>
+			<lowend>DS 101</lowend>
+			<highend>DS 151</highend>
+		</range>
+		<range>
+			<lowend>PJ 4501</lowend>
+			<highend>PJ 5192</highend>
+		</range>
+	</community>
+	<community>
+		<name>International Relations</name>
+		<range>
+			<lowend>HF 5549</lowend>
+			<highend>HF 55495</highend>
+		</range>
+		<prefix>JZ</prefix>
+		<prefix>KZ</prefix>
+		<subjecthead>foreign relations</subjecthead>
+	</community>
+	<community>
+		<name>Landscape Architecture</name>
+		<range>
+			<lowend>SB 469</lowend>
+			<highend>SB 477</highend>
+		</range>
+	</community>
+	<community>
+		<name>Latin American Studies</name>
+		<range>
+			<lowend>F 1201</lowend>
+			<highend>F 3799</highend>
+		</range>
+		<range>
+			<lowend>PQ 7081</lowend>
+			<highend>PQ 9699</highend>
+		</range>
+	</community>
+	<community>
+		<name>Law</name>
+		<prefix>K</prefix>
+		<subjecthead>law</subjecthead>
+		<subjecthead>legal</subjecthead>
+	</community>
+	<community>
+		<name>Linguistics</name>
+		<range>
+			<lowend>P 1</lowend>
+			<highend>P 1091</highend>
+		</range>
+		<subjecthead>language</subjecthead>
+		<subjecthead>dialect</subjecthead>
+		<subjecthead>linguistic</subjecthead>
+	</community>
+	<community>
+		<name>Management</name>
+		<range>
+			<lowend>HD 28</lowend>
+			<highend>HD 70</highend>
+		</range>
+		<range>
+			<lowend>HD 5650</lowend>
+			<highend>HD 5660</highend>
+		</range>
+		<range>
+			<lowend>HF 5549</lowend>
+			<highend>HF 55495</highend>
+		</range>
+		<subjecthead>management</subjecthead>
+	</community>
+	<community>
+		<name>Materials Research</name>
+		<range>
+			<lowend>TA 401</lowend>
+			<highend>TA 492</highend>
+		</range>
+		<range>
+			<lowend>TN 600</lowend>
+			<highend>TN 799</highend>
+		</range>
+		<range>
+			<lowend>TP 1</lowend>
+			<highend>TP 1185</highend>
+		</range>
+		<range>
+			<lowend>QC 81</lowend>
+			<highend>QC 16885</highend>
+		</range>
+		<range>
+			<lowend>QC 170</lowend>
+			<highend>QC 197</highend>
+		</range>
+	</community>
+	<community>
+		<name>Mathematics</name>
+		<prefix>QA</prefix>
+	</community>
+	<community>
+		<name>Medicine</name>
+		<prefix>R </prefix>
+	</community>
+	<community>
+		<name>Middle East Studies</name>
+		<range>
+			<lowend>BP 1</lowend>
+			<highend>BP 610</highend>
+		</range>
+		<range>
+			<lowend>DS 1</lowend>
+			<highend>DS 375</highend>
+		</range>
+		<range>
+			<lowend>DT 43</lowend>
+			<highend>DT 346</highend>
+		</range>
+		<range>
+			<lowend>PJ 1</lowend>
+			<highend>PJ 8517</highend>
+		</range>
+	</community>
+	<community>
+		<name>Music</name>
+		<prefix>M </prefix>
+		<prefix>ML</prefix>
+		<prefix>MT</prefix>
+		<subjecthead>Ormandy</subjecthead>
+	</community>
+	<community>
+		<name>Nursing</name>
+		<prefix>RT</prefix>
+		<subjecthead>nursing</subjecthead>
+	</community>
+	<community>
+		<name>Operations Management</name>
+		<prefix>HB 241</prefix>
+		<range>
+			<lowend>HD 28</lowend>
+			<highend>HD 70</highend>
+		</range>
+		<prefix>T 576</prefix>
+		<prefix>TS 155</prefix>
+	</community>
+	<community>
+		<name>Philadelphia Studies</name>
+		<prefix>F 158</prefix>
+		<subjecthead>philadelphia</subjecthead>
+	</community>
+	<community>
+		<name>Philosophy</name>
+		<prefix>B </prefix>
+		<prefix>BC</prefix>
+		<prefix>BD</prefix>
+	</community>
+	<community>
+		<name>Physics and Astronomy</name>
+		<prefix>QB</prefix>
+		<prefix>QC</prefix>
+	</community>
+	<community>
+		<name>Political Science</name>
+		<prefix>J</prefix>
+	</community>
+	<community>
+		<name>Popular Culture</name>
+		<range>
+			<lowend>E 151</lowend>
+			<highend>E 1691</highend>
+		</range>
+		<prefix>GV</prefix>
+		<range>
+			<lowend>ML 3469</lowend>
+			<highend>ML 3541</highend>
+		</range>
+		<range>
+			<lowend>P 87</lowend>
+			<highend>P 96</highend>
+		</range>
+		<range>
+			<lowend>PN 1990</lowend>
+			<highend>PN 1999</highend>
+		</range>
+	</community>
+	<community>
+		<name>Population Studies and Demography</name>
+		<prefix>HA</prefix>
+		<range>
+			<lowend>HB 848</lowend>
+			<highend>HB 3697</highend>
+		</range>
+		<prefix>HQ 7599</prefix>
+		<range>
+			<lowend>HQ 760</lowend>
+			<highend>HQ 7677</highend>
+		</range>
+		<range>
+			<lowend>HG 8779</lowend>
+			<highend>HG 8785</highend>
+		</range>
+		<range>
+			<lowend>JV 6001</lowend>
+			<highend>JV 9999</highend>
+		</range>
+		<prefix>QH 352</prefix>
+		<subjecthead>demograph</subjecthead>
+		<subjecthead>fertility</subjecthead>
+		<subjecthead>immigration</subjecthead>
+		<subjecthead>migrant</subjecthead>
+		<subjecthead>migration</subjecthead>
+		<subjecthead>mortality</subjecthead>
+		<subjecthead>population</subjecthead>
+		<subjecthead>vital statistics</subjecthead>
+	</community>
+	<community>
+		<name>Psychology</name>
+		<prefix>BF</prefix>
+	</community>
+	<community>
+		<name>Public Policy and Administration</name>
+		<range>
+			<lowend>H 96</lowend>
+			<highend>H 99</highend>
+		</range>
+		<prefix>HJ</prefix>
+		<range>
+			<lowend>JF 1338</lowend>
+			<highend>JF 2112</highend>
+		</range>
+		<range>
+			<lowend>JK 401</lowend>
+			<highend>JK 1685</highend>
+		</range>
+		<range>
+			<lowend>JK 2403</lowend>
+			<highend>JK 9593</highend>
+		</range>
+		<prefix>JS</prefix>
+		<subjecthead>public policy</subjecthead>
+	</community>
+	<community>
+		<name>Religious Studies</name>
+		<prefix>BL</prefix>
+		<prefix>BM</prefix>
+		<prefix>BP</prefix>
+		<prefix>BQ</prefix>
+		<prefix>BR</prefix>
+		<prefix>BS</prefix>
+		<prefix>BT</prefix>
+		<prefix>BV</prefix>
+		<prefix>BX</prefix>
+	</community>
+	<community>
+		<name>Russian and Eastern European Studies</name>
+		<prefix>DJK</prefix>
+		<prefix>DK</prefix>
+		<prefix>PG</prefix>
+		<range>
+			<lowend>PH 601</lowend>
+			<highend>PH 671</highend>
+		</range>
+		<range>
+			<lowend>PH 1201</lowend>
+			<highend>PH 3445</highend>
+		</range>
+	</community>
+	<community>
+		<name>Social Work</name>
+		<range>
+			<lowend>HV 40</lowend>
+			<highend>HV 5840</highend>
+		</range>
+	</community>
+	<community>
+		<name>Sociology</name>
+		<prefix>HM</prefix>
+		<range>
+			<lowend>HV 6001</lowend>
+			<highend>HV 99205</highend>
+		</range>
+		<range>
+			<lowend>HV 697</lowend>
+			<highend>HV 5840</highend>
+		</range>
+	</community>
+	<community>
+		<name>South Asian Studies</name>
+		<prefix>DS</prefix>
+		<range>
+			<lowend>PK 1</lowend>
+			<highend>PK 6996</highend>
+		</range>
+		<range>
+			<lowend>PL 5001</lowend>
+			<highend>PL 7511</highend>
+		</range>
+	</community>
+	<community>
+		<name>Spanish Studies</name>
+		<prefix>DP</prefix>
+		<range>
+			<lowend>PC 4001</lowend>
+			<highend>PC 4977</highend>
+		</range>
+		<range>
+			<lowend>PQ 6001</lowend>
+			<highend>PQ 8929</highend>
+		</range>
+	</community>
+	<community>
+		<name>Statistics</name>
+		<range>
+			<lowend>HA 1</lowend>
+			<highend>HA 4737</highend>
+		</range>
+		<subjecthead>statistics</subjecthead>
+	</community>
+	<community>
+		<name>Studio Art</name>
+		<range>
+			<lowend>N 74297</lowend>
+			<highend>N 7433</highend>
+		</range>
+		<range>
+			<lowend>NB 1</lowend>
+			<highend>NB 1952</highend>
+		</range>
+		<range>
+			<lowend>NC 1</lowend>
+			<highend>NC 1940</highend>
+		</range>
+		<range>
+			<lowend>ND 25</lowend>
+			<highend>ND 3416</highend>
+		</range>
+		<range>
+			<lowend>NE 1</lowend>
+			<highend>NE 3002</highend>
+		</range>
+		<range>
+			<lowend>NK 1</lowend>
+			<highend>NK 9955</highend>
+		</range>
+		<prefix>TR</prefix>
+	</community>
+	<community>
+		<name>Theatre Arts</name>
+		<range>
+			<lowend>PN 1530</lowend>
+			<highend>PN 1998</highend>
+		</range>
+		<range>
+			<lowend>PN 2000</lowend>
+			<highend>PN 3299</highend>
+		</range>
+	</community>
+	<community>
+		<name>Urban Studies</name>
+		<range>
+			<lowend>HT 101</lowend>
+			<highend>HT 395</highend>
+		</range>
+	</community>
+	<community>
+		<name>Veterinary Medicine</name>
+		<range>
+			<lowend>SF 600</lowend>
+			<highend>SF 1100</highend>
+		</range>
+	</community>
+	<community>
+		<name>Women's Studies</name>
+		<prefix>HQ</prefix>
+	</community>
+</CommList>
