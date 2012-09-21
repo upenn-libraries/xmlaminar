@@ -27,8 +27,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
+import org.xml.sax.helpers.AttributesImpl;
 
 /**
  *
@@ -70,6 +74,26 @@ public class FilesystemXMLReaderRepo extends FilesystemXMLReader {
             }
         }
         return false;
+    }
+
+    @Override
+    protected void outerEndElement(ContentHandler ch, String uri, String localName, String qName) throws SAXException {
+        ch.endElement("", "dFlatRoot", "dFlatRoot");
+    }
+
+    private final AttributesImpl mod = new AttributesImpl();
+
+    @Override
+    protected void outerStartElement(ContentHandler ch, String uri, String localName, String qName, Attributes atts) throws SAXException {
+        mod.clear();
+        for (int i = 0; i < atts.getLength(); i++) {
+            if ("name".equals(atts.getQName(i))) {
+                mod.addAttribute("", "objectId", "objectId", "CDATA", atts.getValue(i));
+            } else {
+                mod.addAttribute(atts.getURI(i), atts.getLocalName(i), atts.getQName(i), atts.getType(i), atts.getValue(i));
+            }
+        }
+        ch.startElement("", "dFlatRoot", "dFlatRoot", mod);
     }
 
 }

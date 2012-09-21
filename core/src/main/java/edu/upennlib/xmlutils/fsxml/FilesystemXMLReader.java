@@ -37,6 +37,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.log4j.Logger;
+import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.EntityResolver;
@@ -288,7 +289,7 @@ public abstract class FilesystemXMLReader implements XMLReader {
 
     private final AttributesImpl atts = new AttributesImpl();
 
-    private void startFile(FsxmlElement type, File f, File canonFile, boolean isSymlink) throws SAXException, IOException {
+    private void startFile(FsxmlElement type, File f, File canonFile, boolean isSymlink, boolean outer) throws SAXException, IOException {
         atts.addAttribute(FsxmlAttribute.name.uri, FsxmlAttribute.name.localName, FsxmlAttribute.name.qName, "CDATA", f.getName());
         atts.addAttribute(FsxmlAttribute.absolutePath.uri, FsxmlAttribute.absolutePath.localName, FsxmlAttribute.absolutePath.qName, "CDATA", f.getAbsolutePath());
         atts.addAttribute(FsxmlAttribute.length.uri, FsxmlAttribute.length.localName, FsxmlAttribute.length.qName, "CDATA", Long.toString(f.length()));
@@ -300,21 +301,55 @@ public abstract class FilesystemXMLReader implements XMLReader {
         } else {
             atts.addAttribute(FsxmlAttribute.symlink.uri, FsxmlAttribute.symlink.localName, FsxmlAttribute.symlink.qName, "CDATA", "false");
         }
-        ch.startElement(URI, type.localName, type.qName, atts);
+        if (outer) {
+            outerStartElement(ch, URI, type.localName, type.qName, atts);
+        } else {
+            ch.startElement(URI, type.localName, type.qName, atts);
+        }
     }
 
-    private void endFile(FsxmlElement type, File canonFile, boolean isSymlink) throws SAXException, IOException {
+    private void endFile(FsxmlElement type, File canonFile, boolean isSymlink, boolean outer) throws SAXException, IOException {
         if (isSymlink) {
             if (!symlinks.pop().equals(canonFile.getAbsolutePath())) {
                 throw new RuntimeException();
             }
         }
-        ch.endElement(URI, type.localName, type.qName);
+        if (outer) {
+            outerEndElement(ch, URI, type.localName, type.qName);
+        } else {
+            ch.endElement(URI, type.localName, type.qName);
+        }
     }
 
     private boolean writeOutput = false;
 
     protected abstract boolean startWriteOutput(FsxmlElement type, File f, File[] children);
+
+    /**
+     * Provides a hook for subclasses to override the behavior of startElement;
+     * default implementation simply delegates to the standard ContentHandler
+     * @param ch
+     * @param uri
+     * @param localName
+     * @param qName
+     * @param atts
+     * @throws SAXException
+     */
+    protected void outerStartElement(ContentHandler ch, String uri, String localName, String qName, Attributes atts) throws SAXException {
+        ch.startElement(uri, localName, qName, atts);
+    }
+
+    /**
+     * Corresponding hook to outerStartElement
+     * @param ch
+     * @param uri
+     * @param localName
+     * @param qName
+     * @throws SAXException
+     */
+    protected void outerEndElement(ContentHandler ch, String uri, String localName, String qName) throws SAXException {
+        ch.endElement(uri, localName, qName);
+    }
 
     private void process(File f) throws SAXException, IOException {
         if (!f.exists()) {
@@ -340,7 +375,7 @@ public abstract class FilesystemXMLReader implements XMLReader {
             writeOutput = startWriteOutput(type, f, children);
         }
         if (writeOutput) {
-            startFile(type, f, canonFile, isSymlink);
+            startFile(type, f, canonFile, isSymlink, !preWriteOutput);
         }
         if (type == FsxmlElement.dir) {
             if (children != null) {
@@ -357,7 +392,7 @@ public abstract class FilesystemXMLReader implements XMLReader {
             }
         }
         if (writeOutput) {
-            endFile(type, canonFile, isSymlink);
+            endFile(type, canonFile, isSymlink, !preWriteOutput);
             if (!preWriteOutput) {
                 writeOutput = false;
             }
