@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.Iterator;
+import java.util.concurrent.Executors;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
@@ -65,16 +66,27 @@ public class JoiningXMLFilter extends XMLFilterImpl {
         Transformer t = tf.newTransformer();
         File inFile = new File("franklin-small-dump.xml");
         InputSource in = new InputSource(new BufferedInputStream(new FileInputStream(inFile)));
-        JoiningXMLFilter joiner = new JoiningXMLFilterImpl();
+        JoiningXMLFilterImpl joiner = new JoiningXMLFilterImpl();
         OutputStream out = new BufferedOutputStream(new FileOutputStream("split-joined.xml"));
-        t.transform(new SAXSource(joiner, in), new StreamResult(out));
-        out.close();
+        try {
+            t.transform(new SAXSource(joiner, in), new StreamResult(out));
+        } finally {
+            out.close();
+            joiner.shutdown();
+        }
     }
 
     private static class JoiningXMLFilterImpl extends JoiningXMLFilter {
 
+        private final SplittingXMLFilter splitter;
+
+        public void shutdown() {
+            splitter.getExecutor().shutdown();
+        }
+
         public JoiningXMLFilterImpl() throws ParserConfigurationException, SAXException {
-            SplittingXMLFilter splitter = new SplittingXMLFilter();
+            splitter = new SplittingXMLFilter();
+            splitter.setExecutor(Executors.newCachedThreadPool());
             setParent(splitter);
             SAXParserFactory spf = SAXParserFactory.newInstance();
             spf.setNamespaceAware(true);
