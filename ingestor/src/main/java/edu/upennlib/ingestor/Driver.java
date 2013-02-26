@@ -96,7 +96,7 @@ public final class Driver {
          */
         Properties defaultProps = new Properties();
         try {
-            defaultProps.load((new ClassPathResource("defaults.properties")).getInputStream());
+            defaultProps.load((new ClassPathResource("edu/upennlib/ingestor/defaults.properties")).getInputStream());
         } catch (IOException ex) {
             logger.fatal("Could not load default properties file. Exception thrown: "+ex);
             throw new RuntimeException("Could not open default properties file.");
@@ -197,7 +197,7 @@ public final class Driver {
 
         boolean springFromCommandLine = (properties.getProperty("spring") != null);
         String spring = springFromCommandLine ?
-            properties.getProperty("spring") : "spring-main.xml";
+            properties.getProperty("spring") : "edu/upennlib/ingestor/spring-main.xml";
         
         logger.trace("Creating application context.");
         ConfigurableApplicationContext context = null;
