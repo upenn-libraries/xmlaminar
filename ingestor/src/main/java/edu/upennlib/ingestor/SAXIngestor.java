@@ -20,8 +20,10 @@ import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
 import edu.upennlib.paralleltransformer.TransformingXMLFilter;
 import edu.upennlib.solrposter.SAXSolrPoster;
+import edu.upennlib.xmlutils.DumpingContentHandler;
 import edu.upennlib.xmlutils.dbxml.PerformanceEvaluator;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -43,6 +45,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 
 /**
@@ -65,7 +68,21 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
     private boolean autoRollback = DEFAULT_AUTOROLLBACK;
     private boolean autoCommit = DEFAULT_AUTOCOMMIT;
     private URI solrServerURI;
+    private DumpingContentHandler dch;
 
+    public void setDumpFile(File file) {
+        if (file == null) {
+            dch = null;
+        } else {
+            dch = new DumpingContentHandler();
+            dch.setDumpFile(file);
+        }
+    }
+
+    public File getDumpFile() {
+        return dch == null ? null : dch.getDumpFile();
+    }
+    
     public boolean isPreDelete() {
         return preDelete;
     }
@@ -158,7 +175,14 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
                 logger.info("pre-deleting contents from solr server: "+server);
                 server.deleteByQuery("*:*");
             }
-            t.transform(new SAXSource(joiner, new InputSource()), new SAXResult(solrPoster));
+            ContentHandler out;
+            if (dch == null) {
+                out = solrPoster;
+            } else {
+                dch.setContentHandler(solrPoster);
+                out = dch;
+            }
+            t.transform(new SAXSource(joiner, new InputSource()), new SAXResult(out));
             if (autoCommit) {
                 logger.info("auto-committing to solr server: " + solrPoster.getServer());
                 server.commit();
