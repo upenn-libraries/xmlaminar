@@ -38,7 +38,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.TTCCLayout;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -131,7 +130,6 @@ public class RSXMLReader extends SQLXMLReader {
     public static void main(String[] args) throws TransformerConfigurationException, TransformerException, FileNotFoundException, IOException, ConnectionException {
 
         RSXMLReader instance = new RSXMLReader();
-        logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
         logger.setLevel(Level.WARN);
         instance.setHost(host);
         instance.setSid(sid);

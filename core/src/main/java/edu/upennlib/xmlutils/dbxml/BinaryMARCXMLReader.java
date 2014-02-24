@@ -48,7 +48,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.TTCCLayout;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -198,7 +197,6 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
 
 
     public static void main(String args[]) throws SQLException, FileNotFoundException, IOException, SAXException, TransformerConfigurationException, TransformerException, ParserConfigurationException, ConnectionException {
-        logger.addAppender(new ConsoleAppender(new TTCCLayout(), "System.out"));
         logger.setLevel(Level.WARN);
         BinaryMARCXMLReader instance = getTestInstance(3032000, 3033000);
 
