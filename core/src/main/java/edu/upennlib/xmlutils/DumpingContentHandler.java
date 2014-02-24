@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
@@ -77,11 +78,17 @@ public class DumpingContentHandler extends XMLFilterImpl implements LexicalHandl
         try {
             dfHandler = stf.newTransformerHandler();
             dfHandler.getTransformer().setOutputProperty(OutputKeys.INDENT, "yes");
-            dfOut = new BufferedOutputStream(new FileOutputStream(df));
+            if (df.getName().endsWith(".gz")) {
+                dfOut = new GZIPOutputStream(new FileOutputStream(df));
+            } else {
+                dfOut = new BufferedOutputStream(new FileOutputStream(df));
+            }
             dfHandler.setResult(new StreamResult(dfOut));
         } catch (TransformerConfigurationException ex) {
             throw new RuntimeException(ex);
         } catch (FileNotFoundException ex) {
+            throw new RuntimeException(ex);
+        } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
