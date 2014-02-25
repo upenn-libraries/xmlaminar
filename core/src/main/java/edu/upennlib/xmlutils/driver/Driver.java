@@ -19,11 +19,11 @@ package edu.upennlib.xmlutils.driver;
 import edu.upennlib.xmlutils.SplittingXMLFilter;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.util.Arrays;
 import joptsimple.OptionParser;
 
@@ -259,13 +259,13 @@ public class Driver {
     private class SplitCommand extends Command {
         @Override
         public void run() {
-            InputSource in;
-            Reader r = null;
+            InputSource source;
+            InputStream in = null;
             if ("-".equals(inputFile.getPath())) {
-                in = new InputSource(System.in);
+                source = new InputSource(System.in);
             } else {
                 try {
-                    in = new InputSource(r = new FileReader(inputFile));
+                    source = new InputSource(in = new FileInputStream(inputFile));
                 } catch (FileNotFoundException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -288,11 +288,11 @@ public class Driver {
                             + additionalSuffix);
                     BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(out));
                     try {
-                        t.transform(new SAXSource(splitter, in), new StreamResult(bos));
+                        t.transform(new SAXSource(splitter, source), new StreamResult(bos));
                     } finally {
                         bos.close();
                     }
-                } while (splitter.hasMoreOutput(in));
+                } while (splitter.hasMoreOutput(source));
             } catch (ParserConfigurationException ex) {
                 throw new RuntimeException(ex);
             } catch (SAXException ex) {
@@ -305,8 +305,8 @@ public class Driver {
                 throw new RuntimeException(ex);
             } finally {
                 try {
-                    if (r != null) {
-                        r.close();
+                    if (in != null) {
+                        in.close();
                     }
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
