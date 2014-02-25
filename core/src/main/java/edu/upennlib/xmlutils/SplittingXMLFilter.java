@@ -430,6 +430,16 @@ public class SplittingXMLFilter extends XMLFilterLexicalHandlerImpl {
                 superParserThread.interrupt();
             }
             superParserThread = new Thread(sp, "superParser<-"+Thread.currentThread().getName());
+            final Thread calling = Thread.currentThread();
+            final Thread.UncaughtExceptionHandler ueh = superParserThread.getUncaughtExceptionHandler();
+            superParserThread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+
+                @Override
+                public void uncaughtException(Thread t, Throwable e) {
+                    calling.interrupt();
+                    ueh.uncaughtException(t, e);
+                }
+            });
             superParserThread.start();
         }
         try {

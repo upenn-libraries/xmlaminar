@@ -441,6 +441,16 @@ public class BoundedXMLFilterBuffer extends XMLFilterLexicalHandlerImpl {
         }
         parsing = true;
         Thread t = new Thread(new EventPlayer(), "eventPlayer<-"+Thread.currentThread().getName());
+        final Thread calling = Thread.currentThread();
+        final Thread.UncaughtExceptionHandler ueh = t.getUncaughtExceptionHandler();
+        t.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                calling.interrupt();
+                ueh.uncaughtException(t, e);
+            }
+        });
         t.start();
         getParent().setProperty(LEXICAL_HANDLER_PROPERTY_KEY, this);
         if (input != null) {
