@@ -94,6 +94,9 @@ public class Driver {
             case process:
                 command = new ProcessCommand();
                 break;
+            case help:
+                command = new HelpCommand();
+                break;
             default:
                 throw new AssertionError("must implement new command!");
         }
@@ -225,22 +228,38 @@ public class Driver {
     
     private InputFileType inputFileType;
     
+    private class HelpCommand extends Command {
+
+        @Override
+        public void run() {
+            try {
+                parser.printHelpOn(System.out);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+        @Override
+        protected OptionParser configure(OptionParser parser, SpecStruct specs) {
+            return parser;
+        }
+        
+    }
+    
     private class JoinCommand extends Command {
 
         @Override
         public void run() {
-            for (Object o : blah) {
-                System.out.println(o);
-            }
+
         }
 
         @Override
         protected OptionParser configure(OptionParser parser, SpecStruct specs) {
             return configureJoinParser(parser, specs);
         }
-        
+
     }
-    
+
     private class SplitCommand extends Command {
         @Override
         public void run() {

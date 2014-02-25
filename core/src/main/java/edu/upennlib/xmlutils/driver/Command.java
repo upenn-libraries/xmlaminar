@@ -26,6 +26,7 @@ public abstract class Command implements Runnable {
     
     public static enum Type {
         
+        help("print help and exit"),
         split("split a single xml input stream into multiple files"), 
         join("join multiple xml streams into a single stream; input files are enumerated "
                 + "from the input-file argument"), 
