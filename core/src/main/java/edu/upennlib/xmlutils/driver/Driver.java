@@ -98,7 +98,7 @@ public class Driver {
                 command = new HelpCommand();
                 break;
             default:
-                throw new AssertionError("must implement new command!");
+                throw new AssertionError("must implement new command: "+commandType);
         }
         command.configure(parser, specs);
         OptionSet options = parser.parse(commandArgs);
@@ -184,25 +184,21 @@ public class Driver {
     }
     
     private static <V> V getValue(OptionSet options, OptionSpec<V> spec, V defaultValue) {
-        if (spec == null || !options.has(spec)) {
+        if (spec == null) {
             return defaultValue;
         } else {
             return options.valueOf(spec);
         }
     }
     
-    private Object[] blah;
-
     public static void main(String[] args) throws IOException {
-        if (args.length == 0) {
-            args = new String[]{"join", "--input-file", "something/-"};
-        }
 
+        String commandString = "[null]";
         Command.Type commandType;
         try {
-            commandType = Command.Type.valueOf(args[0].toLowerCase());
+            commandType = Command.Type.valueOf(commandString = args[0].toLowerCase());
         } catch (Exception ex) {
-            System.err.println("illegal command specification; command must be one of: ");
+            System.err.println("illegal command specification: "+commandString+"; command must be one of: ");
             System.err.println("  "+asList(Command.Type.values()));
             Thread.currentThread().setUncaughtExceptionHandler(new QuietUEH());
             throw new RuntimeException(ex);
@@ -276,6 +272,7 @@ public class Driver {
             }
             try {
                 SplittingXMLFilter splitter = new SplittingXMLFilter();
+                splitter.setChunkSize(outputSize);
                 SAXParserFactory spf = SAXParserFactory.newInstance();
                 spf.setNamespaceAware(true);
                 SAXParser saxParser = spf.newSAXParser();
