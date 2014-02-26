@@ -16,19 +16,27 @@
 
 package edu.upennlib.xmlutils.driver;
 
+import edu.upennlib.xmlutils.JoiningXMLFilter;
 import edu.upennlib.xmlutils.SplittingXMLFilter;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.util.Arrays;
 import joptsimple.OptionParser;
 
 import static java.util.Arrays.asList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -40,8 +48,11 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  *
@@ -49,6 +60,8 @@ import org.xml.sax.SAXException;
  */
 public class Driver {
 
+    private static final Logger logger = LoggerFactory.getLogger(Driver.class);
+    
     /*
     BASE OPTIONS
     */
@@ -250,7 +263,93 @@ public class Driver {
 
         @Override
         public void run() {
+            Reader r;
+            OutputStream out = null;
+            if (inputFile == null || "-".equals(inputFile.getPath())) {
+                r = new InputStreamReader(System.in);
+            } else {
+                try {
+                    r = new FileReader(inputFile);
+                } catch (FileNotFoundException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            try {
+                final Scanner s = new Scanner(r);
+                s.useDelimiter(Pattern.compile(inputDelimiter, Pattern.LITERAL));
+                JoiningXMLFilter joiner = new JoiningXMLFilter() {
 
+                    @Override
+                    public void parse(InputSource input) throws SAXException, IOException {
+                        XMLReader parent = super.getParent();
+                        parent.setDTDHandler(this);
+                        parent.setErrorHandler(this);
+                        parent.setEntityResolver(this);
+                        String next;
+                        while (s.hasNext()) {
+                            if ((next = s.next()).length() > 0) {
+                                InputStream nextIn = null;
+                                try {
+                                    nextIn = new FileInputStream(next);
+                                    InputSource source = new InputSource(nextIn);
+                                    source.setSystemId(next);
+                                    parent.setContentHandler(this);
+                                    parent.parse(source);
+                                } catch (FileNotFoundException ex) {
+                                    logger.warn(ex.getMessage());
+                                } finally {
+                                    if (nextIn != null) {
+                                        try {
+                                            nextIn.close();
+                                        } catch (IOException ex) {
+                                            logger.warn("closing " + next, ex);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        finished();
+                    }
+
+                    @Override
+                    public void parse(String systemId) throws SAXException, IOException {
+                        throw new UnsupportedOperationException("Not supported yet.");
+                    }
+                };
+                SAXParserFactory spf = SAXParserFactory.newInstance();
+                spf.setNamespaceAware(true);
+                joiner.setParent(spf.newSAXParser().getXMLReader());
+                StreamResult res = new StreamResult();
+                if (outputFile == null || "-".equals(outputFile.getPath())) {
+                    out = System.out;
+                    res.setOutputStream(out);
+                } else {
+                    out = new BufferedOutputStream(new FileOutputStream(outputFile));
+                    res.setOutputStream(out);
+                    res.setSystemId(outputFile);
+                }
+                Transformer t = TransformerFactory.newInstance().newTransformer();
+                t.transform(new SAXSource(joiner, new InputSource()), res);
+            } catch (TransformerConfigurationException ex) {
+                throw new RuntimeException(ex);
+            } catch (TransformerException ex) {
+                throw new RuntimeException(ex);
+            } catch (FileNotFoundException ex) {
+                throw new RuntimeException(ex);
+            } catch (ParserConfigurationException ex) {
+                throw new RuntimeException(ex);
+            } catch (SAXException ex) {
+                throw new RuntimeException(ex);
+            } finally {
+                try {
+                    r.close();
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
         }
 
         @Override
