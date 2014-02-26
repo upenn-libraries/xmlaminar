@@ -177,7 +177,11 @@ public class Driver {
         additionalSuffix = getValue(options, specs.additionalSuffixSpec, null);
         
         nullDelimited = options.has(specs.nullDelimitedSpec);
-        inputDelimiter = getValue(options, specs.inputDelimiterSpec, null);
+        if (specs.inputDelimiterSpec != null && options.has(specs.inputDelimiterSpec)) {
+            inputDelimiter = options.valueOf(specs.inputDelimiterSpec);
+        } else {
+            inputDelimiter = nullDelimited ? Character.toString('\0') : System.lineSeparator();
+        }
     
         inputFileType = getValue(options, specs.inputFileTypeSpec, null);
         
