@@ -73,6 +73,8 @@ public class SplittingXMLFilter extends XMLFilterImpl {
     private ExecutorService executor;
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, TransformerException, FileNotFoundException, IOException {
+        System.out.println(String.format("%01d", 6));
+        System.exit(0);
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
         SplittingXMLFilter sxf = new SplittingXMLFilter();
@@ -114,12 +116,17 @@ public class SplittingXMLFilter extends XMLFilterImpl {
 
     public static class MyXMLReaderCallback implements XMLReaderCallback {
 
+        private final File staticFile;
         private final File parentFile;
         private final String namePrefix;
         private final String postSuffix;
         private final String suffixFormat;
         private final Transformer t;
         private int i;
+
+        private static String getDefaultSuffixFormat(int suffixLength) {
+            return suffixLength < 1 ? null : "%0"+suffixLength+'d';
+        }
 
         public MyXMLReaderCallback(String prefix) throws TransformerConfigurationException {
             this(TransformerFactory.newInstance().newTransformer(), prefix);
@@ -138,11 +145,15 @@ public class SplittingXMLFilter extends XMLFilterImpl {
         }
 
         public MyXMLReaderCallback(int start, Transformer t, int suffixSize, String prefix, String postSuffix) {
-            this(start, t, "%0"+suffixSize+'d', prefix, postSuffix);
+            this(start, t, getDefaultSuffixFormat(suffixSize), prefix, postSuffix);
         }
 
         public MyXMLReaderCallback(int start, Transformer t, String suffixFormat, String prefix, String postSuffix) {
             this(start, t, suffixFormat, new File(prefix), postSuffix);
+        }
+
+        public MyXMLReaderCallback(int start, Transformer t, int suffixLength, File prefix, String postSuffix) {
+            this(start, t, getDefaultSuffixFormat(suffixLength), prefix, postSuffix);
         }
 
         public MyXMLReaderCallback(int start, Transformer t, String suffixFormat, File prefix, String postSuffix) {
@@ -152,15 +163,22 @@ public class SplittingXMLFilter extends XMLFilterImpl {
             this.namePrefix = prefix.getName();
             this.postSuffix = postSuffix;
             this.suffixFormat = suffixFormat;
+            if (suffixFormat == null) {
+                this.staticFile = new File(parentFile, namePrefix + postSuffix);
+            } else {
+                staticFile = null;
+            }
         }
 
         @Override
         public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
             t.reset();
-            File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) + postSuffix);
+            File nextFile = staticFile != null ? staticFile : new File(parentFile, namePrefix + String.format(suffixFormat, i++) + postSuffix);
             OutputStream out = new BufferedOutputStream(new FileOutputStream(nextFile));
+            StreamResult res = new StreamResult(out);
+            res.setSystemId(nextFile);
             try {
-                t.transform(new SAXSource(reader, input), new StreamResult(out));
+                t.transform(new SAXSource(reader, input), res);
             } catch (TransformerException ex) {
                 throw new RuntimeException(ex);
             } finally {
