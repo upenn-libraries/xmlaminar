@@ -16,8 +16,8 @@
 
 package edu.upennlib.xmlutils.driver;
 
-import edu.upennlib.xmlutils.JoiningXMLFilter;
-import edu.upennlib.xmlutils.SplittingXMLFilter;
+import edu.upennlib.paralleltransformer.JoiningXMLFilter;
+import edu.upennlib.paralleltransformer.SplittingXMLFilter;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +35,7 @@ import joptsimple.OptionParser;
 import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
@@ -374,28 +375,20 @@ public class Driver {
                 }
             }
             try {
-                SplittingXMLFilter splitter = new SplittingXMLFilter();
-                splitter.setChunkSize(outputSize);
+                SplittingXMLFilter sxf = new SplittingXMLFilter();
+                sxf.setChunkSize(outputSize);
                 SAXParserFactory spf = SAXParserFactory.newInstance();
                 spf.setNamespaceAware(true);
                 SAXParser saxParser = spf.newSAXParser();
-                splitter.setParent(saxParser.getXMLReader());
+                sxf.setParent(saxParser.getXMLReader());
                 Transformer t = TransformerFactory.newInstance().newTransformer();
-                int nextFileNumber = 0;
-                String numberFormatString = "%0"+suffixSize+'d';
-                File outputDir = outputFile.getParentFile();
-                do {
-                    File out = new File(outputDir, 
-                            outputFile.getName()
-                            + String.format(numberFormatString, nextFileNumber++)
-                            + additionalSuffix);
-                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(out));
-                    try {
-                        t.transform(new SAXSource(splitter, source), new StreamResult(bos));
-                    } finally {
-                        bos.close();
-                    }
-                } while (splitter.hasMoreOutput(source));
+                sxf.setXMLReaderCallback(new SplittingXMLFilter.MyXMLReaderCallback(0, t, suffixSize, outputFile, additionalSuffix));
+                sxf.setExecutor(Executors.newCachedThreadPool());
+                try {
+                    sxf.parse(source);
+                } finally {
+                    sxf.getExecutor().shutdown();
+                }
             } catch (ParserConfigurationException ex) {
                 throw new RuntimeException(ex);
             } catch (SAXException ex) {
@@ -403,8 +396,6 @@ public class Driver {
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
             } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            } catch (TransformerException ex) {
                 throw new RuntimeException(ex);
             } finally {
                 try {
