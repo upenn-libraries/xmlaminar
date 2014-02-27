@@ -36,6 +36,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
@@ -54,8 +55,11 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class SplittingXMLFilter extends XMLFilterImpl {
 
-    private static final int RECORD_LEVEL = 1;
-    private static final int CHUNK_SIZE = 100;
+    private static final int DEFAULT_START_INDEX = 0;
+    private static final int DEFAULT_SUFFIX_SIZE = 5;
+    private static final int DEFAULT_RECORD_LEVEL = 1;
+    private static final int DEFAULT_CHUNK_SIZE = 100;
+    private int chunkSize = DEFAULT_CHUNK_SIZE;
     private volatile boolean parsing = false;
     private volatile Throwable producerThrowable;
     private FutureTask<?> producerTask;
@@ -77,7 +81,7 @@ public class SplittingXMLFilter extends XMLFilterImpl {
         SAXParser sp = spf.newSAXParser();
         XMLReader xmlReader = sp.getXMLReader();
         sxf.setParent(xmlReader);
-        sxf.setXMLReaderCallback(new MyXMLReaderCallback(0, t));
+        sxf.setXMLReaderCallback(new MyXMLReaderCallback(0, t, "out/", ".xml"));
         File in = new File("blah.xml");
         sxf.setExecutor(Executors.newCachedThreadPool());
         try {
@@ -100,26 +104,68 @@ public class SplittingXMLFilter extends XMLFilterImpl {
         this.executor = executor;
     }
 
-    private static class MyXMLReaderCallback implements XMLReaderCallback {
+    public int getChunkSize() {
+        return chunkSize;
+    }
 
+    public void setChunkSize(int size) {
+        chunkSize = size;
+    }
+
+    public static class MyXMLReaderCallback implements XMLReaderCallback {
+
+        private final File parentFile;
+        private final String namePrefix;
+        private final String postSuffix;
+        private final String suffixFormat;
         private final Transformer t;
         private int i;
 
-        private MyXMLReaderCallback(int start, Transformer t) {
+        public MyXMLReaderCallback(String prefix) throws TransformerConfigurationException {
+            this(TransformerFactory.newInstance().newTransformer(), prefix);
+        }
+
+        public MyXMLReaderCallback(Transformer t, String prefix) {
+            this(DEFAULT_START_INDEX, t, prefix);
+        }
+
+        public MyXMLReaderCallback(int start, Transformer t, String prefix) {
+            this(start, t, prefix, "");
+        }
+
+        public MyXMLReaderCallback(int start, Transformer t, String prefix, String postSuffix) {
+            this(start, t, DEFAULT_SUFFIX_SIZE, prefix, postSuffix);
+        }
+
+        public MyXMLReaderCallback(int start, Transformer t, int suffixSize, String prefix, String postSuffix) {
+            this(start, t, "%0"+suffixSize+'d', prefix, postSuffix);
+        }
+
+        public MyXMLReaderCallback(int start, Transformer t, String suffixFormat, String prefix, String postSuffix) {
+            this(start, t, suffixFormat, new File(prefix), postSuffix);
+        }
+
+        public MyXMLReaderCallback(int start, Transformer t, String suffixFormat, File prefix, String postSuffix) {
             this.i = start;
             this.t = t;
+            this.parentFile = prefix.getParentFile();
+            this.namePrefix = prefix.getName();
+            this.postSuffix = postSuffix;
+            this.suffixFormat = suffixFormat;
         }
 
         @Override
         public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
             t.reset();
-            OutputStream out = new BufferedOutputStream(new FileOutputStream("out/" + String.format("%1$05d", i++) + ".xml"));
+            File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) + postSuffix);
+            OutputStream out = new BufferedOutputStream(new FileOutputStream(nextFile));
             try {
                 t.transform(new SAXSource(reader, input), new StreamResult(out));
             } catch (TransformerException ex) {
                 throw new RuntimeException(ex);
+            } finally {
+                out.close();
             }
-            out.close();
         }
 
         @Override
@@ -393,7 +439,7 @@ public class SplittingXMLFilter extends XMLFilterImpl {
     }
 
     private void recordStart() throws SAXException {
-        if (++recordCount > CHUNK_SIZE) {
+        if (++recordCount > DEFAULT_CHUNK_SIZE) {
             writeSyntheticEndEvents();
             recordCount = 0;
             try {
@@ -452,9 +498,9 @@ public class SplittingXMLFilter extends XMLFilterImpl {
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-        if (++level == RECORD_LEVEL && recordStartEvent++ < 0) {
+        if (++level == DEFAULT_RECORD_LEVEL && recordStartEvent++ < 0) {
             recordStart();
-        } else if (level < RECORD_LEVEL) {
+        } else if (level < DEFAULT_RECORD_LEVEL) {
             startEventStack.push(new StructuralStartEvent(uri, localName, qName, atts));
         }
         super.startElement(uri, localName, qName, atts);
@@ -462,9 +508,9 @@ public class SplittingXMLFilter extends XMLFilterImpl {
 
     @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
-        if (level < RECORD_LEVEL) {
+        if (level < DEFAULT_RECORD_LEVEL) {
             startEventStack.push(new StructuralStartEvent(prefix, uri));
-        } else if (level == RECORD_LEVEL && recordStartEvent++ < 0) {
+        } else if (level == DEFAULT_RECORD_LEVEL && recordStartEvent++ < 0) {
             recordStart();
         }
         super.startPrefixMapping(prefix, uri);
@@ -473,18 +519,18 @@ public class SplittingXMLFilter extends XMLFilterImpl {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         super.endElement(uri, localName, qName);
-        if (level < RECORD_LEVEL) {
+        if (level < DEFAULT_RECORD_LEVEL) {
             startEventStack.pop();
-        } else if (--level == RECORD_LEVEL && --recordStartEvent < 0) {
+        } else if (--level == DEFAULT_RECORD_LEVEL && --recordStartEvent < 0) {
             recordEnd();
         }
     }
 
     @Override
     public void endPrefixMapping(String prefix) throws SAXException {
-        if (level < RECORD_LEVEL) {
+        if (level < DEFAULT_RECORD_LEVEL) {
             startEventStack.pop();
-        } else if (level == RECORD_LEVEL && --recordStartEvent < 0) {
+        } else if (level == DEFAULT_RECORD_LEVEL && --recordStartEvent < 0) {
             recordEnd();
         }
         super.endPrefixMapping(prefix);
