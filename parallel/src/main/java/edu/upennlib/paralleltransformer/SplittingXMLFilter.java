@@ -73,8 +73,6 @@ public class SplittingXMLFilter extends XMLFilterImpl {
     private ExecutorService executor;
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, TransformerException, FileNotFoundException, IOException {
-        System.out.println(String.format("%01d", 6));
-        System.exit(0);
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
         SplittingXMLFilter sxf = new SplittingXMLFilter();
@@ -457,9 +455,9 @@ public class SplittingXMLFilter extends XMLFilterImpl {
     }
 
     private void recordStart() throws SAXException {
-        if (++recordCount > DEFAULT_CHUNK_SIZE) {
+        if (++recordCount > chunkSize) {
             writeSyntheticEndEvents();
-            recordCount = 0;
+            recordCount = 1; // the record we just entered!
             try {
                 parseLock.lock();
                 parseChunkDone.signal();
