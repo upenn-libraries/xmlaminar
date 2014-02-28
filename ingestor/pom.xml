@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.upennlib</groupId>
-  <artifactId>ingestor-sax</artifactId>
+  <artifactId>xml-utils-integrator</artifactId>
   <packaging>jar</packaging>
   <version>1.3-SNAPSHOT</version>
-  <name>ingestor-sax-${project.version}</name>
+  <name>${project.artifactId}-${project.version}</name>
   <url>http://maven.apache.org</url>
   <parent>
       <groupId>edu.upennlib</groupId>
