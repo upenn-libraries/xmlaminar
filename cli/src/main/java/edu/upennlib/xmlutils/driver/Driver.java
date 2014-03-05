@@ -278,45 +278,7 @@ public class Driver {
             try {
                 final Scanner s = new Scanner(r);
                 s.useDelimiter(Pattern.compile(inputDelimiter, Pattern.LITERAL));
-                JoiningXMLFilter joiner = new JoiningXMLFilter() {
-
-                    @Override
-                    public void parse(InputSource input) throws SAXException, IOException {
-                        XMLReader parent = super.getParent();
-                        parent.setDTDHandler(this);
-                        parent.setErrorHandler(this);
-                        parent.setEntityResolver(this);
-                        String next;
-                        while (s.hasNext()) {
-                            if ((next = s.next()).length() > 0) {
-                                InputStream nextIn = null;
-                                try {
-                                    nextIn = new FileInputStream(next);
-                                    InputSource source = new InputSource(nextIn);
-                                    source.setSystemId(next);
-                                    parent.setContentHandler(this);
-                                    parent.parse(source);
-                                } catch (FileNotFoundException ex) {
-                                    logger.warn(ex.getMessage());
-                                } finally {
-                                    if (nextIn != null) {
-                                        try {
-                                            nextIn.close();
-                                        } catch (IOException ex) {
-                                            logger.warn("closing " + next, ex);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        finished();
-                    }
-
-                    @Override
-                    public void parse(String systemId) throws SAXException, IOException {
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-                };
+                JoiningXMLFilter joiner = new JoiningXMLFilter();
                 SAXParserFactory spf = SAXParserFactory.newInstance();
                 spf.setNamespaceAware(true);
                 joiner.setParent(spf.newSAXParser().getXMLReader());
@@ -330,7 +292,16 @@ public class Driver {
                     res.setSystemId(outputFile);
                 }
                 Transformer t = TransformerFactory.newInstance().newTransformer();
-                t.transform(new SAXSource(joiner, new InputSource()), res);
+                String next;
+                while (s.hasNext()) {
+                    if ((next = s.next()).length() > 0) {
+                        InputStream nextIn = new FileInputStream(next);
+                        InputSource source = new InputSource(nextIn);
+                        source.setSystemId(next);
+                        t.transform(new SAXSource(joiner, source), res);
+                    }
+                }
+                joiner.finished();
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
             } catch (TransformerException ex) {
@@ -345,6 +316,7 @@ public class Driver {
                 try {
                     r.close();
                     if (out != null) {
+                        out.flush();
                         out.close();
                     }
                 } catch (IOException ex) {

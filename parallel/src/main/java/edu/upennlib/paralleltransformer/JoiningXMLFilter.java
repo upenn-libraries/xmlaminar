@@ -23,10 +23,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayDeque;
 import java.util.Iterator;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
@@ -35,6 +43,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import net.sf.saxon.Configuration;
+import net.sf.saxon.event.PipelineConfiguration;
+import net.sf.saxon.event.Receiver;
+import net.sf.saxon.event.ReceivingContentHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -51,11 +63,11 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class JoiningXMLFilter extends XMLFilterImpl {
 
+    private static final Object FINISHED = new Object();
     public static final String RESET_PROPERTY_NAME = "http://xml.org/sax/features/reset";
     private static final DevNullContentHandler devNullContentHandler = new DevNullContentHandler();
     private static final int RECORD_LEVEL = 1;
 
-    private boolean initialized = false;
     private int level = -1;
     private final InitialEventContentHandler initialEventContentHandler = new InitialEventContentHandler();
     private final ArrayDeque<StructuralStartEvent> startEvents = new ArrayDeque<StructuralStartEvent>();
@@ -123,8 +135,8 @@ public class JoiningXMLFilter extends XMLFilterImpl {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     }
-    public void reset() {
-        initialized = false;
+
+    private void reset() {
         level = -1;
         startEvents.clear();
     }
@@ -150,26 +162,67 @@ public class JoiningXMLFilter extends XMLFilterImpl {
         super.endPrefixMapping(prefix);
     }
 
+    private void initParseQueue(final InputSource source) {
+        setParseQueue(new ArrayBlockingQueue<InputSource>(10, false));
+        Thread parseQueueSupplier = new Thread("parseQueueSupplier") {
+
+            @Override
+            public void run() {
+                Reader r;
+                if ((r = source.getCharacterStream()) == null) {
+                    try {
+                        r = new InputStreamReader(source.getByteStream(), source.getEncoding());
+                    } catch (UnsupportedEncodingException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+
+            }
+
+        };
+    }
+
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
-        setupParse();
-        super.parse(input);
+        reset();
+        if (parseQueue == null) {
+            initParseQueue(input);
+        }
+        InputSource next;
+        try {
+            if ((next = parseQueue.take()) != FINISHED) {
+                setupParse(initialEventContentHandler);
+                super.parse(next);
+                while ((next = parseQueue.take()) != FINISHED) {
+                    setupParse(devNullContentHandler);
+                    super.parse(next);
+                }
+                finished();
+            }
+        } catch (InterruptedException ex) {
+            throw new SAXException(ex);
+        }
     }
 
     @Override
     public void parse(String systemId) throws SAXException, IOException {
-        setupParse();
-        super.parse(systemId);
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
-    private void setupParse() {
-        if (!initialized) {
-            initialized = true;
-            super.setContentHandler(initialEventContentHandler);
-        } else {
-            super.setContentHandler(devNullContentHandler);
-        }
+    private BlockingQueue<InputSource> parseQueue;
+
+    public void setParseQueue(BlockingQueue<InputSource> queue) {
+        parseQueue = queue;
     }
+
+    private void setupParse(ContentHandler handler) {
+        super.setDTDHandler(this);
+        super.setEntityResolver(this);
+        super.setErrorHandler(this);
+        super.setContentHandler(handler);
+    }
+
+
 
     public void finished() throws SAXException {
         super.setContentHandler(outputContentHandler);
@@ -186,36 +239,6 @@ public class JoiningXMLFilter extends XMLFilterImpl {
                 case ELEMENT:
                     super.endElement(next.one, next.two, next.three);
             }
-        }
-    }
-
-    @Override
-    public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
-        if (RESET_PROPERTY_NAME.equals(name) && value) {
-            try {
-                super.setFeature(name, value);
-            } catch (SAXException ex) {
-                /*
-                 * could run here if only want to run if deepest resettable parent.
-                 * ... but I don't think that's the case here.
-                 */
-            }
-            reset();
-        } else {
-            super.setFeature(name, value);
-        }
-    }
-
-    @Override
-    public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
-        if (RESET_PROPERTY_NAME.equals(name)) {
-            try {
-                return super.getFeature(name) && !initialized;
-            } catch (SAXException ex) {
-                return !initialized;
-            }
-        } else {
-            return super.getFeature(name);
         }
     }
 
