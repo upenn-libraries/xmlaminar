@@ -265,19 +265,21 @@ public class Driver {
         @Override
         public void run() {
             Reader r;
+            InputSource source;
             OutputStream out = null;
             if (inputFile == null || "-".equals(inputFile.getPath())) {
                 r = new InputStreamReader(System.in);
+                source = new InputSource(r);
             } else {
                 try {
                     r = new FileReader(inputFile);
                 } catch (FileNotFoundException ex) {
                     throw new RuntimeException(ex);
                 }
+                source = new InputSource(r);
+                source.setSystemId(inputFile.getAbsolutePath());
             }
             try {
-                final Scanner s = new Scanner(r);
-                s.useDelimiter(Pattern.compile(inputDelimiter, Pattern.LITERAL));
                 JoiningXMLFilter joiner = new JoiningXMLFilter();
                 SAXParserFactory spf = SAXParserFactory.newInstance();
                 spf.setNamespaceAware(true);
@@ -292,16 +294,7 @@ public class Driver {
                     res.setSystemId(outputFile);
                 }
                 Transformer t = TransformerFactory.newInstance().newTransformer();
-                String next;
-                while (s.hasNext()) {
-                    if ((next = s.next()).length() > 0) {
-                        InputStream nextIn = new FileInputStream(next);
-                        InputSource source = new InputSource(nextIn);
-                        source.setSystemId(next);
-                        t.transform(new SAXSource(joiner, source), res);
-                    }
-                }
-                joiner.finished();
+                t.transform(new SAXSource(joiner, source), res);
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
             } catch (TransformerException ex) {
@@ -316,7 +309,6 @@ public class Driver {
                 try {
                     r.close();
                     if (out != null) {
-                        out.flush();
                         out.close();
                     }
                 } catch (IOException ex) {

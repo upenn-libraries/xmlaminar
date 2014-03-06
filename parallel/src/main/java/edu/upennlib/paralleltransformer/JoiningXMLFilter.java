@@ -18,23 +18,29 @@ package edu.upennlib.paralleltransformer;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.Queue;
+import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
@@ -43,17 +49,11 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
-import net.sf.saxon.Configuration;
-import net.sf.saxon.event.PipelineConfiguration;
-import net.sf.saxon.event.Receiver;
-import net.sf.saxon.event.ReceivingContentHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 
@@ -63,7 +63,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class JoiningXMLFilter extends XMLFilterImpl {
 
-    private static final Object FINISHED = new Object();
+    private static final InputSource FINISHED = new InputSource();
     public static final String RESET_PROPERTY_NAME = "http://xml.org/sax/features/reset";
     private static final DevNullContentHandler devNullContentHandler = new DevNullContentHandler();
     private static final int RECORD_LEVEL = 1;
@@ -72,6 +72,10 @@ public class JoiningXMLFilter extends XMLFilterImpl {
     private final InitialEventContentHandler initialEventContentHandler = new InitialEventContentHandler();
     private final ArrayDeque<StructuralStartEvent> startEvents = new ArrayDeque<StructuralStartEvent>();
     private ContentHandler outputContentHandler;
+    private ExecutorService executor;
+
+    private static final Pattern DEFAULT_DELIMITER_PATTERN = Pattern.compile(System.lineSeparator(), Pattern.LITERAL);
+    private Pattern delimiterPattern = DEFAULT_DELIMITER_PATTERN;
 
     public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, IOException, TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
@@ -162,24 +166,79 @@ public class JoiningXMLFilter extends XMLFilterImpl {
         super.endPrefixMapping(prefix);
     }
 
+    public void setDelimiterPattern(Pattern p) {
+        delimiterPattern = p;
+    }
+
+    public Pattern getDelimiterPattern() {
+        return delimiterPattern;
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+    private Future<?> parseQueueSupplier;
+
     private void initParseQueue(final InputSource source) {
         setParseQueue(new ArrayBlockingQueue<InputSource>(10, false));
-        Thread parseQueueSupplier = new Thread("parseQueueSupplier") {
+        Runnable parseQueueRunner = new Runnable() {
 
             @Override
             public void run() {
                 Reader r;
                 if ((r = source.getCharacterStream()) == null) {
+                    InputStream in;
+                    if ((in = source.getByteStream()) != null) {
+                        try {
+                            r = new InputStreamReader(source.getByteStream(), source.getEncoding());
+                        } catch (UnsupportedEncodingException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    } else {
+                        try {
+                            r = new BufferedReader(new InputStreamReader(new URI(source.getSystemId()).toURL().openStream(), source.getEncoding()));
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        } catch (URISyntaxException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                }
+                try {
+                    Scanner s = new Scanner(r);
+                    s.useDelimiter(delimiterPattern);
+                    String next;
+                    while (s.hasNext()) {
+                        next = s.next();
+                        parseQueue.add(new InputSource(next));
+                    }
+                } finally {
+                    parseQueue.add(FINISHED);
                     try {
-                        r = new InputStreamReader(source.getByteStream(), source.getEncoding());
-                    } catch (UnsupportedEncodingException ex) {
+                        r.close();
+                    } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
                 }
-
             }
-
         };
+        if (executor == null) {
+            executor = Executors.newFixedThreadPool(1, new ThreadFactory() {
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r);
+                    t.setDaemon(true);
+                    return t;
+                }
+            });
+        }
+        parseQueueSupplier = executor.submit(parseQueueRunner);
     }
 
     @Override
@@ -221,8 +280,6 @@ public class JoiningXMLFilter extends XMLFilterImpl {
         super.setErrorHandler(this);
         super.setContentHandler(handler);
     }
-
-
 
     public void finished() throws SAXException {
         super.setContentHandler(outputContentHandler);
