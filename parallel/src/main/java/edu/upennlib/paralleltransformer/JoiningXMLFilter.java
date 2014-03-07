@@ -184,49 +184,10 @@ public class JoiningXMLFilter extends XMLFilterImpl {
 
     private Future<?> parseQueueSupplier;
 
-    private void initParseQueue(final InputSource source) {
-        setParseQueue(new ArrayBlockingQueue<InputSource>(10, false));
-        Runnable parseQueueRunner = new Runnable() {
-
-            @Override
-            public void run() {
-                Reader r;
-                if ((r = source.getCharacterStream()) == null) {
-                    InputStream in;
-                    if ((in = source.getByteStream()) != null) {
-                        try {
-                            r = new InputStreamReader(source.getByteStream(), source.getEncoding());
-                        } catch (UnsupportedEncodingException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    } else {
-                        try {
-                            r = new BufferedReader(new InputStreamReader(new URI(source.getSystemId()).toURL().openStream(), source.getEncoding()));
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
-                        } catch (URISyntaxException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    }
-                }
-                try {
-                    Scanner s = new Scanner(r);
-                    s.useDelimiter(delimiterPattern);
-                    String next;
-                    while (s.hasNext()) {
-                        next = s.next();
-                        parseQueue.add(new InputSource(next));
-                    }
-                } finally {
-                    parseQueue.add(FINISHED);
-                    try {
-                        r.close();
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-            }
-        };
+    private void initParse() {
+        if (parseQueue == null) {
+            setParseQueue(new ArrayBlockingQueue<InputSource>(10, false));
+        }
         if (executor == null) {
             executor = Executors.newFixedThreadPool(1, new ThreadFactory() {
 
@@ -238,15 +199,14 @@ public class JoiningXMLFilter extends XMLFilterImpl {
                 }
             });
         }
-        parseQueueSupplier = executor.submit(parseQueueRunner);
     }
-
+    
     @Override
-    public void parse(InputSource input) throws SAXException, IOException {
+    public void parse(final InputSource input) throws SAXException, IOException {
         reset();
-        if (parseQueue == null) {
-            initParseQueue(input);
-        }
+        initParse();
+        Runnable parseQueueRunner = new ParseQueueRunner(input);
+        parseQueueSupplier = executor.submit(parseQueueRunner);
         InputSource next;
         try {
             if ((next = parseQueue.take()) != FINISHED) {
@@ -423,6 +383,54 @@ public class JoiningXMLFilter extends XMLFilterImpl {
         public void skippedEntity(String name) throws SAXException {
         }
 
+    }
+
+    private class ParseQueueRunner implements Runnable {
+
+        private final InputSource input;
+
+        public ParseQueueRunner(InputSource input) {
+            this.input = input;
+        }
+
+        @Override
+        public void run() {
+            Reader r;
+            if ((r = input.getCharacterStream()) == null) {
+                InputStream in;
+                if ((in = input.getByteStream()) != null) {
+                    try {
+                        r = new InputStreamReader(in, input.getEncoding());
+                    } catch (UnsupportedEncodingException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                } else {
+                    try {
+                        r = new BufferedReader(new InputStreamReader(new URI(input.getSystemId()).toURL().openStream(), input.getEncoding()));
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (URISyntaxException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }
+            try {
+                Scanner s = new Scanner(r);
+                s.useDelimiter(delimiterPattern);
+                String next;
+                while (s.hasNext()) {
+                    next = s.next();
+                    parseQueue.add(new InputSource(next));
+                }
+            } finally {
+                parseQueue.add(FINISHED);
+                try {
+                    r.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
     }
 
 }
