@@ -568,6 +568,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
                                     binaryContent = Long.toString(rs.getLong(outputFieldLabels[i])).getBytes();
                             }
                             break;
+                        case Types.TIMESTAMP:
                         case Types.DATE:
                             String dateString = rs.getString(outputFieldLabels[i]);
                             if (dateString != null) {
@@ -637,6 +638,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
                                     binaryContent = new ByteArrayInputStream(Long.toString(rs.getLong(outputFieldLabels[i])).getBytes());
                             }
                             break;
+                        case Types.TIMESTAMP:
                         case Types.DATE:
                             String dateString = rs.getString(outputFieldLabels[i]);
                             if (dateString != null) {
