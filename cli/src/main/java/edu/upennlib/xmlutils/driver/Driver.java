@@ -18,6 +18,8 @@ package edu.upennlib.xmlutils.driver;
 
 import edu.upennlib.paralleltransformer.JoiningXMLFilter;
 import edu.upennlib.paralleltransformer.SplittingXMLFilter;
+import edu.upennlib.paralleltransformer.TXMLFilter;
+import edu.upennlib.xmlutils.DumpingContentHandler;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,8 +47,10 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.slf4j.Logger;
@@ -75,7 +79,7 @@ public class Driver {
     /*
     SPLIT OPTIONS
     */
-    private static final List<String> SIZE_ARG = asList("s", "output-size");
+    private static final List<String> SIZE_ARG = asList("s", "chunk-size");
     private static final List<String> SUFFIX_LENGTH_ARG = asList("l", "suffix-length");
     private static final String ADDITIONAL_SUFFIX_ARG = "additional-suffix";
 
@@ -89,6 +93,7 @@ public class Driver {
     PROCESS OPTIONS
     */
     private static final List<String> INPUT_FILE_TYPE_ARG = asList("t", "input-file-type");
+    private static final List<String> XSL_FILE_ARG = asList("x", "xsl");
     
     private final OptionParser parser;
     private final Command command;
@@ -121,7 +126,7 @@ public class Driver {
 
     static class SpecStruct {
 
-        private OptionSpec<Integer> outputSizeSpec;
+        private OptionSpec<Integer> chunkSizeSpec;
         private OptionSpec<Integer> suffixSizeSpec;
         private OptionSpec<String> additionalSuffixSpec;
         
@@ -129,6 +134,7 @@ public class Driver {
         private OptionSpec<String> inputDelimiterSpec;
     
         private OptionSpec<InputFileType> inputFileTypeSpec;
+        private OptionSpec<File> xslFileSpec;
     
         private OptionSpec<File> inputFileSpec;
         private OptionSpec<File> outputFileSpec;
@@ -138,8 +144,8 @@ public class Driver {
     }
     
     private static OptionParser configureSplitParser(OptionParser parser, SpecStruct specs) {
-        specs.outputSizeSpec = parser.acceptsAll(SIZE_ARG).withRequiredArg().ofType(Integer.class)
-                .describedAs("size (in records) of output files").defaultsTo(100);
+        specs.chunkSizeSpec = parser.acceptsAll(SIZE_ARG).withRequiredArg().ofType(Integer.class)
+                .describedAs("size (in records) of output files or processing chunks for xsl transforms").defaultsTo(100);
         specs.suffixSizeSpec = parser.acceptsAll(SUFFIX_LENGTH_ARG, "size of incremented suffix")
                 .withRequiredArg().ofType(Integer.class).defaultsTo(5);
         specs.additionalSuffixSpec = parser.accepts(ADDITIONAL_SUFFIX_ARG, "optional additional suffix")
@@ -159,6 +165,8 @@ public class Driver {
         configureJoinParser(parser, specs);
         specs.inputFileTypeSpec = parser.acceptsAll(INPUT_FILE_TYPE_ARG, "input file type").withRequiredArg()
                 .ofType(InputFileType.class).describedAs(asList(InputFileType.values()).toString()).defaultsTo(InputFileType.direct);
+        specs.xslFileSpec = parser.acceptsAll(XSL_FILE_ARG, "xsl file").withRequiredArg()
+                .ofType(File.class);
                
         return parser;
     }
@@ -186,7 +194,7 @@ public class Driver {
         verbose = options.has(specs.verboseSpec);
         help = options.has(specs.helpSpec);
         
-        outputSize = getValue(options, specs.outputSizeSpec, -1);
+        chunkSize = getValue(options, specs.chunkSizeSpec, -1);
         suffixSize = getValue(options, specs.suffixSizeSpec, -1);
         additionalSuffix = getValue(options, specs.additionalSuffixSpec, null);
         
@@ -198,6 +206,7 @@ public class Driver {
         }
     
         inputFileType = getValue(options, specs.inputFileTypeSpec, null);
+        xsl = getValue(options, specs.xslFileSpec, null);
         
     }
     
@@ -233,7 +242,7 @@ public class Driver {
     private boolean verbose;
     private boolean help;
     
-    private int outputSize;
+    private int chunkSize;
     private int suffixSize;
     private String additionalSuffix;
     
@@ -241,6 +250,7 @@ public class Driver {
     private String inputDelimiter;
     
     private InputFileType inputFileType;
+    private File xsl;
     
     private class HelpCommand extends Command {
 
@@ -340,7 +350,7 @@ public class Driver {
             }
             try {
                 SplittingXMLFilter sxf = new SplittingXMLFilter();
-                sxf.setChunkSize(outputSize);
+                sxf.setChunkSize(chunkSize);
                 SAXParserFactory spf = SAXParserFactory.newInstance();
                 spf.setNamespaceAware(true);
                 SAXParser saxParser = spf.newSAXParser();
@@ -382,9 +392,61 @@ public class Driver {
     private class ProcessCommand extends Command {
         @Override
         public void run() {
-            
+            Reader r;
+            InputSource source;
+            OutputStream out = null;
+            if (inputFile == null || "-".equals(inputFile.getPath())) {
+                r = new InputStreamReader(System.in);
+                source = new InputSource(r);
+            } else {
+                try {
+                    r = new FileReader(inputFile);
+                } catch (FileNotFoundException ex) {
+                    throw new RuntimeException(ex);
+                }
+                source = new InputSource(r);
+                source.setSystemId(inputFile.getAbsolutePath());
+            }
+            try {
+                TXMLFilter txf = new TXMLFilter(new StreamSource(xsl));
+                SAXParserFactory spf = SAXParserFactory.newInstance();
+                spf.setNamespaceAware(true);
+                txf.setParent(spf.newSAXParser().getXMLReader());
+                txf.setChunkSize(chunkSize);
+                txf.setExecutor(Executors.newCachedThreadPool());
+                StreamResult res = new StreamResult();
+                if (outputFile == null || "-".equals(outputFile.getPath())) {
+                    out = System.out;
+                    res.setOutputStream(out);
+                } else {
+                    out = new BufferedOutputStream(new FileOutputStream(outputFile));
+                    res.setOutputStream(out);
+                    res.setSystemId(outputFile);
+                }
+                Transformer t = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null).newTransformer();
+                t.transform(new SAXSource(txf, source), res);
+            } catch (TransformerConfigurationException ex) {
+                throw new RuntimeException(ex);
+            } catch (TransformerException ex) {
+                throw new RuntimeException(ex);
+            } catch (FileNotFoundException ex) {
+                throw new RuntimeException(ex);
+            } catch (ParserConfigurationException ex) {
+                throw new RuntimeException(ex);
+            } catch (SAXException ex) {
+                throw new RuntimeException(ex);
+            } finally {
+                try {
+                    r.close();
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
         }
-        
+
         @Override
         protected OptionParser configure(OptionParser parser, SpecStruct specs) {
             return configureProcessParser(parser, specs);

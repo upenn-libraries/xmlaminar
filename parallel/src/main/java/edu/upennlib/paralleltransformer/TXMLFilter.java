@@ -16,13 +16,17 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.xmlutils.DumpingContentHandler;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
@@ -46,9 +50,12 @@ import org.xml.sax.XMLReader;
  */
 public class TXMLFilter extends JoiningXMLFilter {
 
+    private static final int DEFAULT_CHUNK_SIZE = 100;
+    
     private final ProcessingQueue<Chunk> pq;
     private final Templates templates;
     private final SplittingXMLFilter splitter = new SplittingXMLFilter();
+    private int chunkSize = DEFAULT_CHUNK_SIZE;
     private static final Logger logger = Logger.getLogger(TXMLFilter.class);
     private ExecutorService executor;
 
@@ -74,14 +81,28 @@ public class TXMLFilter extends JoiningXMLFilter {
 
     private XMLReader externalParent;
 
+    @Override
     public ExecutorService getExecutor() {
         return executor;
     }
 
+    @Override
     public void setExecutor(ExecutorService executor) {
+        pq.setWorkExecutor(executor);
         this.executor = executor;
     }
 
+    public int getChunkSize() {
+        return chunkSize;
+    }
+
+    public void setChunkSize(int chunkSize) {
+        if (chunkSize < 1) {
+            throw new IllegalArgumentException("chunk size "+chunkSize+" < 1");
+        }
+        this.chunkSize = chunkSize;
+    }
+    
     @Override
     public XMLReader getParent() {
         return externalParent;
@@ -93,10 +114,40 @@ public class TXMLFilter extends JoiningXMLFilter {
         super.setParent(parent);
     }
 
+    private static class FutureExceptionPropogator implements Runnable {
+
+        private final Thread propogateTo;
+        private final Future<?> future;
+        
+        private FutureExceptionPropogator(Thread propogateTo, Future<?> future) {
+            this.propogateTo = propogateTo;
+            this.future = future;
+        }
+        
+        @Override
+        public void run() {
+            try {
+                future.get();
+            } catch (InterruptedException ex) {
+                ex.printStackTrace(System.err);
+                future.cancel(true);
+            } catch (ExecutionException ex) {
+                ex.printStackTrace(System.err);
+                propogateTo.interrupt();
+            }
+        }
+        
+    }
+    
+    private static final AtomicInteger asdlfkj = new AtomicInteger(0);
+    
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
-        executor.submit(new ProducerCallable(input, Thread.currentThread()));
+        Future<Void> producerFuture = executor.submit(new ProducerCallable(input));
+        executor.submit(new FutureExceptionPropogator(Thread.currentThread(), producerFuture));
+        int blah = 0;
         while (!pq.isFinished()) {
+            System.out.println("try output chunk "+blah++);
             try {
                 Chunk nextOut = pq.nextOut();
                 nextOut.writeOutputTo(TXMLFilter.this);
@@ -105,6 +156,7 @@ public class TXMLFilter extends JoiningXMLFilter {
                 throw new RuntimeException(ex);
             }
         }
+        System.out.println("finished");
         finished();
     }
 
@@ -112,43 +164,24 @@ public class TXMLFilter extends JoiningXMLFilter {
     private class ProducerCallable implements Callable<Void> {
 
         private final InputSource input;
-        private final Thread parentThread;
 
-        private ProducerCallable(InputSource input, Thread parentThread) {
+        private ProducerCallable(InputSource input) {
             this.input = input;
-            this.parentThread = parentThread;
         }
 
         @Override
         public Void call() throws SAXException, IOException {
-            Thread currentThread = Thread.currentThread();
-            currentThread.setUncaughtExceptionHandler(new TargetedUncaughtExceptionHandler(currentThread.getUncaughtExceptionHandler(), parentThread));
             TXMLFilter.super.setParent(splitter);
+            splitter.setExecutor(executor);
             splitter.setParent(externalParent);
             splitter.setDTDHandler(TXMLFilter.this);
             splitter.setEntityResolver(TXMLFilter.this);
             splitter.setXMLReaderCallback(callback);
+            splitter.setChunkSize(chunkSize);
+            pq.reset();
             TXMLFilter.super.parse(input);
             pq.finished();
             return null;
-        }
-
-    }
-
-    private static class TargetedUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
-
-        private final Thread.UncaughtExceptionHandler restore;
-        private final Thread target;
-
-        private TargetedUncaughtExceptionHandler(Thread.UncaughtExceptionHandler restore, Thread target) {
-            this.restore = restore;
-            this.target = target;
-        }
-
-        @Override
-        public void uncaughtException(Thread t, Throwable e) {
-            target.interrupt();
-            t.setUncaughtExceptionHandler(restore);
         }
 
     }
@@ -182,6 +215,8 @@ public class TXMLFilter extends JoiningXMLFilter {
             UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput();
             reader.setContentHandler(inputBuffer);
             reader.setErrorHandler(inputBuffer);
+            inputBuffer.setUnmodifiableParent(reader);
+            
             if (input != null) {
                 reader.parse(input);
             } else {

@@ -19,6 +19,10 @@ package edu.upennlib.paralleltransformer;
 import edu.upennlib.xmlutils.SplittingXMLFilter;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -28,6 +32,8 @@ import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
 /**
  *

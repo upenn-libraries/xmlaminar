@@ -64,7 +64,7 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
     void insert(Node<T> node) {
         AtomicBoolean preTmp;
         do {
-            while (!(preTmp = previous.post).compareAndSet(false, true)) {
+            while (previous != null ? !(preTmp = previous.post).compareAndSet(false, true) : (preTmp = null) != null) {
             }
         } while (!pre.compareAndSet(false, true) && strictSetFalse(preTmp));
         node.next = this;
@@ -76,7 +76,15 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
     }
 
     private static boolean strictSetFalse(AtomicBoolean b) {
-        if (!b.compareAndSet(true, false)) {
+        return strictSetFalse(b, false);
+    }
+
+    private static boolean strictSetFalse(AtomicBoolean b, boolean acceptNull) {
+        if (b == null) {
+            if (!acceptNull) {
+                throw new IllegalStateException();
+            }
+        } else if (!b.compareAndSet(true, false)) {
             throw new IllegalStateException();
         }
         return true;
@@ -109,16 +117,21 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
         do {
             do {
                 do {
-                    while (!(preTmp = previous.post).compareAndSet(false, true)) {
+                    while (previous != null ? !(preTmp = previous.post).compareAndSet(false, true) : (preTmp = null) != null) {
                     }
-                } while (!(postTmp = next.pre).compareAndSet(false, true) && strictSetFalse(preTmp));
-            } while (!pre.compareAndSet(false, true) && strictSetFalse(preTmp) && strictSetFalse(postTmp));
-        } while (!post.compareAndSet(false, true) && strictSetFalse(preTmp) && strictSetFalse(postTmp) && strictSetFalse(pre));
-        next.previous = previous;
-        previous.next = next;
-        strictSetFalse(preTmp);
+                } while (next != null ? !(postTmp = next.pre).compareAndSet(false, true) && strictSetFalse(preTmp, true)
+                        : (postTmp = null) != null);
+            } while (!pre.compareAndSet(false, true) && strictSetFalse(preTmp, true) && strictSetFalse(postTmp, true));
+        } while (!post.compareAndSet(false, true) && strictSetFalse(preTmp, true) && strictSetFalse(postTmp, true) && strictSetFalse(pre));
+        if (next != null) {
+            next.previous = previous;
+        }
+        if (previous != null) {
+            previous.next = next;
+        }
+        strictSetFalse(preTmp, true);
         strictSetFalse(pre);
-        strictSetFalse(postTmp);
+        strictSetFalse(postTmp, true);
         strictSetFalse(post);
         reset();
     }
@@ -128,14 +141,19 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
         switch (state) {
             case HAS_INPUT:
                 processingQueue.addToWorkQueue(value);
+                break;
             case HAS_SUBDIVIDED_INPUT:
                 processingQueue.addToHeadOfWorkQueue(value);
+                break;
             case HAS_OUTPUT:
                 setWorkComplete();
+                break;
             case FAILED:
                 failed();
+                break;
             case READY:
                 remove();
+                break;
         }
     }
 

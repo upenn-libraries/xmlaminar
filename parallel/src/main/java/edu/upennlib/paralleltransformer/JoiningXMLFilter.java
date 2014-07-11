@@ -202,7 +202,7 @@ public class JoiningXMLFilter extends XMLFilterImpl {
     }
     
     @Override
-    public void parse(final InputSource input) throws SAXException, IOException {
+    public void parse(InputSource input) throws SAXException, IOException {
         reset();
         initParse();
         Runnable parseQueueRunner = new ParseQueueRunner(input);
@@ -210,11 +210,12 @@ public class JoiningXMLFilter extends XMLFilterImpl {
         InputSource next;
         try {
             if ((next = parseQueue.take()) != FINISHED) {
+                System.out.println("here");
                 setupParse(initialEventContentHandler);
-                super.parse(next);
+                super.getParent().parse(next);
                 while ((next = parseQueue.take()) != FINISHED) {
                     setupParse(devNullContentHandler);
-                    super.parse(next);
+                    super.getParent().parse(next);
                 }
                 finished();
             }

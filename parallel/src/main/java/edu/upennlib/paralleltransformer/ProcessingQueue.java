@@ -51,7 +51,6 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
     private volatile boolean finished = false;
 
     public ProcessingQueue(int size, T templateInstance) {
-        System.out.println(head+", "+tail);
         mainPool = new ArrayBlockingQueue<Node<T>>(size);
         for (int i = 0; i < size; i++) {
             mainPool.add(newNode(templateInstance, mainPool));
@@ -122,7 +121,7 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
                 headLock.unlock();
             }
         }
-        next.remove();
+        // next.remove(); double-called when state set to READY
         return next.getChild();
     }
 
@@ -164,8 +163,10 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
 
     void reset() {
         Set<Future<?>> toCancel = initializeCompletionService();
-        for (Future<?> future : toCancel) {
-            future.cancel(true);
+        if (toCancel != null) {
+            for (Future<?> future : toCancel) {
+                future.cancel(true);
+            }
         }
         finished = false;
     }
@@ -175,11 +176,11 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
     }
 
     public boolean isFinished() {
-        return finished || !isEmpty();
+        return finished && isEmpty();
     }
 
     private boolean isEmpty() {
-        return tail.getNext() == head;
+        return head.getNext() == tail;
     }
 
 }

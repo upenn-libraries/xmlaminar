@@ -60,7 +60,7 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
 
     private Logger logger = Logger.getLogger(getClass());
     
-    private XMLReader unmodifiableParent;
+    private volatile XMLReader unmodifiableParent;
 
     private boolean parentModifiable = true;
 
@@ -74,6 +74,7 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
     
     public void setUnmodifiableParent(XMLReader parent) {
         unmodifiableParent = parent;
+        parentModifiable = false;
     }
 
     @Override
@@ -106,16 +107,9 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
     }
 
     public UnboundedContentHandlerBuffer() {
-        int initialBufferSize = INITIAL_BUFFER_SIZE;
-        events = new SaxEventType[initialBufferSize];
-        argIndex1 = new int[initialBufferSize];
-        argIndex2 = new int[initialBufferSize];
-        stringArgBuffer = new String[initialBufferSize * STRING_ARGS_INIT_FACTOR];
-        attsArgBuffer = new AttributesImpl[initialBufferSize];
-        intArgBuffer = new int[initialBufferSize * INT_ARGS_INIT_FACTOR];
-        charArgBuffer = new char[initialBufferSize * CHAR_BUFFER_INIT_FACTOR];
+        this(INITIAL_BUFFER_SIZE);
     }
-
+    
     public UnboundedContentHandlerBuffer(int initialBufferSize) {
         events = new SaxEventType[initialBufferSize];
         argIndex1 = new int[initialBufferSize];

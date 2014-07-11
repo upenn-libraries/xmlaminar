@@ -72,16 +72,27 @@ public class DumpingContentHandler extends XMLFilterImpl implements LexicalHandl
         dump = dumpFile != null;
         this.df = dumpFile;
     }
+    
+    public void setDumpStream(OutputStream dumpOut) {
+        dump = dumpOut != null;
+        this.dfOut = dumpOut;
+    }
 
+    public OutputStream getDumpStream() {
+        return dfOut;
+    }
+    
     private void initDump() {
         SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS, null);
         try {
             dfHandler = stf.newTransformerHandler();
             dfHandler.getTransformer().setOutputProperty(OutputKeys.INDENT, "yes");
-            if (df.getName().endsWith(".gz")) {
-                dfOut = new GZIPOutputStream(new FileOutputStream(df));
-            } else {
-                dfOut = new BufferedOutputStream(new FileOutputStream(df));
+            if (dfOut == null && df != null) {
+                if (df.getName().endsWith(".gz")) {
+                    dfOut = new GZIPOutputStream(new FileOutputStream(df));
+                } else {
+                    dfOut = new BufferedOutputStream(new FileOutputStream(df));
+                }
             }
             dfHandler.setResult(new StreamResult(dfOut));
         } catch (TransformerConfigurationException ex) {
@@ -116,10 +127,12 @@ public class DumpingContentHandler extends XMLFilterImpl implements LexicalHandl
     public void endDocument() throws SAXException {
         super.endDocument();
         dfHandler.endDocument();
-        try {
-            dfOut.close();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+        if (df != null) {
+            try {
+                dfOut.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
