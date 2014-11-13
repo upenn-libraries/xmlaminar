@@ -16,31 +16,18 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.xmlutils.DevNullContentHandler;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.Scanner;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
-import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
@@ -56,16 +43,13 @@ import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
  * @author Michael Gibney
  */
-public class JoiningXMLFilter extends XMLFilterImpl {
+public class JoiningXMLFilter extends QueueSourceXMLFilter {
 
-    public static final InputSource FINISHED = new InputSource();
-    public static final String RESET_PROPERTY_NAME = "http://xml.org/sax/features/reset";
     protected static final ContentHandler devNullContentHandler = new DevNullContentHandler();
     private static final int RECORD_LEVEL = 1;
 
@@ -73,10 +57,6 @@ public class JoiningXMLFilter extends XMLFilterImpl {
     protected final ContentHandler initialEventContentHandler = new InitialEventContentHandler();
     private final ArrayDeque<StructuralStartEvent> startEvents = new ArrayDeque<StructuralStartEvent>();
     private ContentHandler outputContentHandler;
-    private ExecutorService executor;
-
-    private static final Pattern DEFAULT_DELIMITER_PATTERN = Pattern.compile(System.lineSeparator(), Pattern.LITERAL);
-    private Pattern delimiterPattern = DEFAULT_DELIMITER_PATTERN;
 
     public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, IOException, TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
@@ -167,85 +147,31 @@ public class JoiningXMLFilter extends XMLFilterImpl {
         super.endPrefixMapping(prefix);
     }
 
-    public void setDelimiterPattern(Pattern p) {
-        delimiterPattern = p;
-    }
-
-    public Pattern getDelimiterPattern() {
-        return delimiterPattern;
-    }
-
-    public ExecutorService getExecutor() {
-        return executor;
-    }
-
-    public void setExecutor(ExecutorService executor) {
-        this.executor = executor;
-    }
-
-    private Future<?> parseQueueSupplier;
-
-    private void initParse() {
-        if (parseQueue == null) {
-            setParseQueue(new ArrayBlockingQueue<InputSource>(10, false));
-        }
-        if (executor == null) {
-            executor = Executors.newFixedThreadPool(1, new ThreadFactory() {
-
-                @Override
-                public Thread newThread(Runnable r) {
-                    Thread t = new Thread(r);
-                    t.setDaemon(true);
-                    return t;
-                }
-            });
-        }
-    }
-    
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
         reset();
-        initParse();
-        Runnable parseQueueRunner = new ParseQueueRunner(input);
-        parseQueueSupplier = executor.submit(parseQueueRunner);
-        InputSource next;
-        try {
-            if ((next = parseQueue.take()) != FINISHED) {
-                setupParse(initialEventContentHandler);
-                super.getParent().parse(next);
-                while ((next = parseQueue.take()) != FINISHED) {
-                    setupParse(devNullContentHandler);
-                    super.getParent().parse(next);
-                }
-                finished();
-            }
-        } catch (InterruptedException ex) {
-            throw new SAXException(ex);
-        }
+        super.parse(input);
+    }
+    
+    @Override
+    public void parse(String systemId) throws SAXException, IOException {
+        reset();
+        super.parse(systemId);
     }
 
     @Override
-    public void parse(String systemId) throws SAXException, IOException {
-        throw new UnsupportedOperationException("not yet implemented");
+    public void initialParse() {
+        setupParse(initialEventContentHandler);
+    }
+    
+    @Override
+    public void repeatParse() {
+        setupParse(devNullContentHandler);
     }
 
-    private BlockingQueue<InputSource> parseQueue;
-
-    public void setParseQueue(BlockingQueue<InputSource> queue) {
-        parseQueue = queue;
-    }
-
-    protected final boolean setupParse(ContentHandler handler) {
-        super.setDTDHandler(this);
-        super.setEntityResolver(this);
-        super.setErrorHandler(this);
-        super.setContentHandler(handler);
-        return true;
-    }
-
+    @Override
     public void finished() throws SAXException {
         super.setContentHandler(outputContentHandler);
-        System.out.println("set outputCH, "+startEvents.size());
         Iterator<StructuralStartEvent> iter = startEvents.iterator();
         while (iter.hasNext()) {
             StructuralStartEvent next = iter.next();
@@ -342,102 +268,6 @@ public class JoiningXMLFilter extends XMLFilterImpl {
         public void skippedEntity(String name) throws SAXException {
         }
 
-    }
-
-    private static class DevNullContentHandler implements ContentHandler {
-
-        @Override
-        public void setDocumentLocator(Locator locator) {
-        }
-
-        @Override
-        public void startDocument() throws SAXException {
-        }
-
-        @Override
-        public void endDocument() throws SAXException {
-        }
-
-        @Override
-        public void startPrefixMapping(String prefix, String uri) throws SAXException {
-        }
-
-        @Override
-        public void endPrefixMapping(String prefix) throws SAXException {
-        }
-
-        @Override
-        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-        }
-
-        @Override
-        public void endElement(String uri, String localName, String qName) throws SAXException {
-        }
-
-        @Override
-        public void characters(char[] ch, int start, int length) throws SAXException {
-        }
-
-        @Override
-        public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
-        }
-
-        @Override
-        public void processingInstruction(String target, String data) throws SAXException {
-        }
-
-        @Override
-        public void skippedEntity(String name) throws SAXException {
-        }
-
-    }
-
-    private class ParseQueueRunner implements Runnable {
-
-        private final InputSource input;
-
-        public ParseQueueRunner(InputSource input) {
-            this.input = input;
-        }
-
-        @Override
-        public void run() {
-            Reader r;
-            if ((r = input.getCharacterStream()) == null) {
-                InputStream in;
-                if ((in = input.getByteStream()) != null) {
-                    try {
-                        r = new InputStreamReader(in, input.getEncoding());
-                    } catch (UnsupportedEncodingException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                } else {
-                    try {
-                        r = new BufferedReader(new InputStreamReader(new URI(input.getSystemId()).toURL().openStream(), input.getEncoding()));
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (URISyntaxException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-            }
-            try {
-                Scanner s = new Scanner(r);
-                s.useDelimiter(delimiterPattern);
-                String next;
-                while (s.hasNext()) {
-                    next = s.next();
-                    parseQueue.add(new InputSource(next));
-                }
-            } finally {
-                parseQueue.add(FINISHED);
-                try {
-                    r.close();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-        }
     }
 
 }
