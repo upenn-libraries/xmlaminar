@@ -37,6 +37,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import net.sf.saxon.event.ReceivingContentHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.impl.SimpleLogger;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -50,6 +53,7 @@ import org.xml.sax.XMLReader;
  */
 public class JoiningXMLFilter extends QueueSourceXMLFilter {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JoiningXMLFilter.class);
     protected static final ContentHandler devNullContentHandler = new DevNullContentHandler();
     private static final int RECORD_LEVEL = 1;
 
@@ -61,63 +65,18 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter {
     public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, IOException, TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
-        File inFile = new File("franklin-small-dump.xml");
+        File inFile = new File("input.txt");
         InputSource in = new InputSource(new BufferedInputStream(new FileInputStream(inFile)));
-        JoiningXMLFilterImpl joiner = new JoiningXMLFilterImpl();
-        OutputStream out = new BufferedOutputStream(new FileOutputStream("split-joined.xml"));
+        JoiningXMLFilter joiner = new JoiningXMLFilter();
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
+        joiner.setParent(spf.newSAXParser().getXMLReader());
+        OutputStream out = System.out;
         try {
             t.transform(new SAXSource(joiner, in), new StreamResult(out));
         } finally {
             out.close();
-            joiner.shutdown();
-        }
-    }
-
-    private static class JoiningXMLFilterImpl extends JoiningXMLFilter {
-
-        private final SplittingXMLFilter splitter;
-
-        public void shutdown() {
-            splitter.getExecutor().shutdown();
-        }
-
-        public JoiningXMLFilterImpl() throws ParserConfigurationException, SAXException {
-            splitter = new SplittingXMLFilter();
-            splitter.setExecutor(Executors.newCachedThreadPool());
-            setParent(splitter);
-            SAXParserFactory spf = SAXParserFactory.newInstance();
-            spf.setNamespaceAware(true);
-            splitter.setParent(spf.newSAXParser().getXMLReader());
-            splitter.setXMLReaderCallback(new SplittingXMLFilter.XMLReaderCallback() {
-
-                @Override
-                public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-                    reader.setContentHandler(JoiningXMLFilterImpl.this);
-                    reader.parse(input);
-                }
-
-                @Override
-                public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-                    reader.setContentHandler(JoiningXMLFilterImpl.this);
-                    reader.parse(systemId);
-                }
-            });
-        }
-
-        @Override
-        public void parse(InputSource input) throws SAXException, IOException {
-            SplittingXMLFilter parent = (SplittingXMLFilter) getParent();
-            parent.setContentHandler(this);
-            parent.setDTDHandler(this);
-            parent.setEntityResolver(this);
-            parent.setErrorHandler(this);
-            super.parse(input);
-            finished();
-        }
-
-        @Override
-        public void parse(String systemId) throws SAXException, IOException {
-            throw new UnsupportedOperationException("Not supported yet.");
+            joiner.getExecutor().shutdown();
         }
     }
 
@@ -186,15 +145,6 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter {
                     super.endElement(next.one, next.two, next.three);
             }
         }
-    }
-
-    @Override
-    public void startDocument() throws SAXException {
-        System.out.println(super.getContentHandler());
-        if (super.getContentHandler().getClass().equals(ReceivingContentHandler.class)) {
-            Thread.dumpStack();
-        }
-        super.startDocument();
     }
 
     @Override

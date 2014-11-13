@@ -7,13 +7,38 @@
   <version>1.3-SNAPSHOT</version>
   <name>${project.artifactId}-${version}</name>
   <url>http://maven.apache.org</url>
-    <parent>
+<!--    <parent>
         <groupId>edu.upennlib</groupId>
         <artifactId>upenn-parent-project</artifactId>
         <version>0.13</version>
-    </parent>
+    </parent>-->
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <id>create-project-bundle</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>dist</outputDirectory>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <archive>
+                                <manifestEntries>
+                                    <Main-Class>edu.upennlib.paralleltransformer.JoiningXMLFilter</Main-Class>
+                                    <Class-Path>./</Class-Path>
+                                </manifestEntries>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -59,6 +84,12 @@
             <groupId>net.sf.saxon</groupId>
             <artifactId>saxon</artifactId>
             <version>9.4.0.3</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.7</version>
             <type>jar</type>
         </dependency>
     </dependencies>

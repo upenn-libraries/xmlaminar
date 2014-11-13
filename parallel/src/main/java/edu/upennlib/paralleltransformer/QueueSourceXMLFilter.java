@@ -16,18 +16,15 @@
 
 package edu.upennlib.paralleltransformer;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -36,13 +33,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
@@ -54,6 +52,7 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     public static final InputSource FINISHED = new InputSource();
     public static final String RESET_PROPERTY_NAME = "http://xml.org/sax/features/reset";
     private static final Pattern DEFAULT_DELIMITER_PATTERN = Pattern.compile(System.lineSeparator(), Pattern.LITERAL);
+    private static final Logger LOG = LoggerFactory.getLogger(QueueSourceXMLFilter.class);
     public static enum InputType { direct, indirect }
     public static InputType DEFAULT_INPUT_TYPE = InputType.indirect;
 
@@ -63,10 +62,7 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     private Pattern delimiterPattern = DEFAULT_DELIMITER_PATTERN;
 
     public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, IOException, TransformerException {
-        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-        Transformer t = tf.newTransformer();
-        File inFile = new File("franklin-small-dump.xml");
-        InputSource in = new InputSource(new BufferedInputStream(new FileInputStream(inFile)));
+        JoiningXMLFilter.main(args);
     }
 
     public void setDelimiterPattern(Pattern p) {
@@ -120,8 +116,13 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
             setParseQueue(new ArrayBlockingQueue<InputSource>(10, false));
         }
         if (executor == null) {
-            executor = Executors.newFixedThreadPool(2);
+            executor = Executors.newFixedThreadPool(1);
         }
+        XMLReader parent = getParent();
+        parent.setDTDHandler(this);
+        parent.setEntityResolver(this);
+        parent.setErrorHandler(this);
+        parent.setContentHandler(this);
     }
     
     @Override
@@ -140,20 +141,28 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
                 }
                 finished();
             }
-        } catch (InterruptedException ex) {
-            throw new SAXException(ex);
+        } catch (Throwable ex) {
+            if (producerThrowable == null) {
+                consumerThrowable = ex;
+                parseQueueSupplier.cancel(true);
+                throw new RuntimeException(ex);
+            } else {
+                ex = producerThrowable;
+                producerThrowable = null;
+                throw new RuntimeException(ex);
+            }
         }
     }
 
+    private volatile Throwable producerThrowable;
+    private volatile Throwable consumerThrowable;
+    
     @Override
     public void parse(String systemId) throws SAXException, IOException {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
     protected final boolean setupParse(ContentHandler handler) {
-        super.setDTDHandler(this);
-        super.setEntityResolver(this);
-        super.setErrorHandler(this);
         super.setContentHandler(handler);
         return true;
     }
@@ -161,47 +170,41 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     private class ParseQueueRunner implements Runnable {
 
         private final InputSource input;
-        private final Thread propogateThrowableTo;
+        private final Thread consumer;
 
         public ParseQueueRunner(InputSource input, Thread propogateThrowableTo) {
             this.input = input;
-            this.propogateThrowableTo = propogateThrowableTo;
+            this.consumer = propogateThrowableTo;
         }
 
-        public void handleInput() {
+        public void handleInput() throws IOException, InterruptedException, URISyntaxException {
             Reader r;
             if ((r = input.getCharacterStream()) == null) {
                 InputStream in;
+                String charsetName = input.getEncoding();
+                Charset encoding = (charsetName == null ? Charset.defaultCharset() : Charset.forName(charsetName));
                 if ((in = input.getByteStream()) != null) {
-                    try {
-                        r = new InputStreamReader(in, input.getEncoding());
-                    } catch (UnsupportedEncodingException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    r = new InputStreamReader(in, encoding);
                 } else {
-                    try {
-                        r = new BufferedReader(new InputStreamReader(new URI(input.getSystemId()).toURL().openStream(), input.getEncoding()));
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (URISyntaxException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    r = new BufferedReader(new InputStreamReader(new URI(input.getSystemId()).toURL().openStream(), encoding));
                 }
             }
+            boolean interrupted = false;
             try {
                 Scanner s = new Scanner(r);
                 s.useDelimiter(delimiterPattern);
                 String next;
                 while (s.hasNext()) {
                     next = s.next();
-                    parseQueue.add(new InputSource(next));
+                    parseQueue.put(new InputSource(next));
                 }
+            } catch (InterruptedException ex) {
+                interrupted = true;
+                throw ex;
             } finally {
-                parseQueue.add(FINISHED);
-                try {
-                    r.close();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
+                r.close();
+                if (!interrupted) {
+                    parseQueue.put(FINISHED);
                 }
             }
         }
@@ -211,8 +214,14 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
             try {
                 handleInput();
             } catch (Throwable t) {
-                t.printStackTrace(System.err);
-                propogateThrowableTo.interrupt();
+                if (consumerThrowable == null) {
+                    producerThrowable = t;
+                    consumer.interrupt();
+                } else {
+                    t = consumerThrowable;
+                    consumerThrowable = null;
+                    throw new RuntimeException(t);
+                }
             }
         }
     }
