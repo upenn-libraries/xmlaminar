@@ -25,6 +25,8 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -74,6 +76,9 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     }
     
     public void setInputType(InputType type) {
+        if (type == null) {
+            throw new IllegalArgumentException("inputType must not be null");
+        }
         inputType = type;
     }
 
@@ -87,6 +92,20 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
 
     public void setExecutor(ExecutorService executor) {
         this.executor = executor;
+    }
+    
+    public void shutdown() {
+        if (executor != null) {
+            executor.shutdown();
+        }
+    }
+    
+    public List<Runnable> shutdownNow() {
+        if (executor == null) {
+            return Collections.EMPTY_LIST;
+        } else {
+            return executor.shutdownNow();
+        }
     }
 
     /**
@@ -111,24 +130,14 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
 
     private Future<?> parseQueueSupplier;
 
-    private void initParse() {
+    private void initProducer(InputSource input) {
         if (parseQueue == null) {
             setParseQueue(new ArrayBlockingQueue<InputSource>(10, false));
         }
         if (executor == null) {
             executor = Executors.newFixedThreadPool(1);
         }
-        XMLReader parent = getParent();
-        parent.setDTDHandler(this);
-        parent.setEntityResolver(this);
-        parent.setErrorHandler(this);
-        parent.setContentHandler(this);
-    }
-    
-    @Override
-    public void parse(InputSource input) throws SAXException, IOException {
-        initParse();
-        Runnable parseQueueRunner = new ParseQueueRunner(input, Thread.currentThread());
+        Runnable parseQueueRunner = new ParseQueueSupplier(input, Thread.currentThread());
         parseQueueSupplier = executor.submit(parseQueueRunner);
         InputSource next;
         try {
@@ -153,6 +162,31 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
             }
         }
     }
+    
+    private void setupParseLocal() {
+        XMLReader parent = getParent();
+        parent.setDTDHandler(this);
+        parent.setEntityResolver(this);
+        parent.setErrorHandler(this);
+        parent.setContentHandler(this);
+    }
+    
+    @Override
+    public void parse(InputSource input) throws SAXException, IOException {
+        setupParseLocal();
+        switch (inputType) {
+            case direct:
+                initialParse();
+                super.parse(input);
+                finished();
+                break;
+            case indirect:
+                initProducer(input);
+                break;
+            default:
+                throw new IllegalStateException("input type should not be null");
+        }
+    }
 
     private volatile Throwable producerThrowable;
     private volatile Throwable consumerThrowable;
@@ -167,14 +201,14 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         return true;
     }
 
-    private class ParseQueueRunner implements Runnable {
+    private class ParseQueueSupplier implements Runnable {
 
         private final InputSource input;
         private final Thread consumer;
 
-        public ParseQueueRunner(InputSource input, Thread propogateThrowableTo) {
+        public ParseQueueSupplier(InputSource input, Thread consumerThread) {
             this.input = input;
-            this.consumer = propogateThrowableTo;
+            this.consumer = consumerThread;
         }
 
         public void handleInput() throws IOException, InterruptedException, URISyntaxException {

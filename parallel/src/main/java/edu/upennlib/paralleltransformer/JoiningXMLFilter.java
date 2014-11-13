@@ -65,9 +65,10 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter {
     public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, IOException, TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
-        File inFile = new File("input.txt");
+        File inFile = new File("blah.xml");
         InputSource in = new InputSource(new BufferedInputStream(new FileInputStream(inFile)));
         JoiningXMLFilter joiner = new JoiningXMLFilter();
+        joiner.setInputType(InputType.direct);
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         joiner.setParent(spf.newSAXParser().getXMLReader());
@@ -76,7 +77,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter {
             t.transform(new SAXSource(joiner, in), new StreamResult(out));
         } finally {
             out.close();
-            joiner.getExecutor().shutdown();
+            joiner.shutdown();
         }
     }
 
