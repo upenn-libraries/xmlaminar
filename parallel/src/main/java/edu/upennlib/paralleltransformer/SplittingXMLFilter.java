@@ -29,6 +29,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -53,7 +54,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author Michael Gibney
  */
-public class SplittingXMLFilter extends XMLFilterImpl {
+public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
     private static final int DEFAULT_START_INDEX = 0;
     private static final int DEFAULT_SUFFIX_SIZE = 5;
@@ -61,8 +62,7 @@ public class SplittingXMLFilter extends XMLFilterImpl {
     private static final int DEFAULT_CHUNK_SIZE = 100;
     private int chunkSize = DEFAULT_CHUNK_SIZE;
     private volatile boolean parsing = false;
-    private volatile Throwable producerThrowable;
-    private FutureTask<?> producerTask;
+    private Future<?> producerTask;
     private int level = -1;
     private int recordStartEvent = -1;
     private int recordCount = 0;
@@ -70,7 +70,6 @@ public class SplittingXMLFilter extends XMLFilterImpl {
     private final Condition parseContinue = parseLock.newCondition();
     private final Condition parseChunkDone = parseLock.newCondition();
     private final ArrayDeque<StructuralStartEvent> startEventStack = new ArrayDeque<StructuralStartEvent>();
-    private ExecutorService executor;
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, TransformerException, FileNotFoundException, IOException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
@@ -96,20 +95,27 @@ public class SplittingXMLFilter extends XMLFilterImpl {
         repeatParser.setParent(this);
     }
 
-    public ExecutorService getExecutor() {
-        return executor;
-    }
-
-    public void setExecutor(ExecutorService executor) {
-        this.executor = executor;
-    }
-
     public int getChunkSize() {
         return chunkSize;
     }
 
     public void setChunkSize(int size) {
         chunkSize = size;
+    }
+
+    @Override
+    protected void initialParse() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    protected void repeatParse() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    protected void finished() throws SAXException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public static class StaticFileCallback implements XMLReaderCallback {
@@ -246,8 +252,6 @@ public class SplittingXMLFilter extends XMLFilterImpl {
         startEventStack.clear();
     }
 
-    public static final String RESET_PROPERTY_NAME = "http://xml.org/sax/features/reset";
-
     @Override
     public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
         if (RESET_PROPERTY_NAME.equals(name) && value) {
@@ -328,9 +332,8 @@ public class SplittingXMLFilter extends XMLFilterImpl {
 
         private void initParse(InputSource input, String systemId) throws SAXException, IOException {
             SplittingXMLFilter.this.setContentHandler(this);
-            ProducerParser producerParser = new ProducerParser(input, systemId);
-            producerTask = new ProducerFutureTask(producerParser);
-            executor.execute(producerTask);
+            ProducerParser producerParser = new ProducerParser(input, systemId, Thread.currentThread());
+            producerTask = getExecutor().submit(producerParser);
             parseLock.lock();
             try {
                 awaitParseChunkDone();
@@ -438,26 +441,41 @@ public class SplittingXMLFilter extends XMLFilterImpl {
         void callback(XMLReader reader, String systemId) throws SAXException, IOException;
     }
 
-    private class ProducerParser implements Callable<Void> {
+    private class ProducerParser implements Runnable {
 
         private final InputSource input;
         private final String systemId;
+        private final Thread consumer;
 
-        private ProducerParser(InputSource input, String systemId) {
+        private ProducerParser(InputSource input, String systemId, Thread consumer) {
             this.input = input;
             this.systemId = systemId;
+            this.consumer = consumer;
         }
 
         @Override
-        public Void call() throws SAXException, IOException {
-            if (input != null) {
-                SplittingXMLFilter.super.parse(input);
-            } else {
-                SplittingXMLFilter.super.parse(systemId);
+        public void run() {
+            try {
+                if (input != null) {
+                    SplittingXMLFilter.super.parse(input);
+                } else {
+                    SplittingXMLFilter.super.parse(systemId);
+                }
+            } catch (Throwable t) {
+                if (consumerThrowable == null) {
+                    producerThrowable = t;
+                    consumer.interrupt();
+                } else {
+                    t = consumerThrowable;
+                    consumerThrowable = null;
+                    throw new RuntimeException(t);
+                }
             }
-            return null;
         }
     }
+    
+    private volatile Throwable producerThrowable;
+    private volatile Throwable consumerThrowable;
 
     @Override
     public void startDocument() throws SAXException {
