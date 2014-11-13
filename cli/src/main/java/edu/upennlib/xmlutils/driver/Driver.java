@@ -19,7 +19,6 @@ package edu.upennlib.xmlutils.driver;
 import edu.upennlib.paralleltransformer.JoiningXMLFilter;
 import edu.upennlib.paralleltransformer.SplittingXMLFilter;
 import edu.upennlib.paralleltransformer.TXMLFilter;
-import edu.upennlib.xmlutils.DumpingContentHandler;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,10 +35,7 @@ import joptsimple.OptionParser;
 
 import static java.util.Arrays.asList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -47,7 +43,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -57,7 +52,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 /**
  *
@@ -117,7 +111,7 @@ public class Driver {
                 command = new HelpCommand();
                 break;
             default:
-                throw new AssertionError("must implement new command: "+commandType);
+                throw new AssertionError("command not implemented: "+commandType);
         }
         command.configure(parser, specs);
         OptionSet options = parser.parse(commandArgs);
@@ -425,6 +419,7 @@ public class Driver {
                 }
                 Transformer t = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null).newTransformer();
                 t.transform(new SAXSource(txf, source), res);
+                System.out.println("I am here");
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
             } catch (TransformerException ex) {
@@ -439,7 +434,7 @@ public class Driver {
                 try {
                     r.close();
                     if (out != null) {
-                        out.close();
+                        out.flush();
                     }
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);

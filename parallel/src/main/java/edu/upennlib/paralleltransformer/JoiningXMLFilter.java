@@ -49,6 +49,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import net.sf.saxon.event.ReceivingContentHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -63,13 +64,13 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class JoiningXMLFilter extends XMLFilterImpl {
 
-    private static final InputSource FINISHED = new InputSource();
+    public static final InputSource FINISHED = new InputSource();
     public static final String RESET_PROPERTY_NAME = "http://xml.org/sax/features/reset";
-    private static final DevNullContentHandler devNullContentHandler = new DevNullContentHandler();
+    protected static final ContentHandler devNullContentHandler = new DevNullContentHandler();
     private static final int RECORD_LEVEL = 1;
 
     private int level = -1;
-    private final InitialEventContentHandler initialEventContentHandler = new InitialEventContentHandler();
+    protected final ContentHandler initialEventContentHandler = new InitialEventContentHandler();
     private final ArrayDeque<StructuralStartEvent> startEvents = new ArrayDeque<StructuralStartEvent>();
     private ContentHandler outputContentHandler;
     private ExecutorService executor;
@@ -210,7 +211,6 @@ public class JoiningXMLFilter extends XMLFilterImpl {
         InputSource next;
         try {
             if ((next = parseQueue.take()) != FINISHED) {
-                System.out.println("here");
                 setupParse(initialEventContentHandler);
                 super.getParent().parse(next);
                 while ((next = parseQueue.take()) != FINISHED) {
@@ -235,15 +235,17 @@ public class JoiningXMLFilter extends XMLFilterImpl {
         parseQueue = queue;
     }
 
-    private void setupParse(ContentHandler handler) {
+    protected final boolean setupParse(ContentHandler handler) {
         super.setDTDHandler(this);
         super.setEntityResolver(this);
         super.setErrorHandler(this);
         super.setContentHandler(handler);
+        return true;
     }
 
     public void finished() throws SAXException {
         super.setContentHandler(outputContentHandler);
+        System.out.println("set outputCH, "+startEvents.size());
         Iterator<StructuralStartEvent> iter = startEvents.iterator();
         while (iter.hasNext()) {
             StructuralStartEvent next = iter.next();
@@ -262,6 +264,10 @@ public class JoiningXMLFilter extends XMLFilterImpl {
 
     @Override
     public void startDocument() throws SAXException {
+        System.out.println(super.getContentHandler());
+        if (super.getContentHandler().getClass().equals(ReceivingContentHandler.class)) {
+            Thread.dumpStack();
+        }
         super.startDocument();
     }
 

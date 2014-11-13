@@ -16,7 +16,6 @@
 
 package edu.upennlib.paralleltransformer;
 
-import edu.upennlib.xmlutils.DumpingContentHandler;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,7 +25,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
@@ -139,25 +137,22 @@ public class TXMLFilter extends JoiningXMLFilter {
         
     }
     
-    private static final AtomicInteger asdlfkj = new AtomicInteger(0);
-    
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
         Future<Void> producerFuture = executor.submit(new ProducerCallable(input));
         executor.submit(new FutureExceptionPropogator(Thread.currentThread(), producerFuture));
-        int blah = 0;
-        while (!pq.isFinished()) {
-            System.out.println("try output chunk "+blah++);
-            try {
-                Chunk nextOut = pq.nextOut();
-                nextOut.writeOutputTo(TXMLFilter.this);
-                nextOut.setState(ProcessingState.READY);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
+        if (!pq.isFinished()) {
+            setupParse(initialEventContentHandler);
+            do {
+                try {
+                    Chunk nextOut = pq.nextOut();
+                    nextOut.writeOutputTo(this);
+                    nextOut.setState(ProcessingState.READY);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } while (!pq.isFinished() && setupParse(devNullContentHandler));
         }
-        System.out.println("finished");
-        finished();
     }
 
 
