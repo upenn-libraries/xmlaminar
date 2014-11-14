@@ -143,10 +143,10 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         try {
             if ((next = parseQueue.take()) != FINISHED) {
                 initialParse(next);
-                getParent().parse(next);
+                super.parse(next);
                 while ((next = parseQueue.take()) != FINISHED) {
                     repeatParse(next);
-                    getParent().parse(next);
+                    super.parse(next);
                 }
                 finished();
             }

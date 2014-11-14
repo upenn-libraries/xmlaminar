@@ -97,7 +97,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     public SplittingXMLFilter() {
         initParser.setParent(this);
         repeatParser.setParent(this);
-        super.setParent(parseLooper);
     }
 
     public int getChunkSize() {
@@ -110,12 +109,14 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
     @Override
     protected void initialParse(InputSource in) {
-        
+        ProducerParser producerParser = new ProducerParser(in, null, Thread.currentThread());
+        producerTask = getExecutor().submit(producerParser);
     }
 
     @Override
     protected void repeatParse(InputSource in) {
-        
+        ProducerParser producerParser = new ProducerParser(in, null, Thread.currentThread());
+        producerTask = getExecutor().submit(producerParser);
     }
 
     @Override
@@ -292,35 +293,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
     }
 
-    private void parseLoop(InputSource input, String systemId) throws SAXException, IOException {
-        parsing = true;
-        try {
-            if (input != null) {
-                xmlReaderCallback.callback(initParser, input);
-                while (parsing) {
-                    xmlReaderCallback.callback(repeatParser, input);
-                }
-            } else {
-                xmlReaderCallback.callback(initParser, systemId);
-                while (parsing) {
-                    xmlReaderCallback.callback(repeatParser, systemId);
-                }
-            }
-            reset(false);
-        } catch (Throwable t) {
-            if (producerThrowable == null) {
-                consumerThrowable = t;
-                reset(true);
-                producerTask.cancel(true);
-                throw new RuntimeException(t);
-            } else {
-                t = producerThrowable;
-                producerThrowable = null;
-                throw new RuntimeException(t);
-            }
-        }
-    }
-
     private final InitParser initParser = new InitParser();
 
     private class InitParser extends XMLFilterImpl {
@@ -336,8 +308,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
         private void parse(InputSource input, String systemId) throws SAXException, IOException {
             SplittingXMLFilter.this.setContentHandler(this);
-            ProducerParser producerParser = new ProducerParser(input, systemId, Thread.currentThread());
-            producerTask = getExecutor().submit(producerParser);
             parseLock.lock();
             try {
                 parseChunkDone.await();
@@ -378,35 +348,54 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
     }
     
-    private final ParseLooper parseLooper = new ParseLooper();
+    private final ParseLooper parseLooper = new ParseLooper(null, null);
     
-    private class ParseLooper extends XMLFilterImpl {
+    private class ParseLooper implements Runnable {
 
-        @Override
-        public void parse(String systemId) throws SAXException, IOException {
-            parseLoop(null, systemId);
-        }
-
-        @Override
-        public void parse(InputSource input) throws SAXException, IOException {
-            parseLoop(input, null);
+        private final InputSource input;
+        private final String systemId;
+        
+        private ParseLooper(InputSource in, String systemId) {
+            this.input = in;
+            this.systemId = systemId;
         }
         
+        private void parseLoop(InputSource input, String systemId) throws SAXException, IOException {
+            parsing = true;
+            if (input != null) {
+                xmlReaderCallback.callback(initParser, input);
+                while (parsing) {
+                    xmlReaderCallback.callback(repeatParser, input);
+                }
+            } else {
+                xmlReaderCallback.callback(initParser, systemId);
+                while (parsing) {
+                    xmlReaderCallback.callback(repeatParser, systemId);
+                }
+            }
+            reset(false);
+        }
+
+        @Override
+        public void run() {
+            try {
+                parseLoop(input, systemId);
+            } catch (Throwable t) {
+                if (producerThrowable == null) {
+                    consumerThrowable = t;
+                    reset(true);
+                    producerTask.cancel(true);
+                    throw new RuntimeException(t);
+                } else {
+                    t = producerThrowable;
+                    producerThrowable = null;
+                    throw new RuntimeException(t);
+                }
+            }
+        }
+
     }
 
-    @Override
-    public XMLReader getParent() {
-        return externalParent;
-    }
-
-    @Override
-    public void setParent(XMLReader parent) {
-        this.externalParent = parent;
-        parseLooper.setParent(parent);
-    }
-    
-    private XMLReader externalParent;
-    
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
         super.parse(input);
