@@ -33,6 +33,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -75,24 +77,27 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
         SplittingXMLFilter sxf = new SplittingXMLFilter();
+        sxf.setInputType(InputType.indirect);
+        sxf.setChunkSize(1);
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         SAXParser sp = spf.newSAXParser();
         XMLReader xmlReader = sp.getXMLReader();
         sxf.setParent(xmlReader);
-        sxf.setXMLReaderCallback(new IncrementingFileCallback(0, t, "out/", ".xml"));
-        File in = new File("blah.xml");
+        sxf.setXMLReaderCallback(new IncrementingFileCallback(0, t, "out/out-", ".xml"));
+        File in = new File("blah.txt");
         sxf.setExecutor(Executors.newCachedThreadPool());
         try {
             sxf.parse(new InputSource(new FileReader(in)));
         } finally {
-            sxf.getExecutor().shutdown();
+            sxf.shutdown();
         }
     }
 
     public SplittingXMLFilter() {
         initParser.setParent(this);
         repeatParser.setParent(this);
+        super.setParent(parseLooper);
     }
 
     public int getChunkSize() {
@@ -104,18 +109,18 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     }
 
     @Override
-    protected void initialParse() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected void initialParse(InputSource in) {
+        
     }
 
     @Override
-    protected void repeatParse() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected void repeatParse(InputSource in) {
+        
     }
 
     @Override
     protected void finished() throws SAXException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 
     public static class StaticFileCallback implements XMLReaderCallback {
@@ -246,6 +251,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         parsing = false;
         producerTask = null;
         producerThrowable = null;
+        consumerThrowable = null;
         recordCount = 0;
         level = -1;
         recordStartEvent = -1;
@@ -301,19 +307,17 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
                 }
             }
             reset(false);
-        } catch (Exception ex) {
-            handleCallbackException(ex);
-        }
-    }
-
-    private void handleCallbackException(Exception ex) throws SAXException, IOException {
-        reset(true);
-        if (ex instanceof SAXException) {
-            throw (SAXException) ex;
-        } else if (ex instanceof IOException) {
-            throw (IOException) ex;
-        } else {
-            throw (RuntimeException) ex;
+        } catch (Throwable t) {
+            if (producerThrowable == null) {
+                consumerThrowable = t;
+                reset(true);
+                producerTask.cancel(true);
+                throw new RuntimeException(t);
+            } else {
+                t = producerThrowable;
+                producerThrowable = null;
+                throw new RuntimeException(t);
+            }
         }
     }
 
@@ -322,108 +326,95 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     private class InitParser extends XMLFilterImpl {
         @Override
         public void parse(InputSource input) throws SAXException, IOException {
-            initParse(input, null);
+            parse(input, null);
         }
 
         @Override
         public void parse(String systemId) throws SAXException, IOException {
-            initParse(null, systemId);
+            parse(null, systemId);
         }
 
-        private void initParse(InputSource input, String systemId) throws SAXException, IOException {
+        private void parse(InputSource input, String systemId) throws SAXException, IOException {
             SplittingXMLFilter.this.setContentHandler(this);
             ProducerParser producerParser = new ProducerParser(input, systemId, Thread.currentThread());
             producerTask = getExecutor().submit(producerParser);
             parseLock.lock();
             try {
-                awaitParseChunkDone();
+                parseChunkDone.await();
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
             } finally {
                 parseLock.unlock();
             }
         }
     }
 
-    private class ProducerFutureTask extends FutureTask {
-
-        public ProducerFutureTask(Runnable runnable, Object result) {
-            super(runnable, result);
-        }
-
-        public ProducerFutureTask(Callable callable) {
-            super(callable);
-        }
-
-        @Override
-        protected void setException(Throwable t) {
-            super.setException(t);
-            if (!isCancelled()) {
-                producerThrowable = t;
-                parseLock.lock();
-                try {
-                    parseChunkDone.signal();
-                } finally {
-                    parseLock.unlock();
-                }
-            }
-        }
-
-    }
-
     private final RepeatParser repeatParser = new RepeatParser();
-
-    private void awaitParseChunkDone() throws SAXException, IOException {
-        try {
-            parseChunkDone.await();
-            if (producerThrowable != null) {
-                Throwable cause = producerThrowable;
-                producerThrowable = null;
-                if (cause instanceof SAXException) {
-                    throw (SAXException) cause;
-                } else if (cause instanceof IOException) {
-                    throw (IOException) cause;
-                } else {
-                    throw new RuntimeException(cause);
-                }
-            }
-        } catch (InterruptedException ex) {
-            producerTask.cancel(true);
-            throw new RuntimeException(ex);
-        }
-    }
 
     private class RepeatParser extends XMLFilterImpl {
 
         @Override
         public void parse(InputSource input) throws SAXException, IOException {
-            repeatParse();
+            parse();
         }
 
         @Override
         public void parse(String systemId) throws SAXException, IOException {
-            repeatParse();
+            parse();
         }
 
-        private void repeatParse() throws SAXException, IOException {
+        private void parse() throws SAXException, IOException {
             SplittingXMLFilter.this.setContentHandler(this);
             parseLock.lock();
             try {
                 parseContinue.signal();
-                awaitParseChunkDone();
+                parseChunkDone.await();
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
             } finally {
                 parseLock.unlock();
             }
         }
 
     }
+    
+    private final ParseLooper parseLooper = new ParseLooper();
+    
+    private class ParseLooper extends XMLFilterImpl {
+
+        @Override
+        public void parse(String systemId) throws SAXException, IOException {
+            parseLoop(null, systemId);
+        }
+
+        @Override
+        public void parse(InputSource input) throws SAXException, IOException {
+            parseLoop(input, null);
+        }
+        
+    }
 
     @Override
+    public XMLReader getParent() {
+        return externalParent;
+    }
+
+    @Override
+    public void setParent(XMLReader parent) {
+        this.externalParent = parent;
+        parseLooper.setParent(parent);
+    }
+    
+    private XMLReader externalParent;
+    
+    @Override
     public void parse(InputSource input) throws SAXException, IOException {
-        parseLoop(input, null);
+        super.parse(input);
     }
 
     @Override
     public void parse(String systemId) throws SAXException, IOException {
-        parseLoop(null, systemId);
+        super.parse(systemId);
     }
 
     public XMLReaderCallback getXMLReaderCallback() {

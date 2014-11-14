@@ -112,9 +112,9 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
      * Implementors should will likely call setupParse(ContentHandler) 
      * or super.setContentHandler(ContentHandler) with an appropriate ContentHandler
      */
-    protected abstract void initialParse();
+    protected abstract void initialParse(InputSource in);
     
-    protected abstract void repeatParse();
+    protected abstract void repeatParse(InputSource in);
     
     protected abstract void finished() throws SAXException;
     
@@ -142,11 +142,11 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         InputSource next;
         try {
             if ((next = parseQueue.take()) != FINISHED) {
-                initialParse();
-                super.getParent().parse(next);
+                initialParse(next);
+                getParent().parse(next);
                 while ((next = parseQueue.take()) != FINISHED) {
-                    repeatParse();
-                    super.getParent().parse(next);
+                    repeatParse(next);
+                    getParent().parse(next);
                 }
                 finished();
             }
@@ -164,7 +164,7 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     }
     
     private void setupParseLocal() {
-        XMLReader parent = getParent();
+        XMLReader parent = super.getParent();
         parent.setDTDHandler(this);
         parent.setEntityResolver(this);
         parent.setErrorHandler(this);
@@ -176,7 +176,7 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         setupParseLocal();
         switch (inputType) {
             case direct:
-                initialParse();
+                initialParse(input);
                 super.parse(input);
                 finished();
                 break;
@@ -196,6 +196,13 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
+    /**
+     * Sets the content handler on the underlying XMLFilterImpl implementation; events
+     * passed to <code>super</code> method implementations will be (initially)
+     * handled by this handler.
+     * @param handler
+     * @return 
+     */
     protected final boolean setupParse(ContentHandler handler) {
         super.setContentHandler(handler);
         return true;
@@ -220,6 +227,7 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
                 if ((in = input.getByteStream()) != null) {
                     r = new InputStreamReader(in, encoding);
                 } else {
+                    System.out.println(input.getSystemId());
                     r = new BufferedReader(new InputStreamReader(new URI(input.getSystemId()).toURL().openStream(), encoding));
                 }
             }

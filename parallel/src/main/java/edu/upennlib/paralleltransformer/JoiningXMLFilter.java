@@ -40,6 +40,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  *
@@ -114,12 +115,12 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter {
     }
 
     @Override
-    public void initialParse() {
+    public void initialParse(InputSource in) {
         setupParse(initialEventContentHandler);
     }
     
     @Override
-    public void repeatParse() {
+    public void repeatParse(InputSource in) {
         setupParse(devNullContentHandler);
     }
 

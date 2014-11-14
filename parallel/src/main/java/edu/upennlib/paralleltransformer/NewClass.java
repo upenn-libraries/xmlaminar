@@ -36,6 +36,8 @@ public class NewClass {
 
     public static void main(String[] args) throws InterruptedException {
 
+        (new Childe()).printMethod();
+        System.exit(0);
         Set<Future<?>> syncSet = Collections.synchronizedSet(new HashSet<Future<?>>());
         BlockingQueue<Future<?>> finishedQueue = new MyBlockingQueue(syncSet);
         ExecutorService es = Executors.newCachedThreadPool();
@@ -48,6 +50,30 @@ public class NewClass {
     }
 
 
+    private static class Grandparent {
+        protected String method() {
+            return "grandparent";
+        }
+    }
+    
+    private static class Parent extends Grandparent {
+        public void printMethod() {
+            System.out.println(method());
+            System.out.println(this.method());
+            System.out.println(super.method());
+        }
+        @Override
+        protected String method() {
+            return "parent";
+        }
+    }
+
+    private static class Childe extends Parent {
+        @Override
+        protected String method() {
+            return "child";
+        }
+    }
 
 
     private static class MyBlockingQueue<T> implements BlockingQueue<Future<T>> {
