@@ -64,7 +64,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     private static final int DEFAULT_CHUNK_SIZE = 100;
     private int chunkSize = DEFAULT_CHUNK_SIZE;
     private volatile boolean parsing = false;
-    private Future<?> producerTask;
+    private Future<?> consumerTask;
     private int level = -1;
     private int recordStartEvent = -1;
     private int recordCount = 0;
@@ -77,7 +77,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
         SplittingXMLFilter sxf = new SplittingXMLFilter();
-        sxf.setInputType(InputType.indirect);
+        sxf.setInputType(InputType.direct);
         sxf.setChunkSize(1);
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
@@ -85,10 +85,12 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         XMLReader xmlReader = sp.getXMLReader();
         sxf.setParent(xmlReader);
         sxf.setXMLReaderCallback(new IncrementingFileCallback(0, t, "out/out-", ".xml"));
-        File in = new File("blah.txt");
+        File in = new File("blah.xml");
+        InputSource inSource = new InputSource(new FileReader(in));
+        inSource.setSystemId(in.getPath());
         sxf.setExecutor(Executors.newCachedThreadPool());
         try {
-            sxf.parse(new InputSource(new FileReader(in)));
+            sxf.parse(inSource);
         } finally {
             sxf.shutdown();
         }
@@ -109,14 +111,16 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
     @Override
     protected void initialParse(InputSource in) {
-        ProducerParser producerParser = new ProducerParser(in, null, Thread.currentThread());
-        producerTask = getExecutor().submit(producerParser);
+        setContentHandler(initParser);
+        ParseLooper pl = new ParseLooper(in, null, Thread.currentThread());
+        consumerTask = getExecutor().submit(pl);
     }
 
     @Override
     protected void repeatParse(InputSource in) {
-        ProducerParser producerParser = new ProducerParser(in, null, Thread.currentThread());
-        producerTask = getExecutor().submit(producerParser);
+        setContentHandler(repeatParser);
+        ParseLooper pl = new ParseLooper(in, null, Thread.currentThread());
+        consumerTask = getExecutor().submit(pl);
     }
 
     @Override
@@ -237,11 +241,11 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
     private void reset(boolean cancel) {
         try {
-            if (producerTask != null) {
+            if (consumerTask != null) {
                 if (cancel) {
-                    producerTask.cancel(true);
+                    consumerTask.cancel(true);
                 } else {
-                    producerTask.get();
+                    consumerTask.get();
                 }
             }
         } catch (InterruptedException ex) {
@@ -250,9 +254,9 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             throw new RuntimeException(ex);
         }
         parsing = false;
-        producerTask = null;
-        producerThrowable = null;
+        consumerTask = null;
         consumerThrowable = null;
+        producerThrowable = null;
         recordCount = 0;
         level = -1;
         recordStartEvent = -1;
@@ -284,9 +288,9 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
         if (RESET_PROPERTY_NAME.equals(name)) {
             try {
-                return super.getFeature(name) && producerTask == null;
+                return super.getFeature(name) && consumerTask == null;
             } catch (SAXException ex) {
-                return producerTask == null;
+                return consumerTask == null;
             }
         } else {
             return super.getFeature(name);
@@ -307,10 +311,11 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
 
         private void parse(InputSource input, String systemId) throws SAXException, IOException {
-            SplittingXMLFilter.this.setContentHandler(this);
             parseLock.lock();
             try {
+                System.out.println("pre");
                 parseChunkDone.await();
+                System.out.println("post");
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             } finally {
@@ -334,7 +339,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
 
         private void parse() throws SAXException, IOException {
-            SplittingXMLFilter.this.setContentHandler(this);
             parseLock.lock();
             try {
                 parseContinue.signal();
@@ -348,16 +352,16 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
     }
     
-    private final ParseLooper parseLooper = new ParseLooper(null, null);
-    
     private class ParseLooper implements Runnable {
 
         private final InputSource input;
         private final String systemId;
+        private final Thread producer;
         
-        private ParseLooper(InputSource in, String systemId) {
+        private ParseLooper(InputSource in, String systemId, Thread producer) {
             this.input = in;
             this.systemId = systemId;
+            this.producer = producer;
         }
         
         private void parseLoop(InputSource input, String systemId) throws SAXException, IOException {
@@ -383,9 +387,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             } catch (Throwable t) {
                 if (producerThrowable == null) {
                     consumerThrowable = t;
-                    reset(true);
-                    producerTask.cancel(true);
-                    throw new RuntimeException(t);
+                    producer.interrupt();
                 } else {
                     t = producerThrowable;
                     producerThrowable = null;
@@ -398,12 +400,33 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
-        super.parse(input);
+        parse(input, null);
     }
 
     @Override
     public void parse(String systemId) throws SAXException, IOException {
-        super.parse(systemId);
+        parse(null, systemId);
+    }
+    
+    private void parse(InputSource input, String systemId) {
+        try {
+            if (input != null) {
+                super.parse(input);
+            } else {
+                super.parse(systemId);
+            }
+        } catch (Throwable t) {
+            if (consumerThrowable == null) {
+                producerThrowable = t;
+                reset(true);
+                consumerTask.cancel(true);
+                throw new RuntimeException(t);
+            } else {
+                t = consumerThrowable;
+                consumerThrowable = null;
+                throw new RuntimeException(t);
+            }
+        }
     }
 
     public XMLReaderCallback getXMLReaderCallback() {
@@ -442,23 +465,24 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
                     SplittingXMLFilter.super.parse(systemId);
                 }
             } catch (Throwable t) {
-                if (consumerThrowable == null) {
-                    producerThrowable = t;
+                if (producerThrowable == null) {
+                    consumerThrowable = t;
                     consumer.interrupt();
                 } else {
-                    t = consumerThrowable;
-                    consumerThrowable = null;
+                    t = producerThrowable;
+                    producerThrowable = null;
                     throw new RuntimeException(t);
                 }
             }
         }
     }
     
-    private volatile Throwable producerThrowable;
     private volatile Throwable consumerThrowable;
+    private volatile Throwable producerThrowable;
 
     @Override
     public void startDocument() throws SAXException {
+        System.out.println(getContentHandler()+", "+super.getContentHandler());
         startEventStack.push(new StructuralStartEvent());
         super.startDocument();
     }

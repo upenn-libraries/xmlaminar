@@ -64,7 +64,7 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     private Pattern delimiterPattern = DEFAULT_DELIMITER_PATTERN;
 
     public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, IOException, TransformerException {
-        JoiningXMLFilter.main(args);
+        SplittingXMLFilter.main(args);
     }
 
     public void setDelimiterPattern(Pattern p) {
@@ -143,10 +143,10 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         try {
             if ((next = parseQueue.take()) != FINISHED) {
                 initialParse(next);
-                super.parse(next);
+                super.getParent().parse(next);
                 while ((next = parseQueue.take()) != FINISHED) {
                     repeatParse(next);
-                    super.parse(next);
+                    super.getParent().parse(next);
                 }
                 finished();
             }
@@ -177,7 +177,7 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         switch (inputType) {
             case direct:
                 initialParse(input);
-                super.parse(input);
+                super.getParent().parse(input);
                 finished();
                 break;
             case indirect:
