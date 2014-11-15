@@ -69,17 +69,18 @@ public class NewClass {
         sxf.setXMLReaderCallback(new SplittingXMLFilter.XMLReaderCallback() {
             int i = 0;
             @Override
-            public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+            public boolean callback(XMLReader reader, InputSource input) throws SAXException, IOException {
                 try {
                     joiner.getParseQueue().put(new SAXSource(reader, input));
                     System.out.println("what"+input.getSystemId()+", "+i++);
+                    return false;
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
             }
 
             @Override
-            public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
+            public boolean callback(XMLReader reader, String systemId) throws SAXException, IOException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 

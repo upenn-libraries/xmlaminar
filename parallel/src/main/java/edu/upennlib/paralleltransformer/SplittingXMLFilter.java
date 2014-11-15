@@ -151,12 +151,13 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
 
         @Override
-        public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+        public boolean callback(XMLReader reader, InputSource input) throws SAXException, IOException {
             writeToFile(reader, input, staticFile, t);
+            return true;
         }
 
         @Override
-        public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
+        public boolean callback(XMLReader reader, String systemId) throws SAXException, IOException {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
@@ -218,13 +219,14 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
 
         @Override
-        public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+        public boolean callback(XMLReader reader, InputSource input) throws SAXException, IOException {
             File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) + postSuffix);
             writeToFile(reader, input, nextFile, t);
+            return true;
         }
 
         @Override
-        public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
+        public boolean callback(XMLReader reader, String systemId) throws SAXException, IOException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
         
@@ -375,14 +377,15 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             parsing = true;
             if (input != null) {
                 while (parsing) {
-                    xmlReaderCallback.callback(synchronousParser, input);
-                    parseLock.lock();
-                    try {
-                        parseChunkDone.await();
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
-                    } finally {
-                        parseLock.unlock();
+                    if (!xmlReaderCallback.callback(synchronousParser, input)) {
+                        parseLock.lock();
+                        try {
+                            parseChunkDone.await();
+                        } catch (InterruptedException ex) {
+                            throw new RuntimeException(ex);
+                        } finally {
+                            parseLock.unlock();
+                        }
                     }
                 }
             } else {
@@ -455,8 +458,8 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     private XMLReaderCallback xmlReaderCallback;
 
     public static interface XMLReaderCallback {
-        void callback(XMLReader reader, InputSource input) throws SAXException, IOException;
-        void callback(XMLReader reader, String systemId) throws SAXException, IOException;
+        boolean callback(XMLReader reader, InputSource input) throws SAXException, IOException;
+        boolean callback(XMLReader reader, String systemId) throws SAXException, IOException;
         void finished();
     }
 

@@ -191,13 +191,15 @@ public class TXMLFilter extends JoiningXMLFilter {
     private class MyXMLReaderCallback implements SplittingXMLFilter.XMLReaderCallback {
 
         @Override
-        public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+        public boolean callback(XMLReader reader, InputSource input) throws SAXException, IOException {
             doCallback(reader, input, null);
+            return true;
         }
 
         @Override
-        public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
+        public boolean callback(XMLReader reader, String systemId) throws SAXException, IOException {
             doCallback(reader, null, systemId);
+            return true;
         }
 
         private void doCallback(XMLReader reader, InputSource input, String systemId) throws SAXException, IOException {
