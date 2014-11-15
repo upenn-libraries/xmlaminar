@@ -115,12 +115,12 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter {
     }
 
     @Override
-    public void initialParse(InputSource in) {
+    public void initialParse(SAXSource in) {
         setupParse(initialEventContentHandler);
     }
     
     @Override
-    public void repeatParse(InputSource in) {
+    public void repeatParse(SAXSource in) {
         setupParse(devNullContentHandler);
     }
 

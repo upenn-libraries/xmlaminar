@@ -105,14 +105,14 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     }
 
     @Override
-    protected void initialParse(InputSource in) {
-        setupParse(in);
+    protected void initialParse(SAXSource in) {
+        setupParse(in.getInputSource());
     }
 
     @Override
-    protected void repeatParse(InputSource in) {
+    protected void repeatParse(SAXSource in) {
         reset(false);
-        setupParse(in);
+        setupParse(in.getInputSource());
     }
 
     private void setupParse(InputSource in) {

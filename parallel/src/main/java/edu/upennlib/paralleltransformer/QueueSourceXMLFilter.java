@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.sax.SAXSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
@@ -51,7 +52,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
 
-    public static final InputSource FINISHED = new InputSource();
+    public static final SAXSource FINISHED = new SAXSource();
     public static final String RESET_PROPERTY_NAME = "http://xml.org/sax/features/reset";
     private static final Pattern DEFAULT_DELIMITER_PATTERN = Pattern.compile(System.lineSeparator(), Pattern.LITERAL);
     private static final Logger LOG = LoggerFactory.getLogger(QueueSourceXMLFilter.class);
@@ -112,41 +113,40 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
      * Implementors should will likely call setupParse(ContentHandler) 
      * or super.setContentHandler(ContentHandler) with an appropriate ContentHandler
      */
-    protected abstract void initialParse(InputSource in);
+    protected abstract void initialParse(SAXSource in);
     
-    protected abstract void repeatParse(InputSource in);
+    protected abstract void repeatParse(SAXSource in);
     
     protected abstract void finished() throws SAXException;
     
-    private BlockingQueue<InputSource> parseQueue;
+    private BlockingQueue<SAXSource> parseQueue;
+    private Future<?> parseQueueSupplier;
 
-    public void setParseQueue(BlockingQueue<InputSource> queue) {
+    public void setParseQueue(BlockingQueue<SAXSource> queue, Future<?> parseQueueSupplier) {
         parseQueue = queue;
+        this.parseQueueSupplier = parseQueueSupplier;
     }
     
-    public BlockingQueue<InputSource> getParseQueue() {
+    public BlockingQueue<SAXSource> getParseQueue() {
         return parseQueue;
     }
 
-    private Future<?> parseQueueSupplier;
-
     private void initProducer(InputSource input) {
         if (parseQueue == null) {
-            setParseQueue(new ArrayBlockingQueue<InputSource>(10, false));
+            if (executor == null) {
+                executor = Executors.newFixedThreadPool(1);
+            }
+            Runnable parseQueueRunner = new ParseQueueSupplier(input, Thread.currentThread());
+            setParseQueue(new ArrayBlockingQueue<SAXSource>(10, false), executor.submit(parseQueueRunner));
         }
-        if (executor == null) {
-            executor = Executors.newFixedThreadPool(1);
-        }
-        Runnable parseQueueRunner = new ParseQueueSupplier(input, Thread.currentThread());
-        parseQueueSupplier = executor.submit(parseQueueRunner);
-        InputSource next;
+        SAXSource next;
         try {
             if ((next = parseQueue.take()) != FINISHED) {
                 initialParse(next);
-                super.getParent().parse(next);
+                next.getXMLReader().parse(next.getInputSource());
                 while ((next = parseQueue.take()) != FINISHED) {
                     repeatParse(next);
-                    super.getParent().parse(next);
+                    next.getXMLReader().parse(next.getInputSource());
                 }
                 finished();
             }
@@ -176,8 +176,9 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         setupParseLocal();
         switch (inputType) {
             case direct:
-                initialParse(input);
-                super.getParent().parse(input);
+                SAXSource source = new SAXSource(super.getParent(), input);
+                initialParse(source);
+                source.getXMLReader().parse(source.getInputSource());
                 finished();
                 break;
             case indirect:
@@ -238,7 +239,9 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
                 String next;
                 while (s.hasNext()) {
                     next = s.next();
-                    parseQueue.put(new InputSource(next));
+                    InputSource nextIn = new InputSource(next);
+                    XMLReader xr = QueueSourceXMLFilter.super.getParent(); // defaults to parent
+                    parseQueue.put(new SAXSource(xr, nextIn));
                 }
             } catch (InterruptedException ex) {
                 interrupted = true;
