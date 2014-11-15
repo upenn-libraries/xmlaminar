@@ -22,10 +22,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -33,6 +35,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -56,7 +59,7 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     public static final String RESET_PROPERTY_NAME = "http://xml.org/sax/features/reset";
     private static final Pattern DEFAULT_DELIMITER_PATTERN = Pattern.compile(System.lineSeparator(), Pattern.LITERAL);
     private static final Logger LOG = LoggerFactory.getLogger(QueueSourceXMLFilter.class);
-    public static enum InputType { direct, indirect }
+    public static enum InputType { direct, indirect, queue }
     public static InputType DEFAULT_INPUT_TYPE = InputType.indirect;
 
     private ExecutorService executor;
@@ -110,7 +113,7 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     }
 
     /**
-     * Implementors should will likely call setupParse(ContentHandler) 
+     * Implementors will likely call setupParse(ContentHandler) 
      * or super.setContentHandler(ContentHandler) with an appropriate ContentHandler
      */
     protected abstract void initialParse(SAXSource in);
@@ -122,22 +125,32 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     private BlockingQueue<SAXSource> parseQueue;
     private Future<?> parseQueueSupplier;
 
-    public void setParseQueue(BlockingQueue<SAXSource> queue, Future<?> parseQueueSupplier) {
+    public void setParseQueue(BlockingQueue<SAXSource> queue) {
         parseQueue = queue;
-        this.parseQueueSupplier = parseQueueSupplier;
     }
     
     public BlockingQueue<SAXSource> getParseQueue() {
         return parseQueue;
     }
+    
+    public void setParseQueueSupplier(Future<?> parseQueueSupplier) {
+        this.parseQueueSupplier = parseQueueSupplier;
+    }
+    
+    public Future<?> getParseQueueSupplier() {
+        return parseQueueSupplier;
+    }
 
     private void initProducer(InputSource input) {
         if (parseQueue == null) {
+            parseQueue = new ArrayBlockingQueue<SAXSource>(10, false);
+        }
+        if (parseQueueSupplier == null) {
             if (executor == null) {
                 executor = Executors.newFixedThreadPool(1);
             }
             Runnable parseQueueRunner = new ParseQueueSupplier(input, Thread.currentThread());
-            setParseQueue(new ArrayBlockingQueue<SAXSource>(10, false), executor.submit(parseQueueRunner));
+            parseQueueSupplier = executor.submit(parseQueueRunner);
         }
         SAXSource next;
         try {
@@ -163,6 +176,28 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         }
     }
     
+    private void initProducerIterator(InputSource input) {
+        try {
+            SAXSource next;
+            Iterator<SAXSource> sourceIter = new IndirectSourceSupplier(input);
+            if (sourceIter.hasNext()) {
+                next = sourceIter.next();
+                initialParse(next);
+                next.getXMLReader().parse(next.getInputSource());
+                while (sourceIter.hasNext()) {
+                    next = sourceIter.next();
+                    repeatParse(next);
+                    next.getXMLReader().parse(next.getInputSource());
+                }
+            }
+            finished();
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
     private void setupParseLocal() {
         XMLReader parent = super.getParent();
         parent.setDTDHandler(this);
@@ -182,6 +217,9 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
                 finished();
                 break;
             case indirect:
+                initProducerIterator(input);
+                break;
+            case queue:
                 initProducer(input);
                 break;
             default:
@@ -209,6 +247,72 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         return true;
     }
 
+    private class IndirectSourceSupplier implements Iterator<SAXSource> {
+
+        private final InputSource input;
+        private final Scanner s;
+
+        public IndirectSourceSupplier(InputSource input) {
+            this.input = input;
+            s = getScanner();
+        }
+        
+        private Scanner getScanner() {
+            Reader r;
+            if ((r = input.getCharacterStream()) == null) {
+                InputStream in;
+                String charsetName = input.getEncoding();
+                Charset encoding = (charsetName == null ? Charset.defaultCharset() : Charset.forName(charsetName));
+                if ((in = input.getByteStream()) != null) {
+                    r = new InputStreamReader(in, encoding);
+                } else {
+                    System.out.println(input.getSystemId());
+                    try {
+                        r = new BufferedReader(new InputStreamReader(new URI(input.getSystemId()).toURL().openStream(), encoding));
+                    } catch (URISyntaxException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (MalformedURLException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }
+            Scanner s = new Scanner(r);
+            s.useDelimiter(delimiterPattern);
+            return s;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (s.hasNext()) {
+                return true;
+            } else {
+                s.close();
+                return false;
+            }
+        }
+
+        @Override
+        public SAXSource next() {
+            String next = s.next();
+            InputSource nextIn = new InputSource(next);
+            XMLReader xr = QueueSourceXMLFilter.super.getParent(); // defaults to parent
+            return new SAXSource(xr, nextIn);
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Not supported.");
+        }
+
+    }
+    
+    /**
+     * Exists strictly to hand off control to upstream parsing that will 
+     * supply input to this XMLFilter via queue, and propagate exceptions 
+     * back to the calling thread.
+     */
     private class ParseQueueSupplier implements Runnable {
 
         private final InputSource input;
@@ -219,45 +323,10 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
             this.consumer = consumerThread;
         }
 
-        public void handleInput() throws IOException, InterruptedException, URISyntaxException {
-            Reader r;
-            if ((r = input.getCharacterStream()) == null) {
-                InputStream in;
-                String charsetName = input.getEncoding();
-                Charset encoding = (charsetName == null ? Charset.defaultCharset() : Charset.forName(charsetName));
-                if ((in = input.getByteStream()) != null) {
-                    r = new InputStreamReader(in, encoding);
-                } else {
-                    System.out.println(input.getSystemId());
-                    r = new BufferedReader(new InputStreamReader(new URI(input.getSystemId()).toURL().openStream(), encoding));
-                }
-            }
-            boolean interrupted = false;
-            try {
-                Scanner s = new Scanner(r);
-                s.useDelimiter(delimiterPattern);
-                String next;
-                while (s.hasNext()) {
-                    next = s.next();
-                    InputSource nextIn = new InputSource(next);
-                    XMLReader xr = QueueSourceXMLFilter.super.getParent(); // defaults to parent
-                    parseQueue.put(new SAXSource(xr, nextIn));
-                }
-            } catch (InterruptedException ex) {
-                interrupted = true;
-                throw ex;
-            } finally {
-                r.close();
-                if (!interrupted) {
-                    parseQueue.put(FINISHED);
-                }
-            }
-        }
-
         @Override
         public void run() {
             try {
-                handleInput();
+                QueueSourceXMLFilter.super.parse(input);
             } catch (Throwable t) {
                 if (consumerThrowable == null) {
                     producerThrowable = t;
