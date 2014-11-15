@@ -156,10 +156,14 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         try {
             if ((next = parseQueue.take()) != FINISHED) {
                 initialParse(next);
-                next.getXMLReader().parse(next.getInputSource());
+                XMLReader xmlReader = next.getXMLReader();
+                xmlReader.setContentHandler(this);
+                xmlReader.parse(next.getInputSource());
                 while ((next = parseQueue.take()) != FINISHED) {
                     repeatParse(next);
-                    next.getXMLReader().parse(next.getInputSource());
+                    xmlReader = next.getXMLReader();
+                    xmlReader.setContentHandler(this);
+                    xmlReader.parse(next.getInputSource());
                 }
                 finished();
             }
@@ -183,11 +187,15 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
             if (sourceIter.hasNext()) {
                 next = sourceIter.next();
                 initialParse(next);
-                next.getXMLReader().parse(next.getInputSource());
+                XMLReader xmlReader = next.getXMLReader();
+                xmlReader.setContentHandler(this);
+                xmlReader.parse(next.getInputSource());
                 while (sourceIter.hasNext()) {
                     next = sourceIter.next();
                     repeatParse(next);
-                    next.getXMLReader().parse(next.getInputSource());
+                    xmlReader = next.getXMLReader();
+                    xmlReader.setContentHandler(this);
+                    xmlReader.parse(next.getInputSource());
                 }
             }
             finished();
