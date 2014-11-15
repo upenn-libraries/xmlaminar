@@ -25,9 +25,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.Iterator;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.Phaser;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -151,13 +153,12 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
 
         @Override
-        public boolean callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+        public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
             writeToFile(reader, input, staticFile, t);
-            return true;
         }
 
         @Override
-        public boolean callback(XMLReader reader, String systemId) throws SAXException, IOException {
+        public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
@@ -219,14 +220,13 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
 
         @Override
-        public boolean callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+        public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
             File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) + postSuffix);
             writeToFile(reader, input, nextFile, t);
-            return true;
         }
 
         @Override
-        public boolean callback(XMLReader reader, String systemId) throws SAXException, IOException {
+        public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
         
@@ -336,6 +336,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             try {
                 parseContinue.signal();
                 parseChunkDone.await();
+                parseChunkDonePhaser.arrive();
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             } finally {
@@ -344,6 +345,8 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
 
     }
+    
+    private final Phaser parseChunkDonePhaser = new Phaser(2);
     
     private class ParseLooper implements Runnable {
 
@@ -361,16 +364,8 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             parsing = true;
             if (input != null) {
                 while (parsing) {
-                    if (!xmlReaderCallback.callback(synchronousParser, input)) {
-                        parseLock.lock();
-                        try {
-                            parseChunkDone.await();
-                        } catch (InterruptedException ex) {
-                            throw new RuntimeException(ex);
-                        } finally {
-                            parseLock.unlock();
-                        }
-                    }
+                    xmlReaderCallback.callback(synchronousParser, input);
+                    parseChunkDonePhaser.arriveAndAwaitAdvance();
                 }
             } else {
                 do {
@@ -442,8 +437,8 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     private XMLReaderCallback xmlReaderCallback;
 
     public static interface XMLReaderCallback {
-        boolean callback(XMLReader reader, InputSource input) throws SAXException, IOException;
-        boolean callback(XMLReader reader, String systemId) throws SAXException, IOException;
+        void callback(XMLReader reader, InputSource input) throws SAXException, IOException;
+        void callback(XMLReader reader, String systemId) throws SAXException, IOException;
         void finished();
     }
 

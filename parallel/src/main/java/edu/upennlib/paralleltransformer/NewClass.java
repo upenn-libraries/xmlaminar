@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,18 +70,17 @@ public class NewClass {
         sxf.setXMLReaderCallback(new SplittingXMLFilter.XMLReaderCallback() {
             int i = 0;
             @Override
-            public boolean callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+            public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
                 try {
                     joiner.getParseQueue().put(new SAXSource(reader, input));
                     System.out.println("what "+input.getSystemId()+", "+i++);
-                    return false;
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
             }
 
             @Override
-            public boolean callback(XMLReader reader, String systemId) throws SAXException, IOException {
+            public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
