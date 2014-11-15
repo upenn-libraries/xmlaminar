@@ -247,7 +247,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         } catch (TransformerException ex) {
             throw new RuntimeException(ex);
         } finally {
-            System.out.println("closing output "+nextFile+", "+Thread.currentThread().getName());
             out.close();
         }
     }
@@ -333,7 +332,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
         
         private void parse() throws SAXException, IOException {
-            System.out.println("synchronousParse");
             parseLock.lock();
             try {
                 parseContinue.signal();
@@ -344,20 +342,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
                 parseLock.unlock();
             }
         }
-
-        @Override
-        public void endDocument() throws SAXException {
-            System.out.println("syncEnd");
-            super.endDocument(); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void startDocument() throws SAXException {
-            System.out.println("syncStart");
-            super.startDocument(); //To change body of generated methods, choose Tools | Templates.
-        }
-        
-        
 
     }
     

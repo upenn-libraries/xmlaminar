@@ -72,7 +72,7 @@ public class NewClass {
             public boolean callback(XMLReader reader, InputSource input) throws SAXException, IOException {
                 try {
                     joiner.getParseQueue().put(new SAXSource(reader, input));
-                    System.out.println("what"+input.getSystemId()+", "+i++);
+                    System.out.println("what "+input.getSystemId()+", "+i++);
                     return false;
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
@@ -99,7 +99,6 @@ public class NewClass {
         sxf.setExecutor(Executors.newCachedThreadPool());
         try {
             t.transform(new SAXSource(joiner, inSource), new StreamResult(System.out));
-            System.out.println("blah");
         } finally {
             sxf.shutdown();
             joiner.shutdown();
