@@ -220,6 +220,10 @@ public class TXMLFilter extends JoiningXMLFilter {
             nextIn.setState(ProcessingState.HAS_INPUT);
         }
 
+        @Override
+        public void finished() {
+        }
+
     }
 
     public void configureOutputTransformer(Controller out) {

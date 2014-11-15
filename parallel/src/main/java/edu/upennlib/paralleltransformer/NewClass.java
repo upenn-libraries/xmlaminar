@@ -16,6 +16,10 @@
 
 package edu.upennlib.paralleltransformer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,6 +31,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  *
@@ -34,192 +52,56 @@ import java.util.concurrent.TimeUnit;
  */
 public class NewClass {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, ParserConfigurationException, SAXException, FileNotFoundException, IOException, TransformerConfigurationException, TransformerException {
+        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+        Transformer t = tf.newTransformer();
+        final JoiningXMLFilter joiner = new JoiningXMLFilter();
+        joiner.setInputType(QueueSourceXMLFilter.InputType.queue);
+        SplittingXMLFilter sxf = new SplittingXMLFilter();
+        sxf.setInputType(QueueSourceXMLFilter.InputType.indirect);
+        sxf.setChunkSize(1);
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
+        SAXParser sp = spf.newSAXParser();
+        XMLReader xmlReader = sp.getXMLReader();
+        joiner.setParent(sxf);
+        sxf.setParent(xmlReader);
+        sxf.setXMLReaderCallback(new SplittingXMLFilter.XMLReaderCallback() {
+            int i = 0;
+            @Override
+            public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+                try {
+                    joiner.getParseQueue().put(new SAXSource(reader, input));
+                    System.out.println("what"+input.getSystemId()+", "+i++);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
 
-        (new Childe()).printMethod();
-        System.exit(0);
-        Set<Future<?>> syncSet = Collections.synchronizedSet(new HashSet<Future<?>>());
-        BlockingQueue<Future<?>> finishedQueue = new MyBlockingQueue(syncSet);
-        ExecutorService es = Executors.newCachedThreadPool();
-        ExecutorCompletionService ecs = new ExecutorCompletionService(es, finishedQueue);
-        syncSet.add(ecs.submit(new MyRunnable(), null));
-        System.out.println(syncSet.size());
-        Thread.sleep(1000);
-        System.out.println(syncSet.size());
-        es.shutdown();
-    }
+            @Override
+            public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
 
-
-    private static class Grandparent {
-        protected String method() {
-            return "grandparent";
-        }
-    }
-    
-    private static class Parent extends Grandparent {
-        public void printMethod() {
-            System.out.println(method());
-            System.out.println(this.method());
-            System.out.println(super.method());
-        }
-        @Override
-        protected String method() {
-            return "parent";
-        }
-    }
-
-    private static class Childe extends Parent {
-        @Override
-        protected String method() {
-            return "child";
-        }
-    }
-
-
-    private static class MyBlockingQueue<T> implements BlockingQueue<Future<T>> {
-
-        private final Set<Future<T>> activeTasks;
-
-        public MyBlockingQueue(Set<Future<T>> activeTasks) {
-            this.activeTasks = activeTasks;
-        }
-
-        @Override
-        public boolean add(Future<T> e) {
-            System.out.println("removing "+e);
-            return activeTasks.remove(e);
-        }
-
-        @Override
-        public boolean offer(Future<T> e) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public void put(Future<T> e) throws InterruptedException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public boolean offer(Future<T> e, long timeout, TimeUnit unit) throws InterruptedException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public Future<T> take() throws InterruptedException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public Future<T> poll(long timeout, TimeUnit unit) throws InterruptedException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public int remainingCapacity() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public int drainTo(Collection<? super Future<T>> c) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public int drainTo(Collection<? super Future<T>> c, int maxElements) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public Future<T> remove() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public Future<T> poll() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public Future<T> element() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public Future<T> peek() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public int size() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public boolean isEmpty() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public Iterator<Future<T>> iterator() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public Object[] toArray() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public <T> T[] toArray(T[] a) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public boolean containsAll(Collection<?> c) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public boolean addAll(Collection<? extends Future<T>> c) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public boolean removeAll(Collection<?> c) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public boolean retainAll(Collection<?> c) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public void clear() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-    }
-
-    private static class MyRunnable implements Runnable {
-
-        public MyRunnable() {
-        }
-
-        @Override
-        public void run() {
-            System.out.println("run!");
+            @Override
+            public void finished() {
+                try {
+                    joiner.getParseQueue().put(QueueSourceXMLFilter.FINISHED);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        File in = new File("blah.txt");
+        InputSource inSource = new InputSource(new FileReader(in));
+        inSource.setSystemId(in.getPath());
+        sxf.setExecutor(Executors.newCachedThreadPool());
+        try {
+            t.transform(new SAXSource(joiner, inSource), new StreamResult(System.out));
+            System.out.println("blah");
+        } finally {
+            sxf.shutdown();
+            joiner.shutdown();
         }
     }
 

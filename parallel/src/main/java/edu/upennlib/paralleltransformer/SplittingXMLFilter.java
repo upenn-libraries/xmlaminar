@@ -31,6 +31,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -158,6 +160,11 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
+        @Override
+        public void finished() {
+            
+        }
+        
     }
 
     public static class IncrementingFileCallback implements XMLReaderCallback {
@@ -219,6 +226,11 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         @Override
         public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
             throw new UnsupportedOperationException("Not supported yet.");
+        }
+        
+        @Override
+        public void finished() {
+            
         }
 
     }
@@ -319,6 +331,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
         
         private void parse() throws SAXException, IOException {
+            System.out.println("synchronousParse");
             parseLock.lock();
             try {
                 parseContinue.signal();
@@ -329,6 +342,20 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
                 parseLock.unlock();
             }
         }
+
+        @Override
+        public void endDocument() throws SAXException {
+            System.out.println("syncEnd");
+            super.endDocument(); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void startDocument() throws SAXException {
+            System.out.println("syncStart");
+            super.startDocument(); //To change body of generated methods, choose Tools | Templates.
+        }
+        
+        
 
     }
     
@@ -347,9 +374,17 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         private void parseLoop(InputSource input, String systemId) throws SAXException, IOException {
             parsing = true;
             if (input != null) {
-                do {
+                while (parsing) {
                     xmlReaderCallback.callback(synchronousParser, input);
-                } while (parsing);
+                    parseLock.lock();
+                    try {
+                        parseChunkDone.await();
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    } finally {
+                        parseLock.unlock();
+                    }
+                }
             } else {
                 do {
                     xmlReaderCallback.callback(synchronousParser, systemId);
@@ -392,6 +427,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             } else {
                 super.parse(systemId);
             }
+            xmlReaderCallback.finished();
         } catch (Throwable t) {
             if (consumerThrowable == null) {
                 producerThrowable = t;
@@ -421,6 +457,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     public static interface XMLReaderCallback {
         void callback(XMLReader reader, InputSource input) throws SAXException, IOException;
         void callback(XMLReader reader, String systemId) throws SAXException, IOException;
+        void finished();
     }
 
     private volatile Throwable consumerThrowable;
@@ -439,7 +476,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         parsing = false;
         parseLock.lock();
         try {
-            parseChunkDone.signal();
+            parseChunkDone.signalAll();
         } finally {
             parseLock.unlock();
         }
@@ -451,7 +488,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             recordCount = 1; // the record we just entered!
             try {
                 parseLock.lock();
-                parseChunkDone.signal();
+                parseChunkDone.signalAll();
                 try {
                     parseContinue.await();
                 } catch (InterruptedException ex) {
