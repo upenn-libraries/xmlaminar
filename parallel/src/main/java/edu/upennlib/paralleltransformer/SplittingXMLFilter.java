@@ -16,16 +16,13 @@
 
 package edu.upennlib.paralleltransformer;
 
-import java.io.BufferedOutputStream;
+import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -33,17 +30,13 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -58,8 +51,6 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
-    private static final int DEFAULT_START_INDEX = 0;
-    private static final int DEFAULT_SUFFIX_SIZE = 5;
     private static final int DEFAULT_RECORD_LEVEL = 1;
     private static final int DEFAULT_CHUNK_SIZE = 100;
     private int chunkSize = DEFAULT_CHUNK_SIZE;
@@ -136,119 +127,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     @Override
     protected void finished() throws SAXException {
         reset(false);
-    }
-
-    public static class StaticFileCallback implements XMLReaderCallback {
-
-        private final File staticFile;
-        private final Transformer t;
-
-        public StaticFileCallback(Transformer t, File staticFile) {
-            this.staticFile = staticFile;
-            this.t = t;
-        }
-
-        public StaticFileCallback(File staticFile) throws TransformerConfigurationException {
-            this(TransformerFactory.newInstance().newTransformer(), staticFile);
-        }
-
-        @Override
-        public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-            writeToFile(reader, input, staticFile, t);
-        }
-
-        @Override
-        public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        @Override
-        public void finished() {
-            
-        }
-        
-    }
-
-    public static class IncrementingFileCallback implements XMLReaderCallback {
-
-        private final File parentFile;
-        private final String namePrefix;
-        private final String postSuffix;
-        private final String suffixFormat;
-        private final Transformer t;
-        private int i;
-
-        private static String getDefaultSuffixFormat(int suffixLength) {
-            return "%0"+suffixLength+'d';
-        }
-
-        public IncrementingFileCallback(String prefix) throws TransformerConfigurationException {
-            this(TransformerFactory.newInstance().newTransformer(), prefix);
-        }
-
-        public IncrementingFileCallback(Transformer t, String prefix) {
-            this(DEFAULT_START_INDEX, t, prefix);
-        }
-
-        public IncrementingFileCallback(int start, Transformer t, String prefix) {
-            this(start, t, prefix, "");
-        }
-
-        public IncrementingFileCallback(int start, Transformer t, String prefix, String postSuffix) {
-            this(start, t, DEFAULT_SUFFIX_SIZE, prefix, postSuffix);
-        }
-
-        public IncrementingFileCallback(int start, Transformer t, int suffixSize, String prefix, String postSuffix) {
-            this(start, t, getDefaultSuffixFormat(suffixSize), prefix, postSuffix);
-        }
-
-        public IncrementingFileCallback(int start, Transformer t, String suffixFormat, String prefix, String postSuffix) {
-            this(start, t, suffixFormat, new File(prefix), postSuffix);
-        }
-
-        public IncrementingFileCallback(int start, Transformer t, int suffixLength, File prefix, String postSuffix) {
-            this(start, t, getDefaultSuffixFormat(suffixLength), prefix, postSuffix);
-        }
-
-        public IncrementingFileCallback(int start, Transformer t, String suffixFormat, File prefix, String postSuffix) {
-            this.i = start;
-            this.t = t;
-            this.parentFile = prefix.getParentFile();
-            this.namePrefix = prefix.getName();
-            this.postSuffix = postSuffix == null ? "" : postSuffix;
-            this.suffixFormat = suffixFormat;
-        }
-
-        @Override
-        public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-            File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) + postSuffix);
-            writeToFile(reader, input, nextFile, t);
-        }
-
-        @Override
-        public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-        
-        @Override
-        public void finished() {
-            
-        }
-
-    }
-
-    private static void writeToFile(XMLReader reader, InputSource input, File nextFile, Transformer t) throws FileNotFoundException, IOException {
-        t.reset();
-        OutputStream out = new BufferedOutputStream(new FileOutputStream(nextFile));
-        StreamResult res = new StreamResult(out);
-        res.setSystemId(nextFile);
-        try {
-            t.transform(new SAXSource(reader, input), res);
-        } catch (TransformerException ex) {
-            throw new RuntimeException(ex);
-        } finally {
-            out.close();
-        }
     }
 
     public void reset() {

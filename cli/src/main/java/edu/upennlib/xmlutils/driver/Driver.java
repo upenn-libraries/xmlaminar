@@ -16,6 +16,7 @@
 
 package edu.upennlib.xmlutils.driver;
 
+import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.JoiningXMLFilter;
 import edu.upennlib.paralleltransformer.SplittingXMLFilter;
 import edu.upennlib.paralleltransformer.TXMLFilter;
@@ -350,7 +351,7 @@ public class Driver {
                 SAXParser saxParser = spf.newSAXParser();
                 sxf.setParent(saxParser.getXMLReader());
                 Transformer t = TransformerFactory.newInstance().newTransformer();
-                sxf.setXMLReaderCallback(new SplittingXMLFilter.IncrementingFileCallback(0, t, suffixSize, outputFile, additionalSuffix));
+                sxf.setXMLReaderCallback(new IncrementingFileCallback(0, t, suffixSize, outputFile, additionalSuffix));
                 sxf.setExecutor(Executors.newCachedThreadPool());
                 try {
                     sxf.parse(source);
