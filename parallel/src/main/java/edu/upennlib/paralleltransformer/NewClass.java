@@ -45,7 +45,7 @@ public class NewClass {
         Transformer t = tf.newTransformer();
         final JoiningXMLFilter joiner = new JoiningXMLFilter();
         joiner.setInputType(QueueSourceXMLFilter.InputType.queue);
-        SplittingXMLFilter sxf = new SplittingXMLFilter();
+        SimpleSplittingXMLFilter sxf = new SimpleSplittingXMLFilter();
         sxf.setInputType(QueueSourceXMLFilter.InputType.indirect);
         sxf.setChunkSize(1);
         SAXParserFactory spf = SAXParserFactory.newInstance();

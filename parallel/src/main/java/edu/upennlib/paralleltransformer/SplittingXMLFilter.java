@@ -16,26 +16,15 @@
 
 package edu.upennlib.paralleltransformer;
 
-import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -51,52 +40,15 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
-    private static final int DEFAULT_RECORD_LEVEL = 1;
-    private static final int DEFAULT_CHUNK_SIZE = 100;
-    private int chunkSize = DEFAULT_CHUNK_SIZE;
     private volatile boolean parsing = false;
     private volatile Future<?> consumerTask;
-    private int level = -1;
-    private int recordStartEvent = -1;
-    private int recordCount = 0;
     private final Lock parseLock = new ReentrantLock();
     private final Condition parseContinue = parseLock.newCondition();
     private final Condition parseChunkDone = parseLock.newCondition();
     private final ArrayDeque<StructuralStartEvent> startEventStack = new ArrayDeque<StructuralStartEvent>();
 
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, TransformerException, FileNotFoundException, IOException {
-        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-        Transformer t = tf.newTransformer();
-        SplittingXMLFilter sxf = new SplittingXMLFilter();
-        sxf.setInputType(InputType.indirect);
-        sxf.setChunkSize(1);
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setNamespaceAware(true);
-        SAXParser sp = spf.newSAXParser();
-        XMLReader xmlReader = sp.getXMLReader();
-        sxf.setParent(xmlReader);
-        sxf.setXMLReaderCallback(new IncrementingFileCallback(0, t, "out/out-", ".xml"));
-        File in = new File("blah.txt");
-        InputSource inSource = new InputSource(new FileReader(in));
-        inSource.setSystemId(in.getPath());
-        sxf.setExecutor(Executors.newCachedThreadPool());
-        try {
-            sxf.parse(inSource);
-        } finally {
-            sxf.shutdown();
-        }
-    }
-
     public SplittingXMLFilter() {
         synchronousParser.setParent(this);
-    }
-
-    public int getChunkSize() {
-        return chunkSize;
-    }
-
-    public void setChunkSize(int size) {
-        chunkSize = size;
     }
 
     @Override
@@ -155,9 +107,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         consumerTask = null;
         consumerThrowable = null;
         producerThrowable = null;
-        recordCount = 0;
-        level = -1;
-        recordStartEvent = -1;
+        splitState = SplitState.inter;
         startEventStack.clear();
     }
 
@@ -342,24 +292,28 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
     }
 
-    private void recordStart() throws SAXException {
-        if (++recordCount > chunkSize) {
-            writeSyntheticEndEvents();
-            recordCount = 1; // the record we just entered!
+    protected final void splitStart() throws SAXException {
+        writeSyntheticEndEvents();
+        try {
+            parseLock.lock();
+            parseChunkDone.signal();
             try {
-                parseLock.lock();
-                parseChunkDone.signal();
-                try {
-                    parseContinue.await();
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
-            } finally {
-                parseLock.unlock();
+                parseContinue.await();
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
             }
-            writeSyntheticStartEvents();
+        } finally {
+            parseLock.unlock();
         }
+        writeSyntheticStartEvents();
     }
+    
+    protected void splitEnd() {
+        splitState = SplitState.ending;
+    }
+
+    private enum SplitState { inter, starting, intra, ending }
+    private SplitState splitState = SplitState.inter;
 
     private void writeSyntheticEndEvents() throws SAXException {
         Iterator<StructuralStartEvent> iter = startEventStack.iterator();
@@ -373,7 +327,15 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
                     super.endPrefixMapping(next.one);
                     break;
                 case ELEMENT:
-                    super.endElement(next.one, next.two, next.three);
+                    try {
+                        super.endElement(next.one, next.two, next.three);
+                    } catch (SAXException ex) {
+                        System.out.println("culprit: "+next);
+                        throw ex;
+                    } catch (RuntimeException ex) {
+                        System.out.println("culprit: "+next);
+                        throw ex;
+                    }
             }
         }
     }
@@ -396,26 +358,28 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
     }
 
-    private void recordEnd() {
-
-    }
-
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-        if (++level == DEFAULT_RECORD_LEVEL && recordStartEvent++ < 0) {
-            recordStart();
-        } else if (level < DEFAULT_RECORD_LEVEL) {
-            startEventStack.push(new StructuralStartEvent(uri, localName, qName, atts));
+        switch (splitState) {
+            case inter:
+                startEventStack.push(new StructuralStartEvent(uri, localName, qName, atts));
+                break;
+            case starting:
+                splitState = SplitState.intra;
+                break;
         }
         super.startElement(uri, localName, qName, atts);
     }
 
     @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
-        if (level < DEFAULT_RECORD_LEVEL) {
-            startEventStack.push(new StructuralStartEvent(prefix, uri));
-        } else if (level == DEFAULT_RECORD_LEVEL && recordStartEvent++ < 0) {
-            recordStart();
+        switch (splitState) {
+            case inter:
+                startEventStack.push(new StructuralStartEvent(prefix, uri));
+                break;
+            case starting:
+                splitState = SplitState.intra;
+                break;
         }
         super.startPrefixMapping(prefix, uri);
     }
@@ -423,19 +387,21 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         super.endElement(uri, localName, qName);
-        if (level < DEFAULT_RECORD_LEVEL) {
-            startEventStack.pop();
-        } else if (--level == DEFAULT_RECORD_LEVEL && --recordStartEvent < 0) {
-            recordEnd();
+        switch (splitState) {
+            case inter:
+                startEventStack.pop();
+            case ending:
+                splitState = SplitState.inter;
         }
     }
 
     @Override
     public void endPrefixMapping(String prefix) throws SAXException {
-        if (level < DEFAULT_RECORD_LEVEL) {
-            startEventStack.pop();
-        } else if (level == DEFAULT_RECORD_LEVEL && --recordStartEvent < 0) {
-            recordEnd();
+        switch (splitState) {
+            case inter:
+                startEventStack.pop();
+            case ending:
+                splitState = SplitState.inter;
         }
         super.endPrefixMapping(prefix);
     }

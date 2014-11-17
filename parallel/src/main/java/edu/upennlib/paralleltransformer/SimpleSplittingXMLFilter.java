@@ -78,7 +78,8 @@ public class SimpleSplittingXMLFilter extends SplittingXMLFilter {
         chunkSize = size;
     }
 
-    private void reset(boolean cancel) {
+    @Override
+    protected void reset(boolean cancel) {
         recordCount = 0;
         level = -1;
         recordStartEvent = -1;
@@ -87,77 +88,22 @@ public class SimpleSplittingXMLFilter extends SplittingXMLFilter {
 
     private void recordStart() throws SAXException {
         if (++recordCount > chunkSize) {
-            writeSyntheticEndEvents();
             recordCount = 1; // the record we just entered!
-            try {
-                parseLock.lock();
-                parseChunkDone.signal();
-                try {
-                    parseContinue.await();
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
-            } finally {
-                parseLock.unlock();
-            }
-            writeSyntheticStartEvents();
+            splitStart();
         }
-    }
-
-    private void writeSyntheticEndEvents() throws SAXException {
-        Iterator<StructuralStartEvent> iter = startEventStack.iterator();
-        while (iter.hasNext()) {
-            StructuralStartEvent next = iter.next();
-            switch (next.type) {
-                case DOCUMENT:
-                    super.endDocument();
-                    break;
-                case PREFIX_MAPPING:
-                    super.endPrefixMapping(next.one);
-                    break;
-                case ELEMENT:
-                    super.endElement(next.one, next.two, next.three);
-            }
-        }
-    }
-
-    private void writeSyntheticStartEvents() throws SAXException {
-        Iterator<StructuralStartEvent> iter = startEventStack.descendingIterator();
-        while (iter.hasNext()) {
-            StructuralStartEvent next = iter.next();
-            switch (next.type) {
-                case DOCUMENT:
-                    super.startDocument();
-                    break;
-                case PREFIX_MAPPING:
-                    super.startPrefixMapping(next.one, next.two);
-                    break;
-                case ELEMENT:
-                    super.startElement(next.one, next.two, next.three, next.atts);
-            }
-        }
-
-    }
-
-    private void recordEnd() {
-
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         if (++level == DEFAULT_RECORD_LEVEL && recordStartEvent++ < 0) {
             recordStart();
-        } else if (level < DEFAULT_RECORD_LEVEL) {
-            startEventStack.push(new StructuralStartEvent(uri, localName, qName, atts));
         }
         super.startElement(uri, localName, qName, atts);
     }
 
     @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
-        if (level < DEFAULT_RECORD_LEVEL) {
-            startEventStack.push(new StructuralStartEvent(prefix, uri));
-        } else if (level == DEFAULT_RECORD_LEVEL && recordStartEvent++ < 0) {
+        if (level == DEFAULT_RECORD_LEVEL && recordStartEvent++ < 0) {
             recordStart();
         }
         super.startPrefixMapping(prefix, uri);
@@ -166,19 +112,15 @@ public class SimpleSplittingXMLFilter extends SplittingXMLFilter {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         super.endElement(uri, localName, qName);
-        if (level < DEFAULT_RECORD_LEVEL) {
-            startEventStack.pop();
-        } else if (--level == DEFAULT_RECORD_LEVEL && --recordStartEvent < 0) {
-            recordEnd();
+        if (--level == DEFAULT_RECORD_LEVEL && --recordStartEvent < 0) {
+            splitEnd();
         }
     }
 
     @Override
     public void endPrefixMapping(String prefix) throws SAXException {
-        if (level < DEFAULT_RECORD_LEVEL) {
-            startEventStack.pop();
-        } else if (level == DEFAULT_RECORD_LEVEL && --recordStartEvent < 0) {
-            recordEnd();
+        if (level == DEFAULT_RECORD_LEVEL && --recordStartEvent < 0) {
+            splitEnd();
         }
         super.endPrefixMapping(prefix);
     }
