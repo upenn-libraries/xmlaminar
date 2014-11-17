@@ -137,7 +137,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
     }
 
-    private void reset(boolean cancel) {
+    protected void reset(boolean cancel) {
         try {
             if (consumerTask != null) {
                 if (cancel) {
