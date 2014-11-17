@@ -52,7 +52,7 @@ public class TXMLFilter extends JoiningXMLFilter {
     
     private final ProcessingQueue<Chunk> pq;
     private final Templates templates;
-    private final SplittingXMLFilter splitter = new SplittingXMLFilter();
+    private final SimpleSplittingXMLFilter splitter = new SimpleSplittingXMLFilter();
     private int chunkSize = DEFAULT_CHUNK_SIZE;
     private static final Logger logger = Logger.getLogger(TXMLFilter.class);
     private ExecutorService executor;

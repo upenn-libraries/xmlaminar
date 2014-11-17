@@ -67,7 +67,7 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     private InputType inputType = DEFAULT_INPUT_TYPE;
     private Pattern delimiterPattern = DEFAULT_DELIMITER_PATTERN;
 
-    public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, IOException, TransformerException {
+    public static void main(String[] args) throws Exception {
         SplittingXMLFilter.main(args);
     }
 

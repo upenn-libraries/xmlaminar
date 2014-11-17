@@ -47,7 +47,7 @@ public class SimpleSplittingXMLFilter extends SplittingXMLFilter {
     private int recordStartEvent = -1;
     private int recordCount = 0;
 
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, TransformerException, FileNotFoundException, IOException {
+    public static void main(String[] args) throws Exception {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
         SimpleSplittingXMLFilter sxf = new SimpleSplittingXMLFilter();

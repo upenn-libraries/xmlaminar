@@ -51,6 +51,10 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         synchronousParser.setParent(this);
     }
 
+    public static void main(String[] args) throws Exception {
+        SimpleSplittingXMLFilter.main(args);
+    }
+    
     @Override
     protected void initialParse(SAXSource in) {
         setupParse(in.getInputSource());
@@ -293,6 +297,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     }
 
     protected final void splitStart() throws SAXException {
+        splitState = SplitState.starting;
         writeSyntheticEndEvents();
         try {
             parseLock.lock();
@@ -319,6 +324,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         Iterator<StructuralStartEvent> iter = startEventStack.iterator();
         while (iter.hasNext()) {
             StructuralStartEvent next = iter.next();
+            System.out.println(next);
             switch (next.type) {
                 case DOCUMENT:
                     super.endDocument();
