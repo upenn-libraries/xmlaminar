@@ -336,7 +336,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         parsing = false;
         parseLock.lock();
         try {
-            parseChunkDone.signalAll();
+            parseChunkDone.signal();
         } finally {
             parseLock.unlock();
         }
@@ -348,7 +348,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             recordCount = 1; // the record we just entered!
             try {
                 parseLock.lock();
-                parseChunkDone.signalAll();
+                parseChunkDone.signal();
                 try {
                     parseContinue.await();
                 } catch (InterruptedException ex) {
