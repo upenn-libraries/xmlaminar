@@ -176,6 +176,19 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             }
         }
 
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            System.out.println(getContentHandler()+".end("+localName+"), "+splitState);
+            super.endElement(uri, localName, qName);
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+            System.out.println(getContentHandler()+".start("+localName+"), "+splitState);
+            super.startElement(uri, localName, qName, atts);
+        }
+
+        
     }
     
     private final Phaser parseChunkDonePhaser = new Phaser(2);
@@ -311,10 +324,11 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             parseLock.unlock();
         }
         writeSyntheticStartEvents();
+        splitState = SplitState.intra;
     }
-    
+
     protected void splitEnd() {
-        splitState = SplitState.ending;
+        splitState = SplitState.inter;
     }
 
     private enum SplitState { inter, starting, intra, ending }
@@ -324,7 +338,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         Iterator<StructuralStartEvent> iter = startEventStack.iterator();
         while (iter.hasNext()) {
             StructuralStartEvent next = iter.next();
-            System.out.println(next);
+            System.out.println("synth: "+next);
             switch (next.type) {
                 case DOCUMENT:
                     super.endDocument();
@@ -333,15 +347,8 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
                     super.endPrefixMapping(next.one);
                     break;
                 case ELEMENT:
-                    try {
-                        super.endElement(next.one, next.two, next.three);
-                    } catch (SAXException ex) {
-                        System.out.println("culprit: "+next);
-                        throw ex;
-                    } catch (RuntimeException ex) {
-                        System.out.println("culprit: "+next);
-                        throw ex;
-                    }
+                    System.out.println("synth:"+getContentHandler()+".end("+next.two+"), "+splitState);
+                    super.endElement(next.one, next.two, next.three);
             }
         }
     }
@@ -358,6 +365,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
                     super.startPrefixMapping(next.one, next.two);
                     break;
                 case ELEMENT:
+                    System.out.println("synth:"+getContentHandler()+".start("+next.two+"), "+splitState);
                     super.startElement(next.one, next.two, next.three, next.atts);
             }
         }
@@ -370,10 +378,8 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             case inter:
                 startEventStack.push(new StructuralStartEvent(uri, localName, qName, atts));
                 break;
-            case starting:
-                splitState = SplitState.intra;
-                break;
         }
+        System.out.println(getContentHandler()+".start("+localName+"), "+splitState);
         super.startElement(uri, localName, qName, atts);
     }
 
@@ -383,18 +389,17 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             case inter:
                 startEventStack.push(new StructuralStartEvent(prefix, uri));
                 break;
-            case starting:
-                splitState = SplitState.intra;
-                break;
         }
         super.startPrefixMapping(prefix, uri);
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
+        System.out.println(getContentHandler()+".end("+localName+"), "+splitState);
         super.endElement(uri, localName, qName);
         switch (splitState) {
             case inter:
+                System.out.println("pop for "+localName);
                 startEventStack.pop();
             case ending:
                 splitState = SplitState.inter;
