@@ -412,8 +412,13 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-        if (level < bypassLevel && handleDirective(splitDirector.startElement(uri, localName, qName, atts, level))) {
+        try {
+            if (level < bypassLevel && handleDirective(splitDirector.startElement(uri, localName, qName, atts, level))) {
             startEventStack.push(new StructuralStartEvent(uri, localName, qName, atts));
+        }
+        } catch (RuntimeException ex) {
+            System.out.println("on startElement "+qName);
+            throw ex;
         }
         super.startElement(uri, localName, qName, atts);
         level++;
@@ -443,17 +448,20 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
                 case SPLIT:
                     bypassLevel = level;
                     bypassStartEventLevel = startEventLevel;
+                    split();
+                    return false;
                 case SPLIT_NO_BYPASS:
                     split();
-                    break;
+                    return true;
                 case NO_SPLIT_BYPASS:
                     bypassLevel = level;
                     bypassStartEventLevel = startEventLevel;
                     return false;
                 case NO_SPLIT:
                     return true;
+                default:
+                    throw new AssertionError();
             }
-            return false;
     }
 
     @Override
@@ -542,7 +550,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
 
         public SplitDirective startElement(String uri, String localName, String qName, Attributes atts, int level) throws SAXException {
-            return SplitDirective.NO_SPLIT;
+            return SplitDirective.SPLIT_NO_BYPASS;
 //            System.out.println("called for startElement " + qName + ", level=" + level);
 //            if (level == 1) {
 //                if (recordCount++ == 1) {
