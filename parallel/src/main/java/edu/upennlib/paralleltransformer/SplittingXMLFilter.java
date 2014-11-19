@@ -16,15 +16,23 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -45,6 +53,10 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     private final Lock parseLock = new ReentrantLock();
     private final Condition parseContinue = parseLock.newCondition();
     private final Condition parseChunkDone = parseLock.newCondition();
+    
+    
+    private int level = -1;
+    private int startEventLevel = -1;
     private final ArrayDeque<StructuralStartEvent> startEventStack = new ArrayDeque<StructuralStartEvent>();
 
     public SplittingXMLFilter() {
@@ -52,7 +64,26 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
     }
 
     public static void main(String[] args) throws Exception {
-        SimpleSplittingXMLFilter.main(args);
+        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+        Transformer t = tf.newTransformer();
+        SplittingXMLFilter sxf = new SplittingXMLFilter();
+        sxf.setInputType(InputType.indirect);
+        //sxf.setChunkSize(1);
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
+        SAXParser sp = spf.newSAXParser();
+        XMLReader xmlReader = sp.getXMLReader();
+        sxf.setParent(xmlReader);
+        sxf.setXMLReaderCallback(new IncrementingFileCallback(0, t, "out/out-", ".xml"));
+        File in = new File("blah.txt");
+        InputSource inSource = new InputSource(new FileReader(in));
+        inSource.setSystemId(in.getPath());
+        sxf.setExecutor(Executors.newCachedThreadPool());
+        try {
+            sxf.parse(inSource);
+        } finally {
+            sxf.shutdown();
+        }
     }
     
     @Override
@@ -111,7 +142,9 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         consumerTask = null;
         consumerThrowable = null;
         producerThrowable = null;
-        splitState = SplitState.inter;
+        if (splitDirector != null) {
+            splitDirector.reset();
+        }
         startEventStack.clear();
     }
 
@@ -178,13 +211,13 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
 
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            System.out.println(getContentHandler()+".end("+localName+"), "+splitState);
+            //System.out.println(getContentHandler()+".end("+localName+"), "+splitState);
             super.endElement(uri, localName, qName);
         }
 
         @Override
         public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-            System.out.println(getContentHandler()+".start("+localName+"), "+splitState);
+            //System.out.println(getContentHandler()+".start("+localName+"), "+splitState);
             super.startElement(uri, localName, qName, atts);
         }
 
@@ -309,8 +342,10 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
     }
 
-    protected final void splitStart() throws SAXException {
-        splitState = SplitState.starting;
+    private int splitLevel = Integer.MAX_VALUE;
+    private int splitStartEventLevel = Integer.MAX_VALUE;
+    
+    protected final void split() throws SAXException {
         writeSyntheticEndEvents();
         try {
             parseLock.lock();
@@ -324,21 +359,12 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             parseLock.unlock();
         }
         writeSyntheticStartEvents();
-        splitState = SplitState.intra;
     }
-
-    protected void splitEnd() {
-        splitState = SplitState.inter;
-    }
-
-    private enum SplitState { inter, starting, intra, ending }
-    private SplitState splitState = SplitState.inter;
 
     private void writeSyntheticEndEvents() throws SAXException {
         Iterator<StructuralStartEvent> iter = startEventStack.iterator();
         while (iter.hasNext()) {
             StructuralStartEvent next = iter.next();
-            System.out.println("synth: "+next);
             switch (next.type) {
                 case DOCUMENT:
                     super.endDocument();
@@ -347,7 +373,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
                     super.endPrefixMapping(next.one);
                     break;
                 case ELEMENT:
-                    System.out.println("synth:"+getContentHandler()+".end("+next.two+"), "+splitState);
                     super.endElement(next.one, next.two, next.three);
             }
         }
@@ -365,55 +390,191 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
                     super.startPrefixMapping(next.one, next.two);
                     break;
                 case ELEMENT:
-                    System.out.println("synth:"+getContentHandler()+".start("+next.two+"), "+splitState);
                     super.startElement(next.one, next.two, next.three, next.atts);
             }
         }
 
     }
 
+    private SplitDirector splitDirector = new SplitDirector();
+
+    public SplitDirector getSplitDirector() {
+        return splitDirector;
+    }
+
+    public void setSplitDirector(SplitDirector splitDirector) {
+        this.splitDirector = splitDirector;
+    }
+    
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-        switch (splitState) {
-            case inter:
-                startEventStack.push(new StructuralStartEvent(uri, localName, qName, atts));
-                break;
+        level++;
+        startEventLevel++;
+        try {
+            if (level < splitLevel && handleDirective(splitDirector.startElement(uri, localName, qName, atts, level))) {
+            startEventStack.push(new StructuralStartEvent(uri, localName, qName, atts));
         }
-        System.out.println(getContentHandler()+".start("+localName+"), "+splitState);
+        } catch (RuntimeException ex) {
+            System.out.println("on qName="+qName);
+            throw ex;
+        }
         super.startElement(uri, localName, qName, atts);
     }
 
     @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
-        switch (splitState) {
-            case inter:
-                startEventStack.push(new StructuralStartEvent(prefix, uri));
-                break;
+        startEventLevel++;
+        if (level < splitLevel && handleDirective(splitDirector.startPrefixMapping(prefix, uri, level))) {
+            startEventStack.push(new StructuralStartEvent(prefix, uri));
         }
         super.startPrefixMapping(prefix, uri);
     }
 
+    
+    
+    /**
+     * Returns true if the generating event should be added to 
+     * or removed from the startEvent stack
+     * @param directive
+     * @return
+     * @throws SAXException 
+     */
+    private boolean handleDirective(SplitDirective directive) throws SAXException {
+            switch (directive) {
+                case SPLIT:
+                    splitLevel = level;
+                    splitStartEventLevel = startEventLevel;
+                case SPLIT_NO_BYPASS:
+                    split();
+                    break;
+                case NO_SPLIT_BYPASS:
+                    splitLevel = level;
+                    splitStartEventLevel = startEventLevel;
+                    return false;
+                case NO_SPLIT:
+                    return true;
+            }
+            return false;
+    }
+
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        System.out.println(getContentHandler()+".end("+localName+"), "+splitState);
         super.endElement(uri, localName, qName);
-        switch (splitState) {
-            case inter:
-                System.out.println("pop for "+localName);
+        if (handleStructuralEndEvent()) {
+            SplitDirective directive = splitDirector.endElement(uri, localName, qName, level);
+            startEventLevel--;
+            level--;
+            handleDirective(directive);
+        } else {
+            startEventLevel--;
+            level--;
+        }
+    }
+    
+    private boolean handleStructuralEndEvent() {
+        if (level > splitLevel) {
+            return false;
+        } else if (level < splitLevel) {
+            startEventStack.pop();
+            return true;
+        } else {
+            if (startEventLevel == splitStartEventLevel) {
+                bypassEnd();
+                return true;
+            } else if (startEventLevel < splitStartEventLevel) {
                 startEventStack.pop();
-            case ending:
-                splitState = SplitState.inter;
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
     @Override
     public void endPrefixMapping(String prefix) throws SAXException {
-        switch (splitState) {
-            case inter:
-                startEventStack.pop();
-            case ending:
-                splitState = SplitState.inter;
-        }
         super.endPrefixMapping(prefix);
+        if (handleStructuralEndEvent()) {
+            SplitDirective directive = splitDirector.endPrefixMapping(prefix, level);
+            startEventLevel--;
+            handleDirective(directive);
+        } else {
+            startEventLevel--;
+        }
+    }
+    
+    private void bypassEnd() {
+        splitLevel = Integer.MAX_VALUE;
+        splitStartEventLevel = Integer.MAX_VALUE;
+    }
+
+    @Override
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        if (level < splitLevel) {
+            handleDirective(splitDirector.characters(ch, start, length, level));
+        }
+    }
+
+    @Override
+    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+        if (level < splitLevel) {
+            handleDirective(splitDirector.ignorableWhitespace(ch, start, length, level));
+        }
+    }
+
+    @Override
+    public void skippedEntity(String name) throws SAXException {
+        if (level < splitLevel) {
+            handleDirective(splitDirector.skippedEntity(name, level));
+        }
+    }
+
+    public static enum SplitDirective { SPLIT, NO_SPLIT, SPLIT_NO_BYPASS, NO_SPLIT_BYPASS }
+    
+    public static class SplitDirector {
+
+        private int recordCount = 0;
+        
+        public void reset() {
+            recordCount = 0;
+        }
+        
+        public SplitDirective startPrefixMapping(String prefix, String uri, int level) throws SAXException {
+            return SplitDirective.NO_SPLIT;
+        }
+
+        public SplitDirective endPrefixMapping(String prefix, int level) throws SAXException {
+            return SplitDirective.NO_SPLIT;
+        }
+
+        public SplitDirective startElement(String uri, String localName, String qName, Attributes atts, int level) throws SAXException {
+            return SplitDirective.NO_SPLIT;
+        }
+
+        public SplitDirective endElement(String uri, String localName, String qName, int level) throws SAXException {
+            return SplitDirective.NO_SPLIT;
+        }
+
+        public SplitDirective characters(char[] ch, int start, int length, int level) throws SAXException {
+            System.out.println("called for characters " + new String(ch, start, length) + ", level=" + level);
+            if (level == 2) {
+                if (recordCount++ == 1) {
+                    recordCount = 1; // the one we just entered
+                    return SplitDirective.SPLIT;
+                } else {
+                    return SplitDirective.NO_SPLIT_BYPASS;
+                }
+            } else {
+                return SplitDirective.NO_SPLIT;
+            }
+        }
+
+        public SplitDirective ignorableWhitespace(char[] ch, int start, int length, int level) throws SAXException {
+            return SplitDirective.NO_SPLIT;
+        }
+
+        public SplitDirective skippedEntity(String name, int level) throws SAXException {
+            return SplitDirective.NO_SPLIT;
+        }
+        
     }
 }

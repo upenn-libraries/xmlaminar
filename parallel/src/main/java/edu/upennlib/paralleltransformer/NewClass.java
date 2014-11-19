@@ -16,10 +16,12 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.xmlutils.DevNullContentHandler;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.concurrent.Executors;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -30,9 +32,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
@@ -52,6 +57,37 @@ public class NewClass {
         spf.setNamespaceAware(true);
         SAXParser sp = spf.newSAXParser();
         XMLReader xmlReader = sp.getXMLReader();
+        String testXML = "<a:a xmlns:a=\"http://whatever\"/>";
+        ContentHandler blah = new DevNullContentHandler() {
+
+            @Override
+            public void endElement(String uri, String localName, String qName) throws SAXException {
+                System.out.println("endElement: "+localName);
+                super.endElement(uri, localName, qName); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+                System.out.println("startElement: "+localName);
+                super.startElement(uri, localName, qName, atts); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void endPrefixMapping(String prefix) throws SAXException {
+                System.out.println("endPrefix: "+prefix);
+                super.endPrefixMapping(prefix); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void startPrefixMapping(String prefix, String uri) throws SAXException {
+                System.out.println("startPrefix: "+uri);
+                super.startPrefixMapping(prefix, uri); //To change body of generated methods, choose Tools | Templates.
+            }
+            
+        };
+        xmlReader.setContentHandler(blah);
+        xmlReader.parse(new InputSource(new StringReader(testXML)));
+        System.exit(0);
         joiner.setParent(sxf);
         sxf.setParent(xmlReader);
         sxf.setXMLReaderCallback(new SplittingXMLFilter.XMLReaderCallback() {

@@ -89,7 +89,7 @@ public class SimpleSplittingXMLFilter extends SplittingXMLFilter {
     private void recordStart() throws SAXException {
         if (++recordCount > chunkSize) {
             recordCount = 1; // the record we just entered!
-            splitStart();
+            split();
         }
     }
 
