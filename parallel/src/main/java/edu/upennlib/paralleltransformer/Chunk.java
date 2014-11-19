@@ -55,7 +55,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         }
     }
 
-    private final SimpleSplittingXMLFilter splitter = new SimpleSplittingXMLFilter();
+    private final LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter();
     private final InputSource dummy = new InputSource();
 
     @Override
