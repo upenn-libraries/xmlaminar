@@ -105,7 +105,6 @@ public class LevelSplittingXMLFilter extends SplittingXMLFilter {
         
         @Override
         public SplitDirective startElement(String uri, String localName, String qName, Attributes atts, int level) throws SAXException {
-            System.out.println("blah: "+qName+", "+level+", "+recordLevel);
             if (level == recordLevel) {
                 if (recordCount++ >= chunkSize) {
                     recordCount = 1; // the one we just entered
