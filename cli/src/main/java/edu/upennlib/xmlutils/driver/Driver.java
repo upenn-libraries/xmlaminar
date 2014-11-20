@@ -18,6 +18,8 @@ package edu.upennlib.xmlutils.driver;
 
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.JoiningXMLFilter;
+import edu.upennlib.paralleltransformer.LevelSplittingXMLFilter;
+import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
 import edu.upennlib.paralleltransformer.SplittingXMLFilter;
 import edu.upennlib.paralleltransformer.TXMLFilter;
 import java.io.BufferedOutputStream;
@@ -344,7 +346,7 @@ public class Driver {
                 }
             }
             try {
-                SplittingXMLFilter sxf = new SplittingXMLFilter();
+                LevelSplittingXMLFilter sxf = new LevelSplittingXMLFilter();
                 sxf.setChunkSize(chunkSize);
                 SAXParserFactory spf = SAXParserFactory.newInstance();
                 spf.setNamespaceAware(true);
@@ -403,12 +405,23 @@ public class Driver {
                 source.setSystemId(inputFile.getAbsolutePath());
             }
             try {
+                LevelSplittingXMLFilter sxf = new LevelSplittingXMLFilter(recordDepth, chunkSize);
+                QueueSourceXMLFilter.InputType inputType;
+                switch (inputFileType) {
+                    case direct:
+                        inputType = QueueSourceXMLFilter.InputType.direct;
+                        break;
+                    case reference:
+                        inputType = QueueSourceXMLFilter.InputType.indirect;
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+                sxf.setInputType(inputType);
                 TXMLFilter txf = new TXMLFilter(new StreamSource(xsl));
-                SAXParserFactory spf = SAXParserFactory.newInstance();
-                spf.setNamespaceAware(true);
-                txf.setParent(spf.newSAXParser().getXMLReader());
-                txf.setChunkSize(chunkSize);
-                txf.setExecutor(Executors.newCachedThreadPool());
+                JoiningXMLFilter joiner = new JoiningXMLFilter();
+                txf.setParent(sxf);
+                joiner.setParent(txf);
                 StreamResult res = new StreamResult();
                 if (outputFile == null || "-".equals(outputFile.getPath())) {
                     out = System.out;
@@ -419,17 +432,13 @@ public class Driver {
                     res.setSystemId(outputFile);
                 }
                 Transformer t = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null).newTransformer();
-                t.transform(new SAXSource(txf, source), res);
-                System.out.println("I am here");
+                txf.configureOutputTransformer(t);
+                t.transform(new SAXSource(joiner, source), res);
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
             } catch (TransformerException ex) {
                 throw new RuntimeException(ex);
             } catch (FileNotFoundException ex) {
-                throw new RuntimeException(ex);
-            } catch (ParserConfigurationException ex) {
-                throw new RuntimeException(ex);
-            } catch (SAXException ex) {
                 throw new RuntimeException(ex);
             } finally {
                 try {

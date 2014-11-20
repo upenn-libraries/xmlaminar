@@ -17,7 +17,6 @@
 package edu.upennlib.paralleltransformer;
 
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
-import edu.upennlib.paralleltransformer.callback.QueueDestCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,7 +54,7 @@ public class NewClass {
         File in = new File(args[0]);
         File xsl = new File(args[1]);
         File out = new File(args[2]);
-        final TXMLFilter1 txf = new TXMLFilter1(new StreamSource(xsl));
+        final TXMLFilter txf = new TXMLFilter(new StreamSource(xsl));
         txf.setInputType(QueueSourceXMLFilter.InputType.queue);
         LevelSplittingXMLFilter sxf = new LevelSplittingXMLFilter();
         sxf.setInputType(QueueSourceXMLFilter.InputType.indirect);
@@ -112,7 +111,7 @@ public class NewClass {
         LevelSplittingXMLFilter sxf = new LevelSplittingXMLFilter();
         sxf.setInputType(QueueSourceXMLFilter.InputType.indirect);
         sxf.setChunkSize(1);
-        TXMLFilter1 txf = new TXMLFilter1(new StreamSource(xsl));
+        TXMLFilter txf = new TXMLFilter(new StreamSource(xsl));
         JoiningXMLFilter joiner = new JoiningXMLFilter();
         LevelSplittingXMLFilter sxf2 = new LevelSplittingXMLFilter();
         sxf2.setOutputCallback(new IncrementingFileCallback("out/out"));
@@ -182,7 +181,7 @@ public class NewClass {
         File in = new File(args[0]);
         File xsl = new File(args[1]);
         File out = new File(args[2]);
-        TXMLFilter1 txf = new TXMLFilter1(new StreamSource(xsl));
+        TXMLFilter txf = new TXMLFilter (new StreamSource(xsl));
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         txf.setParent(spf.newSAXParser().getXMLReader());

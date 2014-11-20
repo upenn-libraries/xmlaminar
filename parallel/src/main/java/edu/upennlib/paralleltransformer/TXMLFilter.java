@@ -16,16 +16,21 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
+import edu.upennlib.paralleltransformer.callback.OutputCallback;
+import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
@@ -41,67 +46,87 @@ import net.sf.saxon.Controller;
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
  * @author Michael Gibney
  */
-public class TXMLFilter extends JoiningXMLFilter {
+public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
 
-    private static final int DEFAULT_CHUNK_SIZE = 100;
-    
     private final ProcessingQueue<Chunk> pq;
     private final Templates templates;
-    private final LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter();
-    private int chunkSize = DEFAULT_CHUNK_SIZE;
-    private static final Logger logger = Logger.getLogger(TXMLFilter.class);
-    private ExecutorService executor;
+    private static final Logger LOG = Logger.getLogger(TXMLFilter.class);
 
     public TXMLFilter(Source xslSource) throws TransformerConfigurationException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         templates = tf.newTemplates(xslSource);
         pq = new ProcessingQueue<Chunk>(100, new Chunk(templates));
     }
+
+    @Override
+    protected void initialParse(SAXSource in) {
+        outputFuture = getExecutor().submit(new OutputRunnable(Thread.currentThread()));
+        pq.reset();
+        try {
+            setupInputBuffer(in);
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    protected void repeatParse(SAXSource in) {
+        try {
+            setupInputBuffer(in);
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
     
-    public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, TransformerException {
-        File in = new File(args[0]);
-        File xsl = new File(args[1]);
-        File out = new File(args[2]);
-        TXMLFilter txf = new TXMLFilter(new StreamSource(xsl));
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setNamespaceAware(true);
-        txf.setParent(spf.newSAXParser().getXMLReader());
-        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-        Transformer t = tf.newTransformer();
-        txf.configureOutputTransformer((Controller) t);
-        t.transform(new SAXSource(txf, new InputSource(new FileInputStream(in))), new StreamResult(out));
+    @Override
+    protected void finished() throws SAXException {
+        pq.finished();
+    }
+    
+    private void setupInputBuffer(SAXSource in) throws InterruptedException {
+        Chunk nextIn = pq.nextIn();
+        UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput();
+        XMLFilter suxf = new StateUpdatingXMLFilter(nextIn, in.getXMLReader(), ProcessingState.HAS_INPUT);
+        inputBuffer.setUnmodifiableParent(suxf);
+        in.setXMLReader(suxf);
+        setupParse(inputBuffer);
+    }
+    
+    protected void reset(boolean cancel) {
+        try {
+            if (outputFuture != null) {
+                if (cancel) {
+                    outputFuture.cancel(true);
+                } else {
+                    outputFuture.get();
+                }
+            }
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        } catch (ExecutionException ex) {
+            throw new RuntimeException(ex);
+        }
+        outputFuture = null;
+        consumerThrowable = null;
+        producerThrowable = null;
     }
 
     private XMLReader externalParent;
 
     @Override
-    public ExecutorService getExecutor() {
-        return executor;
-    }
-
-    @Override
     public void setExecutor(ExecutorService executor) {
         pq.setWorkExecutor(executor);
-        this.executor = executor;
+        super.setExecutor(executor);
     }
 
-    public int getChunkSize() {
-        return chunkSize;
-    }
-
-    public void setChunkSize(int chunkSize) {
-        if (chunkSize < 1) {
-            throw new IllegalArgumentException("chunk size "+chunkSize+" < 1");
-        }
-        this.chunkSize = chunkSize;
-    }
-    
     @Override
     public XMLReader getParent() {
         return externalParent;
@@ -113,127 +138,139 @@ public class TXMLFilter extends JoiningXMLFilter {
         super.setParent(parent);
     }
 
-    private static class FutureExceptionPropogator implements Runnable {
+    @Override
+    public XMLReaderCallback getOutputCallback() {
+        return outputCallback;
+    }
 
-        private final Thread propogateTo;
-        private final Future<?> future;
+    @Override
+    public void setOutputCallback(XMLReaderCallback callback) {
+        this.outputCallback = callback;
+    }
+
+    private XMLReaderCallback outputCallback;
+
+    private static class StateUpdatingXMLFilter extends XMLFilterImpl {
         
-        private FutureExceptionPropogator(Thread propogateTo, Future<?> future) {
-            this.propogateTo = propogateTo;
-            this.future = future;
+        private final Chunk outputChunk;
+        private final ProcessingState nextState;
+        
+        private StateUpdatingXMLFilter(Chunk outputChunk, XMLReader parent, ProcessingState nextState) {
+            super(parent);
+            this.outputChunk = outputChunk;
+            this.nextState = nextState;
         }
-        
+
         @Override
-        public void run() {
-            try {
-                future.get();
-            } catch (InterruptedException ex) {
-                ex.printStackTrace(System.err);
-                future.cancel(true);
-            } catch (ExecutionException ex) {
-                ex.printStackTrace(System.err);
-                propogateTo.interrupt();
-            }
+        public void endDocument() throws SAXException {
+            super.endDocument();
+            outputChunk.setState(nextState);
         }
         
     }
     
-    @Override
-    public void parse(InputSource input) throws SAXException, IOException {
-        Future<Void> producerFuture = executor.submit(new ProducerCallable(input));
-        executor.submit(new FutureExceptionPropogator(Thread.currentThread(), producerFuture));
-        if (!pq.isFinished()) {
-            setupParse(initialEventContentHandler);
-            do {
+    private static final XMLReader dummyNamespaceAware;
+    
+    static {
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
+        try {
+            dummyNamespaceAware = spf.newSAXParser().getXMLReader();
+        } catch (ParserConfigurationException ex) {
+            throw new RuntimeException(ex);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    private class OutputRunnable implements Runnable {
+
+        private final InputSource dummyInputSource = new InputSource();
+        private final Thread producer;
+        
+        private OutputRunnable(Thread producer) {
+            this.producer = producer;
+        }
+        
+        private void outputLoop() throws SAXException, IOException {
+            while (!pq.isFinished()) {
                 try {
                     Chunk nextOut = pq.nextOut();
-                    nextOut.writeOutputTo(this);
-                    nextOut.setState(ProcessingState.READY);
+                    UnboundedContentHandlerBuffer outputBuffer = nextOut.getOutput();
+                    outputBuffer.setUnmodifiableParent(dummyNamespaceAware);
+                    outputBuffer.setFlushOnParse(true); //TODO set this behavior by default?
+                    XMLReader r = new StateUpdatingXMLFilter(nextOut, outputBuffer, ProcessingState.READY);
+                    outputCallback.callback(r, dummyInputSource);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
-            } while (!pq.isFinished() && setupParse(devNullContentHandler));
-        }
-    }
-
-
-    private class ProducerCallable implements Callable<Void> {
-
-        private final InputSource input;
-
-        private ProducerCallable(InputSource input) {
-            this.input = input;
+            }
+            outputCallback.finished();
         }
 
         @Override
-        public Void call() throws SAXException, IOException {
-            TXMLFilter.super.setParent(splitter);
-            splitter.setExecutor(executor);
-            splitter.setParent(externalParent);
-            splitter.setDTDHandler(TXMLFilter.this);
-            splitter.setEntityResolver(TXMLFilter.this);
-            splitter.setOutputCallback(callback);
-            splitter.setChunkSize(chunkSize);
-            pq.reset();
-            TXMLFilter.super.parse(input);
-            pq.finished();
-            return null;
+        public void run() {
+            try {
+                outputLoop();
+            } catch (Throwable t) {
+                if (producerThrowable == null) {
+                    consumerThrowable = t;
+                    producer.interrupt();
+                } else {
+                    t = producerThrowable;
+                    producerThrowable = null;
+                    pq.getWorkExecutor().shutdownNow();
+                    throw new RuntimeException(t);
+                }
+            }
         }
 
+    }
+    
+    private volatile Throwable producerThrowable;
+    private volatile Throwable consumerThrowable;
+    private Future<?> outputFuture;
+    
+    @Override
+    public void parse(InputSource input) throws SAXException, IOException {
+        parse(input, null);
     }
 
     @Override
     public void parse(String systemId) throws SAXException, IOException {
-        throw new UnsupportedOperationException();
+        parse(null, systemId);
     }
-
-    private final MyXMLReaderCallback callback = new MyXMLReaderCallback();
-
-    private class MyXMLReaderCallback implements XMLReaderCallback {
-
-        @Override
-        public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-            doCallback(reader, input, null);
-        }
-
-        @Override
-        public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-            doCallback(reader, null, systemId);
-        }
-
-        private void doCallback(XMLReader reader, InputSource input, String systemId) throws SAXException, IOException {
-            Chunk nextIn;
-            try {
-                nextIn = pq.nextIn();
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
-            UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput();
-            reader.setContentHandler(inputBuffer);
-            reader.setErrorHandler(inputBuffer);
-            inputBuffer.setUnmodifiableParent(reader);
-            
+    
+    private void parse(InputSource input, String systemId) {
+        try {
             if (input != null) {
-                reader.parse(input);
+                super.parse(input);
             } else {
-                reader.parse(systemId);
+                super.parse(systemId);
             }
-            nextIn.setState(ProcessingState.HAS_INPUT);
+            outputFuture.get(); // wait for output to complete before returning
+        } catch (Throwable t) {
+            if (consumerThrowable == null) {
+                producerThrowable = t;
+                reset(true);
+                throw new RuntimeException(t);
+            } else {
+                t = consumerThrowable;
+                consumerThrowable = null;
+                pq.getWorkExecutor().shutdownNow();
+                throw new RuntimeException(t);
+            }
         }
-
-        @Override
-        public void finished() {
-        }
-
     }
 
-    public void configureOutputTransformer(Controller out) {
-        if (templates != null) {
+    public void configureOutputTransformer(Transformer out) {
+        if (templates != null && out instanceof Controller) {
+            Controller controller = (Controller) out;
             try {
                 Controller c;
                 c = (Controller) templates.newTransformer();
-                out.getExecutable().setCharacterMapIndex(c.getExecutable().getCharacterMapIndex());
-                out.setOutputProperties(c.getOutputProperties());
+                controller.getExecutable().setCharacterMapIndex(c.getExecutable().getCharacterMapIndex());
+                controller.setOutputProperties(c.getOutputProperties());
 
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
