@@ -39,6 +39,7 @@ import joptsimple.OptionParser;
 import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -141,8 +142,9 @@ public class Driver {
     }
     
     private static OptionParser configureSplitParser(OptionParser parser, SpecStruct specs) {
-        specs.chunkSizeSpec = parser.acceptsAll(SIZE_ARG).withRequiredArg().ofType(Integer.class)
-                .describedAs("size (in records) of output files or processing chunks for xsl transforms").defaultsTo(100);
+        specs.chunkSizeSpec = parser.acceptsAll(SIZE_ARG, "size (in records) of output files (for split) "
+                + "or processing chunks (for process)").withRequiredArg().ofType(Integer.class)
+                .defaultsTo(100);
         specs.suffixSizeSpec = parser.acceptsAll(SUFFIX_LENGTH_ARG, "size of incremented suffix")
                 .withRequiredArg().ofType(Integer.class).defaultsTo(5);
         specs.additionalSuffixSpec = parser.accepts(ADDITIONAL_SUFFIX_ARG, "optional additional suffix")
@@ -171,12 +173,14 @@ public class Driver {
     private static enum InputFileType { direct, reference }
     
     private OptionParser configureBaseParser(OptionParser parser, SpecStruct specs) {
-        specs.inputFileSpec = parser.acceptsAll(INPUT_FILE_ARG)
+        specs.inputFileSpec = parser.acceptsAll(INPUT_FILE_ARG, "direct input (default for split and process) or delimited file containing "
+                + "references to direct input files (default for combine)")
                 .withRequiredArg().ofType(File.class)
-                .describedAs("input file (for split) or path to delimited list of input files (for combine); '-' for stdin");
-        specs.outputFileSpec = parser.acceptsAll(OUTPUT_FILE_ARG)
+                .describedAs("'-' for stdin");
+        specs.outputFileSpec = parser.acceptsAll(OUTPUT_FILE_ARG, "output filename (default for process and combine) or "
+                + "filename prefix (default for split)")
                 .withRequiredArg().ofType(File.class)
-                .describedAs("output filename (for combine) or filename prefix (for split)");
+                .describedAs("'-' for stdout");
         specs.recordDepthSpec = parser.acceptsAll(DEPTH_ARG, "set record element depth")
                 .withRequiredArg().ofType(Integer.class).defaultsTo(1);
         specs.verboseSpec = parser.acceptsAll(VERBOSE_ARG, "be more verbose");
@@ -271,6 +275,7 @@ public class Driver {
 
         @Override
         public void run() {
+            if (testHelp()) return;
             Reader r;
             InputSource source;
             OutputStream out = null;
@@ -331,9 +336,22 @@ public class Driver {
 
     }
 
+    private boolean testHelp() {
+        if (help) {
+            try {
+                parser.printHelpOn(System.err);
+                return true;
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        return false;
+    }
+
     private class SplitCommand extends Command {
         @Override
         public void run() {
+            if (testHelp()) return;
             InputSource source;
             InputStream in = null;
             if ("-".equals(inputFile.getPath())) {
@@ -389,6 +407,7 @@ public class Driver {
     private class ProcessCommand extends Command {
         @Override
         public void run() {
+            if (testHelp()) return;
             Reader r;
             InputSource source;
             OutputStream out = null;
