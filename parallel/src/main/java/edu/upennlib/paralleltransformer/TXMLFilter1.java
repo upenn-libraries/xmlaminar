@@ -17,6 +17,7 @@
 package edu.upennlib.paralleltransformer;
 
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
+import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.File;
@@ -24,8 +25,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
@@ -95,7 +99,8 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
         UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput();
         XMLFilter suxf = new StateUpdatingXMLFilter(nextIn, in.getXMLReader(), ProcessingState.HAS_INPUT);
         inputBuffer.setUnmodifiableParent(suxf);
-        setupParse(inputBuffer);
+        in.setXMLReader(suxf);
+        suxf.setContentHandler(inputBuffer);
     }
     
     protected void reset(boolean cancel) {
@@ -117,7 +122,8 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
         producerThrowable = null;
     }
 
-    public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, TransformerException {
+    public static void main(String[] args) throws Exception {
+        args = new String[] {"blah.xml", "identity.xsl", "out.xml"};
         File in = new File(args[0]);
         File xsl = new File(args[1]);
         File out = new File(args[2]);
@@ -125,10 +131,16 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         txf.setParent(spf.newSAXParser().getXMLReader());
-        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-        Transformer t = tf.newTransformer();
-        txf.configureOutputTransformer((Controller) t);
-        t.transform(new SAXSource(txf, new InputSource(new FileInputStream(in))), new StreamResult(out));
+        txf.setInputType(InputType.direct);
+        txf.setOutputCallback(new StaticFileCallback(out));
+        ExecutorService executor = Executors.newCachedThreadPool();
+        txf.setExecutor(executor);
+        txf.parse(new InputSource(new FileInputStream(in)));
+        executor.shutdown();
+//        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+//        Transformer t = tf.newTransformer();
+//        txf.configureOutputTransformer((Controller) t);
+//        t.transform(new SAXSource(txf, new InputSource(new FileInputStream(in))), new StreamResult(out));
     }
 
     private XMLReader externalParent;
@@ -197,6 +209,20 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
         
     }
     
+    private static final XMLReader dummyNamespaceAware;
+    
+    static {
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
+        try {
+            dummyNamespaceAware = spf.newSAXParser().getXMLReader();
+        } catch (ParserConfigurationException ex) {
+            throw new RuntimeException(ex);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
     private class OutputRunnable implements Runnable {
 
         private final InputSource dummyInputSource = new InputSource();
@@ -211,6 +237,7 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
                 try {
                     Chunk nextOut = pq.nextOut();
                     UnboundedContentHandlerBuffer outputBuffer = nextOut.getOutput();
+                    outputBuffer.setUnmodifiableParent(dummyNamespaceAware);
                     outputBuffer.setFlushOnParse(true); //TODO set this behavior by default?
                     XMLReader r = new StateUpdatingXMLFilter(nextOut, outputBuffer, ProcessingState.READY);
                     outputCallback.callback(r, dummyInputSource);
@@ -218,6 +245,7 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
                     throw new RuntimeException(ex);
                 }
             }
+            outputCallback.finished();
         }
 
         @Override
@@ -260,7 +288,7 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
             } else {
                 super.parse(systemId);
             }
-            outputCallback.finished();
+            outputFuture.get(); // wait for output to complete before returning
         } catch (Throwable t) {
             if (consumerThrowable == null) {
                 producerThrowable = t;
