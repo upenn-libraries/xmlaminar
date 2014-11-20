@@ -16,6 +16,8 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.callback.OutputCallback;
+import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -38,7 +40,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author Michael Gibney
  */
-public class SplittingXMLFilter extends QueueSourceXMLFilter {
+public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
 
     private volatile boolean parsing = false;
     private volatile Future<?> consumerTask;
@@ -178,17 +180,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
             }
         }
 
-        @Override
-        public void endElement(String uri, String localName, String qName) throws SAXException {
-            super.endElement(uri, localName, qName);
-        }
-
-        @Override
-        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-            super.startElement(uri, localName, qName, atts);
-        }
-
-        
     }
     
     private final Phaser parseChunkDonePhaser = new Phaser(2);
@@ -271,21 +262,17 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter {
         }
     }
 
-    public XMLReaderCallback getXMLReaderCallback() {
+    @Override
+    public XMLReaderCallback getOutputCallback() {
         return xmlReaderCallback;
     }
 
-    public void setXMLReaderCallback(XMLReaderCallback xmlReaderCallback) {
+    @Override
+    public void setOutputCallback(XMLReaderCallback xmlReaderCallback) {
         this.xmlReaderCallback = xmlReaderCallback;
     }
 
     private XMLReaderCallback xmlReaderCallback;
-
-    public static interface XMLReaderCallback {
-        void callback(XMLReader reader, InputSource input) throws SAXException, IOException;
-        void callback(XMLReader reader, String systemId) throws SAXException, IOException;
-        void finished();
-    }
 
     private volatile Throwable consumerThrowable;
     private volatile Throwable producerThrowable;

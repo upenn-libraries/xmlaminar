@@ -22,7 +22,6 @@
 
 package edu.upennlib.paralleltransformer.callback;
 
-import edu.upennlib.paralleltransformer.SplittingXMLFilter;
 import java.io.File;
 import java.io.IOException;
 import javax.xml.transform.Transformer;
@@ -36,7 +35,7 @@ import org.xml.sax.XMLReader;
  *
  * @author magibney
  */
-public class IncrementingFileCallback implements SplittingXMLFilter.XMLReaderCallback {
+public class IncrementingFileCallback implements XMLReaderCallback {
     private static final int DEFAULT_START_INDEX = 0;
     private static final int DEFAULT_SUFFIX_SIZE = 5;
 

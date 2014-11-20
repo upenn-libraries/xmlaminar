@@ -351,7 +351,7 @@ public class Driver {
                 SAXParser saxParser = spf.newSAXParser();
                 sxf.setParent(saxParser.getXMLReader());
                 Transformer t = TransformerFactory.newInstance().newTransformer();
-                sxf.setXMLReaderCallback(new IncrementingFileCallback(0, t, suffixSize, outputFile, additionalSuffix));
+                sxf.setOutputCallback(new IncrementingFileCallback(0, t, suffixSize, outputFile, additionalSuffix));
                 sxf.setExecutor(Executors.newCachedThreadPool());
                 try {
                     sxf.parse(source);

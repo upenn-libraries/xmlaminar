@@ -16,6 +16,7 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -54,7 +55,7 @@ public class NewClass {
         XMLReader xmlReader = sp.getXMLReader();
         joiner.setParent(sxf);
         sxf.setParent(xmlReader);
-        sxf.setXMLReaderCallback(new SplittingXMLFilter.XMLReaderCallback() {
+        sxf.setOutputCallback(new XMLReaderCallback() {
             int i = 0;
             @Override
             public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {

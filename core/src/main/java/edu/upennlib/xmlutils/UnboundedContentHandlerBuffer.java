@@ -16,6 +16,7 @@
 
 package edu.upennlib.xmlutils;
 
+import com.sun.org.apache.xerces.internal.impl.xs.XSConstraints;
 import java.io.IOException;
 import java.io.PrintStream;
 import org.apache.log4j.Logger;
@@ -299,9 +300,22 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
         for (int i = 0; i < tail; i++) {
             execute(i, ch, lex);
         }
+        if (flushOnParse) {
+            clear();
+        }
         parsing = false;
     }
 
+    private boolean flushOnParse = false;
+    
+    public boolean isFlushOnParse() {
+        return flushOnParse;
+    }
+    
+    public void setFlushOnParse(boolean flush) {
+        this.flushOnParse = flush;
+    }
+    
     public int play(ContentHandler ch, LexicalHandler lh) throws SAXException {
         int level = 0;
         for (int i = 0; i < tail; i++) {

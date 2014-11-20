@@ -127,4 +127,8 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         return in;
     }
 
+    public UnboundedContentHandlerBuffer getOutput() {
+        return out;
+    }
+
 }

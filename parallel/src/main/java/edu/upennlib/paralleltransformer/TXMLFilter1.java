@@ -16,15 +16,23 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.callback.OutputCallback;
+import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
@@ -41,33 +49,95 @@ import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
  * @author Michael Gibney
  */
-public class TXMLFilter extends JoiningXMLFilter {
+public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback {
 
     private static final int DEFAULT_CHUNK_SIZE = 100;
     
     private final ProcessingQueue<Chunk> pq;
     private final Templates templates;
-    private final LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter();
     private int chunkSize = DEFAULT_CHUNK_SIZE;
-    private static final Logger logger = Logger.getLogger(TXMLFilter.class);
+    private static final Logger LOG = Logger.getLogger(TXMLFilter1.class);
     private ExecutorService executor;
 
-    public TXMLFilter(Source xslSource) throws TransformerConfigurationException {
+    public TXMLFilter1(Source xslSource) throws TransformerConfigurationException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         templates = tf.newTemplates(xslSource);
         pq = new ProcessingQueue<Chunk>(100, new Chunk(templates));
     }
+
+    @Override
+    protected void initialParse(SAXSource in) {
+        outputFuture = executor.submit(new OutputRunnable(Thread.currentThread()));
+        pq.reset();
+        try {
+            setupInputBuffer(in);
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    protected void repeatParse(SAXSource in) {
+        try {
+            rotateInputBuffer();
+            setupInputBuffer(in);
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
     
+    @Override
+    protected void finished() throws SAXException {
+        rotateInputBuffer();
+        pq.finished();
+    }
+    
+    private Chunk currentInputBuffer = null;
+    
+    private void setupInputBuffer(SAXSource in) throws InterruptedException {
+        Chunk nextIn = pq.nextIn();
+        currentInputBuffer = nextIn;
+        UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput();
+        inputBuffer.setUnmodifiableParent(in.getXMLReader());
+        setupParse(inputBuffer);
+    }
+    
+    private void rotateInputBuffer() {
+        Chunk lastIn = currentInputBuffer;
+        currentInputBuffer = null;
+        lastIn.setState(ProcessingState.HAS_INPUT);
+    }
+
+    protected void reset(boolean cancel) {
+        try {
+            if (outputFuture != null) {
+                if (cancel) {
+                    outputFuture.cancel(true);
+                } else {
+                    outputFuture.get();
+                }
+            }
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        } catch (ExecutionException ex) {
+            throw new RuntimeException(ex);
+        }
+        outputFuture = null;
+        consumerThrowable = null;
+        producerThrowable = null;
+    }
+
     public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, TransformerException {
         File in = new File(args[0]);
         File xsl = new File(args[1]);
         File out = new File(args[2]);
-        TXMLFilter txf = new TXMLFilter(new StreamSource(xsl));
+        TXMLFilter1 txf = new TXMLFilter1(new StreamSource(xsl));
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         txf.setParent(spf.newSAXParser().getXMLReader());
@@ -138,92 +208,120 @@ public class TXMLFilter extends JoiningXMLFilter {
     }
     
     @Override
-    public void parse(InputSource input) throws SAXException, IOException {
-        Future<Void> producerFuture = executor.submit(new ProducerCallable(input));
-        executor.submit(new FutureExceptionPropogator(Thread.currentThread(), producerFuture));
-        if (!pq.isFinished()) {
-            setupParse(initialEventContentHandler);
-            do {
+    public XMLReaderCallback getOutputCallback() {
+        return outputCallback;
+    }
+
+    @Override
+    public void setOutputCallback(XMLReaderCallback callback) {
+        this.outputCallback = callback;
+    }
+
+    private XMLReaderCallback outputCallback;
+
+    private final SynchronizingXMLFilter synchronizingXMLFilter = new SynchronizingXMLFilter();
+    
+    private class SynchronizingXMLFilter extends XMLFilterImpl {
+
+        @Override
+        public void endDocument() throws SAXException {
+            super.endDocument();
+            try {
+                outputBarrier.await();
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            } catch (BrokenBarrierException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        
+    }
+    
+    private final CyclicBarrier outputBarrier = new CyclicBarrier(2);
+    
+    private class OutputRunnable implements Runnable {
+
+        private final InputSource dummyInputSource = new InputSource();
+        private final Thread producer;
+        
+        private OutputRunnable(Thread producer) {
+            this.producer = producer;
+        }
+        
+        private void outputLoop() throws SAXException, IOException {
+            while (!pq.isFinished()) {
                 try {
                     Chunk nextOut = pq.nextOut();
-                    nextOut.writeOutputTo(this);
+                    UnboundedContentHandlerBuffer outputBuffer = nextOut.getOutput();
+                    outputBuffer.setFlushOnParse(true); //TODO set this behavior by default?
+                    synchronizingXMLFilter.setParent(outputBuffer);
+                    outputCallback.callback(synchronizingXMLFilter, dummyInputSource);
+                    /*
+                    Ensure that non-blocking implementations of xmlReaderCallback 
+                    still result in output being flushed synchronously.
+                    */
+                    outputBarrier.await();
+                    outputBarrier.reset();
                     nextOut.setState(ProcessingState.READY);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
+                } catch (BrokenBarrierException ex) {
+                    throw new RuntimeException(ex);
                 }
-            } while (!pq.isFinished() && setupParse(devNullContentHandler));
-        }
-    }
-
-
-    private class ProducerCallable implements Callable<Void> {
-
-        private final InputSource input;
-
-        private ProducerCallable(InputSource input) {
-            this.input = input;
+            }
         }
 
         @Override
-        public Void call() throws SAXException, IOException {
-            TXMLFilter.super.setParent(splitter);
-            splitter.setExecutor(executor);
-            splitter.setParent(externalParent);
-            splitter.setDTDHandler(TXMLFilter.this);
-            splitter.setEntityResolver(TXMLFilter.this);
-            splitter.setXMLReaderCallback(callback);
-            splitter.setChunkSize(chunkSize);
-            pq.reset();
-            TXMLFilter.super.parse(input);
-            pq.finished();
-            return null;
+        public void run() {
+            try {
+                outputLoop();
+            } catch (Throwable t) {
+                if (producerThrowable == null) {
+                    consumerThrowable = t;
+                    producer.interrupt();
+                } else {
+                    t = producerThrowable;
+                    producerThrowable = null;
+                    throw new RuntimeException(t);
+                }
+            }
         }
 
+    }
+    
+    private volatile Throwable producerThrowable;
+    private volatile Throwable consumerThrowable;
+    private Future<?> outputFuture;
+    
+    @Override
+    public void parse(InputSource input) throws SAXException, IOException {
+        parse(input, null);
     }
 
     @Override
     public void parse(String systemId) throws SAXException, IOException {
-        throw new UnsupportedOperationException();
+        parse(null, systemId);
     }
-
-    private final MyXMLReaderCallback callback = new MyXMLReaderCallback();
-
-    private class MyXMLReaderCallback implements SplittingXMLFilter.XMLReaderCallback {
-
-        @Override
-        public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-            doCallback(reader, input, null);
-        }
-
-        @Override
-        public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-            doCallback(reader, null, systemId);
-        }
-
-        private void doCallback(XMLReader reader, InputSource input, String systemId) throws SAXException, IOException {
-            Chunk nextIn;
-            try {
-                nextIn = pq.nextIn();
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
-            UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput();
-            reader.setContentHandler(inputBuffer);
-            reader.setErrorHandler(inputBuffer);
-            inputBuffer.setUnmodifiableParent(reader);
-            
+    
+    private void parse(InputSource input, String systemId) {
+        try {
             if (input != null) {
-                reader.parse(input);
+                super.parse(input);
             } else {
-                reader.parse(systemId);
+                super.parse(systemId);
             }
-            nextIn.setState(ProcessingState.HAS_INPUT);
+            outputCallback.finished();
+        } catch (Throwable t) {
+            if (consumerThrowable == null) {
+                producerThrowable = t;
+                reset(true);
+                throw new RuntimeException(t);
+            } else {
+                t = consumerThrowable;
+                consumerThrowable = null;
+                throw new RuntimeException(t);
+            }
         }
-
-        @Override
-        public void finished() {
-        }
-
     }
 
     public void configureOutputTransformer(Controller out) {

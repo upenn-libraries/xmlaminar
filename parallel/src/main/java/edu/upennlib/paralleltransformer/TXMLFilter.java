@@ -16,6 +16,7 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.File;
 import java.io.FileInputStream;
@@ -171,7 +172,7 @@ public class TXMLFilter extends JoiningXMLFilter {
             splitter.setParent(externalParent);
             splitter.setDTDHandler(TXMLFilter.this);
             splitter.setEntityResolver(TXMLFilter.this);
-            splitter.setXMLReaderCallback(callback);
+            splitter.setOutputCallback(callback);
             splitter.setChunkSize(chunkSize);
             pq.reset();
             TXMLFilter.super.parse(input);
@@ -188,7 +189,7 @@ public class TXMLFilter extends JoiningXMLFilter {
 
     private final MyXMLReaderCallback callback = new MyXMLReaderCallback();
 
-    private class MyXMLReaderCallback implements SplittingXMLFilter.XMLReaderCallback {
+    private class MyXMLReaderCallback implements XMLReaderCallback {
 
         @Override
         public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
