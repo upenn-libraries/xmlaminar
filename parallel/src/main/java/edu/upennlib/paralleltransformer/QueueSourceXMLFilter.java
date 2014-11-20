@@ -16,7 +16,10 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.callback.OutputCallback;
+import edu.upennlib.paralleltransformer.callback.QueueDestCallback;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +41,8 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.sax.SAXSource;
@@ -60,8 +65,25 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     private static final Pattern DEFAULT_DELIMITER_PATTERN = Pattern.compile(System.lineSeparator(), Pattern.LITERAL);
     private static final Logger LOG = LoggerFactory.getLogger(QueueSourceXMLFilter.class);
     public static enum InputType { direct, indirect, queue }
-    public static InputType DEFAULT_INPUT_TYPE = InputType.indirect;
-
+    public static InputType DEFAULT_INPUT_TYPE = InputType.direct;
+    
+    private static final SAXParserFactory spf;
+    
+    static {
+        spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
+    }
+    
+    public QueueSourceXMLFilter() {
+        try {
+            setParent(spf.newSAXParser().getXMLReader());
+        } catch (ParserConfigurationException ex) {
+            throw new RuntimeException(ex);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
     private ExecutorService executor;
 
     private InputType inputType = DEFAULT_INPUT_TYPE;
@@ -142,9 +164,6 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
             parseQueue = new ArrayBlockingQueue<SAXSource>(10, false);
         }
         if (parseQueueSupplier == null) {
-            if (executor == null) {
-                executor = Executors.newFixedThreadPool(1);
-            }
             Runnable parseQueueRunner = new ParseQueueSupplier(input, Thread.currentThread());
             parseQueueSupplier = executor.submit(parseQueueRunner);
         }
@@ -202,7 +221,26 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         }
     }
     
-    private void setupParseLocal() {
+    private boolean createdExecutor = false;
+    
+    private void setupParseLocal() throws SAXException {
+        XMLReader localParent = getParent();
+        if (localParent instanceof OutputCallback) {
+            setInputType(InputType.queue);
+            ((OutputCallback)localParent).setOutputCallback(new QueueDestCallback(this));
+        }
+        if (parseQueueSupplier == null) {
+            if (executor == null) {
+                createdExecutor = true;
+                executor = Executors.newCachedThreadPool();
+            }
+        }
+        if (localParent instanceof QueueSourceXMLFilter && executor != null) {
+            QueueSourceXMLFilter qsxfp = (QueueSourceXMLFilter)localParent;
+            if (qsxfp.getExecutor() == null) {
+                qsxfp.setExecutor(executor);
+            }
+        }
         XMLReader parent = super.getParent();
         parent.setDTDHandler(this);
         parent.setEntityResolver(this);
@@ -212,24 +250,32 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
     
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
-        setupParseLocal();
-        switch (inputType) {
-            case direct:
-                SAXSource source = new SAXSource(super.getParent(), input);
-                initialParse(source);
-                XMLReader xmlReader = source.getXMLReader();
-                xmlReader.setContentHandler(this);
-                xmlReader.parse(source.getInputSource());
-                finished();
-                break;
-            case indirect:
-                initProducerIterator(input);
-                break;
-            case queue:
-                initProducer(input);
-                break;
-            default:
-                throw new IllegalStateException("input type should not be null");
+        try {
+            setupParseLocal();
+            switch (inputType) {
+                case direct:
+                    SAXSource source = new SAXSource(super.getParent(), input);
+                    initialParse(source);
+                    XMLReader xmlReader = source.getXMLReader();
+                    xmlReader.setContentHandler(this);
+                    xmlReader.parse(source.getInputSource());
+                    finished();
+                    break;
+                case indirect:
+                    initProducerIterator(input);
+                    break;
+                case queue:
+                    initProducer(input);
+                    break;
+                default:
+                    throw new IllegalStateException("input type should not be null");
+            }
+        } finally {
+            if (createdExecutor) {
+                executor.shutdown();
+                executor = null;
+                createdExecutor = false;
+            }
         }
     }
 
