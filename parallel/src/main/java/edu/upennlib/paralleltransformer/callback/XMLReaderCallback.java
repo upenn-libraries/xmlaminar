@@ -22,7 +22,12 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 /**
- *
+ * Provides a callback interface for handling calls to XMLReader <code>parse()</code>
+ * methods. Implementations of the <code>callback()</code> methods need not be 
+ * synchronous -- i.e., they may return before calling the <code>parse()</code> 
+ * method on the provided XMLReader. If such synchronization is required, it should 
+ * be implemented in the calling class. 
+ * 
  * @author magibney
  */
 public interface XMLReaderCallback {

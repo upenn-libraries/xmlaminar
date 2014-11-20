@@ -17,7 +17,13 @@
 package edu.upennlib.paralleltransformer.callback;
 
 /**
- *
+ * Implementors allow setting a callback interface to handle output. There should 
+ * be no assumption that the return of a call to the provided XMLReaderCallback's 
+ * <code>callback()</code> method indicates the completion of a call to the provided 
+ * XMLReader's <code>parse()</code> method. If such synchronous handling of output 
+ * is desired, it is the responsibility of classes implementing the OutputCallback 
+ * interface to ensure such synchronization.
+ * 
  * @author magibney
  */
 public interface OutputCallback {
