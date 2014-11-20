@@ -81,6 +81,9 @@ public class LevelSplittingXMLFilter extends SplittingXMLFilter {
     }
 
     public void setChunkSize(int size) {
+        if (size < 1) {
+            throw new IllegalArgumentException("chunk size "+size+" < 1");
+        }
         this.chunkSize = size;
     }
 

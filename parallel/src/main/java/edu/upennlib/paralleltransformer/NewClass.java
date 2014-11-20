@@ -16,11 +16,14 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -31,6 +34,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -41,7 +45,65 @@ import org.xml.sax.XMLReader;
  */
 public class NewClass {
 
-    public static void main(String[] args) throws InterruptedException, ParserConfigurationException, SAXException, FileNotFoundException, IOException, TransformerConfigurationException, TransformerException {
+    public static void main(String[] args) throws Exception {
+        mainSplitTransform(args);
+    }
+    
+    public static void mainSplitTransform(String[] args) throws Exception {
+        args = new String[] {"blah.txt", "identity.xsl", "out/out"};
+        File in = new File(args[0]);
+        File xsl = new File(args[1]);
+        File out = new File(args[2]);
+        final TXMLFilter1 txf = new TXMLFilter1(new StreamSource(xsl));
+        txf.setInputType(QueueSourceXMLFilter.InputType.queue);
+        LevelSplittingXMLFilter sxf = new LevelSplittingXMLFilter();
+        sxf.setInputType(QueueSourceXMLFilter.InputType.indirect);
+        sxf.setChunkSize(1);
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
+        SAXParser sp = spf.newSAXParser();
+        XMLReader xmlReader = sp.getXMLReader();
+        txf.setParent(sxf);
+        sxf.setParent(xmlReader);
+        sxf.setOutputCallback(new XMLReaderCallback() {
+            int i = 0;
+            @Override
+            public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+                try {
+                    txf.getParseQueue().put(new SAXSource(reader, input));
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+            @Override
+            public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public void finished() {
+                try {
+                    txf.getParseQueue().put(QueueSourceXMLFilter.FINISHED);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        txf.setOutputCallback(new IncrementingFileCallback("out/out"));
+        InputSource inSource = new InputSource(new FileReader(in));
+        inSource.setSystemId(in.getPath());
+        ExecutorService executor = Executors.newCachedThreadPool();
+        sxf.setExecutor(executor);
+        txf.setExecutor(executor);
+        try {
+            txf.parse(inSource);
+        } finally {
+            executor.shutdown();
+        }
+    }
+    
+    public static void mainSplitJoin(String[] args) throws InterruptedException, ParserConfigurationException, SAXException, FileNotFoundException, IOException, TransformerConfigurationException, TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
         final JoiningXMLFilter joiner = new JoiningXMLFilter();
@@ -92,5 +154,21 @@ public class NewClass {
             joiner.shutdown();
         }
     }
-
+    
+    public static void mainTXMLFilter(String[] args) throws Exception {
+        args = new String[] {"blah.txt", "identity.xsl", "out.xml"};
+        File in = new File(args[0]);
+        File xsl = new File(args[1]);
+        File out = new File(args[2]);
+        TXMLFilter1 txf = new TXMLFilter1(new StreamSource(xsl));
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
+        txf.setParent(spf.newSAXParser().getXMLReader());
+        txf.setInputType(QueueSourceXMLFilter.InputType.indirect);
+        txf.setOutputCallback(new IncrementingFileCallback("out"));
+        ExecutorService executor = Executors.newCachedThreadPool();
+        txf.setExecutor(executor);
+        txf.parse(new InputSource(new FileInputStream(in)));
+        executor.shutdown();
+    }
 }

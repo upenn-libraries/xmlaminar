@@ -52,10 +52,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
     private int startEventLevel = -1;
     private final ArrayDeque<StructuralStartEvent> startEventStack = new ArrayDeque<StructuralStartEvent>();
 
-    public static void main(String[] args) throws Exception {
-        LevelSplittingXMLFilter.main(args);
-    }
-    
     @Override
     protected void initialParse(SAXSource in) {
         synchronousParser.setParent(this);

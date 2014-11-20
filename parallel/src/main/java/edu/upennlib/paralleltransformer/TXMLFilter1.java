@@ -56,13 +56,9 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback {
 
-    private static final int DEFAULT_CHUNK_SIZE = 100;
-    
     private final ProcessingQueue<Chunk> pq;
     private final Templates templates;
-    private int chunkSize = DEFAULT_CHUNK_SIZE;
     private static final Logger LOG = Logger.getLogger(TXMLFilter1.class);
-    private ExecutorService executor;
 
     public TXMLFilter1(Source xslSource) throws TransformerConfigurationException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
@@ -72,7 +68,7 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
 
     @Override
     protected void initialParse(SAXSource in) {
-        outputFuture = executor.submit(new OutputRunnable(Thread.currentThread()));
+        outputFuture = getExecutor().submit(new OutputRunnable(Thread.currentThread()));
         pq.reset();
         try {
             setupInputBuffer(in);
@@ -123,54 +119,14 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
         producerThrowable = null;
     }
 
-    public static void main(String[] args) throws Exception {
-        args = new String[] {"blah.txt", "identity.xsl", "out.xml"};
-        File in = new File(args[0]);
-        File xsl = new File(args[1]);
-        File out = new File(args[2]);
-        TXMLFilter1 txf = new TXMLFilter1(new StreamSource(xsl));
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setNamespaceAware(true);
-        txf.setParent(spf.newSAXParser().getXMLReader());
-        txf.setInputType(InputType.indirect);
-        txf.setOutputCallback(new IncrementingFileCallback("out"));
-        ExecutorService executor = Executors.newCachedThreadPool();
-        txf.setExecutor(executor);
-        try {
-            txf.parse(new InputSource(new FileInputStream(in)));
-        } finally {
-            executor.shutdown();
-        }
-//        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-//        Transformer t = tf.newTransformer();
-//        txf.configureOutputTransformer((Controller) t);
-//        t.transform(new SAXSource(txf, new InputSource(new FileInputStream(in))), new StreamResult(out));
-    }
-
     private XMLReader externalParent;
-
-    @Override
-    public ExecutorService getExecutor() {
-        return executor;
-    }
 
     @Override
     public void setExecutor(ExecutorService executor) {
         pq.setWorkExecutor(executor);
-        this.executor = executor;
+        super.setExecutor(executor);
     }
 
-    public int getChunkSize() {
-        return chunkSize;
-    }
-
-    public void setChunkSize(int chunkSize) {
-        if (chunkSize < 1) {
-            throw new IllegalArgumentException("chunk size "+chunkSize+" < 1");
-        }
-        this.chunkSize = chunkSize;
-    }
-    
     @Override
     public XMLReader getParent() {
         return externalParent;
