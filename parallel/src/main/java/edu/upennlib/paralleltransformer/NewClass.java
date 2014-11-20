@@ -17,6 +17,7 @@
 package edu.upennlib.paralleltransformer;
 
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
+import edu.upennlib.paralleltransformer.callback.QueueDestCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,7 +47,7 @@ import org.xml.sax.XMLReader;
 public class NewClass {
 
     public static void main(String[] args) throws Exception {
-        mainSplitTransform(args);
+        mainSplitTransformJoin(args);
     }
     
     public static void mainSplitTransform(String[] args) throws Exception {
@@ -98,6 +99,42 @@ public class NewClass {
         txf.setExecutor(executor);
         try {
             txf.parse(inSource);
+        } finally {
+            executor.shutdown();
+        }
+    }
+    
+    public static void mainSplitTransformJoin(String[] args) throws Exception {
+        args = new String[] {"blah.txt", "identity.xsl", "out.xml"};
+        File in = new File(args[0]);
+        File xsl = new File(args[1]);
+        File out = new File(args[2]);
+        TXMLFilter1 txf = new TXMLFilter1(new StreamSource(xsl));
+        txf.setInputType(QueueSourceXMLFilter.InputType.queue);
+        LevelSplittingXMLFilter sxf = new LevelSplittingXMLFilter();
+        sxf.setInputType(QueueSourceXMLFilter.InputType.indirect);
+        sxf.setChunkSize(1);
+        JoiningXMLFilter joiner = new JoiningXMLFilter();
+        joiner.setInputType(QueueSourceXMLFilter.InputType.queue);
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
+        SAXParser sp = spf.newSAXParser();
+        XMLReader xmlReader = sp.getXMLReader();
+        joiner.setParent(txf);
+        txf.setParent(sxf);
+        sxf.setParent(xmlReader);
+        sxf.setOutputCallback(new QueueDestCallback(txf));
+        txf.setOutputCallback(new QueueDestCallback(joiner));
+        InputSource inSource = new InputSource(new FileReader(in));
+        inSource.setSystemId(in.getPath());
+        ExecutorService executor = Executors.newCachedThreadPool();
+        sxf.setExecutor(executor);
+        txf.setExecutor(executor);
+        joiner.setExecutor(executor);
+        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+        Transformer t = tf.newTransformer();
+        try {
+            t.transform(new SAXSource(joiner, inSource), new StreamResult(out));
         } finally {
             executor.shutdown();
         }
