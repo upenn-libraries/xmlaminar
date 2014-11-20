@@ -23,16 +23,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
@@ -219,25 +212,22 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
 
     private XMLReaderCallback outputCallback;
 
-    private final SynchronizingXMLFilter synchronizingXMLFilter = new SynchronizingXMLFilter();
-    
-    private class SynchronizingXMLFilter extends XMLFilterImpl {
+    private static class StateUpdatingXMLFilter extends XMLFilterImpl {
+        
+        private final Chunk outputChunk;
+        
+        private StateUpdatingXMLFilter(Chunk outputChunk, XMLReader parent) {
+            super(parent);
+            this.outputChunk = outputChunk;
+        }
 
         @Override
         public void endDocument() throws SAXException {
             super.endDocument();
-            try {
-                outputBarrier.await();
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            } catch (BrokenBarrierException ex) {
-                throw new RuntimeException(ex);
-            }
+            outputChunk.setState(ProcessingState.READY);
         }
         
     }
-    
-    private final CyclicBarrier outputBarrier = new CyclicBarrier(2);
     
     private class OutputRunnable implements Runnable {
 
@@ -254,18 +244,9 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
                     Chunk nextOut = pq.nextOut();
                     UnboundedContentHandlerBuffer outputBuffer = nextOut.getOutput();
                     outputBuffer.setFlushOnParse(true); //TODO set this behavior by default?
-                    synchronizingXMLFilter.setParent(outputBuffer);
-                    outputCallback.callback(synchronizingXMLFilter, dummyInputSource);
-                    /*
-                    Ensure that non-blocking implementations of xmlReaderCallback 
-                    still result in output being flushed synchronously.
-                    */
-                    outputBarrier.await();
-                    outputBarrier.reset();
-                    nextOut.setState(ProcessingState.READY);
+                    XMLReader r = new StateUpdatingXMLFilter(nextOut, outputBuffer);
+                    outputCallback.callback(r, dummyInputSource);
                 } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                } catch (BrokenBarrierException ex) {
                     throw new RuntimeException(ex);
                 }
             }
