@@ -41,6 +41,7 @@ import net.sf.saxon.Controller;
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 
@@ -78,7 +79,6 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
     @Override
     protected void repeatParse(SAXSource in) {
         try {
-            rotateInputBuffer();
             setupInputBuffer(in);
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
@@ -87,26 +87,17 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
     
     @Override
     protected void finished() throws SAXException {
-        rotateInputBuffer();
         pq.finished();
     }
     
-    private Chunk currentInputBuffer = null;
-    
     private void setupInputBuffer(SAXSource in) throws InterruptedException {
         Chunk nextIn = pq.nextIn();
-        currentInputBuffer = nextIn;
         UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput();
-        inputBuffer.setUnmodifiableParent(in.getXMLReader());
+        XMLFilter suxf = new StateUpdatingXMLFilter(nextIn, in.getXMLReader(), ProcessingState.HAS_INPUT);
+        inputBuffer.setUnmodifiableParent(suxf);
         setupParse(inputBuffer);
     }
     
-    private void rotateInputBuffer() {
-        Chunk lastIn = currentInputBuffer;
-        currentInputBuffer = null;
-        lastIn.setState(ProcessingState.HAS_INPUT);
-    }
-
     protected void reset(boolean cancel) {
         try {
             if (outputFuture != null) {
@@ -175,31 +166,6 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
         super.setParent(parent);
     }
 
-    private static class FutureExceptionPropogator implements Runnable {
-
-        private final Thread propogateTo;
-        private final Future<?> future;
-        
-        private FutureExceptionPropogator(Thread propogateTo, Future<?> future) {
-            this.propogateTo = propogateTo;
-            this.future = future;
-        }
-        
-        @Override
-        public void run() {
-            try {
-                future.get();
-            } catch (InterruptedException ex) {
-                ex.printStackTrace(System.err);
-                future.cancel(true);
-            } catch (ExecutionException ex) {
-                ex.printStackTrace(System.err);
-                propogateTo.interrupt();
-            }
-        }
-        
-    }
-    
     @Override
     public XMLReaderCallback getOutputCallback() {
         return outputCallback;
@@ -215,16 +181,18 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
     private static class StateUpdatingXMLFilter extends XMLFilterImpl {
         
         private final Chunk outputChunk;
+        private final ProcessingState nextState;
         
-        private StateUpdatingXMLFilter(Chunk outputChunk, XMLReader parent) {
+        private StateUpdatingXMLFilter(Chunk outputChunk, XMLReader parent, ProcessingState nextState) {
             super(parent);
             this.outputChunk = outputChunk;
+            this.nextState = nextState;
         }
 
         @Override
         public void endDocument() throws SAXException {
             super.endDocument();
-            outputChunk.setState(ProcessingState.READY);
+            outputChunk.setState(nextState);
         }
         
     }
@@ -244,7 +212,7 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
                     Chunk nextOut = pq.nextOut();
                     UnboundedContentHandlerBuffer outputBuffer = nextOut.getOutput();
                     outputBuffer.setFlushOnParse(true); //TODO set this behavior by default?
-                    XMLReader r = new StateUpdatingXMLFilter(nextOut, outputBuffer);
+                    XMLReader r = new StateUpdatingXMLFilter(nextOut, outputBuffer, ProcessingState.READY);
                     outputCallback.callback(r, dummyInputSource);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
@@ -263,6 +231,7 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
                 } else {
                     t = producerThrowable;
                     producerThrowable = null;
+                    pq.getWorkExecutor().shutdownNow();
                     throw new RuntimeException(t);
                 }
             }
@@ -300,6 +269,7 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
             } else {
                 t = consumerThrowable;
                 consumerThrowable = null;
+                pq.getWorkExecutor().shutdownNow();
                 throw new RuntimeException(t);
             }
         }
