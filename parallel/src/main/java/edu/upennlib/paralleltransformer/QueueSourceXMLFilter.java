@@ -221,7 +221,9 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
             case direct:
                 SAXSource source = new SAXSource(super.getParent(), input);
                 initialParse(source);
-                source.getXMLReader().parse(source.getInputSource());
+                XMLReader xmlReader = source.getXMLReader();
+                xmlReader.setContentHandler(this);
+                xmlReader.parse(source.getInputSource());
                 finished();
                 break;
             case indirect:

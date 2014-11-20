@@ -16,6 +16,7 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
@@ -100,7 +101,7 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
         XMLFilter suxf = new StateUpdatingXMLFilter(nextIn, in.getXMLReader(), ProcessingState.HAS_INPUT);
         inputBuffer.setUnmodifiableParent(suxf);
         in.setXMLReader(suxf);
-        suxf.setContentHandler(inputBuffer);
+        setupParse(inputBuffer);
     }
     
     protected void reset(boolean cancel) {
@@ -123,7 +124,7 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
     }
 
     public static void main(String[] args) throws Exception {
-        args = new String[] {"blah.xml", "identity.xsl", "out.xml"};
+        args = new String[] {"blah.txt", "identity.xsl", "out.xml"};
         File in = new File(args[0]);
         File xsl = new File(args[1]);
         File out = new File(args[2]);
@@ -131,12 +132,15 @@ public class TXMLFilter1 extends QueueSourceXMLFilter implements OutputCallback 
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         txf.setParent(spf.newSAXParser().getXMLReader());
-        txf.setInputType(InputType.direct);
-        txf.setOutputCallback(new StaticFileCallback(out));
+        txf.setInputType(InputType.indirect);
+        txf.setOutputCallback(new IncrementingFileCallback("out"));
         ExecutorService executor = Executors.newCachedThreadPool();
         txf.setExecutor(executor);
-        txf.parse(new InputSource(new FileInputStream(in)));
-        executor.shutdown();
+        try {
+            txf.parse(new InputSource(new FileInputStream(in)));
+        } finally {
+            executor.shutdown();
+        }
 //        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
 //        Transformer t = tf.newTransformer();
 //        txf.configureOutputTransformer((Controller) t);
