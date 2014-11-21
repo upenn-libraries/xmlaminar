@@ -16,19 +16,29 @@
 
 package edu.upennlib.xmlutils.driver;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLFilter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author magibney
  */
-public interface Command {
+public abstract class CommandFactory {
 
-    XMLFilter getXMLFilter();
+    private static final Map<String, CommandFactory> AVAILABLE_COMMAND_FACTORIES = 
+            new HashMap<String, CommandFactory>();
     
-    InputSource getInput() throws FileNotFoundException;
+    protected static void registerCommandFactory(CommandFactory cf) {
+        AVAILABLE_COMMAND_FACTORIES.put(cf.getKey(), cf);
+    }
+    
+    public static Map<String, CommandFactory> getAvailableCommandFactories() {
+        return Collections.unmodifiableMap(AVAILABLE_COMMAND_FACTORIES);
+    }
+    
+    public abstract Command newCommand(String[] args, boolean first, boolean last);
+
+    public abstract String getKey();
     
 }
