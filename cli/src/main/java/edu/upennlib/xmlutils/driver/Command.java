@@ -17,7 +17,6 @@
 package edu.upennlib.xmlutils.driver;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLFilter;
 

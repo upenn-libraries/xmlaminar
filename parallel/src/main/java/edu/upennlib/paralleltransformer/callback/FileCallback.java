@@ -49,4 +49,37 @@ public class FileCallback {
         }
     }
 
+    public static int extensionStartIndex(String path) {
+        if (path == null) {
+            return -1;
+        } else {
+            int lastPathElementStart = path.lastIndexOf('/') + 1;
+            String lastPathElement = path.substring(lastPathElementStart);
+            int extStart = lastPathElement.lastIndexOf('.');
+            if (extStart > 0) {
+                return lastPathElementStart + extStart;
+            } else {
+                return -1;
+            }
+        }
+    }
+    
+    public static String getExtension(String path) {
+        int extStart = extensionStartIndex(path);
+        if (extStart < 0 ) {
+            return "";
+        } else {
+            return path.substring(extStart);
+        }
+    }
+    
+    public static String getBasename(String path) {
+        int extStart = extensionStartIndex(path);
+        if (extStart < 0 ) {
+            return path;
+        } else {
+            return path.substring(0, extStart);
+        }
+    }
+    
 }

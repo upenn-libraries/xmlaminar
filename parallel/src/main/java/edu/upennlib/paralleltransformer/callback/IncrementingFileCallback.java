@@ -47,7 +47,7 @@ public class IncrementingFileCallback implements XMLReaderCallback {
     private int i;
 
     private static String getDefaultSuffixFormat(int suffixLength) {
-        return "%0" + suffixLength + 'd';
+        return "-%0" + suffixLength + 'd';
     }
 
     public IncrementingFileCallback(String prefix) throws TransformerConfigurationException {
@@ -83,13 +83,14 @@ public class IncrementingFileCallback implements XMLReaderCallback {
         this.t = t;
         this.parentFile = prefix.getParentFile();
         this.namePrefix = prefix.getName();
-        this.postSuffix = postSuffix == null ? "" : postSuffix;
+        this.postSuffix = postSuffix;
         this.suffixFormat = suffixFormat;
     }
 
     @Override
     public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-        File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) + postSuffix);
+        File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) 
+                + (postSuffix != null ? postSuffix : FileCallback.getExtension(input.getSystemId())));
         FileCallback.writeToFile(reader, input, nextFile, t);
     }
 

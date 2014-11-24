@@ -17,7 +17,6 @@
 package edu.upennlib.xmlutils.driver;
 
 import static java.util.Arrays.asList;
-import java.util.Collection;
 import static java.util.Collections.unmodifiableList;
 import java.util.List;
 
