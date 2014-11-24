@@ -48,23 +48,36 @@ public class Driver {
     }
     
     public static void main(String[] args) throws IOException {
-        args = new String[] {"--split", "-i", "whole.xml", "-b", "out/out-", "-n", "1"};
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
         LinkedList<Command> commands = buildCommandList(args, cfs);
         Iterator<Command> iter = commands.descendingIterator();
-        XMLFilter last = null;
-        InputSource in = null;
+        XMLFilter last;
+        InputSource in;
         if (iter.hasNext()) {
             Command lastCommand = iter.next();
             last = lastCommand.getXMLFilter();
+            if (last == null) {
+                lastCommand.printHelpOn(System.err);
+                return;
+            }
             XMLFilter child = last;
             while (iter.hasNext()) {
                 lastCommand = iter.next();
                 XMLFilter parent = lastCommand.getXMLFilter();
+                if (parent == null) {
+                    lastCommand.printHelpOn(System.err);
+                    return;
+                }
                 child.setParent(parent);
                 child = parent;
             }
             in = lastCommand.getInput();
+        } else {
+            System.err.println("For help for a specific command: " + LS 
+                    + "\t--command --help"+LS 
+                    +"available commands: "+LS
+                    +"\t"+cfs.keySet());
+            return;
         }
         try {
             last.parse(in);
@@ -72,6 +85,8 @@ public class Driver {
             throw new RuntimeException(ex);
         }
     }
+    
+    private static final String LS = System.lineSeparator();
     
     private static LinkedList<Command> buildCommandList(String[] args, Map<String, CommandFactory> cfs) {
         LinkedList<Command> commandList = new LinkedList<Command>();

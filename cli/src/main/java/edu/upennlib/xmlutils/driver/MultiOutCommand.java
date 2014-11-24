@@ -20,6 +20,10 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -92,7 +96,19 @@ public abstract class MultiOutCommand implements Command {
         helpSpec = parser.acceptsAll(Flags.HELP_ARG, "show help").forHelp();
     }
 
-    protected void init(OptionSet options) {
+    @Override
+    public void printHelpOn(OutputStream out) {
+        try {
+            parser.printHelpOn(System.err);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    protected boolean init(OptionSet options) {
+        if (options.has(helpSpec)) {
+            return false;
+        }
         recordDepth = options.valueOf(recordDepthSpec);
         if (first) {
             if (options.has(filesFromSpec)) {
@@ -133,6 +149,7 @@ public abstract class MultiOutCommand implements Command {
                 }
             }
         }
+        return true;
     }
 
     protected static void configureInputSource(InputSource in, File file) throws FileNotFoundException {

@@ -17,6 +17,7 @@
 package edu.upennlib.xmlutils.driver;
 
 import java.io.FileNotFoundException;
+import java.io.OutputStream;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLFilter;
 
@@ -29,5 +30,7 @@ public interface Command {
     XMLFilter getXMLFilter();
     
     InputSource getInput() throws FileNotFoundException;
+    
+    void printHelpOn(OutputStream out);
     
 }

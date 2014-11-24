@@ -58,7 +58,7 @@ public class DriverTest {
      * Test of main method, of class Driver.
      * @throws java.lang.Exception
      */
-    @Test
+    //@Test
     public void testMain() throws Exception {
         System.out.println("main");
         String[] args = {"help"};

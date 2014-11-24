@@ -20,6 +20,9 @@ import edu.upennlib.paralleltransformer.LevelSplittingXMLFilter;
 import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -62,14 +65,17 @@ class SplitCommandFactory extends CommandFactory {
         }
 
         @Override
-        protected void init(OptionSet options) {
-            super.init(options);
+        protected boolean init(OptionSet options) {
+            boolean ret = super.init(options);
             chunkSize = options.valueOf(chunkSizeSpec);
+            return ret;
         }
         
         @Override
         public XMLFilter getXMLFilter() {
-            init(parser.parse(args));
+            if (!init(parser.parse(args))) {
+                return null;
+            }
             LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter(recordDepth, chunkSize);
             if (filesFrom != null) {
                 splitter.setInputType(QueueSourceXMLFilter.InputType.indirect);
@@ -90,6 +96,8 @@ class SplitCommandFactory extends CommandFactory {
                     }
                     splitter.setOutputCallback(new IncrementingFileCallback(0,
                             t, suffixLength, resolvedBase, outputExtension));
+                } else {
+                    throw new UnsupportedOperationException("input-base-relative splitting not yet supported");
                 }
             }
             return splitter;
