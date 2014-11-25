@@ -90,8 +90,8 @@ public class IncrementingFileCallback implements XMLReaderCallback {
     @Override
     public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
         File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) 
-                + (postSuffix != null ? postSuffix : FileCallback.getExtension(input.getSystemId())));
-        FileCallback.writeToFile(reader, input, nextFile, t);
+                + (postSuffix != null ? postSuffix : StreamCallback.getExtension(input.getSystemId())));
+        StreamCallback.writeToFile(reader, input, nextFile, t);
     }
 
     @Override

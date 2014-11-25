@@ -47,6 +47,7 @@ public class Driver {
             // Force initialization of known Command types.
             Class.forName(SplitCommandFactory.class.getCanonicalName());
             Class.forName(ProcessCommandFactory.class.getCanonicalName());
+            Class.forName(JoinCommandFactory.class.getCanonicalName());
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }
@@ -56,7 +57,7 @@ public class Driver {
     public static void main(String[] args) throws IOException, TransformerConfigurationException {
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
         LinkedList<Command> commands = buildCommandList(args, cfs);
-        Iterator<Command> iter = commands.subList(0, commands.size() - 1).iterator();
+        Iterator<Command> iter = commands.iterator();
         XMLFilter previous;
         InputSource in;
         if (iter.hasNext()) {

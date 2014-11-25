@@ -27,6 +27,7 @@ import java.io.IOException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -35,22 +36,20 @@ import org.xml.sax.XMLReader;
  *
  * @author magibney
  */
-public class StaticFileCallback implements XMLReaderCallback {
-    private final File staticFile;
+public class StdoutCallback implements XMLReaderCallback {
     private final Transformer t;
 
-    public StaticFileCallback(Transformer t, File staticFile) {
-        this.staticFile = staticFile;
+    public StdoutCallback(Transformer t) {
         this.t = t;
     }
 
-    public StaticFileCallback(File staticFile) throws TransformerConfigurationException {
-        this(TransformerFactory.newInstance().newTransformer(), staticFile);
+    public StdoutCallback() throws TransformerConfigurationException {
+        this(TransformerFactory.newInstance().newTransformer());
     }
 
     @Override
     public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-        StreamCallback.writeToFile(reader, input, staticFile, t);
+        StreamCallback.writeToStream(reader, input, new StreamResult(System.out), t);
     }
 
     @Override

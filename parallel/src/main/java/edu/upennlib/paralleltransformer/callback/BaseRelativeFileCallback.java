@@ -67,14 +67,14 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
         String path = input.getSystemId();
         if (outputExtension != null) {
             if (replaceExtension) {
-                path = FileCallback.getBasename(path).concat(outputExtension);
+                path = StreamCallback.getBasename(path).concat(outputExtension);
             } else {
                 path = path.concat(outputExtension);
             }
         }
         URI uri = (new File(path)).toURI();
         File nextFile = new File(outputBase.resolve(inputBase.relativize(uri)));
-        FileCallback.writeToFile(reader, input, nextFile, t);
+        StreamCallback.writeToFile(reader, input, nextFile, t);
     }
 
     @Override

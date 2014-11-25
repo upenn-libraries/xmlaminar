@@ -16,8 +16,11 @@
 
 package edu.upennlib.paralleltransformer;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -41,28 +44,31 @@ public class SerializingXMLFilter extends XMLFilterImpl {
     
     private static final Logger LOG = LoggerFactory.getLogger(SerializingXMLFilter.class);
     private final TransformerHandler th;
-    private final Result res;
+    private final File output;
+    private StreamResult res;
     
-    public SerializingXMLFilter(Result res) {
+    public SerializingXMLFilter(File output) {
         SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         try {
             th = stf.newTransformerHandler();
         } catch (TransformerConfigurationException ex) {
             throw new RuntimeException(ex);
         }
-        this.res = res;
+        this.output = output;
     }
 
     @Override
     public void parse(String systemId) throws SAXException, IOException {
         setupParse();
         super.parse(systemId);
+        res.getOutputStream().close();
     }
 
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
         setupParse();
         super.parse(input);
+        res.getOutputStream().close();
     }
     
     private void setupParse() {
@@ -78,10 +84,19 @@ public class SerializingXMLFilter extends XMLFilterImpl {
         } catch (SAXNotSupportedException ex) {
             LOG.info("ignoring setProperty({})", TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
         }
+        res = new StreamResult();
+        if ("-".equals(output.getPath())) {
+            res.setOutputStream(System.out);
+        } else {
+            res.setSystemId(output);
+            try {
+                res.setOutputStream(new BufferedOutputStream(new FileOutputStream(output)));
+            } catch (FileNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
         th.setResult(res);
         setContentHandler(th);
     }
-    
-    
     
 }

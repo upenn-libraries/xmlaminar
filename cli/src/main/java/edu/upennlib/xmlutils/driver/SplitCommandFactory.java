@@ -19,6 +19,8 @@ package edu.upennlib.xmlutils.driver;
 import edu.upennlib.paralleltransformer.LevelSplittingXMLFilter;
 import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
+import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
+import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import java.io.File;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -78,6 +80,12 @@ class SplitCommandFactory extends CommandFactory {
                 splitter.setInputType(QueueSourceXMLFilter.InputType.indirect);
             }
             if (last) {
+                Transformer t;
+                try {
+                    t = TransformerFactory.newInstance().newTransformer();
+                } catch (TransformerConfigurationException ex) {
+                    throw new RuntimeException(ex);
+                }
                 if (baseName != null) {
                     File resolvedBase;
                     if (output.isDirectory()) {
@@ -85,14 +93,12 @@ class SplitCommandFactory extends CommandFactory {
                     } else {
                         resolvedBase = baseName;
                     }
-                    Transformer t;
-                    try {
-                        t = TransformerFactory.newInstance().newTransformer();
-                    } catch (TransformerConfigurationException ex) {
-                        throw new RuntimeException(ex);
-                    }
                     splitter.setOutputCallback(new IncrementingFileCallback(0,
                             t, suffixLength, resolvedBase, outputExtension));
+                } else if ("-".equals(output.getPath())) {
+                    splitter.setOutputCallback(new StdoutCallback(t));
+                } else if (!output.isDirectory()) {
+                    splitter.setOutputCallback(new StaticFileCallback(t, output));
                 } else {
                     throw new UnsupportedOperationException("input-base-relative splitting not yet supported");
                 }

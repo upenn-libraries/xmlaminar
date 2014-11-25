@@ -165,18 +165,7 @@ public class JoinCommand implements Command {
         if (!last) {
             return joiner;
         } else {
-            StreamResult res = new StreamResult();
-            if ("-".equals(output.getPath())) {
-                res.setOutputStream(System.out);
-            } else {
-                res.setSystemId(output);
-                try {
-                    res.setOutputStream(new BufferedOutputStream(new FileOutputStream(output)));
-                } catch (FileNotFoundException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-            SerializingXMLFilter serializer = new SerializingXMLFilter(res);
+            SerializingXMLFilter serializer = new SerializingXMLFilter(output);
             serializer.setParent(joiner);
             return serializer;
         }

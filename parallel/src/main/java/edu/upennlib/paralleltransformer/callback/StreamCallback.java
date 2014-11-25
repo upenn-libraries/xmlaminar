@@ -33,19 +33,25 @@ import org.xml.sax.XMLReader;
  *
  * @author magibney
  */
-public class FileCallback {
+public class StreamCallback {
     
     static void writeToFile(XMLReader reader, InputSource input, File nextFile, Transformer t) throws FileNotFoundException, IOException {
-        t.reset();
         OutputStream out = new BufferedOutputStream(new FileOutputStream(nextFile));
         StreamResult res = new StreamResult(out);
         res.setSystemId(nextFile);
         try {
-            t.transform(new SAXSource(reader, input), res);
-        } catch (TransformerException ex) {
-            throw new RuntimeException(ex);
+            writeToStream(reader, input, res, t);
         } finally {
             out.close();
+        }
+    }
+
+    static void writeToStream(XMLReader reader, InputSource input, StreamResult out, Transformer t) throws FileNotFoundException, IOException {
+        t.reset();
+        try {
+            t.transform(new SAXSource(reader, input), out);
+        } catch (TransformerException ex) {
+            throw new RuntimeException(ex);
         }
     }
 

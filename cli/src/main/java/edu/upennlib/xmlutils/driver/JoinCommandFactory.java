@@ -16,21 +16,6 @@
 
 package edu.upennlib.xmlutils.driver;
 
-import edu.upennlib.paralleltransformer.JoiningXMLFilter;
-import edu.upennlib.paralleltransformer.LevelSplittingXMLFilter;
-import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
-import edu.upennlib.paralleltransformer.TXMLFilter;
-import edu.upennlib.paralleltransformer.callback.BaseRelativeFileCallback;
-import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
-import java.io.File;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamSource;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
-import org.xml.sax.XMLFilter;
-
 /**
  *
  * @author magibney
@@ -48,7 +33,7 @@ class JoinCommandFactory extends CommandFactory {
 
     @Override
     public String getKey() {
-        return "split";
+        return "join";
     }
 
 
