@@ -27,6 +27,7 @@ import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  *
@@ -35,6 +36,7 @@ import org.xml.sax.SAXException;
 public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<Chunk>> {
 
     private int recordCount = -1;
+    private InputSource inSource;
     private UnboundedContentHandlerBuffer in = new UnboundedContentHandlerBuffer();
     private UnboundedContentHandlerBuffer out = new UnboundedContentHandlerBuffer();
     private final Transformer transformer;
@@ -123,12 +125,34 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         out.flush(ch, null);
     }
 
-    public UnboundedContentHandlerBuffer getInput() {
+    public UnboundedContentHandlerBuffer getInput(InputSource inSource) {
+        this.inSource = inSource;
         return in;
     }
 
-    public UnboundedContentHandlerBuffer getOutput() {
-        return out;
+    BufferSAXSource getOutput() {
+        return new BufferSAXSource(out, inSource);
+    }
+    
+    static class BufferSAXSource extends SAXSource {
+        
+        private final UnboundedContentHandlerBuffer reader;
+        
+        private BufferSAXSource(UnboundedContentHandlerBuffer reader, InputSource in) {
+            super(reader, in);
+            this.reader = reader;
+        }
+
+        @Override
+        public UnboundedContentHandlerBuffer getXMLReader() {
+            return reader;
+        }
+
+        @Override
+        public void setXMLReader(XMLReader reader) {
+            throw new UnsupportedOperationException("property XMLReader is read-only on "+BufferSAXSource.class);
+        }
+        
     }
 
 }

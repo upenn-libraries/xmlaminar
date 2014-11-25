@@ -96,7 +96,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     
     private void setupInputBuffer(SAXSource in) throws InterruptedException {
         Chunk nextIn = pq.nextIn();
-        UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput();
+        UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput(in.getInputSource());
         XMLFilter suxf = new StateUpdatingXMLFilter(nextIn, in.getXMLReader(), ProcessingState.HAS_INPUT);
         inputBuffer.setUnmodifiableParent(suxf);
         in.setXMLReader(suxf);
@@ -188,7 +188,6 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     
     private class OutputRunnable implements Runnable {
 
-        private final InputSource dummyInputSource = new InputSource();
         private final Thread producer;
         
         private OutputRunnable(Thread producer) {
@@ -199,11 +198,12 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
             while (!pq.isFinished()) {
                 try {
                     Chunk nextOut = pq.nextOut();
-                    UnboundedContentHandlerBuffer outputBuffer = nextOut.getOutput();
+                    Chunk.BufferSAXSource outSource = nextOut.getOutput();
+                    UnboundedContentHandlerBuffer outputBuffer = outSource.getXMLReader();
                     outputBuffer.setUnmodifiableParent(dummyNamespaceAware);
                     outputBuffer.setFlushOnParse(true); //TODO set this behavior by default?
                     XMLReader r = new StateUpdatingXMLFilter(nextOut, outputBuffer, ProcessingState.READY);
-                    outputCallback.callback(r, dummyInputSource);
+                    outputCallback.callback(r, outSource.getInputSource());
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
