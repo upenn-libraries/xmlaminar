@@ -1,0 +1,40 @@
+cmd --split 
+-s <chunk_size; default 100> 
+-r <record depth; default to 1>
+
+-i <input; direct-file/stdin, base-dir (only if --files-from, defaults to CWD)> 
+--files-from <see also -0, -d> 
+
+-o <output; direct-file/stdout (repeatedly (over)writes to specified output; useful in special cases), base-dir (required if --files-from and -b not specified; optional/superfluous if -b specified)> 
+*the following are invalid with direct-file/stdout -o:
+-b <output basename; defaults to direct input basename; when used in conjunction with -o base-dir, this arg is resolved relative to base-dir> 
+--suffix-length <defaults to 5> 
+--output-extension <defaults to input extension or .xml>
+
+
+
+cmd --process 
+-x <xsl file>
+-r <record depth; default to 1>
+
+-i <input; direct-file/stdin, base-dir (only if --files-from, defaults to CWD)> 
+--files-from <see also -0, -d> 
+
+-o <output; direct-file/stdout (repeatedly (over)writes to specified output; useful in special cases), base-dir (required if --files-from and -b not specified; optional/superfluous if -b specified)>
+*the following are invalid with direct-file/stdout -o:
+-b <output basename; defaults to direct input basename; when used in conjunction with -o base-dir, this arg is resolved relative to base-dir> 
+--suffix-length <defaults to 5; only if -b specified> 
+--output-extension <defaults to input extension or .xml>
+
+
+
+cmd --join 
+
+--files-from <see also -0, -d; default to stdin for --join> 
+
+-o <output; direct-file/stdout; default to stdout for --join>
+
+
+
+-i, --files-from (-0, -d) only valid on first action
+-o, -b (--suffix-length, --output-extension) only valid on last action
