@@ -21,12 +21,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -67,6 +62,7 @@ public class Driver {
                 command.printHelpOn(System.err);
                 return;
             }
+            in = command.getInput();
             while (iter.hasNext()) {
                 command = iter.next();
                 XMLFilter child = command.getXMLFilter();
@@ -77,7 +73,6 @@ public class Driver {
                 getRootParent(child).setParent(previous);
                 previous = child;
             }
-            in = command.getInput();
         } else {
             System.err.println("For help with a specific command: " + LS 
                     + "\t--command --help"+LS 
@@ -90,6 +85,7 @@ public class Driver {
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }
+        System.out.println();
     }
     
     private static XMLFilter getRootParent(XMLFilter filter) {

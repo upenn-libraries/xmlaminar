@@ -232,7 +232,7 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
         if (parseQueueSupplier == null) {
             if (executor == null) {
                 createdExecutor = true;
-                executor = Executors.newCachedThreadPool();
+                setExecutor(Executors.newCachedThreadPool());
             }
         }
         if (localParent instanceof QueueSourceXMLFilter && executor != null) {

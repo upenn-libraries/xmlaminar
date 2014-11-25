@@ -45,9 +45,10 @@ public class SerializingXMLFilter extends XMLFilterImpl {
     private static final Logger LOG = LoggerFactory.getLogger(SerializingXMLFilter.class);
     private final TransformerHandler th;
     private final File output;
+    private final boolean closeOnEndDocument;
     private StreamResult res;
     
-    public SerializingXMLFilter(File output) {
+    public SerializingXMLFilter(File output, boolean closeOnEndDocument) {
         SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         try {
             th = stf.newTransformerHandler();
@@ -55,20 +56,35 @@ public class SerializingXMLFilter extends XMLFilterImpl {
             throw new RuntimeException(ex);
         }
         this.output = output;
+        this.closeOnEndDocument = closeOnEndDocument;
+    }
+
+    public SerializingXMLFilter(File output) {
+        this(output, !"-".equals(output.getPath()));
     }
 
     @Override
     public void parse(String systemId) throws SAXException, IOException {
         setupParse();
         super.parse(systemId);
-        res.getOutputStream().close();
     }
 
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
         setupParse();
         super.parse(input);
-        res.getOutputStream().close();
+    }
+
+    @Override
+    public void endDocument() throws SAXException {
+        super.endDocument();
+        if (closeOnEndDocument) {
+            try {
+                res.getOutputStream().close();
+            } catch (IOException ex) {
+                LOG.error("error closing stream", ex);
+            }
+        }
     }
     
     private void setupParse() {
