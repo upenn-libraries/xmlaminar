@@ -16,26 +16,12 @@
 
 package edu.upennlib.xmlutils.driver;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.OutputStream;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLFilter;
-
 /**
- *
+ *  
  * @author magibney
  */
-public interface Command {
-
-    File inputBase();
-    
-    XMLFilter getXMLFilter(File inputBase);
-    
-    InputSource getInput() throws FileNotFoundException;
-    
-    void printHelpOn(OutputStream out);
-    
-    CommandType getCommandType();
-    
+public enum CommandType {
+    SPLIT, // many out for individual direct inputSource
+    JOIN, // one out for many direct inputSources
+    PASS_THROUGH // one out per inputSource
 }

@@ -16,6 +16,7 @@
 
 package edu.upennlib.xmlutils.driver;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -55,17 +56,19 @@ public class Driver {
         Iterator<Command> iter = commands.iterator();
         XMLFilter previous;
         InputSource in;
+        File inputBase;
         if (iter.hasNext()) {
             Command command = iter.next();
-            previous = command.getXMLFilter();
+            previous = command.getXMLFilter(null);
             if (previous == null) {
                 command.printHelpOn(System.err);
                 return;
             }
+            inputBase = command.inputBase();
             in = command.getInput();
             while (iter.hasNext()) {
                 command = iter.next();
-                XMLFilter child = command.getXMLFilter();
+                XMLFilter child = command.getXMLFilter(inputBase);
                 if (child == null) {
                     command.printHelpOn(System.err);
                     return;

@@ -154,7 +154,7 @@ public class JoinCommand implements Command {
     }
 
     @Override
-    public XMLFilter getXMLFilter() {
+    public XMLFilter getXMLFilter(File inputBase) {
         if (!init(parser.parse(args))) {
             return null;
         }
@@ -169,6 +169,16 @@ public class JoinCommand implements Command {
             serializer.setParent(joiner);
             return serializer;
         }
+    }
+
+    @Override
+    public CommandType getCommandType() {
+        return CommandType.JOIN;
+    }
+
+    @Override
+    public File inputBase() {
+        return null;
     }
 
 }

@@ -72,7 +72,7 @@ class ProcessCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter() {
+        public XMLFilter getXMLFilter(File inputBase) {
             if (txf != null) {
                 return txf;
             }
@@ -115,6 +115,23 @@ class ProcessCommandFactory extends CommandFactory {
             return txf;
         }
 
+        @Override
+        public CommandType getCommandType() {
+            return CommandType.PASS_THROUGH;
+        }
+
+        @Override
+        public File inputBase() {
+            if (input == null) {
+                return null;
+            } else if ("-".equals(input.getPath())) {
+                return null;
+            } else if (!input.isDirectory()) {
+                return null;
+            } else {
+                return input;
+            }
+        }
     }
 
 }
