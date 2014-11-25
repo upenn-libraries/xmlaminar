@@ -16,18 +16,23 @@
 
 package edu.upennlib.xmlutils.driver;
 
-import edu.upennlib.paralleltransformer.SplittingXMLFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.logging.Level;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
+import org.xml.sax.XMLReader;
 
 /**
  *
@@ -41,49 +46,61 @@ public class Driver {
         try {
             // Force initialization of known Command types.
             Class.forName(SplitCommandFactory.class.getCanonicalName());
+            Class.forName(ProcessCommandFactory.class.getCanonicalName());
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }
         
     }
     
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, TransformerConfigurationException {
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
         LinkedList<Command> commands = buildCommandList(args, cfs);
-        Iterator<Command> iter = commands.descendingIterator();
-        XMLFilter last;
+        Iterator<Command> iter = commands.subList(0, commands.size() - 1).iterator();
+        XMLFilter previous;
         InputSource in;
         if (iter.hasNext()) {
-            Command lastCommand = iter.next();
-            last = lastCommand.getXMLFilter();
-            if (last == null) {
-                lastCommand.printHelpOn(System.err);
+            Command command = iter.next();
+            previous = command.getXMLFilter();
+            if (previous == null) {
+                command.printHelpOn(System.err);
                 return;
             }
-            XMLFilter child = last;
             while (iter.hasNext()) {
-                lastCommand = iter.next();
-                XMLFilter parent = lastCommand.getXMLFilter();
-                if (parent == null) {
-                    lastCommand.printHelpOn(System.err);
+                command = iter.next();
+                XMLFilter child = command.getXMLFilter();
+                if (child == null) {
+                    command.printHelpOn(System.err);
                     return;
                 }
-                child.setParent(parent);
-                child = parent;
+                getRootParent(child).setParent(previous);
+                previous = child;
             }
-            in = lastCommand.getInput();
+            in = command.getInput();
         } else {
-            System.err.println("For help for a specific command: " + LS 
+            System.err.println("For help with a specific command: " + LS 
                     + "\t--command --help"+LS 
                     +"available commands: "+LS
                     +"\t"+cfs.keySet());
             return;
         }
         try {
-            last.parse(in);
+            previous.parse(in);
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }
+    }
+    
+    private static XMLFilter getRootParent(XMLFilter filter) {
+        XMLReader parent;
+        while ((parent = filter.getParent()) != null) {
+            if (parent instanceof XMLFilter) {
+                filter = (XMLFilter) parent;
+            } else {
+                return filter;
+            }
+        }
+        return filter;
     }
     
     private static final String LS = System.lineSeparator();

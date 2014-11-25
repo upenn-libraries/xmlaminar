@@ -16,13 +16,15 @@
 
 package edu.upennlib.xmlutils.driver;
 
-import edu.upennlib.paralleltransformer.LevelSplittingXMLFilter;
 import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
+import edu.upennlib.paralleltransformer.TXMLFilter;
+import edu.upennlib.paralleltransformer.callback.BaseRelativeFileCallback;
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import java.io.File;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.xml.sax.XMLFilter;
@@ -31,53 +33,66 @@ import org.xml.sax.XMLFilter;
  *
  * @author magibney
  */
-class SplitCommandFactory extends CommandFactory {
+class ProcessCommandFactory extends CommandFactory {
     
     static {
-        registerCommandFactory(new SplitCommandFactory());
+        registerCommandFactory(new ProcessCommandFactory());
     }
     
     @Override
     public Command newCommand(String[] args, boolean first, boolean last) {
-        return new SplitCommand(args, first, last);
+        return new ProcessCommand(args, first, last);
     }
 
     @Override
     public String getKey() {
-        return "split";
+        return "process";
     }
 
-    private static class SplitCommand extends MultiOutCommand {
+    private static class ProcessCommand extends MultiOutCommand {
 
-        private int chunkSize;
-        protected OptionSpec<Integer> chunkSizeSpec;
+        private File xsl;
+        protected OptionSpec<File> xslSpec;
         private final String[] args;
+        private TXMLFilter txf;
 
-        public SplitCommand(String[] args, boolean first, boolean last) {
+        public ProcessCommand(String[] args, boolean first, boolean last) {
             super(args, first, last);
-            chunkSizeSpec = parser.acceptsAll(Flags.SIZE_ARG, "size (in records) of output files (for split) "
-                    + "or processing chunks (for process)").withRequiredArg().ofType(Integer.class)
-                    .defaultsTo(100);
+            xslSpec = parser.acceptsAll(Flags.XSL_FILE_ARG, "xsl file defining processing templates").withRequiredArg().ofType(File.class);
             this.args = args;
         }
 
         @Override
         protected boolean init(OptionSet options) {
             boolean ret = super.init(options);
-            chunkSize = options.valueOf(chunkSizeSpec);
+            xsl = options.valueOf(xslSpec);
             return ret;
         }
         
         @Override
         public XMLFilter getXMLFilter() {
+            if (txf != null) {
+                return txf;
+            }
             if (!init(parser.parse(args))) {
                 return null;
             }
-            LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter(recordDepth, chunkSize);
+            try {
+                txf = new TXMLFilter(new StreamSource(xsl));
+            } catch (TransformerConfigurationException ex) {
+                throw new RuntimeException(ex);
+            }
             if (filesFrom != null) {
-                splitter.setInputType(QueueSourceXMLFilter.InputType.indirect);
+                txf.setInputType(QueueSourceXMLFilter.InputType.indirect);
             }
             if (last) {
+                Transformer t;
+                try {
+                    t = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null).newTransformer();
+                } catch (TransformerConfigurationException ex) {
+                    throw new RuntimeException(ex);
+                }
+                txf.configureOutputTransformer(t);
                 if (baseName != null) {
                     File resolvedBase;
                     if (output.isDirectory()) {
@@ -85,20 +100,15 @@ class SplitCommandFactory extends CommandFactory {
                     } else {
                         resolvedBase = baseName;
                     }
-                    Transformer t;
-                    try {
-                        t = TransformerFactory.newInstance().newTransformer();
-                    } catch (TransformerConfigurationException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    splitter.setOutputCallback(new IncrementingFileCallback(0,
+                    txf.setOutputCallback(new IncrementingFileCallback(0,
                             t, suffixLength, resolvedBase, outputExtension));
                 } else {
-                    throw new UnsupportedOperationException("input-base-relative splitting not yet supported");
+                    txf.setOutputCallback(new BaseRelativeFileCallback(input, output, t, outputExtension));
                 }
             }
-            return splitter;
+            return txf;
         }
+
     }
 
 }

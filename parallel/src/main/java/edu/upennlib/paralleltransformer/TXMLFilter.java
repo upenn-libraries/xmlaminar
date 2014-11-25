@@ -44,8 +44,11 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import net.sf.saxon.Controller;
 import org.apache.log4j.Logger;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
@@ -277,5 +280,27 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
             }
         }
     }
+
+    public static final String OUTPUT_TRANSFORMER_PROPERTY_NAME = "http://transform.xml.javax/Transformer#outputTransformer";
+    
+    @Override
+    public void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException {
+        try {
+            super.setProperty(name, value);
+        } catch (SAXNotRecognizedException ex) {
+            if (!OUTPUT_TRANSFORMER_PROPERTY_NAME.equals(name)) {
+                throw ex;
+            }
+        } catch (SAXNotSupportedException ex) {
+            if (!OUTPUT_TRANSFORMER_PROPERTY_NAME.equals(name)) {
+                throw ex;
+            }
+        }
+        if (OUTPUT_TRANSFORMER_PROPERTY_NAME.equals(name)) {
+            configureOutputTransformer((Transformer) value);
+        }
+    }
+    
+    
 
 }
