@@ -64,7 +64,11 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
     
     @Override
     public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-        String path = input.getSystemId();
+        File nextFile = convertInToOut(input.getSystemId());
+        StreamCallback.writeToFile(reader, input, nextFile, t);
+    }
+    
+    protected File convertInToOut(String path) {
         if (outputExtension != null) {
             if (replaceExtension) {
                 path = StreamCallback.getBasename(path).concat(outputExtension);
@@ -73,8 +77,7 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
             }
         }
         URI uri = (new File(path)).toURI();
-        File nextFile = new File(outputBase.resolve(inputBase.relativize(uri)));
-        StreamCallback.writeToFile(reader, input, nextFile, t);
+        return new File(outputBase.resolve(inputBase.relativize(uri)));
     }
 
     @Override

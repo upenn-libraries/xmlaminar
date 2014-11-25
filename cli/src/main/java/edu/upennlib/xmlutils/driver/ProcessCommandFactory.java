@@ -20,6 +20,7 @@ import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
 import edu.upennlib.paralleltransformer.TXMLFilter;
 import edu.upennlib.paralleltransformer.callback.BaseRelativeFileCallback;
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
+import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import java.io.File;
 import javax.xml.transform.Transformer;
@@ -105,6 +106,8 @@ class ProcessCommandFactory extends CommandFactory {
                             t, suffixLength, resolvedBase, outputExtension));
                 } else if ("-".equals(output.getPath())) {
                     txf.setOutputCallback(new StdoutCallback(t));
+                } else if (!output.isDirectory()) {
+                    txf.setOutputCallback(new StaticFileCallback(t, output));
                 } else {
                     txf.setOutputCallback(new BaseRelativeFileCallback(input, output, t, outputExtension));
                 }

@@ -18,6 +18,7 @@ package edu.upennlib.xmlutils.driver;
 
 import edu.upennlib.paralleltransformer.LevelSplittingXMLFilter;
 import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
+import edu.upennlib.paralleltransformer.callback.BaseRelativeIncrementingFileCalback;
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
@@ -100,7 +101,7 @@ class SplitCommandFactory extends CommandFactory {
                 } else if (!output.isDirectory()) {
                     splitter.setOutputCallback(new StaticFileCallback(t, output));
                 } else {
-                    throw new UnsupportedOperationException("input-base-relative splitting not yet supported");
+                    splitter.setOutputCallback(new BaseRelativeIncrementingFileCalback(input, output, t, outputExtension));
                 }
             }
             return splitter;
