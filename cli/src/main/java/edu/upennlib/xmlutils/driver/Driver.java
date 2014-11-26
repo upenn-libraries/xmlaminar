@@ -50,6 +50,10 @@ public class Driver {
         
     }
     
+    private static CommandType updateType(CommandType current, CommandType next) {
+        return (next.compareTo(current) > 0 ? next : current);
+    }
+    
     public static void main(String[] args) throws IOException, TransformerConfigurationException {
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
         LinkedList<Command> commands = buildCommandList(args, cfs);
@@ -57,22 +61,25 @@ public class Driver {
         XMLFilter previous;
         InputSource in;
         File inputBase;
+        CommandType maxType = null;
         if (iter.hasNext()) {
             Command command = iter.next();
-            previous = command.getXMLFilter(null);
+            previous = command.getXMLFilter(null, maxType);
             if (previous == null) {
                 command.printHelpOn(System.err);
                 return;
             }
-            inputBase = command.inputBase();
+            inputBase = command.getInputBase();
             in = command.getInput();
+            maxType = command.getCommandType();
             while (iter.hasNext()) {
                 command = iter.next();
-                XMLFilter child = command.getXMLFilter(inputBase);
+                XMLFilter child = command.getXMLFilter(inputBase, maxType);
                 if (child == null) {
                     command.printHelpOn(System.err);
                     return;
                 }
+                maxType = updateType(maxType, command.getCommandType());
                 getRootParent(child).setParent(previous);
                 previous = child;
             }

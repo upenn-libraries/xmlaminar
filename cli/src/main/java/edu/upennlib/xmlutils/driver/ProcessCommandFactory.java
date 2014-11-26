@@ -19,6 +19,7 @@ package edu.upennlib.xmlutils.driver;
 import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
 import edu.upennlib.paralleltransformer.TXMLFilter;
 import edu.upennlib.paralleltransformer.callback.BaseRelativeFileCallback;
+import edu.upennlib.paralleltransformer.callback.BaseRelativeIncrementingFileCalback;
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
@@ -72,7 +73,7 @@ class ProcessCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(File inputBase) {
+        public XMLFilter getXMLFilter(File inputBase, CommandType maxType) {
             if (txf != null) {
                 return txf;
             }
@@ -108,6 +109,8 @@ class ProcessCommandFactory extends CommandFactory {
                     txf.setOutputCallback(new StdoutCallback(t));
                 } else if (!output.isDirectory()) {
                     txf.setOutputCallback(new StaticFileCallback(t, output));
+                } else if (maxType == CommandType.SPLIT) {
+                    txf.setOutputCallback(new BaseRelativeIncrementingFileCalback(input, output, t, outputExtension));
                 } else {
                     txf.setOutputCallback(new BaseRelativeFileCallback(input, output, t, outputExtension));
                 }
@@ -121,7 +124,7 @@ class ProcessCommandFactory extends CommandFactory {
         }
 
         @Override
-        public File inputBase() {
+        public File getInputBase() {
             if (input == null) {
                 return null;
             } else if ("-".equals(input.getPath())) {

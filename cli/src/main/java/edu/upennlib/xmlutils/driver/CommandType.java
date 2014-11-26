@@ -21,7 +21,7 @@ package edu.upennlib.xmlutils.driver;
  * @author magibney
  */
 public enum CommandType {
+    PASS_THROUGH, // one out per inputSource
     SPLIT, // many out for individual direct inputSource
-    JOIN, // one out for many direct inputSources
-    PASS_THROUGH // one out per inputSource
+    JOIN // one out for many direct inputSources
 }

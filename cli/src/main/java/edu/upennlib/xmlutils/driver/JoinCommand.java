@@ -17,33 +17,19 @@
 package edu.upennlib.xmlutils.driver;
 
 import edu.upennlib.paralleltransformer.JoiningXMLFilter;
-import edu.upennlib.paralleltransformer.LevelSplittingXMLFilter;
 import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
 import edu.upennlib.paralleltransformer.SerializingXMLFilter;
-import edu.upennlib.paralleltransformer.callback.BaseRelativeFileCallback;
-import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLFilter;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
@@ -154,7 +140,7 @@ public class JoinCommand implements Command {
     }
 
     @Override
-    public XMLFilter getXMLFilter(File inputBase) {
+    public XMLFilter getXMLFilter(File inputBase, CommandType maxType) {
         if (!init(parser.parse(args))) {
             return null;
         }
@@ -177,7 +163,7 @@ public class JoinCommand implements Command {
     }
 
     @Override
-    public File inputBase() {
+    public File getInputBase() {
         return null;
     }
 

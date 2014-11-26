@@ -28,11 +28,11 @@ import org.xml.sax.XMLFilter;
  */
 public interface Command {
 
-    File inputBase();
-    
-    XMLFilter getXMLFilter(File inputBase);
+    XMLFilter getXMLFilter(File inputBase, CommandType maxType);
     
     InputSource getInput() throws FileNotFoundException;
+    
+    File getInputBase();
     
     void printHelpOn(OutputStream out);
     

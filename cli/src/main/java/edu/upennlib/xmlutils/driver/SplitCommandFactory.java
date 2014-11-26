@@ -72,7 +72,7 @@ class SplitCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(File inputBase) {
+        public XMLFilter getXMLFilter(File inputBase, CommandType maxType) {
             if (!init(parser.parse(args))) {
                 return null;
             }
@@ -113,7 +113,7 @@ class SplitCommandFactory extends CommandFactory {
         }
 
         @Override
-        public File inputBase() {
+        public File getInputBase() {
             if (input == null) {
                 return null;
             } else if ("-".equals(input.getPath())) {
