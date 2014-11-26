@@ -35,8 +35,8 @@ import org.xml.sax.XMLReader;
  */
 public class LevelSplittingXMLFilter extends SplittingXMLFilter {
 
-    private static final int DEFAULT_RECORD_LEVEL = 1;
-    private static final int DEFAULT_CHUNK_SIZE = 100;
+    public static final int DEFAULT_RECORD_LEVEL = 1;
+    public static final int DEFAULT_CHUNK_SIZE = 100;
     private final LevelSplitDirector levelSplitDirector;
     private int recordLevel;
     private int chunkSize;

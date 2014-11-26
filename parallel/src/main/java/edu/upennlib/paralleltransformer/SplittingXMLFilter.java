@@ -239,7 +239,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
             if (input != null) {
                 super.parse(input);
             } else {
-                Thread.dumpStack();
                 super.parse(systemId);
             }
             xmlReaderCallback.finished();

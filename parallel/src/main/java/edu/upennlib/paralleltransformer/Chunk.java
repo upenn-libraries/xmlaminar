@@ -16,6 +16,7 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.IOException;
 import javax.xml.transform.Templates;
@@ -73,18 +74,43 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         return newChunk;
     }
 
-    private void populateSubdividedParts(Chunk newChunk) throws SAXException, IOException {
-        recordCount = (recordCount + 1) / 2;
-        splitter.setChunkSize(recordCount);
+    private void populateSubdividedParts(final Chunk newChunk) throws SAXException, IOException {
+        final int newChunkSize = (recordCount + 1) / 2;
+        splitter.setChunkSize(newChunkSize);
         swapIO();
         splitter.setParent(out);
-        splitter.setContentHandler(newChunk.in);
-        splitter.parse(dummy); // reads first half into newchunk.
-        newChunk.setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
-        splitter.setContentHandler(in);
-        splitter.parse(dummy); // reads second half into this.in.
-        out.clear();
-        setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
+        splitter.setOutputCallback(new XMLReaderCallback() {
+
+            boolean initialized = false;
+            
+            @Override
+            public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+                if (!initialized) {
+                    initialized = true;
+                    reader.setContentHandler(newChunk.in);
+                    reader.parse(input);
+                    newChunk.setRecordCount(newChunkSize);
+                    newChunk.setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
+                } else {
+                    reader.setContentHandler(in);
+                    reader.parse(input); // reads second half into this.in.
+                    splitter.setOutputCallback(null); // free this callback for GC
+                    out.clear();
+                    recordCount = recordCount - newChunkSize;
+                    setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
+                }
+            }
+
+            @Override
+            public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public void finished() {
+                // NOOP
+            }
+        });
     }
 
     private void swapIO() {

@@ -44,6 +44,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import net.sf.saxon.Controller;
 import org.apache.log4j.Logger;
+import org.xml.sax.Attributes;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -157,6 +158,8 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
         
         private final Chunk outputChunk;
         private final ProcessingState nextState;
+        private int level = -1;
+        private int recordCount = 0;
         
         private StateUpdatingXMLFilter(Chunk outputChunk, XMLReader parent, ProcessingState nextState) {
             super(parent);
@@ -165,8 +168,24 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
         }
 
         @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            level--;
+            super.endElement(uri, localName, qName);
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+            level++;
+            super.startElement(uri, localName, qName, atts);
+            if (level == LevelSplittingXMLFilter.DEFAULT_RECORD_LEVEL) {
+                recordCount++;
+            }
+        }
+
+        @Override
         public void endDocument() throws SAXException {
             super.endDocument();
+            outputChunk.setRecordCount(recordCount);
             outputChunk.setState(nextState);
         }
         
