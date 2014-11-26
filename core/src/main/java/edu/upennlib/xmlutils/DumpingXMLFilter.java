@@ -37,25 +37,24 @@ import javax.xml.transform.stream.StreamResult;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
  * @author michael
  */
-public class DumpingContentHandler extends XMLFilterImpl implements LexicalHandler {
+public class DumpingXMLFilter extends XMLFilterImpl {
 
     private boolean dump = false;
     private File df;
-    private TransformerHandler dfHandler;
+    protected final TransformerHandler dfHandler;
     private OutputStream dfOut;
     public static final String TRANSFORMER_FACTORY_CLASS = "net.sf.saxon.TransformerFactoryImpl";
 
     public static void main(String[] args) throws TransformerConfigurationException, ParserConfigurationException, SAXException, TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS, null);
         Transformer t = tf.newTransformer();
-        DumpingContentHandler instance = new DumpingContentHandler();
+        DumpingXMLFilter instance = new DumpingXMLFilter();
         instance.setDumpFile(new File("/tmp/video_dump.xml"));
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
@@ -64,6 +63,16 @@ public class DumpingContentHandler extends XMLFilterImpl implements LexicalHandl
         t.transform(new SAXSource(instance, new InputSource("/tmp/video.xml")), new StreamResult("/tmp/video_echo.xml"));
     }
 
+    public DumpingXMLFilter() {
+        SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS, null);
+        try {
+            dfHandler = stf.newTransformerHandler();
+            dfHandler.getTransformer().setOutputProperty(OutputKeys.INDENT, "yes");
+        } catch (TransformerConfigurationException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
     public File getDumpFile() {
         return df;
     }
@@ -83,10 +92,10 @@ public class DumpingContentHandler extends XMLFilterImpl implements LexicalHandl
     }
     
     private void initDump() {
-        SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS, null);
         try {
-            dfHandler = stf.newTransformerHandler();
-            dfHandler.getTransformer().setOutputProperty(OutputKeys.INDENT, "yes");
+            Transformer t = dfHandler.getTransformer();
+            t.reset();
+            t.setOutputProperty(OutputKeys.INDENT, "yes");
             if (dfOut == null && df != null) {
                 if (df.getName().endsWith(".gz")) {
                     dfOut = new GZIPOutputStream(new FileOutputStream(df));
@@ -95,8 +104,6 @@ public class DumpingContentHandler extends XMLFilterImpl implements LexicalHandl
                 }
             }
             dfHandler.setResult(new StreamResult(dfOut));
-        } catch (TransformerConfigurationException ex) {
-            throw new RuntimeException(ex);
         } catch (FileNotFoundException ex) {
             throw new RuntimeException(ex);
         } catch (IOException ex) {
@@ -194,48 +201,6 @@ public class DumpingContentHandler extends XMLFilterImpl implements LexicalHandl
     public void unparsedEntityDecl(String name, String publicId, String systemId, String notationName) throws SAXException {
         super.unparsedEntityDecl(name, publicId, systemId, notationName);
         dfHandler.unparsedEntityDecl(name, publicId, systemId, notationName);
-    }
-
-    @Override
-    public void startDTD(String name, String publicId, String systemId) throws SAXException {
-        ((LexicalHandler)getContentHandler()).startDTD(name, publicId, systemId);
-        dfHandler.startDTD(name, publicId, systemId);
-    }
-
-    @Override
-    public void endDTD() throws SAXException {
-        ((LexicalHandler)getContentHandler()).endDTD();
-        dfHandler.endDTD();
-    }
-
-    @Override
-    public void startEntity(String name) throws SAXException {
-        ((LexicalHandler)getContentHandler()).startEntity(name);
-        dfHandler.startEntity(name);
-    }
-
-    @Override
-    public void endEntity(String name) throws SAXException {
-        ((LexicalHandler)getContentHandler()).endEntity(name);
-        dfHandler.endEntity(name);
-    }
-
-    @Override
-    public void startCDATA() throws SAXException {
-        ((LexicalHandler)getContentHandler()).startCDATA();
-        dfHandler.startCDATA();
-    }
-
-    @Override
-    public void endCDATA() throws SAXException {
-        ((LexicalHandler)getContentHandler()).endCDATA();
-        dfHandler.endCDATA();
-    }
-
-    @Override
-    public void comment(char[] ch, int start, int length) throws SAXException {
-        ((LexicalHandler)getContentHandler()).comment(ch, start, length);
-        dfHandler.comment(ch, start, length);
     }
 
 }
