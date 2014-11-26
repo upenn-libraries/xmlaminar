@@ -110,9 +110,9 @@ class ProcessCommandFactory extends CommandFactory {
                 } else if (!output.isDirectory()) {
                     txf.setOutputCallback(new StaticFileCallback(t, output));
                 } else if (maxType == CommandType.SPLIT) {
-                    txf.setOutputCallback(new BaseRelativeIncrementingFileCalback(input, output, t, outputExtension));
+                    txf.setOutputCallback(new BaseRelativeIncrementingFileCalback((first ? input : inputBase), output, t, outputExtension, outputExtension != null, suffixLength));
                 } else {
-                    txf.setOutputCallback(new BaseRelativeFileCallback(input, output, t, outputExtension));
+                    txf.setOutputCallback(new BaseRelativeFileCallback((first ? input : inputBase), output, t, outputExtension, outputExtension != null));
                 }
             }
             return txf;

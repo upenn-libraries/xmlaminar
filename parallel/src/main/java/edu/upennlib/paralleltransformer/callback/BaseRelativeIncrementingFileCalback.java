@@ -35,16 +35,21 @@ public class BaseRelativeIncrementingFileCalback extends BaseRelativeFileCallbac
 
     private static final TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
     
-    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension, boolean replaceExtension) {
+    private final int suffixLength;
+    
+    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension, boolean replaceExtension, int suffixLength) {
         super(inputBase, outputBase, t, outputExtension, replaceExtension);
+        this.suffixLength = suffixLength;
     }
 
-    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension) {
+    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension, int suffixLength) {
         super(inputBase, outputBase, t, outputExtension);
+        this.suffixLength = suffixLength;
     }
 
-    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t) {
+    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, int suffixLength) {
         super(inputBase, outputBase, t);
+        this.suffixLength = suffixLength;
     }
 
     @Override
@@ -56,12 +61,18 @@ public class BaseRelativeIncrementingFileCalback extends BaseRelativeFileCallbac
     
     @Override
     public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-        File nextFile = convertInToOut(input.getSystemId());
+        File nextFile = convertInToOutBase(input.getSystemId());
         String path = nextFile.getAbsolutePath();
         IncrementingFileCallback ifc = callbacks.get(path);
         if (ifc == null) {
+            String ext;
+            if (replaceExtension) {
+                ext = outputExtension;
+            } else {
+                ext = StreamCallback.getExtension(input.getSystemId());
+            }
             try {
-                ifc = new IncrementingFileCallback(0, tf.newTransformer(), 5, nextFile, null);
+                ifc = new IncrementingFileCallback(0, tf.newTransformer(), suffixLength, nextFile, ext);
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
             }

@@ -36,8 +36,8 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
     private final URI inputBase;
     private final URI outputBase;
     private final Transformer t;
-    private final String outputExtension;
-    private final boolean replaceExtension;
+    protected final String outputExtension;
+    protected final boolean replaceExtension;
     
     private File validateBase(File file) {
         if (!file.isDirectory()) {
@@ -76,6 +76,12 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
                 path = path.concat(outputExtension);
             }
         }
+        URI uri = (new File(path)).toURI();
+        return new File(outputBase.resolve(inputBase.relativize(uri)));
+    }
+
+    protected File convertInToOutBase(String path) {
+        path = StreamCallback.getBasename(path);
         URI uri = (new File(path)).toURI();
         return new File(outputBase.resolve(inputBase.relativize(uri)));
     }

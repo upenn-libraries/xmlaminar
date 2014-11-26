@@ -95,7 +95,6 @@ public class Driver {
         } catch (SAXException ex) {
             throw new RuntimeException(ex);
         }
-        System.out.println();
     }
     
     private static XMLFilter getRootParent(XMLFilter filter) {
