@@ -105,6 +105,7 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
 
     private void failed() {
         if (!canSubdivide()) {
+            value.drop();
             remove();
         } else {
             value.subdivide();

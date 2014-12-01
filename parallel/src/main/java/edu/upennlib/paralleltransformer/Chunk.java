@@ -21,6 +21,7 @@ import edu.upennlib.xmlutils.DevNullErrorListener;
 import edu.upennlib.xmlutils.LoggingErrorListener;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.IOException;
+import java.util.logging.Level;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -55,7 +56,12 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         return recordCount > 1;
     }
 
-    public Chunk(Templates t) {
+    public Chunk(Templates t, String xpath) {
+        this(t, new RecordLogger(xpath));
+    }
+    
+    private Chunk(Templates t, RecordLogger rl) {
+        this.rl = rl;
         templates = t;
         try {
             this.transformer = t.newTransformer();
@@ -141,27 +147,81 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
     }
 
     private static final ErrorListener devNullErrorListener = new DevNullErrorListener();
-    private final LoggingErrorListener loggingErrorListener = new LoggingErrorListener(LOG);
     
     @Override
     public void run() {
         transformer.reset();
+        transformer.setErrorListener(devNullErrorListener);
         try {
-            if (recordCount > 1) {
-                transformer.setErrorListener(devNullErrorListener);
-            } else {
-                transformer.setErrorListener(loggingErrorListener);
-            }
-            transformer.transform(new SAXSource(in, dummy), new SAXResult(out));
+            transformer.transform(new SAXSource(in, inSource), new SAXResult(out));
             setState(ProcessingState.HAS_OUTPUT);
         } catch (TransformerException ex) {
+            this.ex = ex;
             setState(ProcessingState.FAILED);
         }
     }
+    
+    private TransformerException ex;
+    
+    private String recordXPath;
+    
+    private final RecordLogger rl;
+    
+    private static class RecordLogger extends RecordMonitorXMLFilter {
 
+        private String id;
+
+        public RecordLogger(RecordMonitorXMLFilter prototype) {
+            super(prototype);
+        }
+        
+        public RecordLogger(String xpath) {
+            super(xpath);
+        }
+
+        @Override
+        protected void reset() {
+            id = null;
+            super.reset();
+        }
+        
+        @Override
+        public void register(String id) throws SAXException {
+            this.id = id;
+            throw foundException;
+        }
+        
+    }
+    
+    private static final FoundXPathException foundException = new FoundXPathException();
+
+    private static class FoundXPathException extends SAXException {
+
+        @Override
+        public synchronized Throwable fillInStackTrace() {
+            return null;
+        }
+
+    }
+    @Override
+    protected void drop() {
+        String id = null;
+        if (rl != null) {
+            rl.reset();
+            try {
+                in.flush(rl, null);
+            } catch (SAXException ex) {
+                // NOOP
+            }
+            id = rl.id;
+        }
+        LOG.warn("dropping id="+id+"; "+ex.getMessageAndLocation());
+        super.drop();
+    }
+    
     @Override
     public Chunk newInstance() {
-        return new Chunk(templates);
+        return new Chunk(templates, new RecordLogger(rl));
     }
 
     public void writeOutputTo(ContentHandler ch) throws SAXException {

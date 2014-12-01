@@ -42,6 +42,10 @@ public abstract class DelegatingSubdividable<E extends Enum<E>, T extends Delega
     public boolean canSubdivide() {
         return parent.canSubdivide();
     }
+    
+    protected void drop() {
+        // NOOP default implementation
+    }
 
     protected P getParent() {
         return parent;

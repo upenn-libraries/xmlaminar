@@ -67,14 +67,14 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     private final Templates templates;
     private static final Logger LOG = LoggerFactory.getLogger(TXMLFilter.class);
 
-    public TXMLFilter(Source xslSource) throws TransformerConfigurationException {
+    public TXMLFilter(Source xslSource, String xpath) throws TransformerConfigurationException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         templates = tf.newTemplates(xslSource);
-        pq = new ProcessingQueue<Chunk>(100, new Chunk(templates));
+        pq = new ProcessingQueue<Chunk>(100, new Chunk(templates, xpath));
     }
     
     public static void main(String[] args) throws Exception {
-        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"));
+        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/record");
         txf.setOutputCallback(new StdoutCallback());
         txf.parse(new InputSource("../cli/whole.xml"));
     }
