@@ -74,7 +74,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     }
     
     public static void main(String[] args) throws Exception {
-        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/record");
+        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/*");
         txf.setOutputCallback(new StdoutCallback());
         txf.parse(new InputSource("../cli/whole.xml"));
     }

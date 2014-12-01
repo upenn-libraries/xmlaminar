@@ -47,7 +47,7 @@ public abstract class RecordMonitorXMLFilter extends XMLFilterImpl {
         }
         
         public boolean satisfiedBy(String uri, String localName, Attributes atts) {
-            if ((this.uri == null || this.uri.equals(uri)) && this.localName.equals(localName)) {
+            if ((this.uri == null || this.uri.equals(uri)) && (this.localName == null || this.localName.equals(localName))) {
                 if (requiredAtts == null || requiredAtts.getLength() < 1) {
                     return true;
                 } else {
@@ -106,7 +106,15 @@ public abstract class RecordMonitorXMLFilter extends XMLFilterImpl {
                     atts.addAttribute(parsedQName[0], parsedQName[1], reqAttName, "CDATA", reqAttValue);
                 }
                 parseQName(element, parsedQName);
-                condList.add(new Condition(parsedQName[0], parsedQName[1], atts));
+                String elementURI = parsedQName[0];
+                String elementLocal = parsedQName[1];
+                if ("*".equals(elementURI)) {
+                    elementURI = null;
+                }
+                if ("*".equals(elementLocal)) {
+                    elementLocal = null;
+                }
+                condList.add(new Condition(elementURI, elementLocal, atts));
             }
         }
         if (!m.hitEnd()) {
