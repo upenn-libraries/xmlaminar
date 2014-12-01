@@ -28,6 +28,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -65,7 +67,7 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
         return previousActiveTasks;
     }
 
-    private static class TaskRemovalQueue<T> extends BlockingQueueImpl<T> {
+    private static class TaskRemovalQueue<T extends Future<?>> extends BlockingQueueImpl<T> {
 
         private final Set<T> removalTarget;
 
@@ -76,6 +78,13 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
         @Override
         public boolean add(T e) {
             if (removalTarget.remove(e)) {
+                try {
+                    e.get();
+                } catch (InterruptedException ex) {
+                    throw new AssertionError("this should never happen", ex);
+                } catch (ExecutionException ex) {
+                    ex.printStackTrace(System.err);
+                }
                 return true;
             } else {
                 throw new AssertionError();

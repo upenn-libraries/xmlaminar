@@ -19,6 +19,7 @@ package edu.upennlib.paralleltransformer;
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
+import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.File;
@@ -69,7 +70,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
         templates = tf.newTemplates(xslSource);
         pq = new ProcessingQueue<Chunk>(100, new Chunk(templates));
     }
-
+    
     @Override
     protected void initialParse(SAXSource in) {
         outputFuture = getExecutor().submit(new OutputRunnable(Thread.currentThread()));
@@ -93,6 +94,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     @Override
     protected void finished() throws SAXException {
         pq.finished();
+        reset(false);
     }
     
     private void setupInputBuffer(SAXSource in) throws InterruptedException {
@@ -270,7 +272,6 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
             } else {
                 super.parse(systemId);
             }
-            outputFuture.get(); // wait for output to complete before returning
         } catch (Throwable t) {
             if (consumerThrowable == null) {
                 producerThrowable = t;

@@ -19,6 +19,8 @@ package edu.upennlib.paralleltransformer;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -87,15 +89,17 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
             public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
                 if (!initialized) {
                     initialized = true;
-                    reader.setContentHandler(newChunk.in);
+                    UnboundedContentHandlerBuffer inputBuffer = newChunk.getInput(input);
+                    reader.setContentHandler(inputBuffer);
                     reader.parse(input);
+                    inputBuffer.setUnmodifiableParent(reader);
                     newChunk.setRecordCount(newChunkSize);
                     newChunk.setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
                 } else {
                     reader.setContentHandler(in);
                     reader.parse(input); // reads second half into this.in.
-                    splitter.setOutputCallback(null); // free this callback for GC
                     out.clear();
+                    in.setUnmodifiableParent(reader);
                     recordCount = recordCount - newChunkSize;
                     setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
                 }
@@ -108,9 +112,10 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
 
             @Override
             public void finished() {
-                // NOOP
+                splitter.setOutputCallback(null); // free this callback for GC
             }
         });
+        splitter.parse(inSource);
     }
 
     private void swapIO() {

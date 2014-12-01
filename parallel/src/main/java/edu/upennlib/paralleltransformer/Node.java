@@ -143,7 +143,6 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
                 processingQueue.addToWorkQueue(value);
                 break;
             case HAS_SUBDIVIDED_INPUT:
-                System.out.println(ProcessingState.HAS_SUBDIVIDED_INPUT);
                 processingQueue.addToHeadOfWorkQueue(value);
                 break;
             case HAS_OUTPUT:
