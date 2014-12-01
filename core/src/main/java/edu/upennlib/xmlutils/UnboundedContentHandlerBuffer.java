@@ -16,7 +16,6 @@
 
 package edu.upennlib.xmlutils;
 
-import com.sun.org.apache.xerces.internal.impl.xs.XSConstraints;
 import java.io.IOException;
 import java.io.PrintStream;
 import org.apache.log4j.Logger;

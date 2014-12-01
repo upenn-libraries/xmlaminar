@@ -21,6 +21,7 @@ import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
+import edu.upennlib.xmlutils.LoggingErrorListener;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,7 +45,8 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import net.sf.saxon.Controller;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -63,12 +65,18 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
 
     private final ProcessingQueue<Chunk> pq;
     private final Templates templates;
-    private static final Logger LOG = Logger.getLogger(TXMLFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TXMLFilter.class);
 
     public TXMLFilter(Source xslSource) throws TransformerConfigurationException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         templates = tf.newTemplates(xslSource);
         pq = new ProcessingQueue<Chunk>(100, new Chunk(templates));
+    }
+    
+    public static void main(String[] args) throws Exception {
+        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"));
+        txf.setOutputCallback(new StdoutCallback());
+        txf.parse(new InputSource("../cli/whole.xml"));
     }
     
     @Override

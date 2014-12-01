@@ -17,16 +17,19 @@
 package edu.upennlib.paralleltransformer;
 
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
+import edu.upennlib.xmlutils.DevNullErrorListener;
+import edu.upennlib.xmlutils.LoggingErrorListener;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -38,6 +41,7 @@ import org.xml.sax.XMLReader;
  */
 public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<Chunk>> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Chunk.class);
     private int recordCount = -1;
     private InputSource inSource;
     private UnboundedContentHandlerBuffer in = new UnboundedContentHandlerBuffer();
@@ -136,10 +140,18 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         recordCount = -1;
     }
 
+    private static final ErrorListener devNullErrorListener = new DevNullErrorListener();
+    private final LoggingErrorListener loggingErrorListener = new LoggingErrorListener(LOG);
+    
     @Override
     public void run() {
         transformer.reset();
         try {
+            if (recordCount > 1) {
+                transformer.setErrorListener(devNullErrorListener);
+            } else {
+                transformer.setErrorListener(loggingErrorListener);
+            }
             transformer.transform(new SAXSource(in, dummy), new SAXResult(out));
             setState(ProcessingState.HAS_OUTPUT);
         } catch (TransformerException ex) {

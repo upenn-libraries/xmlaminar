@@ -19,8 +19,7 @@ package edu.upennlib.xmlutils;
 import java.util.EnumMap;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.TransformerException;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 
 /**
  *
@@ -30,31 +29,71 @@ public class LoggingErrorListener implements ErrorListener {
 
     private final Logger logger;
     public static enum ErrorLevel { WARNING, ERROR, FATAL_ERROR };
-    public final EnumMap<ErrorLevel, Level> levelMap;
-
-    public LoggingErrorListener(Logger logger, EnumMap<ErrorLevel, Level> levelMapping) {
+    public static enum LogLevel { OFF, TRACE, DEBUG, INFO, WARN, ERROR };
+    public final EnumMap<ErrorLevel, LogLevel> levelMap;
+    private static final EnumMap<ErrorLevel, LogLevel> DEFAULT_LEVEL_MAP;
+    
+    static {
+        DEFAULT_LEVEL_MAP = new EnumMap<ErrorLevel, LogLevel>(ErrorLevel.class);
+        DEFAULT_LEVEL_MAP.put(ErrorLevel.WARNING, LogLevel.INFO);
+        DEFAULT_LEVEL_MAP.put(ErrorLevel.ERROR, LogLevel.WARN);
+        DEFAULT_LEVEL_MAP.put(ErrorLevel.FATAL_ERROR, LogLevel.ERROR);
+    }
+    
+    public LoggingErrorListener(Logger logger) {
+        this(logger, new EnumMap<ErrorLevel, LogLevel>(DEFAULT_LEVEL_MAP));
+    }
+    
+    public LoggingErrorListener(Logger logger, EnumMap<ErrorLevel, LogLevel> levelMapping) {
         this.logger = logger;
         this.levelMap = levelMapping;
     }
 
     @Override
     public void warning(TransformerException exception) throws TransformerException {
-        Level logLevel = levelMap.get(ErrorLevel.WARNING);
-        if (logLevel != null && logLevel != Level.OFF && logger.isEnabledFor(logLevel)) {
-            logger.log(logLevel, exception.getMessageAndLocation());
-        }
+        log(exception, ErrorLevel.WARNING);
     }
 
     @Override
     public void error(TransformerException exception) throws TransformerException {
-        Level logLevel = levelMap.get(ErrorLevel.ERROR);
-        if (logLevel != null && logLevel != Level.OFF && logger.isEnabledFor(logLevel)) {
-            logger.log(logLevel, exception.getMessageAndLocation());
+        log(exception, ErrorLevel.ERROR);
+    }
+    
+    private void log(TransformerException ex, ErrorLevel el) {
+        LogLevel logLevel = levelMap.get(el);
+        switch (levelMap.get(el)) {
+            case TRACE:
+                if (logger.isTraceEnabled()) {
+                    logger.trace(ex.getMessageAndLocation());
+                }
+                break;
+            case DEBUG:
+                if (logger.isDebugEnabled()) {
+                    logger.debug(ex.getMessageAndLocation());
+                }
+                break;
+            case INFO:
+                if (logger.isInfoEnabled()) {
+                    logger.info(ex.getMessageAndLocation());
+                }
+                break;
+            case WARN:
+                if (logger.isWarnEnabled()) {
+                    logger.warn(ex.getMessageAndLocation());
+                }
+                break;
+            case ERROR:
+                if (logger.isErrorEnabled()) {
+                    logger.error(ex.getMessageAndLocation());
+                }
+                break;
         }
+                
     }
 
     @Override
     public void fatalError(TransformerException exception) throws TransformerException {
+        log(exception, ErrorLevel.FATAL_ERROR);
         throw exception;
     }
 }
