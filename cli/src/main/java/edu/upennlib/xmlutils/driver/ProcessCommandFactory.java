@@ -56,12 +56,15 @@ class ProcessCommandFactory extends CommandFactory {
 
         private File xsl;
         protected OptionSpec<File> xslSpec;
+        private String recordIdXPath;
+        protected OptionSpec<String> recordIdXPathSpec;
         private final String[] args;
         private TXMLFilter txf;
 
         public ProcessCommand(String[] args, boolean first, boolean last) {
             super(args, first, last);
             xslSpec = parser.acceptsAll(Flags.XSL_FILE_ARG, "xsl file defining processing templates").withRequiredArg().ofType(File.class);
+            recordIdXPathSpec = parser.acceptsAll(Flags.RECORD_ID_XPATH_ARG, "xsl file defining processing templates").withRequiredArg().ofType(String.class);
             this.args = args;
         }
 
@@ -69,6 +72,7 @@ class ProcessCommandFactory extends CommandFactory {
         protected boolean init(OptionSet options) {
             boolean ret = super.init(options);
             xsl = options.valueOf(xslSpec);
+            recordIdXPath = options.valueOf(recordIdXPathSpec);
             return ret;
         }
         
@@ -81,7 +85,7 @@ class ProcessCommandFactory extends CommandFactory {
                 return null;
             }
             try {
-                txf = new TXMLFilter(new StreamSource(xsl));
+                txf = new TXMLFilter(new StreamSource(xsl), recordIdXPath);
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
             }

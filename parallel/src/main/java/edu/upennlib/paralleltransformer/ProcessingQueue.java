@@ -112,6 +112,7 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
         return next.getChild();
     }
 
+    
     /**
      * Accessed by one thread only -- only acquire lock when waiting for work to
      * complete.
@@ -124,6 +125,9 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
             try {
                 headLock.lock();
                 while (!(next = head.getNext()).isWorkComplete()) {
+                    if (isFinished()) {
+                        return null;
+                    }
                     headWait.await();
                 }
             } finally {
@@ -160,6 +164,17 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
         }
     }
 
+    void remove(Node<T> node) {
+        if (head == node) {
+            try {
+                headLock.lock();
+                headWait.signal();
+            } finally {
+                headLock.unlock();
+            }
+        }
+    }
+
     void addToWorkQueue(T value) {
         //workQueue.addLast(value);
         activeWorkTasks.add(workCompletionService.submit(value, null));
@@ -182,6 +197,12 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
 
     public void finished() {
         finished = true;
+        headLock.lock();
+        try {
+            headWait.signal();
+        } finally {
+            headLock.unlock();
+        }
     }
 
     public boolean isFinished() {

@@ -57,7 +57,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
     }
 
     public Chunk(Templates t, String xpath) {
-        this(t, new RecordLogger(xpath));
+        this(t, xpath == null ? null : new RecordLogger(xpath));
     }
     
     private Chunk(Templates t, RecordLogger rl) {
@@ -221,7 +221,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
     
     @Override
     public Chunk newInstance() {
-        return new Chunk(templates, new RecordLogger(rl));
+        return new Chunk(templates, rl == null ? null : new RecordLogger(rl));
     }
 
     public void writeOutputTo(ContentHandler ch) throws SAXException {

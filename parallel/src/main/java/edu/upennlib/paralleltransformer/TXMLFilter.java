@@ -224,18 +224,18 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
         }
         
         private void outputLoop() throws SAXException, IOException {
-            while (!pq.isFinished()) {
-                try {
-                    Chunk nextOut = pq.nextOut();
+            Chunk nextOut;
+            try {
+                while ((nextOut = pq.nextOut()) != null) {
                     Chunk.BufferSAXSource outSource = nextOut.getOutput();
                     UnboundedContentHandlerBuffer outputBuffer = outSource.getXMLReader();
                     outputBuffer.setUnmodifiableParent(dummyNamespaceAware);
                     outputBuffer.setFlushOnParse(true); //TODO set this behavior by default?
                     XMLReader r = new StateUpdatingXMLFilter(nextOut, outputBuffer, ProcessingState.READY);
                     outputCallback.callback(r, outSource.getInputSource());
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
                 }
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
             }
             outputCallback.finished();
         }

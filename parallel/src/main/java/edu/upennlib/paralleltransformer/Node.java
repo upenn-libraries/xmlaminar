@@ -115,6 +115,7 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
     void remove() {
         AtomicBoolean preTmp;
         AtomicBoolean postTmp;
+        Node prev = previous;
         do {
             do {
                 do {
@@ -135,6 +136,7 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
         strictSetFalse(postTmp, true);
         strictSetFalse(post);
         reset();
+        processingQueue.remove(prev);
     }
 
     @Override

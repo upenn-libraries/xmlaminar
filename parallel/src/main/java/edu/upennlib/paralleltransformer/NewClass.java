@@ -54,7 +54,7 @@ public class NewClass {
         File in = new File(args[0]);
         File xsl = new File(args[1]);
         File out = new File(args[2]);
-        final TXMLFilter txf = new TXMLFilter(new StreamSource(xsl));
+        final TXMLFilter txf = new TXMLFilter(new StreamSource(xsl), null);
         txf.setInputType(QueueSourceXMLFilter.InputType.queue);
         LevelSplittingXMLFilter sxf = new LevelSplittingXMLFilter();
         sxf.setInputType(QueueSourceXMLFilter.InputType.indirect);
@@ -111,7 +111,7 @@ public class NewClass {
         LevelSplittingXMLFilter sxf = new LevelSplittingXMLFilter();
         sxf.setInputType(QueueSourceXMLFilter.InputType.indirect);
         sxf.setChunkSize(1);
-        TXMLFilter txf = new TXMLFilter(new StreamSource(xsl));
+        TXMLFilter txf = new TXMLFilter(new StreamSource(xsl), null);
         JoiningXMLFilter joiner = new JoiningXMLFilter();
         LevelSplittingXMLFilter sxf2 = new LevelSplittingXMLFilter();
         sxf2.setOutputCallback(new IncrementingFileCallback("out/out"));
@@ -181,7 +181,7 @@ public class NewClass {
         File in = new File(args[0]);
         File xsl = new File(args[1]);
         File out = new File(args[2]);
-        TXMLFilter txf = new TXMLFilter (new StreamSource(xsl));
+        TXMLFilter txf = new TXMLFilter (new StreamSource(xsl), null);
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         txf.setParent(spf.newSAXParser().getXMLReader());
