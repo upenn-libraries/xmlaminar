@@ -163,8 +163,6 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
     
     private TransformerException ex;
     
-    private String recordXPath;
-    
     private final RecordLogger rl;
     
     private static class RecordLogger extends RecordMonitorXMLFilter {
@@ -205,7 +203,6 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
     }
     @Override
     protected void drop() {
-        String id = null;
         if (rl != null) {
             rl.reset();
             try {
@@ -213,9 +210,10 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
             } catch (SAXException ex) {
                 // NOOP
             }
-            id = rl.id;
+            LOG.warn("dropping id={}; {}", rl.id, ex.getMessageAndLocation());
+        } else {
+            LOG.warn("dropping chunk; {}", ex.getMessageAndLocation());
         }
-        LOG.warn("dropping id="+id+"; "+ex.getMessageAndLocation());
         super.drop();
     }
     

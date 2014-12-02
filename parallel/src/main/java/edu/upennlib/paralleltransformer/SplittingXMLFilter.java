@@ -70,6 +70,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         consumerTask = getExecutor().submit(pl);
         parseLock.lock();
         try {
+            parseChunkDone.signal();
             parseContinue.await();
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
@@ -168,16 +169,16 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
             try {
                 parseContinue.signal();
                 parseChunkDone.await();
-                parseChunkDonePhaser.arrive();
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             } finally {
                 parseLock.unlock();
             }
+            parseChunkDonePhaser.arrive();
         }
 
     }
-    
+
     private final Phaser parseChunkDonePhaser = new Phaser(2);
     
     private class ParseLooper implements Runnable {
@@ -301,14 +302,12 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
     
     protected final void split() throws SAXException {
         writeSyntheticEndEvents();
+        parseLock.lock();
         try {
-            parseLock.lock();
             parseChunkDone.signal();
-            try {
-                parseContinue.await();
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
+            parseContinue.await();
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
         } finally {
             parseLock.unlock();
         }
