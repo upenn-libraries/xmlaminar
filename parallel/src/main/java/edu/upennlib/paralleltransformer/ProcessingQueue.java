@@ -16,8 +16,11 @@
 
 package edu.upennlib.paralleltransformer;
 
+import java.util.AbstractSet;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -63,32 +66,42 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
     private Set<Future<?>> initializeCompletionService() {
         Set<Future<?>> previousActiveTasks = activeWorkTasks;
         activeWorkTasks = Collections.synchronizedSet(new HashSet<Future<?>>());
-        workCompletionService = new ExecutorCompletionService(workExecutor, new TaskRemovalQueue(activeWorkTasks));
+        workCompletionService = new ExecutorCompletionService(workExecutor, new TaskRemovalQueue(activeWorkTasks, taskQueueLock, taskAdded));
         return previousActiveTasks;
     }
 
     private static class TaskRemovalQueue<T extends Future<?>> extends BlockingQueueImpl<T> {
 
         private final Set<T> removalTarget;
+        private final Lock lock;
+        private final Condition condition;
 
-        private TaskRemovalQueue(Set<T> removalTarget) {
+        private TaskRemovalQueue(Set<T> removalTarget, Lock lock, Condition condition) {
             this.removalTarget = removalTarget;
+            this.lock = lock;
+            this.condition = condition;
         }
 
         @Override
         public boolean add(T e) {
-            if (removalTarget.remove(e)) {
+            while (!removalTarget.remove(e)) {
+                lock.lock();
                 try {
-                    e.get();
+                    condition.await();
                 } catch (InterruptedException ex) {
-                    throw new AssertionError("this should never happen", ex);
-                } catch (ExecutionException ex) {
-                    ex.printStackTrace(System.err);
+                    throw new RuntimeException(ex);
+                } finally {
+                    lock.unlock();
                 }
-                return true;
-            } else {
-                throw new AssertionError();
             }
+            try {
+                e.get();
+            } catch (InterruptedException ex) {
+                throw new AssertionError("this should never happen", ex);
+            } catch (ExecutionException ex) {
+                ex.printStackTrace(System.err);
+            }
+            return true;
         }
 
     }
@@ -177,12 +190,25 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
 
     void addToWorkQueue(T value) {
         //workQueue.addLast(value);
-        activeWorkTasks.add(workCompletionService.submit(value, null));
+        addToQueue(workCompletionService.submit(value, null));
     }
 
     void addToHeadOfWorkQueue(T value) {
         //workQueue.addFirst(value);
-        activeWorkTasks.add(workCompletionService.submit(value, null));
+        addToQueue(workCompletionService.submit(value, null));
+    }
+    
+    private final Lock taskQueueLock = new ReentrantLock(false);
+    private final Condition taskAdded = taskQueueLock.newCondition();
+
+    private void addToQueue(Future<?> e) {
+        activeWorkTasks.add(e);
+        taskQueueLock.lock();
+        try {
+            taskAdded.signal();
+        } finally {
+            taskQueueLock.unlock();
+        }
     }
 
     void reset() {
