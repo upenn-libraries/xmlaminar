@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.xml.sax.Attributes;
+import org.xml.sax.helpers.AttributesImpl;
 
 class StructuralStartEvent {
 
@@ -90,7 +91,7 @@ class StructuralStartEvent {
         one = uri;
         two = localName;
         three = qName;
-        this.atts = atts;
+        this.atts = new AttributesImpl(atts);
     }
 
     @Override
@@ -101,9 +102,28 @@ class StructuralStartEvent {
             case PREFIX_MAPPING:
                 return StructuralStartEventType.PREFIX_MAPPING.toString().concat(one);
             case ELEMENT:
-                return StructuralStartEventType.ELEMENT.toString().concat(three);
+                StringBuilder sb = new StringBuilder();
+                sb.append(StructuralStartEventType.ELEMENT).append('<').append(three).append('>');
+                return buildAttsString(sb, atts).toString();
             default:
                 throw new IllegalStateException();
         }
+    }
+    
+    private static StringBuilder buildAttsString(StringBuilder sb, Attributes atts) {
+        int length = atts.getLength();
+        if (length < 1) {
+            return sb;
+        } else {
+            int i = 0;
+            sb.append('{');
+            sb.append(atts.getQName(i)).append('=').append(atts.getValue(i));
+            while (++i < length) {
+                sb.append(", ");
+                sb.append(atts.getQName(i)).append('=').append(atts.getValue(i));
+            }
+            sb.append('}');
+        }
+        return sb;
     }
 }
