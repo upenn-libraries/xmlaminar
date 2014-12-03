@@ -16,12 +16,14 @@
 
 package edu.upennlib.paralleltransformer;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  *
  * @author michael
  */
 public interface Subdividable<E extends Enum<E>, T extends Subdividable<E, T>> {
-    T subdivide();
+    T subdivide(ExecutorService executor);
     boolean canSubdivide();
     void setState(E state);
 }

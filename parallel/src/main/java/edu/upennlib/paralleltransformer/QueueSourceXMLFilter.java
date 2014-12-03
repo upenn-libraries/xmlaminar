@@ -318,9 +318,11 @@ public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
                 if ((in = input.getByteStream()) != null) {
                     r = new InputStreamReader(in, encoding);
                 } else {
-                    System.out.println(input.getSystemId());
+                    System.out.println(input.getSystemId()+", "+getInputType());
                     try {
-                        r = new BufferedReader(new InputStreamReader(new URI(input.getSystemId()).toURL().openStream(), encoding));
+                        URI inputURI = new URI(input.getSystemId());
+                        inputURI = (new File("").toURI()).resolve(inputURI);
+                        r = new BufferedReader(new InputStreamReader(inputURI.toURL().openStream(), encoding));
                     } catch (URISyntaxException ex) {
                         throw new RuntimeException(ex);
                     } catch (MalformedURLException ex) {

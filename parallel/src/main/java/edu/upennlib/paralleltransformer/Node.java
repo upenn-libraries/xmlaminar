@@ -17,6 +17,7 @@
 package edu.upennlib.paralleltransformer;
 
 import java.util.Queue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -51,7 +52,7 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
     }
 
     @Override
-    public Node<T> subdivide() {
+    public Node<T> subdivide(ExecutorService executor) {
         Node<T> newNode = processingQueue.getSubdivideNode(value);
         insert(newNode);
         return newNode;
@@ -108,7 +109,7 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
             value.drop();
             remove();
         } else {
-            value.subdivide();
+            value.subdivide(processingQueue.getWorkExecutor());
         }
     }
 

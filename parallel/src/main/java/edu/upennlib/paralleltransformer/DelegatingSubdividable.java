@@ -16,6 +16,8 @@
 
 package edu.upennlib.paralleltransformer;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  *
  * @author Michael Gibney
@@ -29,8 +31,8 @@ public abstract class DelegatingSubdividable<E extends Enum<E>, T extends Delega
     }
 
     @Override
-    public T subdivide() {
-        return parent.subdivide().getChild();
+    public T subdivide(ExecutorService executor) {
+        return parent.subdivide(executor).getChild();
     }
 
     @Override

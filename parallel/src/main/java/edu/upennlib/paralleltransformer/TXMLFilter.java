@@ -27,6 +27,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -75,8 +78,9 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     
     public static void main(String[] args) throws Exception {
         TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/*");
+        txf.setInputType(InputType.indirect);
         txf.setOutputCallback(new StdoutCallback());
-        txf.parse(new InputSource("../cli/whole.xml"));
+        txf.parse(new InputSource("../cli/good-bad-two.txt"));
     }
     
     @Override
@@ -114,6 +118,36 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
         setupParse(inputBuffer);
     }
     
+    public static void detectLoop(XMLFilter child) {
+        XMLReader parent;
+        if (child != null && (parent = child.getParent()) != null) {
+            Set<XMLReader> readers = new LinkedHashSet<XMLReader>();
+            do {
+                if (!readers.add(child)) {
+                    String spacer = "";
+                    for (XMLReader r : readers) {
+                        System.out.println(spacer + r);
+                        spacer = spacer.concat("  ");
+                    }
+                    throw new RuntimeException("loop detected!");
+                }
+                if (parent instanceof XMLFilter) {
+                    child = (XMLFilter) parent;
+                } else {
+                    if (!readers.add(parent)) {
+                        String spacer = "";
+                        for (XMLReader r : readers) {
+                            System.out.println(spacer + r);
+                            spacer = spacer.concat("  ");
+                        }
+                        throw new RuntimeException("loop detected!");
+                    }
+                    child = null;
+                }
+            } while (child != null && (parent = child.getParent()) != null);
+        }
+    }
+
     protected void reset(boolean cancel) {
         try {
             if (outputFuture != null) {
