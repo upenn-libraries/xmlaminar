@@ -227,8 +227,15 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
         }
 
         @Override
-        public void endDocument() throws SAXException {
-            super.endDocument();
+        public void parse(String systemId) throws SAXException, IOException {
+            super.parse(systemId);
+            outputChunk.setRecordCount(recordCount);
+            outputChunk.setState(nextState);
+        }
+
+        @Override
+        public void parse(InputSource input) throws SAXException, IOException {
+            super.parse(input);
             outputChunk.setRecordCount(recordCount);
             outputChunk.setState(nextState);
         }
