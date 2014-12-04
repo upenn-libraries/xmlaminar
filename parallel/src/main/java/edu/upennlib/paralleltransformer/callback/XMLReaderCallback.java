@@ -36,6 +36,6 @@ public interface XMLReaderCallback {
 
     void callback(XMLReader reader, String systemId) throws SAXException, IOException;
 
-    void finished();
+    void finished(Throwable t);
     
 }

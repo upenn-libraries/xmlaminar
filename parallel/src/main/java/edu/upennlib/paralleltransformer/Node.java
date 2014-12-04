@@ -16,6 +16,8 @@
 
 package edu.upennlib.paralleltransformer;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,15 +53,27 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
         return workComplete;
     }
 
+    private volatile boolean blockForSubdivide = false;
+    
+    boolean isBlockingForSubdivide() {
+        return blockForSubdivide;
+    }
+    
     @Override
     public Node<T> subdivide(ExecutorService executor) {
+        blockForSubdivide = true;
         Node<T> newNode = processingQueue.getSubdivideNode(value);
+        blockForSubdivide = false;
         insert(newNode);
         return newNode;
     }
 
     Node<T> getNext() {
         return next;
+    }
+    
+    public ProcessingState getState() {
+        return state;
     }
 
     void insert(Node<T> node) {
@@ -96,7 +110,14 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
         previous = null;
         workComplete = false;
         value.reset();
-        homePool.add(this);
+        this.state = ProcessingState.READY;
+        if (homePool != null) {
+            homePool.add(this);
+        }
+    }
+    
+    String getPoolType() {
+        return homePool == null ? null : processingQueue.getPoolType(homePool);
     }
 
     private void setWorkComplete() {
@@ -140,8 +161,11 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
         processingQueue.remove(prev);
     }
 
+    private volatile ProcessingState state = ProcessingState.READY;
+    
     @Override
     public void setState(ProcessingState state) {
+        this.state = state;
         switch (state) {
             case HAS_INPUT:
                 processingQueue.addToWorkQueue(value);

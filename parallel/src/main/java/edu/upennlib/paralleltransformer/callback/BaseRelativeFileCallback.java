@@ -92,7 +92,7 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
     }
 
     @Override
-    public void finished() {
+    public void finished(Throwable t) {
         // NOOP
     }
     

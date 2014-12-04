@@ -100,7 +100,7 @@ public class IncrementingFileCallback implements XMLReaderCallback {
     }
 
     @Override
-    public void finished() {
+    public void finished(Throwable t) {
     }
     
 }

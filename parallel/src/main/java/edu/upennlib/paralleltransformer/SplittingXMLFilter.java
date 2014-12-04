@@ -17,6 +17,7 @@
 package edu.upennlib.paralleltransformer;
 
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
+import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -24,16 +25,12 @@ import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
@@ -44,14 +41,19 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
 
     private volatile boolean parsing = false;
     private volatile Future<?> consumerTask;
-    private final Lock parseLock = new ReentrantLock();
-    private final Condition parseContinue = parseLock.newCondition();
-    private final Condition parseChunkDone = parseLock.newCondition();
     
     private int level = -1;
     private int startEventLevel = -1;
     private final ArrayDeque<StructuralStartEvent> startEventStack = new ArrayDeque<StructuralStartEvent>();
 
+    public static void main(String[] args) throws Exception {
+        LevelSplittingXMLFilter sxf = new LevelSplittingXMLFilter();
+        sxf.setChunkSize(1);
+        sxf.setOutputCallback(new StdoutCallback());
+        sxf.setInputType(InputType.indirect);
+        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
+    }
+    
     @Override
     protected void initialParse(SAXSource in) {
         synchronousParser.setParent(this);
@@ -66,17 +68,8 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
 
     private void setupParse(InputSource in) {
         setContentHandler(synchronousParser);
-        ParseLooper pl = new ParseLooper(in, null, Thread.currentThread());
-        consumerTask = getExecutor().submit(pl);
-        parseLock.lock();
-        try {
-            parseChunkDone.signal();
-            parseContinue.await();
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
-        } finally {
-            parseLock.unlock();
-        }
+        OutputLooper outputLoop = new OutputLooper(in, null, Thread.currentThread());
+        consumerTask = getExecutor().submit(outputLoop);
     }
 
     @Override
@@ -165,29 +158,29 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         }
         
         private void parse() throws SAXException, IOException {
-            parseLock.lock();
+            parseBeginPhaser.arrive();
             try {
-                parseContinue.signal();
-                parseChunkDone.await();
+                parseEndPhaser.awaitAdvanceInterruptibly(parseEndPhaser.arrive());
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
-            } finally {
-                parseLock.unlock();
             }
             parseChunkDonePhaser.arrive();
         }
 
     }
+    
+    private final Phaser parseBeginPhaser = new Phaser(2);
+    private final Phaser parseEndPhaser = new Phaser(2);
 
     private final Phaser parseChunkDonePhaser = new Phaser(2);
     
-    private class ParseLooper implements Runnable {
+    private class OutputLooper implements Runnable {
 
         private final InputSource input;
         private final String systemId;
         private final Thread producer;
         
-        private ParseLooper(InputSource in, String systemId, Thread producer) {
+        private OutputLooper(InputSource in, String systemId, Thread producer) {
             this.input = in;
             this.systemId = systemId;
             this.producer = producer;
@@ -197,12 +190,16 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
             parsing = true;
             if (input != null) {
                 while (parsing) {
-                    xmlReaderCallback.callback(synchronousParser, input);
-                    parseChunkDonePhaser.arriveAndAwaitAdvance();
+                    outputCallback.callback(synchronousParser, input);
+                    try {
+                        parseChunkDonePhaser.awaitAdvanceInterruptibly(parseChunkDonePhaser.arrive());
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             } else {
                 do {
-                    xmlReaderCallback.callback(synchronousParser, systemId);
+                    outputCallback.callback(synchronousParser, systemId);
                 } while (parsing);
             }
         }
@@ -242,40 +239,45 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
             } else {
                 super.parse(systemId);
             }
-            xmlReaderCallback.finished();
         } catch (Throwable t) {
-            if (consumerThrowable == null) {
-                producerThrowable = t;
-                reset(true);
-                if (consumerTask != null) {
-                    consumerTask.cancel(true);
+            try {
+                if (consumerThrowable == null) {
+                    producerThrowable = t;
+                    reset(true);
+                } else {
+                    t = consumerThrowable;
+                    consumerThrowable = null;
                 }
-                throw new RuntimeException(t);
-            } else {
-                t = consumerThrowable;
-                consumerThrowable = null;
+            } finally {
+                outputCallback.finished(t);
                 throw new RuntimeException(t);
             }
         }
+        outputCallback.finished(null);
     }
 
     @Override
     public XMLReaderCallback getOutputCallback() {
-        return xmlReaderCallback;
+        return outputCallback;
     }
 
     @Override
     public void setOutputCallback(XMLReaderCallback xmlReaderCallback) {
-        this.xmlReaderCallback = xmlReaderCallback;
+        this.outputCallback = xmlReaderCallback;
     }
 
-    private XMLReaderCallback xmlReaderCallback;
+    private volatile XMLReaderCallback outputCallback;
 
     private volatile Throwable consumerThrowable;
     private volatile Throwable producerThrowable;
 
     @Override
     public void startDocument() throws SAXException {
+        try {
+            parseBeginPhaser.awaitAdvanceInterruptibly(parseBeginPhaser.arrive());
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
         startEventStack.push(new StructuralStartEvent());
         super.startDocument();
         level++;
@@ -289,12 +291,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         super.endDocument();
         startEventStack.pop();
         parsing = false;
-        parseLock.lock();
-        try {
-            parseChunkDone.signal();
-        } finally {
-            parseLock.unlock();
-        }
+        parseEndPhaser.arrive();
     }
 
     private int bypassLevel = Integer.MAX_VALUE;
@@ -302,14 +299,11 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
     
     protected final void split() throws SAXException {
         writeSyntheticEndEvents();
-        parseLock.lock();
+        parseEndPhaser.arrive();
         try {
-            parseChunkDone.signal();
-            parseContinue.await();
+            parseBeginPhaser.awaitAdvanceInterruptibly(parseBeginPhaser.arrive());
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
-        } finally {
-            parseLock.unlock();
         }
         writeSyntheticStartEvents();
     }

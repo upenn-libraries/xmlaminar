@@ -58,7 +58,7 @@ public class StdoutCallback implements XMLReaderCallback {
     }
 
     @Override
-    public void finished() {
+    public void finished(Throwable t) {
     }
     
 }

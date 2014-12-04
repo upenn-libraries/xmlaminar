@@ -77,7 +77,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     }
     
     public static void main(String[] args) throws Exception {
-        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/*");
+        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id");
         txf.setInputType(InputType.indirect);
         txf.setOutputCallback(new StdoutCallback());
         txf.parse(new InputSource("../cli/good-bad-two.txt"));
@@ -204,6 +204,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
         private final ProcessingState nextState;
         private int level = -1;
         private int recordCount = 0;
+        private volatile boolean ended = false;
         
         private StateUpdatingXMLFilter(Chunk outputChunk, XMLReader parent, ProcessingState nextState) {
             super(parent);
@@ -277,8 +278,17 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
                 }
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
+            } catch (SAXException ex) {
+                outputCallback.finished(ex);
+                throw ex;
+            } catch (IOException ex) {
+                outputCallback.finished(ex);
+                throw ex;
+            } catch (Throwable t) {
+                outputCallback.finished(t);
+                throw new RuntimeException(t);
             }
-            outputCallback.finished();
+            outputCallback.finished(null);
         }
 
         @Override

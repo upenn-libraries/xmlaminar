@@ -18,11 +18,9 @@ package edu.upennlib.paralleltransformer;
 
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.DevNullErrorListener;
-import edu.upennlib.xmlutils.LoggingErrorListener;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
-import java.util.logging.Level;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -30,7 +28,6 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
-import net.sf.saxon.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
@@ -73,7 +70,6 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
     }
 
     private final LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter();
-    private final InputSource dummy = new InputSource();
 
     @Override
     public Chunk subdivide(ExecutorService executor) {
@@ -90,14 +86,13 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
 
     private void populateSubdividedParts(final Chunk newChunk, ExecutorService executor) throws SAXException, IOException {
         final int newChunkSize = (recordCount + 1) / 2;
+        splitter.reset();
         splitter.setChunkSize(newChunkSize);
         swapIO();
         splitter.setParent(out);
         splitter.setOutputCallback(new XMLReaderCallback() {
 
             boolean initialized = false;
-            boolean emptyFirst = false;
-            UnboundedContentHandlerBuffer blah;
             
             @Override
             public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
@@ -105,34 +100,17 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
                     initialized = true;
                     UnboundedContentHandlerBuffer inputBuffer = newChunk.getInput(input);
                     reader.setContentHandler(inputBuffer);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    inputBuffer.setUnmodifiableParent(out);
                     reader.parse(input);
-                    if (inputBuffer.size() == 0) {
-                        emptyFirst = true;
-                        blah = inputBuffer;
-                        System.out.println("XXXX1");
-                    }
                     inputBuffer.setUnmodifiableParent(reader);
-                    TXMLFilter.detectLoop(inputBuffer);
                     newChunk.setRecordCount(newChunkSize);
-                    newChunk.setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
                 } else {
+                    newChunk.setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
                     reader.setContentHandler(in);
+                    in.setUnmodifiableParent(out);
                     reader.parse(input); // reads second half into this.in.
-                    if (in.size() == 0) {
-                        System.out.println("XXXX2");
-                    } else if (emptyFirst) {
-                        System.out.println("XXXX2 OK, "+blah.size());
-                    }
                     out.clear();
-                    in.setUnmodifiableParent(reader);
-                    TXMLFilter.detectLoop(in);
                     recordCount = recordCount - newChunkSize;
-                    setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
                 }
             }
 
@@ -142,13 +120,13 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
             }
 
             @Override
-            public void finished() {
+            public void finished(Throwable t) {
                 splitter.setOutputCallback(null); // free this callback for GC
             }
         });
         splitter.setExecutor(executor);
-        System.out.println(executor);
         splitter.parse(inSource);
+        setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
     }
 
     private void swapIO() {

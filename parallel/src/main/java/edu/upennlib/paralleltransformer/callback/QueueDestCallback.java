@@ -60,7 +60,7 @@ public class QueueDestCallback implements XMLReaderCallback {
     }
 
     @Override
-    public void finished() {
+    public void finished(Throwable t) {
         try {
             dest.getParseQueue().put(QueueSourceXMLFilter.FINISHED);
         } catch (InterruptedException ex) {

@@ -82,7 +82,7 @@ public class NewClass {
             }
 
             @Override
-            public void finished() {
+            public void finished(Throwable t) {
                 try {
                     txf.getParseQueue().put(QueueSourceXMLFilter.FINISHED);
                 } catch (InterruptedException ex) {
@@ -156,7 +156,7 @@ public class NewClass {
             }
 
             @Override
-            public void finished() {
+            public void finished(Throwable t) {
                 try {
                     joiner.getParseQueue().put(QueueSourceXMLFilter.FINISHED);
                 } catch (InterruptedException ex) {

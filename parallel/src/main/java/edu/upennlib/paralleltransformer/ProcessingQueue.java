@@ -16,11 +16,8 @@
 
 package edu.upennlib.paralleltransformer;
 
-import java.util.AbstractSet;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -28,11 +25,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -40,6 +39,8 @@ import java.util.logging.Logger;
  */
 public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessingQueue.class);
+    
     private final ArrayBlockingQueue<Node<T>> mainPool;
     private final ArrayBlockingQueue<Node<T>> subdividePool;
 
@@ -61,8 +62,9 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
             mainPool.add(newNode(templateInstance, mainPool));
         }
         subdividePool = new ArrayBlockingQueue<Node<T>>(size);
+        subdividePoolCapacity = size;
     }
-
+    
     private Set<Future<?>> initializeCompletionService() {
         Set<Future<?>> previousActiveTasks = activeWorkTasks;
         activeWorkTasks = Collections.synchronizedSet(new HashSet<Future<?>>());
@@ -70,7 +72,7 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
         return previousActiveTasks;
     }
 
-    private static class TaskRemovalQueue<T extends Future<?>> extends BlockingQueueImpl<T> {
+    private class TaskRemovalQueue<T extends Future<?>> extends BlockingQueueImpl<T> {
 
         private final Set<T> removalTarget;
         private final Lock lock;
@@ -99,7 +101,12 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
             } catch (InterruptedException ex) {
                 throw new AssertionError("this should never happen", ex);
             } catch (ExecutionException ex) {
-                ex.printStackTrace(System.err);
+                /*
+                recoverable exceptions should be caught by individual nodes; 
+                exceptions caught here should kill the entire process.
+                */
+                LOG.error("exception escaped node; shutting down now", ex);
+                ProcessingQueue.this.workExecutor.shutdownNow();
             }
             return true;
         }
@@ -157,11 +164,39 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
         instance.setParent(node);
         return node;
     }
+    
+    String getPoolType(Queue queue) {
+        if (queue == subdividePool) {
+            return "subdivide";
+        } else if (queue == mainPool) {
+            return "main";
+        } else {
+            return null;
+        }
+    }
 
+    private final int subdividePoolCapacity;
+    private final AtomicInteger subdividePoolSize = new AtomicInteger(0);
+    
     Node<T> getSubdivideNode(T templateInstance) {
         Node<T> node = subdividePool.poll();
         if (node == null) {
-            node = newNode(templateInstance, subdividePool);
+            if (subdividePoolSize.incrementAndGet() > subdividePoolCapacity) {
+                subdividePoolSize.set(subdividePoolCapacity);
+                try {
+                    while ((node = subdividePool.poll(100, TimeUnit.MILLISECONDS)) == null) {
+                        LOG.info("test create new unassociated node to break deadlock");
+                        if (head.getNext().isBlockingForSubdivide()) {
+                            LOG.info("create new unassociated node to break deadlock");
+                            return newNode(templateInstance, null);
+                        }
+                    }
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } else {
+                node = newNode(templateInstance, subdividePool);
+            }
         }
         return node;
     }
