@@ -121,13 +121,16 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
         this.workExecutor = workExecutor;
     }
 
+    private static final boolean POOL_MAIN = false;
+    private static final boolean POOL_SUBDIVIDE = false;
+    
     /**
      * Accessed by one thread only.
      * @return
      * @throws InterruptedException
      */
     public T nextIn() throws InterruptedException {
-        Node<T> next = mainPool.take();
+        Node<T> next = POOL_MAIN ? mainPool.take() : newNode(mainPool.peek().getChild(), null);
         tail.insert(next);
         return next.getChild();
     }
@@ -167,7 +170,7 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
     
     String getPoolType(Queue queue) {
         if (queue == subdividePool) {
-            return "subdivide";
+            return "subdivide:"+subdividePoolSize.get();
         } else if (queue == mainPool) {
             return "main";
         } else {
@@ -179,7 +182,7 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
     private final AtomicInteger subdividePoolSize = new AtomicInteger(0);
     
     Node<T> getSubdivideNode(T templateInstance) {
-        Node<T> node = subdividePool.poll();
+        Node<T> node = POOL_SUBDIVIDE ? subdividePool.poll() : newNode(templateInstance, null);;
         if (node == null) {
             if (subdividePoolSize.incrementAndGet() > subdividePoolCapacity) {
                 subdividePoolSize.set(subdividePoolCapacity);
