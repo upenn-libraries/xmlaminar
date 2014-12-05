@@ -16,6 +16,7 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -30,7 +31,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author magibney
  */
-public abstract class RecordMonitorXMLFilter extends XMLFilterImpl {
+public abstract class RecordMonitorXMLFilter extends VolatileXMLFilterImpl {
 
     private int level = -1;
     private int seekLevel = 0;

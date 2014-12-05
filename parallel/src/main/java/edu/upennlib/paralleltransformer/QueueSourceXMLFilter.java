@@ -18,6 +18,7 @@ package edu.upennlib.paralleltransformer;
 
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.QueueDestCallback;
+import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,13 +53,12 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
  * @author Michael Gibney
  */
-public abstract class QueueSourceXMLFilter extends XMLFilterImpl {
+public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
 
     public static final SAXSource FINISHED = new SAXSource();
     public static final String RESET_PROPERTY_NAME = "http://xml.org/sax/features/reset";

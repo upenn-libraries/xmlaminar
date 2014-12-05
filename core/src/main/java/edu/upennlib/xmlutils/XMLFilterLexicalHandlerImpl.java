@@ -26,7 +26,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class XMLFilterLexicalHandlerImpl extends XMLFilterImpl implements LexicalHandler {
+public class XMLFilterLexicalHandlerImpl extends VolatileXMLFilterImpl implements LexicalHandler {
 
     public static final String LEXICAL_HANDLER_PROPERTY_KEY = "http://xml.org/sax/properties/lexical-handler";
 

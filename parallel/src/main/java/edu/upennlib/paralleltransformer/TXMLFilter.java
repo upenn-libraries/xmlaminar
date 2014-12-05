@@ -23,6 +23,7 @@ import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.LoggingErrorListener;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
+import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -198,7 +199,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
 
     private XMLReaderCallback outputCallback;
 
-    private static class StateUpdatingXMLFilter extends XMLFilterImpl {
+    private static class StateUpdatingXMLFilter extends VolatileXMLFilterImpl {
         
         private final Chunk outputChunk;
         private final ProcessingState nextState;

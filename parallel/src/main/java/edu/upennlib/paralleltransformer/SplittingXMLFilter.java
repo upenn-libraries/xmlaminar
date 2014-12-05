@@ -19,6 +19,7 @@ package edu.upennlib.paralleltransformer;
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
+import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -145,7 +146,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
 
     private final SynchronousParser synchronousParser = new SynchronousParser();
 
-    private class SynchronousParser extends XMLFilterImpl {
+    private class SynchronousParser extends VolatileXMLFilterImpl {
 
         @Override
         public void parse(InputSource input) throws SAXException, IOException {
