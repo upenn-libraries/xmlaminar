@@ -86,6 +86,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
 
     private void populateSubdividedParts(final Chunk newChunk, ExecutorService executor) throws SAXException, IOException {
         final int newChunkSize = (recordCount + 1) / 2;
+        //final LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter();
         splitter.reset();
         splitter.setChunkSize(newChunkSize);
         swapIO();
@@ -100,16 +101,14 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
                     initialized = true;
                     UnboundedContentHandlerBuffer inputBuffer = newChunk.getInput(input);
                     reader.setContentHandler(inputBuffer);
-                    inputBuffer.setUnmodifiableParent(out);
                     reader.parse(input);
-                    inputBuffer.setUnmodifiableParent(reader);
+                    inputBuffer.setUnmodifiableParent(out.getUnmodifiableParent());
                     newChunk.setRecordCount(newChunkSize);
-                } else {
                     newChunk.setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
+                } else {
                     reader.setContentHandler(in);
-                    in.setUnmodifiableParent(out);
                     reader.parse(input); // reads second half into this.in.
-                    out.clear();
+                    in.setUnmodifiableParent(out.getUnmodifiableParent());
                     recordCount = recordCount - newChunkSize;
                 }
             }
@@ -126,6 +125,8 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         });
         splitter.setExecutor(executor);
         splitter.parse(inSource);
+        splitter.setOutputCallback(null); // free this callback for GC
+        out.clear();
         setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
     }
 

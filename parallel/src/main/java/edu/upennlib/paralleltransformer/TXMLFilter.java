@@ -74,15 +74,13 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     public TXMLFilter(Source xslSource, String xpath) throws TransformerConfigurationException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         templates = tf.newTemplates(xslSource);
-        pq = new ProcessingQueue<Chunk>(10, new Chunk(templates, xpath));
+        pq = new ProcessingQueue<Chunk>(100, new Chunk(templates, xpath));
     }
     
     public static void main(String[] args) throws Exception {
-        LevelSplittingXMLFilter sxf = new LevelSplittingXMLFilter(1, 2);
         TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id");
-        sxf.setInputType(InputType.indirect);
-        txf.setParent(sxf);
-        txf.setOutputCallback(new StaticFileCallback(new File("/dev/null")));
+        txf.setInputType(InputType.indirect);
+        txf.setOutputCallback(new StdoutCallback());
         txf.parse(new InputSource("../cli/whole-indirect.txt"));
     }
     
@@ -232,22 +230,29 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
         @Override
         public void endDocument() throws SAXException {
             super.endDocument(); //To change body of generated methods, choose Tools | Templates.
-            outputChunk.setRecordCount(recordCount);
-            outputChunk.setState(nextState);
-        }
-        
-        @Override
-        public void parse(String systemId) throws SAXException, IOException {
-            super.parse(systemId);
 //            outputChunk.setRecordCount(recordCount);
 //            outputChunk.setState(nextState);
         }
 
         @Override
+        public void parse(String systemId) throws SAXException, IOException {
+            super.parse(systemId);
+            postParse();
+        }
+
+        @Override
         public void parse(InputSource input) throws SAXException, IOException {
             super.parse(input);
-//            outputChunk.setRecordCount(recordCount);
-//            outputChunk.setState(nextState);
+            postParse();
+        }
+        
+        private void postParse() {
+            if (nextState == ProcessingState.READY) {
+                outputChunk.getParent().reset();
+            } else {
+                outputChunk.setRecordCount(recordCount);
+                outputChunk.setState(nextState);
+            }
         }
         
     }

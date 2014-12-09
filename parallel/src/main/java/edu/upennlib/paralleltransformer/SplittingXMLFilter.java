@@ -26,7 +26,13 @@ import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import javax.xml.transform.sax.SAXSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -40,7 +46,8 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
 
-    private volatile boolean parsing = false;
+    private static final Logger LOG = LoggerFactory.getLogger(SplittingXMLFilter.class);
+    private final AtomicBoolean parsing = new AtomicBoolean(false);
     private volatile Future<?> consumerTask;
     
     private int level = -1;
@@ -53,6 +60,49 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         sxf.setOutputCallback(new StdoutCallback());
         sxf.setInputType(InputType.indirect);
         sxf.parse(new InputSource("../cli/whole-indirect.txt"));
+        sxf.reset();
+        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
+        sxf.reset();
+        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
+        sxf.reset();
+        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
+        sxf.reset();
+        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
+        sxf.reset();
+        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
+        sxf.reset();
+        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
+    }
+    
+    public void ensureCleanInitialState() {
+        if (level != -1) {
+            throw new IllegalStateException("level != -1: "+level);
+        }
+        if (startEventLevel != -1) {
+            throw new IllegalStateException("startEventLevel != -1: "+startEventLevel);
+        }
+        if (!startEventStack.isEmpty()) {
+            throw new IllegalStateException("startEventStack not empty: "+startEventStack.size());
+        }
+        if (parsing.get()) {
+            throw new IllegalStateException("already parsing");
+        }
+        if (consumerTask != null) {
+            throw new IllegalStateException("consumerTask not null");
+        }
+        if (producerThrowable != null || consumerThrowable != null) {
+            throw new IllegalStateException("throwable not null: "+producerThrowable+", "+consumerThrowable);
+        }
+        int arrived;
+        if ((arrived = parseBeginPhaser.getArrivedParties()) > 0) {
+            throw new IllegalStateException("parseBeginPhaser arrived count: "+arrived);
+        }
+        if ((arrived = parseEndPhaser.getArrivedParties()) > 0) {
+            throw new IllegalStateException("parseEndPhaser arrived count: "+arrived);
+        }
+        if ((arrived = parseChunkDonePhaser.getArrivedParties()) > 0) {
+            throw new IllegalStateException("parseChunkDonePhaser arrived count: "+arrived);
+        }
     }
     
     @Override
@@ -69,6 +119,9 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
 
     private void setupParse(InputSource in) {
         setContentHandler(synchronousParser);
+        if (!parsing.compareAndSet(false, true)) {
+            throw new IllegalStateException("failed setting parsing = true");
+        }
         OutputLooper outputLoop = new OutputLooper(in, null, Thread.currentThread());
         consumerTask = getExecutor().submit(outputLoop);
     }
@@ -100,7 +153,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         } catch (ExecutionException ex) {
             throw new RuntimeException(ex);
         }
-        parsing = false;
         consumerTask = null;
         consumerThrowable = null;
         producerThrowable = null;
@@ -108,6 +160,9 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
             splitDirector.reset();
         }
         startEventStack.clear();
+        if (!parsing.compareAndSet(false, false)) {
+            LOG.warn("at {}.reset(), parsing had been set to true", SplittingXMLFilter.class.getName(), new IllegalStateException());
+        }
     }
 
     @Override
@@ -161,8 +216,10 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         private void parse() throws SAXException, IOException {
             parseBeginPhaser.arrive();
             try {
-                parseEndPhaser.awaitAdvanceInterruptibly(parseEndPhaser.arrive());
+                parseEndPhaser.awaitAdvanceInterruptibly(parseEndPhaser.arrive(), 4, TimeUnit.SECONDS);
             } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            } catch (TimeoutException ex) {
                 throw new RuntimeException(ex);
             }
             parseChunkDonePhaser.arrive();
@@ -188,9 +245,8 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         }
         
         private void parseLoop(InputSource input, String systemId) throws SAXException, IOException {
-            parsing = true;
             if (input != null) {
-                while (parsing) {
+                while (parsing.get()) {
                     outputCallback.callback(synchronousParser, input);
                     try {
                         parseChunkDonePhaser.awaitAdvanceInterruptibly(parseChunkDonePhaser.arrive());
@@ -201,7 +257,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
             } else {
                 do {
                     outputCallback.callback(synchronousParser, systemId);
-                } while (parsing);
+                } while (parsing.get());
             }
         }
 
@@ -291,7 +347,9 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         level--;
         super.endDocument();
         startEventStack.pop();
-        parsing = false;
+        if (!parsing.compareAndSet(true, false)) {
+            throw new IllegalStateException("failed at endDocument setting parsing = false");
+        }
         parseEndPhaser.arrive();
     }
 

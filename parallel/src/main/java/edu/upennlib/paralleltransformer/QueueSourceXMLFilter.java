@@ -39,6 +39,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
@@ -53,6 +54,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
@@ -60,12 +62,34 @@ import org.xml.sax.XMLReader;
  */
 public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
 
-    public static final SAXSource FINISHED = new SAXSource();
+    private final ErrorSAXSource FINISHED = new ErrorSAXSource();
     public static final String RESET_PROPERTY_NAME = "http://xml.org/sax/features/reset";
     private static final Pattern DEFAULT_DELIMITER_PATTERN = Pattern.compile(System.lineSeparator(), Pattern.LITERAL);
     private static final Logger LOG = LoggerFactory.getLogger(QueueSourceXMLFilter.class);
     public static enum InputType { direct, indirect, queue }
     public static InputType DEFAULT_INPUT_TYPE = InputType.direct;
+    
+    public SAXSource getFinishedSAXSource(Throwable t) {
+        return FINISHED.checkout(t);
+    }
+    
+    private static class ErrorSAXSource extends SAXSource {
+        
+        private final AtomicBoolean checkedOutError = new AtomicBoolean(false);
+        private Throwable t;
+        
+        private SAXSource checkout(Throwable t) {
+            if (t == null) {
+                return this;
+            } else if (!checkedOutError.compareAndSet(false, true)) {
+                throw new IllegalStateException("already checked out");
+            } else {
+                this.t = t;
+                return this;
+            }
+        }
+        
+    }
     
     private static final SAXParserFactory spf;
     
@@ -180,7 +204,14 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                     xmlReader.setContentHandler(this);
                     xmlReader.parse(next.getInputSource());
                 }
+                if (FINISHED.t != null) {
+                    throw new RuntimeException(FINISHED.t);
+                }
+                System.out.println(this+" got FINISHED, "+FINISHED.t);
                 finished();
+            }
+            if (FINISHED.t != null) {
+                throw new RuntimeException(FINISHED.t);
             }
         } catch (Throwable ex) {
             if (producerThrowable == null) {
@@ -204,12 +235,14 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                 initialParse(next);
                 XMLReader xmlReader = next.getXMLReader();
                 xmlReader.setContentHandler(this);
+                System.out.println(xmlReader+".setContentHandler("+this+")");
                 xmlReader.parse(next.getInputSource());
                 while (sourceIter.hasNext()) {
                     next = sourceIter.next();
                     repeatParse(next);
                     xmlReader = next.getXMLReader();
                     xmlReader.setContentHandler(this);
+                System.out.println(xmlReader+".setContentHandler("+this+")");
                     xmlReader.parse(next.getInputSource());
                 }
             }
@@ -382,9 +415,11 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
             try {
                 QueueSourceXMLFilter.super.parse(input);
             } catch (Throwable t) {
+                t.printStackTrace(System.err);
                 if (consumerThrowable == null) {
                     producerThrowable = t;
                     consumer.interrupt();
+                    throw new RuntimeException(t);
                 } else {
                     t = consumerThrowable;
                     consumerThrowable = null;

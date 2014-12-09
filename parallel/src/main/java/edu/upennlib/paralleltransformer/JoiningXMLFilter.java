@@ -145,6 +145,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter {
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+        System.out.println("qName:"+qName);
         super.startElement(uri, localName, qName, atts);
         if (++level == RECORD_LEVEL - 1) {
             super.setContentHandler(outputContentHandler);

@@ -84,7 +84,7 @@ public class NewClass {
             @Override
             public void finished(Throwable t) {
                 try {
-                    txf.getParseQueue().put(QueueSourceXMLFilter.FINISHED);
+                    txf.getParseQueue().put(txf.getFinishedSAXSource(null));
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -158,7 +158,7 @@ public class NewClass {
             @Override
             public void finished(Throwable t) {
                 try {
-                    joiner.getParseQueue().put(QueueSourceXMLFilter.FINISHED);
+                    joiner.getParseQueue().put(joiner.getFinishedSAXSource(t));
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }

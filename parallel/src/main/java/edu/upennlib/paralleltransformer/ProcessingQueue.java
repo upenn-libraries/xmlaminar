@@ -17,7 +17,9 @@
 package edu.upennlib.paralleltransformer;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -30,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,12 +51,9 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
     private Set<Future<?>> activeWorkTasks;
     private ExecutorCompletionService workCompletionService;
     
-    private final Node<T> head = new Node<T>(null, null, this);
+    final Node<T> head = new Node<T>(null, null, this);
     private final Node<T> tail = new Node<T>(head, null, null, this);
 
-    private final Lock headLock = new ReentrantLock();
-    private final Condition headWait = headLock.newCondition();
-    
     private volatile boolean finished = false;
 
     public ProcessingQueue(int size, T templateInstance) {
@@ -121,8 +121,8 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
         this.workExecutor = workExecutor;
     }
 
-    private static final boolean POOL_MAIN = false;
-    private static final boolean POOL_SUBDIVIDE = false;
+    private static final boolean POOL_MAIN = true;
+    private static final boolean POOL_SUBDIVIDE = true;
     
     /**
      * Accessed by one thread only.
@@ -134,8 +134,8 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
         tail.insert(next);
         return next.getChild();
     }
-
     
+
     /**
      * Accessed by one thread only -- only acquire lock when waiting for work to
      * complete.
@@ -143,24 +143,11 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
      * @throws InterruptedException
      */
     public T nextOut() throws InterruptedException {
-        Node<T> next = head.getNext();
-        if (!next.isWorkComplete()) {
-            try {
-                headLock.lock();
-                while (!(next = head.getNext()).isWorkComplete()) {
-                    if (isFinished()) {
-                        return null;
-                    }
-                    headWait.await();
-                }
-            } finally {
-                headLock.unlock();
-            }
-        }
+        Node<T> next = head.getNext(ProcessingState.HAS_OUTPUT);
         // next.remove(); double-called when state set to READY
-        return next.getChild();
+        return next == null ? null : next.getChild();
     }
-
+    
     private Node<T> newNode(T templateInstance, Queue<Node<T>> pool) {
         T instance = templateInstance.newInstance();
         Node<T> node = new Node<T>(instance, pool, this);
@@ -187,12 +174,9 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
             if (subdividePoolSize.incrementAndGet() > subdividePoolCapacity) {
                 subdividePoolSize.set(subdividePoolCapacity);
                 try {
-                    while ((node = subdividePool.poll(100, TimeUnit.MILLISECONDS)) == null) {
-                        LOG.info("test create new unassociated node to break deadlock");
-                        if (head.getNext().isBlockingForSubdivide()) {
-                            LOG.info("create new unassociated node to break deadlock");
-                            return newNode(templateInstance, null);
-                        }
+                    if ((node = subdividePool.poll(100, TimeUnit.MILLISECONDS)) == null) {
+                        LOG.info("create new unassociated node to break deadlock");
+                        return newNode(templateInstance, null);
                     }
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
@@ -202,28 +186,6 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
             }
         }
         return node;
-    }
-
-    void workComplete(Node<T> node) {
-        if (node == head.getNext()) {
-            try {
-                headLock.lock();
-                headWait.signal();
-            } finally {
-                headLock.unlock();
-            }
-        }
-    }
-
-    void remove(Node<T> node) {
-        if (head == node) {
-            try {
-                headLock.lock();
-                headWait.signal();
-            } finally {
-                headLock.unlock();
-            }
-        }
     }
 
     void addToWorkQueue(T value) {
@@ -261,12 +223,6 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
 
     public void finished() {
         finished = true;
-        headLock.lock();
-        try {
-            headWait.signal();
-        } finally {
-            headLock.unlock();
-        }
     }
 
     public boolean isFinished() {
@@ -274,7 +230,7 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
     }
 
     private boolean isEmpty() {
-        return head.getNext() == tail;
+        return head.isNext(tail);
     }
 
 }

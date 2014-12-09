@@ -16,11 +16,13 @@
 
 package edu.upennlib.paralleltransformer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -28,14 +30,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>> implements ParentSubdividable<ProcessingState, Node<T>, T> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Node.class);
     private volatile Node next;
     private volatile Node previous;
     private final T value;
     private final Queue<Node<T>> homePool;
     private final ProcessingQueue<T> processingQueue;
-    private volatile boolean workComplete = false;
-    private final AtomicBoolean pre = new AtomicBoolean(false);
-    private final AtomicBoolean post = new AtomicBoolean(false);
+    private final Lock previousLock = new ReentrantLock();
+    private final Condition previousChanged = previousLock.newCondition();
+    private final Lock nextLock = new ReentrantLock();
+    private final Condition nextChanged = nextLock.newCondition();
 
     Node(T value, Queue<Node<T>> homePool, ProcessingQueue<T> pq) {
         this.value = value;
@@ -49,10 +53,10 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
         previous.next = this;
     }
 
-    boolean isWorkComplete() {
-        return workComplete;
+    public static void main(String[] args) throws Exception {
+        TXMLFilter.main(args);
     }
-
+    
     private volatile boolean blockForSubdivide = false;
     
     boolean isBlockingForSubdivide() {
@@ -68,47 +72,65 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
         return newNode;
     }
 
-    Node<T> getNext() {
-        return next;
+    Node<T> getNext(ProcessingState requireState) {
+        Node<T> nex;
+        nextLock.lock();
+        try {
+            while ((nex = next).getState() != requireState) {
+                if (processingQueue.isFinished()) {
+                    return null;
+                }
+                nextChanged.await();
+            }
+            nex.previousLock.lock();
+            try {
+                while (!nex.removePreLockAcquired(this, false)) {
+                    // Wait on something maybe?
+                }
+            } finally {
+                nex.previousLock.unlock();
+            }
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            nextLock.unlock();
+        }
+        return nex;
     }
-    
+
     public ProcessingState getState() {
         return state;
     }
 
     void insert(Node<T> node) {
-        AtomicBoolean preTmp;
-        do {
-            while (previous != null ? !(preTmp = previous.post).compareAndSet(false, true) : (preTmp = null) != null) {
-            }
-        } while (!pre.compareAndSet(false, true) && strictSetFalse(preTmp));
-        node.next = this;
-        node.previous = previous;
-        previous.next = node;
-        previous = node;
-        strictSetFalse(preTmp);
-        strictSetFalse(pre);
-    }
-
-    private static boolean strictSetFalse(AtomicBoolean b) {
-        return strictSetFalse(b, false);
-    }
-
-    private static boolean strictSetFalse(AtomicBoolean b, boolean acceptNull) {
-        if (b == null) {
-            if (!acceptNull) {
-                throw new IllegalStateException();
-            }
-        } else if (!b.compareAndSet(true, false)) {
-            throw new IllegalStateException();
+        Node<T> prev = null;
+        boolean unlocked = true;
+        boolean prevUnlocked = true;
+        try {
+            do {
+                (prev = previous).nextLock.lock();
+                prevUnlocked = false;
+                while (prev == previous && (unlocked = !previousLock.tryLock())) {
+                    prev.nextChanged.await();
+                }
+            } while (prev != previous && (unlocked = prevUnlocked = unlock(previousLock, unlocked, prev, prevUnlocked)));
+            node.next = this;
+            node.previous = prev;
+            previous = node;
+            prev.next = node;
+            prev.nextChanged.signalAll();
+            previousChanged.signalAll();
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            unlock(previousLock, unlocked, prev, prevUnlocked);
         }
-        return true;
     }
 
-    private void reset() {
+
+    void reset() {
         next = null;
         previous = null;
-        workComplete = false;
         value.reset();
         this.state = ProcessingState.READY;
         if (homePool != null) {
@@ -121,44 +143,101 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
     }
 
     private void setWorkComplete() {
-        workComplete = true;
-        processingQueue.workComplete(this);
+        Node<T> prev = null;
+        boolean unlocked = true;
+        boolean prevUnlocked = true;
+        try {
+            do {
+                prev = previous;
+                if (prev == null) {
+                    return;
+                }
+                prev.nextLock.lock();
+                prevUnlocked = false;
+                while (prev == previous && (unlocked = !previousLock.tryLock())) {
+                    prev.nextChanged.await();
+                }
+            } while (prev != previous && (unlocked = prevUnlocked = unlock(previousLock, unlocked, prev, prevUnlocked)));
+            prev.nextChanged.signalAll();
+            previousChanged.signalAll();
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            unlock(previousLock, unlocked, prev, prevUnlocked);
+        }
     }
 
     private void failed() {
         if (!canSubdivide()) {
             value.drop();
-            remove();
+            remove(true);
         } else {
             value.subdivide(processingQueue.getWorkExecutor());
         }
     }
 
-    void remove() {
-        AtomicBoolean preTmp;
-        AtomicBoolean postTmp;
-        Node prev = previous;
-        do {
+    private static boolean unlock(Lock previousLock, boolean unlocked, Node previous, boolean prevUnlocked) {
+        try {
+            if (!unlocked) {
+                previousLock.unlock();
+            }
+        } finally {
+            if (!prevUnlocked) {
+                previous.nextLock.unlock();
+            }
+        }
+        return true;
+    }
+    
+    private void remove(boolean reset) {
+        Node<T> prev = null;
+        boolean unlocked = true;
+        boolean prevUnlocked = true;
+        try {
             do {
                 do {
-                    while (previous != null ? !(preTmp = previous.post).compareAndSet(false, true) : (preTmp = null) != null) {
+                    (prev = previous).nextLock.lock();
+                    prevUnlocked = false;
+                    while (prev == previous && (unlocked = !previousLock.tryLock())) {
+                        prev.nextChanged.await();
                     }
-                } while (next != null ? !(postTmp = next.pre).compareAndSet(false, true) && strictSetFalse(preTmp, true)
-                        : (postTmp = null) != null);
-            } while (!pre.compareAndSet(false, true) && strictSetFalse(preTmp, true) && strictSetFalse(postTmp, true));
-        } while (!post.compareAndSet(false, true) && strictSetFalse(preTmp, true) && strictSetFalse(postTmp, true) && strictSetFalse(pre));
-        if (next != null) {
-            next.previous = previous;
+                } while (prev != previous && (unlocked = prevUnlocked = unlock(previousLock, unlocked, prev, prevUnlocked)));
+            } while (!removePreLockAcquired(prev, reset) && (unlocked = prevUnlocked = unlock(previousLock, unlocked, prev, prevUnlocked)));
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            unlock(previousLock, unlocked, prev, prevUnlocked);
         }
-        if (previous != null) {
-            previous.next = next;
+    }
+    
+    boolean removePreLockAcquired(Node<T> prev, boolean reset) {
+        if (!nextLock.tryLock()) {
+            return false;
         }
-        strictSetFalse(preTmp, true);
-        strictSetFalse(pre);
-        strictSetFalse(postTmp, true);
-        strictSetFalse(post);
-        reset();
-        processingQueue.remove(prev);
+        try {
+            Node<T> nex;
+            if (!(nex = next).previousLock.tryLock()) {
+                return false;
+            }
+            try {
+                next.previous = previous;
+                previous.next = next;
+                previous = null;
+                next = null;
+                prev.nextChanged.signalAll();
+                previousChanged.signalAll();
+                nextChanged.signalAll();
+                nex.previousChanged.signalAll();
+            } finally {
+                nex.previousLock.unlock();
+            }
+        } finally {
+            nextLock.unlock();
+        }
+        if (reset) {
+            reset();
+        }
+        return true;
     }
 
     private volatile ProcessingState state = ProcessingState.READY;
@@ -180,7 +259,7 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
                 failed();
                 break;
             case READY:
-                remove();
+                //remove();
                 break;
         }
     }
@@ -193,6 +272,10 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
     @Override
     public boolean canSubdivide() {
         return value.canSubdivide();
+    }
+    
+    boolean isNext(Node<T> node) {
+        return node == next;
     }
 
 }
