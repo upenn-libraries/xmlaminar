@@ -143,7 +143,7 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
      * @throws InterruptedException
      */
     public T nextOut() throws InterruptedException {
-        Node<T> next = head.getNext(ProcessingState.HAS_OUTPUT);
+        Node<T> next = head.getNext(ProcessingState.HAS_OUTPUT, tail);
         // next.remove(); double-called when state set to READY
         return next == null ? null : next.getChild();
     }
@@ -223,14 +223,15 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
 
     public void finished() {
         finished = true;
+        isEmpty(); // wake threads waiting on empty queue
     }
 
     public boolean isFinished() {
-        return finished && isEmpty();
+        return finished;
     }
 
     private boolean isEmpty() {
-        return head.isNext(tail);
+        return tail.isPrevious(head);
     }
 
 }

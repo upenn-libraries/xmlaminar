@@ -62,7 +62,7 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
         return newNode;
     }
 
-    Node<T> getNext(ProcessingState requireState) {
+    Node<T> getNext(ProcessingState requireState, Node<T> tail) {
         Node<T> nex = null;
         boolean unlocked = true;
         try {
@@ -73,7 +73,7 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
                 } while (nex != next && (unlocked = unlock(nex)));
                 if (nex.getState() != requireState) {
                     do {
-                        if (processingQueue.isFinished()) {
+                        if (processingQueue.isFinished() && nex == tail) {
                             return null;
                         }
                         nex.previousChanged.await();
@@ -220,9 +220,19 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
     public boolean canSubdivide() {
         return value.canSubdivide();
     }
-    
-    boolean isNext(Node<T> node) {
-        return node == next;
+
+    boolean isPrevious(Node<T> node) {
+        previousLock.lock();
+        try {
+            if (node == previous) {
+                previousChanged.signalAll();
+                return true;
+            } else {
+                return false;
+            }
+        } finally {
+            previousLock.unlock();
+        }
     }
 
 }
