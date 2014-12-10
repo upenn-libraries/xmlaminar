@@ -38,8 +38,6 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
     private final ProcessingQueue<T> processingQueue;
     private final Lock previousLock = new ReentrantLock();
     private final Condition previousChanged = previousLock.newCondition();
-    private final Lock nextLock = new ReentrantLock();
-    private final Condition nextChanged = nextLock.newCondition();
 
     Node(T value, Queue<Node<T>> homePool, ProcessingQueue<T> pq) {
         this.value = value;
@@ -65,27 +63,29 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
     }
 
     Node<T> getNext(ProcessingState requireState) {
-        Node<T> nex;
-        nextLock.lock();
+        Node<T> nex = null;
+        boolean unlocked = true;
         try {
-            while ((nex = next).getState() != requireState) {
-                if (processingQueue.isFinished()) {
-                    return null;
+            do {
+                do {
+                    (nex = next).previousLock.lock();
+                    unlocked = false;
+                } while (nex != next && (unlocked = unlock(nex)));
+                if (nex.getState() != requireState) {
+                    do {
+                        if (processingQueue.isFinished()) {
+                            return null;
+                        }
+                        nex.previousChanged.await();
+                    } while (nex == next && nex.getState() != requireState);
                 }
-                nextChanged.await();
-            }
-            nex.previousLock.lock();
-            try {
-                while (!nex.removePreLockAcquired(this, false)) {
-                    // Wait on something maybe?
-                }
-            } finally {
-                nex.previousLock.unlock();
-            }
+            } while ((nex != next && (unlocked = unlock(nex))) || !nex.removePreLockAcquired(this, false));
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
         } finally {
-            nextLock.unlock();
+            if (!unlocked) {
+                unlock(nex);
+            }
         }
         return nex;
     }
@@ -95,27 +95,16 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
     }
 
     void insert(Node<T> node) {
-        Node<T> prev = null;
-        boolean unlocked = true;
-        boolean prevUnlocked = true;
+        previousLock.lock();
         try {
-            do {
-                (prev = previous).nextLock.lock();
-                prevUnlocked = false;
-                while (prev == previous && (unlocked = !previousLock.tryLock())) {
-                    prev.nextChanged.await();
-                }
-            } while (prev != previous && (unlocked = prevUnlocked = unlock(previousLock, unlocked, prev, prevUnlocked)));
+            Node<T> prev = previous;
             node.next = this;
             node.previous = prev;
             previous = node;
             prev.next = node;
-            prev.nextChanged.signalAll();
             previousChanged.signalAll();
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
         } finally {
-            unlock(previousLock, unlocked, prev, prevUnlocked);
+            previousLock.unlock();
         }
     }
 
@@ -135,27 +124,11 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
     }
 
     private void setWorkComplete() {
-        Node<T> prev = null;
-        boolean unlocked = true;
-        boolean prevUnlocked = true;
+        previousLock.lock();
         try {
-            do {
-                prev = previous;
-                if (prev == null) {
-                    return;
-                }
-                prev.nextLock.lock();
-                prevUnlocked = false;
-                while (prev == previous && (unlocked = !previousLock.tryLock())) {
-                    prev.nextChanged.await();
-                }
-            } while (prev != previous && (unlocked = prevUnlocked = unlock(previousLock, unlocked, prev, prevUnlocked)));
-            prev.nextChanged.signalAll();
             previousChanged.signalAll();
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
         } finally {
-            unlock(previousLock, unlocked, prev, prevUnlocked);
+            previousLock.unlock();
         }
     }
 
@@ -168,63 +141,44 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
         }
     }
 
-    private static boolean unlock(Lock previousLock, boolean unlocked, Node previous, boolean prevUnlocked) {
-        try {
-            if (!unlocked) {
-                previousLock.unlock();
-            }
-        } finally {
-            if (!prevUnlocked) {
-                previous.nextLock.unlock();
-            }
-        }
+    private static boolean unlock(Node node) {
+        node.previousLock.unlock();
         return true;
     }
     
     private void remove(boolean reset) {
-        Node<T> prev = null;
         boolean unlocked = true;
-        boolean prevUnlocked = true;
         try {
             do {
-                do {
-                    (prev = previous).nextLock.lock();
-                    prevUnlocked = false;
-                    while (prev == previous && (unlocked = !previousLock.tryLock())) {
-                        prev.nextChanged.await();
-                    }
-                } while (prev != previous && (unlocked = prevUnlocked = unlock(previousLock, unlocked, prev, prevUnlocked)));
-            } while (!removePreLockAcquired(prev, reset) && (unlocked = prevUnlocked = unlock(previousLock, unlocked, prev, prevUnlocked)));
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
+                previousLock.lock();
+                unlocked = false;
+            } while (!removePreLockAcquired(previous, reset) && (unlocked = unlock(this)));
         } finally {
-            unlock(previousLock, unlocked, prev, prevUnlocked);
+            if (!unlocked) {
+                unlock(this);
+            }
         }
     }
     
     boolean removePreLockAcquired(Node<T> prev, boolean reset) {
-        if (!nextLock.tryLock()) {
-            return false;
-        }
+        Node<T> nex = null;
+        boolean unlocked = true;
         try {
-            Node<T> nex;
-            if (!(nex = next).previousLock.tryLock()) {
-                return false;
-            }
-            try {
-                next.previous = previous;
-                previous.next = next;
-                previous = null;
-                next = null;
-                prev.nextChanged.signalAll();
-                previousChanged.signalAll();
-                nextChanged.signalAll();
-                nex.previousChanged.signalAll();
-            } finally {
-                nex.previousLock.unlock();
-            }
+            do {
+                if (unlocked = !(nex = next).previousLock.tryLock()) {
+                    return false;
+                }
+            } while (nex != next && (unlocked = unlock(nex)));
+            next.previous = previous;
+            previous.next = next;
+            previous = null;
+            next = null;
+            previousChanged.signalAll();
+            nex.previousChanged.signalAll();
         } finally {
-            nextLock.unlock();
+            if (!unlocked) {
+                unlock(nex);
+            }
         }
         if (reset) {
             reset();
