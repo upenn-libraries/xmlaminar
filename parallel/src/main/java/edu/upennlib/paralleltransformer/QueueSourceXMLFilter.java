@@ -207,7 +207,6 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                 if (FINISHED.t != null) {
                     throw new RuntimeException(FINISHED.t);
                 }
-                System.out.println(this+" got FINISHED, "+FINISHED.t);
                 finished();
             }
             if (FINISHED.t != null) {
@@ -235,14 +234,12 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                 initialParse(next);
                 XMLReader xmlReader = next.getXMLReader();
                 xmlReader.setContentHandler(this);
-                System.out.println(xmlReader+".setContentHandler("+this+")");
                 xmlReader.parse(next.getInputSource());
                 while (sourceIter.hasNext()) {
                     next = sourceIter.next();
                     repeatParse(next);
                     xmlReader = next.getXMLReader();
                     xmlReader.setContentHandler(this);
-                System.out.println(xmlReader+".setContentHandler("+this+")");
                     xmlReader.parse(next.getInputSource());
                 }
             }
@@ -351,7 +348,6 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                 if ((in = input.getByteStream()) != null) {
                     r = new InputStreamReader(in, encoding);
                 } else {
-                    System.out.println(input.getSystemId()+", "+getInputType());
                     try {
                         URI inputURI = new URI(input.getSystemId());
                         inputURI = (new File("").toURI()).resolve(inputURI);

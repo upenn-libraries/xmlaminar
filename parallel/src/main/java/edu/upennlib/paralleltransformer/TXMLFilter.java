@@ -119,36 +119,6 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
         setupParse(inputBuffer);
     }
     
-    public static void detectLoop(XMLFilter child) {
-        XMLReader parent;
-        if (child != null && (parent = child.getParent()) != null) {
-            Set<XMLReader> readers = new LinkedHashSet<XMLReader>();
-            do {
-                if (!readers.add(child)) {
-                    String spacer = "";
-                    for (XMLReader r : readers) {
-                        System.out.println(spacer + r);
-                        spacer = spacer.concat("  ");
-                    }
-                    throw new RuntimeException("loop detected!");
-                }
-                if (parent instanceof XMLFilter) {
-                    child = (XMLFilter) parent;
-                } else {
-                    if (!readers.add(parent)) {
-                        String spacer = "";
-                        for (XMLReader r : readers) {
-                            System.out.println(spacer + r);
-                            spacer = spacer.concat("  ");
-                        }
-                        throw new RuntimeException("loop detected!");
-                    }
-                    child = null;
-                }
-            } while (child != null && (parent = child.getParent()) != null);
-        }
-    }
-
     protected void reset(boolean cancel) {
         try {
             if (outputFuture != null) {

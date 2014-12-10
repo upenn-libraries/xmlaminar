@@ -16,53 +16,12 @@
 
 package edu.upennlib.paralleltransformer;
 
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.AttributesImpl;
 
 class StructuralStartEvent {
 
     public static enum StructuralStartEventType { DOCUMENT, PREFIX_MAPPING, ELEMENT }
-
-    public static Thread worker;
-
-    public static void main(String[] args) throws InterruptedException {
-        ExecutorService ex = Executors.newCachedThreadPool();
-        Future<?> future = ex.submit(new Runnable() {
-
-            @Override
-            public void run() {
-                worker = Thread.currentThread();
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException ex1) {
-                    try {
-                        System.out.println("interrupted once");
-                        Thread.sleep(10000);
-                        System.out.println("I finished what I was doing!");
-                    } catch (InterruptedException ex2) {
-                        throw new RuntimeException(ex2);
-                    }
-                }
-            }
-        });
-        Thread.sleep(250);
-        worker.interrupt();
-        System.out.println(future.isCancelled()+", "+future.isDone());
-        try {
-            future.get();
-        } catch (ExecutionException ex1) {
-            System.out.println("execution exception");
-        } catch (CancellationException ex1) {
-            System.out.println("cancellation exception");
-        }
-        System.out.println("main is exiting");
-        ex.shutdown();
-    }
 
     public final StructuralStartEventType type;
     public final String one;
