@@ -57,17 +57,9 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
         TXMLFilter.main(args);
     }
     
-    private volatile boolean blockForSubdivide = false;
-    
-    boolean isBlockingForSubdivide() {
-        return blockForSubdivide;
-    }
-    
     @Override
     public Node<T> subdivide(ExecutorService executor) {
-        blockForSubdivide = true;
         Node<T> newNode = processingQueue.getSubdivideNode(value);
-        blockForSubdivide = false;
         insert(newNode);
         return newNode;
     }
