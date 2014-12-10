@@ -79,7 +79,8 @@ public class Node<T extends DelegatingSubdividable<ProcessingState, T, Node<T>>>
                         nex.previousChanged.await();
                     } while (nex == next && nex.getState() != requireState);
                 }
-            } while ((nex != next && (unlocked = unlock(nex))) || !nex.removePreLockAcquired(this, false));
+            } while ((nex != next && (unlocked = unlock(nex))) 
+                    || (!nex.removePreLockAcquired(this, false) && (unlocked = unlock(nex))));
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
         } finally {
