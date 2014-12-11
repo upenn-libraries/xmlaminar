@@ -91,6 +91,7 @@
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.7</version>
             <type>jar</type>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>
