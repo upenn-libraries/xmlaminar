@@ -142,7 +142,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
 
     @Override
     public void setExecutor(ExecutorService executor) {
-        pq.setWorkExecutor(executor);
+        pq.setWorkExecutor(new ThrottlingExecutorService(executor));
         super.setExecutor(executor);
     }
 
