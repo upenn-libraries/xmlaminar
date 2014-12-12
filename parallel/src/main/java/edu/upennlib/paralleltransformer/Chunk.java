@@ -296,7 +296,12 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
 
     public ContentHandler getInput(SAXSource source) {
         this.inSource = source.getInputSource();
-        in.setUnmodifiableParent(source.getXMLReader());
+        XMLReader reader = source.getXMLReader();
+        in.setUnmodifiableParent(reader);
+        if (!subdivide) {
+            rl.setParent(reader);
+            source.setXMLReader(rl);
+        }
         return in;
     }
 

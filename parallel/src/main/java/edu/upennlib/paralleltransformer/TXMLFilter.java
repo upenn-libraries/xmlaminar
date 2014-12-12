@@ -86,7 +86,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     }
     
     public static void main(String[] args) throws Exception {
-        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id", true);
+        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id", false);
         txf.setInputType(InputType.indirect);
         txf.setOutputCallback(new StdoutCallback());
         txf.parse(new InputSource("../cli/whole-indirect.txt"));
