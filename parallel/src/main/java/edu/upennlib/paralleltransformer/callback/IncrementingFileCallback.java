@@ -28,9 +28,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 /**
  *
@@ -40,8 +38,9 @@ public class IncrementingFileCallback implements XMLReaderCallback {
     private static final int DEFAULT_START_INDEX = 0;
     private static final int DEFAULT_SUFFIX_SIZE = 5;
 
-    private final File parentFile;
-    private final String namePrefix;
+    private File baseFile;
+    private File parentFile;
+    private String namePrefix;
     private final String postSuffix;
     private final String suffixFormat;
     private final Transformer t;
@@ -51,39 +50,42 @@ public class IncrementingFileCallback implements XMLReaderCallback {
         return "-%0" + suffixLength + 'd';
     }
 
-    public IncrementingFileCallback(String prefix) throws TransformerConfigurationException {
-        this(TransformerFactory.newInstance().newTransformer(), prefix);
+    public IncrementingFileCallback(String baseFile) throws TransformerConfigurationException {
+        this(TransformerFactory.newInstance().newTransformer(), baseFile);
     }
 
-    public IncrementingFileCallback(Transformer t, String prefix) {
-        this(DEFAULT_START_INDEX, t, prefix);
+    public IncrementingFileCallback(Transformer t, String baseFile) {
+        this(DEFAULT_START_INDEX, t, baseFile);
     }
 
-    public IncrementingFileCallback(int start, Transformer t, String prefix) {
-        this(start, t, prefix, "");
+    public IncrementingFileCallback(int start, Transformer t, String baseFile) {
+        this(start, t, baseFile, "");
     }
 
-    public IncrementingFileCallback(int start, Transformer t, String prefix, String postSuffix) {
-        this(start, t, DEFAULT_SUFFIX_SIZE, prefix, postSuffix);
+    public IncrementingFileCallback(int start, Transformer t, String baseFile, String postSuffix) {
+        this(start, t, DEFAULT_SUFFIX_SIZE, baseFile, postSuffix);
     }
 
-    public IncrementingFileCallback(int start, Transformer t, int suffixSize, String prefix, String postSuffix) {
-        this(start, t, getDefaultSuffixFormat(suffixSize), prefix, postSuffix);
+    public IncrementingFileCallback(int start, Transformer t, int suffixSize, String baseFile, String postSuffix) {
+        this(start, t, getDefaultSuffixFormat(suffixSize), new File(baseFile), postSuffix);
+    }
+    
+    public IncrementingFileCallback(int start, Transformer t, int suffixSize) {
+        this(start, t, getDefaultSuffixFormat(suffixSize), null, null);
     }
 
-    public IncrementingFileCallback(int start, Transformer t, String suffixFormat, String prefix, String postSuffix) {
-        this(start, t, suffixFormat, new File(prefix), postSuffix);
+    public IncrementingFileCallback(int start, Transformer t, int suffixLength, File baseFile, String postSuffix) {
+        this(start, t, getDefaultSuffixFormat(suffixLength), baseFile, postSuffix);
     }
 
-    public IncrementingFileCallback(int start, Transformer t, int suffixLength, File prefix, String postSuffix) {
-        this(start, t, getDefaultSuffixFormat(suffixLength), prefix, postSuffix);
-    }
-
-    public IncrementingFileCallback(int start, Transformer t, String suffixFormat, File prefix, String postSuffix) {
+    public IncrementingFileCallback(int start, Transformer t, String suffixFormat, File baseFile, String postSuffix) {
         this.i = start;
         this.t = t;
-        this.parentFile = prefix.getParentFile();
-        this.namePrefix = prefix.getName();
+        this.baseFile = baseFile;
+        if (baseFile != null) {
+            this.parentFile = baseFile.getParentFile();
+            this.namePrefix = baseFile.getName();
+        }
         this.postSuffix = postSuffix;
         this.suffixFormat = suffixFormat;
     }
@@ -93,6 +95,27 @@ public class IncrementingFileCallback implements XMLReaderCallback {
         File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) 
                 + (postSuffix != null ? postSuffix : StreamCallback.getExtension(source.getInputSource().getSystemId())));
         StreamCallback.writeToFile(source, nextFile, t);
+    }
+    
+    public void setBaseFile(File file, String ext, boolean reset) {
+        this.baseFile = file;
+        this.parentFile = file.getParentFile();
+        this.namePrefix = file.getName();
+        if (reset) {
+            reset();
+        }
+    }
+    
+    public void setBaseFile(File file, String ext) {
+        setBaseFile(file, ext, true);
+    }
+    
+    public File getBaseFile() {
+        return baseFile;
+    }
+    
+    public void reset() {
+        i = 0;
     }
 
     @Override
