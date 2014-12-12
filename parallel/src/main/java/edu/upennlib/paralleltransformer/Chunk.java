@@ -119,10 +119,9 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
                 XMLReader reader = source.getXMLReader();
                 if (!initialized) {
                     initialized = true;
-                    UnboundedContentHandlerBuffer inputBuffer = newChunk.getInput(source);
+                    ContentHandler inputBuffer = newChunk.getInput(source);
                     reader.setContentHandler(inputBuffer);
                     reader.parse(source.getInputSource());
-                    inputBuffer.setUnmodifiableParent(out.getUnmodifiableParent());
                     newChunk.setRecordCount(newChunkSize);
                     newChunk.setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
                 } else {
@@ -295,7 +294,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         out.flush(ch, null);
     }
 
-    public UnboundedContentHandlerBuffer getInput(SAXSource source) {
+    public ContentHandler getInput(SAXSource source) {
         this.inSource = source.getInputSource();
         in.setUnmodifiableParent(source.getXMLReader());
         return in;

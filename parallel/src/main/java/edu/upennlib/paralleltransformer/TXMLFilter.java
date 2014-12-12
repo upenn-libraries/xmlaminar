@@ -52,6 +52,7 @@ import net.sf.saxon.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -119,9 +120,8 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     
     private void setupInputBuffer(SAXSource in) throws InterruptedException {
         Chunk nextIn = pq.nextIn();
-        UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput(in);
+        ContentHandler inputBuffer = nextIn.getInput(in);
         XMLFilter suxf = new StateUpdatingXMLFilter(nextIn, in.getXMLReader(), ProcessingState.HAS_INPUT);
-        inputBuffer.setUnmodifiableParent(suxf);
         in.setXMLReader(suxf);
         setupParse(inputBuffer);
     }
