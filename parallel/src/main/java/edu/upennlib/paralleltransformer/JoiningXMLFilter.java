@@ -16,23 +16,19 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.callback.OutputCallback;
+import edu.upennlib.paralleltransformer.callback.StdoutCallback;
+import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.DevNullContentHandler;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -41,41 +37,45 @@ import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
  * @author Michael Gibney
  */
-public class JoiningXMLFilter extends QueueSourceXMLFilter {
+public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(JoiningXMLFilter.class);
     protected static final ContentHandler devNullContentHandler = new DevNullContentHandler();
     private static final int RECORD_LEVEL = 1;
 
+    private static final boolean DEFAULT_MULTI_OUT = true;
+    private final boolean multiOut;
     private int level = -1;
-    protected final ContentHandler initialEventContentHandler = new InitialEventContentHandler();
-    private final ArrayDeque<StructuralStartEvent> startEvents = new ArrayDeque<StructuralStartEvent>();
+    protected final ContentHandler initialEventContentHandler;
+    private final ArrayDeque<StructuralStartEvent> startEvents;
     private ContentHandler outputContentHandler;
 
     public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, IOException, TransformerException {
-        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-        Transformer t = tf.newTransformer();
-        File inFile = new File("blah.txt");
-        InputSource in = new InputSource(new BufferedInputStream(new FileInputStream(inFile)));
-        JoiningXMLFilter joiner = new JoiningXMLFilter();
-        joiner.setInputType(InputType.indirect);
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setNamespaceAware(true);
-        joiner.setParent(spf.newSAXParser().getXMLReader());
-        OutputStream out = System.out;
-        try {
-            t.transform(new SAXSource(joiner, in), new StreamResult(out));
-        } finally {
-            out.close();
-            joiner.shutdown();
-        }
+        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id", true);
+        JoiningXMLFilter joiner = new JoiningXMLFilter(true);
+        txf.setInputType(InputType.indirect);
+        joiner.setParent(txf);
+        joiner.setOutputCallback(new StdoutCallback());
+        joiner.parse(new InputSource("../cli/test-multiout-joiner.txt"));
     }
 
+    public JoiningXMLFilter(boolean multiOut) {
+        this.multiOut = multiOut;
+        this.synchronousParser = (multiOut ? new SynchronousParser(this) : null);
+        initialEventContentHandler = new InitialEventContentHandler();
+        startEvents = new ArrayDeque<StructuralStartEvent>();
+    }
+    
+    public JoiningXMLFilter() {
+        this(DEFAULT_MULTI_OUT);
+    }
+    
     private void reset() {
         level = -1;
         startEvents.clear();
@@ -114,14 +114,52 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter {
         super.parse(systemId);
     }
 
+    private String lastSystemId;
+    
     @Override
     public void initialParse(SAXSource in) {
+        if (multiOut) {
+            setContentHandler(synchronousParser);
+        }
         setupParse(initialEventContentHandler);
+        if (multiOut) {
+            lastSystemId = in.getSystemId();
+            try {
+                outputCallback.callback(new SAXSource(synchronousParser, in.getInputSource()));
+            } catch (SAXException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
     }
     
     @Override
     public void repeatParse(SAXSource in) {
-        setupParse(devNullContentHandler);
+        if (!multiOut) {
+            setupParse(devNullContentHandler);
+        } else {
+            String systemId = in.getSystemId();
+            if (systemId == null ? lastSystemId == null : systemId.equals(lastSystemId)) {
+                setupParse(devNullContentHandler);
+            } else {
+                lastSystemId = systemId;
+                try {
+                    finished();
+                } catch (SAXException ex) {
+                    throw new RuntimeException(ex);
+                }
+                reset();
+                setupParse(initialEventContentHandler);
+                try {
+                    outputCallback.callback(new SAXSource(synchronousParser, in.getInputSource()));
+                } catch (SAXException ex) {
+                    throw new RuntimeException(ex);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
     }
 
     @Override
@@ -159,6 +197,45 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter {
         super.endElement(uri, localName, qName);
     }
 
+    private XMLReaderCallback outputCallback;
+    
+    @Override
+    public XMLReaderCallback getOutputCallback() {
+        return outputCallback;
+    }
+
+    @Override
+    public void setOutputCallback(XMLReaderCallback callback) {
+        if (!multiOut) {
+            throw new IllegalStateException("outputCallback only relevant for joiner if multiOut==true");
+        }
+        this.outputCallback = callback;
+    }
+    
+    private final XMLFilterImpl synchronousParser;
+    
+    private class SynchronousParser extends XMLFilterImpl {
+
+        private SynchronousParser(XMLReader parent) {
+            super(parent);
+        }
+        
+        @Override
+        public void parse(String systemId) throws SAXException, IOException {
+            parse();
+        }
+
+        @Override
+        public void parse(InputSource input) throws SAXException, IOException {
+            parse();
+        }
+        
+        private void parse() throws SAXException, IOException {
+            
+        }
+        
+    }
+    
     private class InitialEventContentHandler implements ContentHandler {
 
         @Override
