@@ -210,4 +210,6 @@ public abstract class RecordMonitorXMLFilter extends VolatileXMLFilterImpl {
     
     public abstract void register(String id) throws SAXException;
     
+    public abstract String getRecordIdString();
+    
 }

@@ -53,6 +53,7 @@ public class Flags {
     public static final List<String> SIZE_ARG = unmodifiableList(asList("n", "chunk-size"));
     public static final List<String> XSL_FILE_ARG = unmodifiableList(asList("x", "xsl"));
     public static final List<String> RECORD_ID_XPATH_ARG = unmodifiableList(asList("record-xpath"));
+    public static final List<String> SUBDIVIDE_ARG = unmodifiableList(asList("s", "subdivide-on-failure"));
     public static final List<String> OUTPUT_BASE_NAME_ARG = unmodifiableList(asList("b", "output-basename"));
 
 }

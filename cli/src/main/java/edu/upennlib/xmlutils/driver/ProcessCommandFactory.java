@@ -58,13 +58,16 @@ class ProcessCommandFactory extends CommandFactory {
         protected OptionSpec<File> xslSpec;
         private String recordIdXPath;
         protected OptionSpec<String> recordIdXPathSpec;
+        private boolean subdivide;
+        protected OptionSpec subdivideSpec;
         private final String[] args;
         private TXMLFilter txf;
 
         public ProcessCommand(String[] args, boolean first, boolean last) {
             super(args, first, last);
             xslSpec = parser.acceptsAll(Flags.XSL_FILE_ARG, "xsl file defining processing templates").withRequiredArg().ofType(File.class);
-            recordIdXPathSpec = parser.acceptsAll(Flags.RECORD_ID_XPATH_ARG, "xsl file defining processing templates").withRequiredArg().ofType(String.class);
+            recordIdXPathSpec = parser.acceptsAll(Flags.RECORD_ID_XPATH_ARG, "xpath specifying record id location").withRequiredArg().ofType(String.class);
+            subdivideSpec = parser.acceptsAll(Flags.SUBDIVIDE_ARG, "define behavior on processing failure");
             this.args = args;
         }
 
@@ -73,6 +76,7 @@ class ProcessCommandFactory extends CommandFactory {
             boolean ret = super.init(options);
             xsl = options.valueOf(xslSpec);
             recordIdXPath = options.valueOf(recordIdXPathSpec);
+            subdivide = options.has(subdivideSpec);
             return ret;
         }
         

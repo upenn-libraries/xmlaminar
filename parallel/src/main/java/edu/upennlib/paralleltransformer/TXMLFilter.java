@@ -67,14 +67,21 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
 
+    private static final boolean DEFAULT_SUBDIVIDE = false;
     private final ProcessingQueue<Chunk> pq;
     private final Templates templates;
+    private final boolean subdivide;
     private static final Logger LOG = LoggerFactory.getLogger(TXMLFilter.class);
 
-    public TXMLFilter(Source xslSource, String xpath) throws TransformerConfigurationException {
+    public TXMLFilter(Source xslSource, String xpath, boolean subdivide) throws TransformerConfigurationException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         templates = tf.newTemplates(xslSource);
-        pq = new ProcessingQueue<Chunk>(100, new Chunk(templates, xpath));
+        pq = new ProcessingQueue<Chunk>(100, new Chunk(templates, xpath, subdivide));
+        this.subdivide = subdivide;
+    }
+    
+    public TXMLFilter(Source xslSource, String xpath) throws TransformerConfigurationException {
+        this(xslSource, xpath, DEFAULT_SUBDIVIDE);
     }
     
     public static void main(String[] args) throws Exception {
