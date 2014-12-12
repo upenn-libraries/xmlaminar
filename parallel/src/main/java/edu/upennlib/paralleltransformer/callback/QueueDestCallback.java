@@ -42,18 +42,9 @@ public class QueueDestCallback implements XMLReaderCallback {
     }
     
     @Override
-    public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+    public void callback(SAXSource source) throws SAXException, IOException {
         try {
-            dest.getParseQueue().put(new SAXSource(reader, input));
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    @Override
-    public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-        try {
-            dest.getParseQueue().put(new SAXSource(reader, new InputSource(systemId)));
+            dest.getParseQueue().put(source);
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
         }

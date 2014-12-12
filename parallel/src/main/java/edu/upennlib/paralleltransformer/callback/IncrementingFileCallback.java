@@ -27,6 +27,7 @@ import java.io.IOException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -88,15 +89,10 @@ public class IncrementingFileCallback implements XMLReaderCallback {
     }
 
     @Override
-    public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+    public void callback(SAXSource source) throws SAXException, IOException {
         File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) 
-                + (postSuffix != null ? postSuffix : StreamCallback.getExtension(input.getSystemId())));
-        StreamCallback.writeToFile(reader, input, nextFile, t);
-    }
-
-    @Override
-    public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+                + (postSuffix != null ? postSuffix : StreamCallback.getExtension(source.getInputSource().getSystemId())));
+        StreamCallback.writeToFile(source, nextFile, t);
     }
 
     @Override

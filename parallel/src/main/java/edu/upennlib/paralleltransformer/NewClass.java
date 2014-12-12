@@ -68,17 +68,12 @@ public class NewClass {
         sxf.setOutputCallback(new XMLReaderCallback() {
             int i = 0;
             @Override
-            public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+            public void callback(SAXSource source) throws SAXException, IOException {
                 try {
-                    txf.getParseQueue().put(new SAXSource(reader, input));
+                    txf.getParseQueue().put(source);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
-            }
-
-            @Override
-            public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
 
             @Override
@@ -141,18 +136,13 @@ public class NewClass {
         sxf.setOutputCallback(new XMLReaderCallback() {
             int i = 0;
             @Override
-            public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+            public void callback(SAXSource source) throws SAXException, IOException {
                 try {
-                    joiner.getParseQueue().put(new SAXSource(reader, input));
-                    System.out.println("what "+input.getSystemId()+", "+i++);
+                    joiner.getParseQueue().put(source);
+                    System.out.println("what "+source.getInputSource().getSystemId()+", "+i++);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
-            }
-
-            @Override
-            public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
 
             @Override

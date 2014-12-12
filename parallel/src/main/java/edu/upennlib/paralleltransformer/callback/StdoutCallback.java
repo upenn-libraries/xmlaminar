@@ -27,6 +27,7 @@ import java.io.IOException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -48,13 +49,8 @@ public class StdoutCallback implements XMLReaderCallback {
     }
 
     @Override
-    public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-        StreamCallback.writeToStream(reader, input, new StreamResult(System.out), t);
-    }
-
-    @Override
-    public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void callback(SAXSource source) throws SAXException, IOException {
+        StreamCallback.writeToStream(source, new StreamResult(System.out), t);
     }
 
     @Override

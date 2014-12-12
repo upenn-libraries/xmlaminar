@@ -27,6 +27,7 @@ import java.io.IOException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -49,13 +50,8 @@ public class StaticFileCallback implements XMLReaderCallback {
     }
 
     @Override
-    public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-        StreamCallback.writeToFile(reader, input, staticFile, t);
-    }
-
-    @Override
-    public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void callback(SAXSource source) throws SAXException, IOException {
+        StreamCallback.writeToFile(source, staticFile, t);
     }
 
     @Override

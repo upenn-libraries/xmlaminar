@@ -26,8 +26,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
 
 /**
  *
@@ -35,21 +33,21 @@ import org.xml.sax.XMLReader;
  */
 public class StreamCallback {
     
-    static void writeToFile(XMLReader reader, InputSource input, File nextFile, Transformer t) throws FileNotFoundException, IOException {
+    static void writeToFile(SAXSource source, File nextFile, Transformer t) throws FileNotFoundException, IOException {
         OutputStream out = new BufferedOutputStream(new FileOutputStream(nextFile));
         StreamResult res = new StreamResult(out);
         res.setSystemId(nextFile);
         try {
-            writeToStream(reader, input, res, t);
+            writeToStream(source, res, t);
         } finally {
             out.close();
         }
     }
 
-    static void writeToStream(XMLReader reader, InputSource input, StreamResult out, Transformer t) throws FileNotFoundException, IOException {
+    static void writeToStream(SAXSource source, StreamResult out, Transformer t) throws FileNotFoundException, IOException {
         t.reset();
         try {
-            t.transform(new SAXSource(reader, input), out);
+            t.transform(source, out);
         } catch (TransformerException ex) {
             throw new RuntimeException(ex);
         }

@@ -237,6 +237,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         private final InputSource input;
         private final String systemId;
         private final Thread producer;
+        private final SAXSource source = new SAXSource(synchronousParser, null);
         
         private OutputLooper(InputSource in, String systemId, Thread producer) {
             this.input = in;
@@ -247,7 +248,8 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         private void parseLoop(InputSource input, String systemId) throws SAXException, IOException {
             if (input != null) {
                 while (parsing.get()) {
-                    outputCallback.callback(synchronousParser, input);
+                    source.setInputSource(input);
+                    outputCallback.callback(source);
                     try {
                         parseChunkDonePhaser.awaitAdvanceInterruptibly(parseChunkDonePhaser.arrive());
                     } catch (InterruptedException ex) {
@@ -255,9 +257,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
                     }
                 }
             } else {
-                do {
-                    outputCallback.callback(synchronousParser, systemId);
-                } while (parsing.get());
+                throw new NullPointerException("null InputSource");
             }
         }
 

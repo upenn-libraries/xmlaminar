@@ -85,7 +85,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     }
     
     public static void main(String[] args) throws Exception {
-        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id");
+        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id", true);
         txf.setInputType(InputType.indirect);
         txf.setOutputCallback(new StdoutCallback());
         txf.parse(new InputSource("../cli/whole-indirect.txt"));
@@ -119,7 +119,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     
     private void setupInputBuffer(SAXSource in) throws InterruptedException {
         Chunk nextIn = pq.nextIn();
-        UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput(in.getInputSource());
+        UnboundedContentHandlerBuffer inputBuffer = nextIn.getInput(in);
         XMLFilter suxf = new StateUpdatingXMLFilter(nextIn, in.getXMLReader(), ProcessingState.HAS_INPUT);
         inputBuffer.setUnmodifiableParent(suxf);
         in.setXMLReader(suxf);
@@ -260,12 +260,10 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
             Chunk nextOut;
             try {
                 while ((nextOut = pq.nextOut()) != null) {
-                    Chunk.BufferSAXSource outSource = nextOut.getOutput();
-                    UnboundedContentHandlerBuffer outputBuffer = outSource.getXMLReader();
-                    outputBuffer.setUnmodifiableParent(dummyNamespaceAware);
-                    outputBuffer.setFlushOnParse(true); //TODO set this behavior by default?
-                    XMLReader r = new StateUpdatingXMLFilter(nextOut, outputBuffer, ProcessingState.READY);
-                    outputCallback.callback(r, outSource.getInputSource());
+                    SAXSource outSource = nextOut.getOutput();
+                    XMLReader r = new StateUpdatingXMLFilter(nextOut, outSource.getXMLReader(), ProcessingState.READY);
+                    outSource.setXMLReader(r);
+                    outputCallback.callback(outSource);
                 }
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);

@@ -17,6 +17,7 @@
 package edu.upennlib.paralleltransformer.callback;
 
 import java.io.IOException;
+import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -32,9 +33,7 @@ import org.xml.sax.XMLReader;
  */
 public interface XMLReaderCallback {
 
-    void callback(XMLReader reader, InputSource input) throws SAXException, IOException;
-
-    void callback(XMLReader reader, String systemId) throws SAXException, IOException;
+    void callback(SAXSource source) throws SAXException, IOException;
 
     void finished(Throwable t);
     

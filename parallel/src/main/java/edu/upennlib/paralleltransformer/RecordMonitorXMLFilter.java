@@ -212,4 +212,6 @@ public abstract class RecordMonitorXMLFilter extends VolatileXMLFilterImpl {
     
     public abstract String getRecordIdString();
     
+    public abstract RecordMonitorXMLFilter newInstance();
+    
 }

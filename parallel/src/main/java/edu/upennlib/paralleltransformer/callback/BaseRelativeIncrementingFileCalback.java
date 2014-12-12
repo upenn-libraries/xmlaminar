@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -52,15 +53,11 @@ public class BaseRelativeIncrementingFileCalback extends BaseRelativeFileCallbac
         this.suffixLength = suffixLength;
     }
 
-    @Override
-    public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-        throw new UnsupportedOperationException("not implemented");
-    }
-
     private final Map<String, IncrementingFileCallback> callbacks = new HashMap<String, IncrementingFileCallback>();
     
     @Override
-    public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+    public void callback(SAXSource source) throws SAXException, IOException {
+        InputSource input = source.getInputSource();
         File nextFile = convertInToOutBase(input.getSystemId());
         String path = nextFile.getAbsolutePath();
         IncrementingFileCallback ifc = callbacks.get(path);
@@ -78,7 +75,7 @@ public class BaseRelativeIncrementingFileCalback extends BaseRelativeFileCallbac
             }
             callbacks.put(path, ifc);
         }
-        ifc.callback(reader, input);
+        ifc.callback(source);
     }
     
     

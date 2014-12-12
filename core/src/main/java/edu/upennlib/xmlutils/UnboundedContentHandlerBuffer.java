@@ -62,7 +62,7 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
     
     private volatile XMLReader unmodifiableParent;
 
-    private boolean parentModifiable = true;
+    private boolean parentModifiable = false;
 
     public void setParentModifiable(boolean modifiable) {
         this.parentModifiable = modifiable;
@@ -79,11 +79,11 @@ public class UnboundedContentHandlerBuffer extends XMLFilterLexicalHandlerImpl {
 
     @Override
     public void setParent(XMLReader parent) {
-        if (unmodifiableParent == null || unmodifiableParent == getParent()) {
+        if (parentModifiable) {
+            super.setParent(parent);
+        } else {
             unmodifiableParent = parent;
         }
-        super.setParent(parent);
-        parentModifiable = true;
     }
     
     @Override

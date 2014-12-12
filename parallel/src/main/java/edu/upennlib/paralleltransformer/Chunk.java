@@ -115,26 +115,22 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
             boolean initialized = false;
             
             @Override
-            public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
+            public void callback(SAXSource source) throws SAXException, IOException {
+                XMLReader reader = source.getXMLReader();
                 if (!initialized) {
                     initialized = true;
-                    UnboundedContentHandlerBuffer inputBuffer = newChunk.getInput(input);
+                    UnboundedContentHandlerBuffer inputBuffer = newChunk.getInput(source);
                     reader.setContentHandler(inputBuffer);
-                    reader.parse(input);
+                    reader.parse(source.getInputSource());
                     inputBuffer.setUnmodifiableParent(out.getUnmodifiableParent());
                     newChunk.setRecordCount(newChunkSize);
                     newChunk.setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
                 } else {
                     reader.setContentHandler(in);
-                    reader.parse(input); // reads second half into this.in.
+                    reader.parse(source.getInputSource()); // reads second half into this.in.
                     in.setUnmodifiableParent(out.getUnmodifiableParent());
                     recordCount = recordCount - newChunkSize;
                 }
-            }
-
-            @Override
-            public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-                throw new UnsupportedOperationException("Not supported yet.");
             }
 
             @Override
@@ -175,6 +171,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         transformer.setErrorListener(devNullErrorListener);
         try {
             transformer.transform(new SAXSource(in, inSource), new SAXResult(out));
+            out.setUnmodifiableParent(in.getUnmodifiableParent());
             setState(ProcessingState.HAS_OUTPUT);
         } catch (TransformerException ex) {
             this.ex = ex;
@@ -186,7 +183,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
     
     private final RecordMonitorXMLFilter rl;
     
-    private static class SingleRecordIdLogger extends RecordMonitorXMLFilter {
+    private static class SingleRecordIdLogger extends RecordMonitorXMLFilter implements Cloneable {
 
         private String id;
 
@@ -215,9 +212,14 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
             return "id=".concat(id == null ? "null" : id);
         }
         
+        @Override
+        public SingleRecordIdLogger newInstance() {
+            return new SingleRecordIdLogger(this);
+        }
+        
     }
         
-    private static class MultiRecordIdLogger extends RecordMonitorXMLFilter {
+    private static class MultiRecordIdLogger extends RecordMonitorXMLFilter implements Cloneable {
 
         private final List<String> ids = new ArrayList<String>();
 
@@ -238,12 +240,16 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         @Override
         public void register(String id) throws SAXException {
             ids.add(id);
-            throw foundException;
         }
 
         @Override
         public String getRecordIdString() {
             return "ids=".concat(ids.toString());
+        }
+        
+        @Override
+        public MultiRecordIdLogger newInstance() {
+            return new MultiRecordIdLogger(this);
         }
         
     }
@@ -262,9 +268,9 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
     protected void drop() {
         if (!subdivide) {
             if (rl == null) {
-                LOG.warn("{} failed transormation; {}", inSource, ex.getMessageAndLocation());
+                LOG.warn("{} failed transformation; {}", (inSource == null ? null : inSource.getSystemId()), ex.getMessageAndLocation());
             } else {
-                LOG.warn("{} failed transormation for {}; {}", inSource, rl.getRecordIdString(), ex.getMessageAndLocation());
+                LOG.warn("{} failed transformation for {}; {}", (inSource == null ? null : inSource.getSystemId()), rl.getRecordIdString(), ex.getMessageAndLocation());
             }
         } else if (rl != null) {
             rl.reset();
@@ -282,41 +288,22 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
     
     @Override
     public Chunk newInstance() {
-        return new Chunk(templates, rl == null ? null : new SingleRecordIdLogger(rl), subdivide);
+        return new Chunk(templates, rl == null ? null : rl.newInstance(), subdivide);
     }
 
     public void writeOutputTo(ContentHandler ch) throws SAXException {
         out.flush(ch, null);
     }
 
-    public UnboundedContentHandlerBuffer getInput(InputSource inSource) {
-        this.inSource = inSource;
+    public UnboundedContentHandlerBuffer getInput(SAXSource source) {
+        this.inSource = source.getInputSource();
+        in.setUnmodifiableParent(source.getXMLReader());
         return in;
     }
 
-    BufferSAXSource getOutput() {
-        return new BufferSAXSource(out, inSource);
+    SAXSource getOutput() {
+        out.setFlushOnParse(true);
+        return new SAXSource(out, inSource);
     }
     
-    static class BufferSAXSource extends SAXSource {
-        
-        private final UnboundedContentHandlerBuffer reader;
-        
-        private BufferSAXSource(UnboundedContentHandlerBuffer reader, InputSource in) {
-            super(reader, in);
-            this.reader = reader;
-        }
-
-        @Override
-        public UnboundedContentHandlerBuffer getXMLReader() {
-            return reader;
-        }
-
-        @Override
-        public void setXMLReader(XMLReader reader) {
-            throw new UnsupportedOperationException("property XMLReader is read-only on "+BufferSAXSource.class);
-        }
-        
-    }
-
 }

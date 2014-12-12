@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -63,9 +64,9 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
     }
     
     @Override
-    public void callback(XMLReader reader, InputSource input) throws SAXException, IOException {
-        File nextFile = convertInToOut(input.getSystemId());
-        StreamCallback.writeToFile(reader, input, nextFile, t);
+    public void callback(SAXSource source) throws SAXException, IOException {
+        File nextFile = convertInToOut(source.getInputSource().getSystemId());
+        StreamCallback.writeToFile(source, nextFile, t);
     }
     
     protected File convertInToOut(String path) {
@@ -84,11 +85,6 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
         path = StreamCallback.getBasename(path);
         URI uri = (new File(path)).toURI();
         return new File(outputBase.resolve(inputBase.relativize(uri)));
-    }
-
-    @Override
-    public void callback(XMLReader reader, String systemId) throws SAXException, IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
