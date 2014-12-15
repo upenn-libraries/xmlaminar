@@ -34,6 +34,10 @@ import javax.xml.transform.stream.StreamResult;
 public class StreamCallback {
     
     static void writeToFile(SAXSource source, File nextFile, Transformer t) throws FileNotFoundException, IOException {
+        File dir = nextFile.getParentFile();
+        if (!dir.isDirectory()) {
+            dir.mkdirs();
+        }
         OutputStream out = new BufferedOutputStream(new FileOutputStream(nextFile));
         StreamResult res = new StreamResult(out);
         res.setSystemId(nextFile);
@@ -47,7 +51,6 @@ public class StreamCallback {
     static void writeToStream(SAXSource source, StreamResult out, Transformer t) throws FileNotFoundException, IOException {
         t.reset();
         try {
-            System.out.println("xmlReader: "+source.getXMLReader());
             t.transform(source, out);
         } catch (TransformerException ex) {
             throw new RuntimeException(ex);

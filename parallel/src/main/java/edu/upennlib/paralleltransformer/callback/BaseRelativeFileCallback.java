@@ -18,12 +18,10 @@ package edu.upennlib.paralleltransformer.callback;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
+import java.nio.file.Path;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXSource;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 /**
  *
@@ -34,22 +32,22 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
     private static final String DEFAULT_OUTPUT_EXTENSION = null;
     private static final boolean DEFAULT_REPLACE_EXTENSION = false;
     
-    private final URI inputBase;
-    private final URI outputBase;
+    private final Path inputBase;
+    private final Path outputBase;
     private final Transformer t;
     protected final String outputExtension;
     protected final boolean replaceExtension;
     
-    private File validateBase(File file) {
+    private Path validateBase(File file) {
         if (!file.isDirectory()) {
             throw new IllegalArgumentException("base file must be a directory: "+file.getAbsolutePath());
         }
-        return file;
+        return file.getAbsoluteFile().toPath().normalize();
     }
     
     public BaseRelativeFileCallback(File inputBase, File outputBase, Transformer t, String outputExtension, boolean replaceExtension) {
-        this.inputBase = validateBase(inputBase).toURI();
-        this.outputBase = validateBase(outputBase).toURI();
+        this.inputBase = validateBase(inputBase);
+        this.outputBase = validateBase(outputBase);
         this.t = t;
         this.outputExtension = (outputExtension == null ? null : ".".concat(outputExtension));
         this.replaceExtension = replaceExtension;
@@ -77,14 +75,14 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
                 path = path.concat(outputExtension);
             }
         }
-        URI uri = (new File(path)).toURI();
-        return new File(outputBase.resolve(inputBase.relativize(uri)));
+        Path tmp = new File(path).getAbsoluteFile().toPath().normalize();
+        return outputBase.resolve(inputBase.relativize(tmp)).toFile();
     }
-
+    
     protected File convertInToOutBase(String path) {
         path = StreamCallback.getBasename(path);
-        URI uri = (new File(path)).toURI();
-        return new File(outputBase.resolve(inputBase.relativize(uri)));
+        Path tmp = new File(path).getAbsoluteFile().toPath().normalize();
+        return outputBase.resolve(inputBase.relativize(tmp)).toFile();
     }
 
     @Override

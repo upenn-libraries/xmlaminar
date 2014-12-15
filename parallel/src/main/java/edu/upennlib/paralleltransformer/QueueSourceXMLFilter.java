@@ -30,6 +30,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -349,11 +350,8 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                     r = new InputStreamReader(in, encoding);
                 } else {
                     try {
-                        URI inputURI = new URI(input.getSystemId());
-                        inputURI = (new File("").toURI()).resolve(inputURI);
-                        r = new BufferedReader(new InputStreamReader(inputURI.toURL().openStream(), encoding));
-                    } catch (URISyntaxException ex) {
-                        throw new RuntimeException(ex);
+                        File inputPath = new File(input.getSystemId()).getAbsoluteFile();
+                        r = new BufferedReader(new InputStreamReader(inputPath.toURI().toURL().openStream(), encoding));
                     } catch (MalformedURLException ex) {
                         throw new RuntimeException(ex);
                     } catch (IOException ex) {
