@@ -19,12 +19,20 @@ package edu.upennlib.xmlutils.driver;
 import edu.upennlib.paralleltransformer.JoiningXMLFilter;
 import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
 import edu.upennlib.paralleltransformer.SerializingXMLFilter;
+import edu.upennlib.paralleltransformer.callback.BaseRelativeFileCallback;
+import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
+import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -37,6 +45,7 @@ import org.xml.sax.XMLFilter;
  */
 public class JoinCommand implements Command {
 
+    private static final TransformerFactory tf;
     protected File filesFrom;
     protected OptionSpec<File> filesFromSpec;
     protected String delim;
@@ -44,6 +53,8 @@ public class JoinCommand implements Command {
     protected OptionSpec<String> inputDelimiterSpec;
     protected File output;
     protected OptionSpec<File> outputFileSpec;
+    protected OptionSpec joinAllSpec;
+    protected boolean joinAll;
 
     protected OptionSpec verboseSpec;
     protected OptionSpec helpSpec;
@@ -55,6 +66,10 @@ public class JoinCommand implements Command {
     protected final boolean last;
     
     private InputSource inSource;
+    
+    static {
+        tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+    }
     
     protected JoinCommand(String[] args, boolean first, boolean last) {
         this.args = args;
@@ -74,6 +89,7 @@ public class JoinCommand implements Command {
                     .withRequiredArg().ofType(File.class)
                     .describedAs("'-' for stdout");
         }
+        joinAllSpec = parser.acceptsAll(Flags.JOIN_ALL_ARG, "join all output, irrespective of input systemId");
         verboseSpec = parser.acceptsAll(Flags.VERBOSE_ARG, "be more verbose");
         helpSpec = parser.acceptsAll(Flags.HELP_ARG, "show help").forHelp();
     }
@@ -91,6 +107,7 @@ public class JoinCommand implements Command {
         if (options.has(helpSpec)) {
             return false;
         }
+        joinAll = options.has(joinAllSpec);
         if (first) {
             if (options.has(nullDelimitedSpec)) {
                 delim = Character.toString('\0');
@@ -144,16 +161,33 @@ public class JoinCommand implements Command {
         if (!init(parser.parse(args))) {
             return null;
         }
-        JoiningXMLFilter joiner = new JoiningXMLFilter();
+        JoiningXMLFilter joiner = new JoiningXMLFilter(!joinAll);
         if (filesFrom != null) {
             joiner.setInputType(QueueSourceXMLFilter.InputType.indirect);
         }
         if (!last) {
             return joiner;
         } else {
-            SerializingXMLFilter serializer = new SerializingXMLFilter(output);
-            serializer.setParent(joiner);
-            return serializer;
+            if (joinAll) {
+                SerializingXMLFilter serializer = new SerializingXMLFilter(output);
+                serializer.setParent(joiner);
+                return serializer;
+            } else {
+                Transformer t;
+                try {
+                    t = tf.newTransformer();
+                } catch (TransformerConfigurationException ex) {
+                    throw new RuntimeException(ex);
+                }
+                if ("-".equals(output.getPath())) {
+                    joiner.setOutputCallback(new StdoutCallback(t));
+                } else if (output.isDirectory()) {
+                    joiner.setOutputCallback(new BaseRelativeFileCallback(inputBase, output, t));
+                } else {
+                    joiner.setOutputCallback(new StaticFileCallback(t, output));
+                }
+                return joiner;
+            }
         }
     }
 

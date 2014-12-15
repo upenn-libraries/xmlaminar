@@ -47,6 +47,7 @@ public class StreamCallback {
     static void writeToStream(SAXSource source, StreamResult out, Transformer t) throws FileNotFoundException, IOException {
         t.reset();
         try {
+            System.out.println("xmlReader: "+source.getXMLReader());
             t.transform(source, out);
         } catch (TransformerException ex) {
             throw new RuntimeException(ex);

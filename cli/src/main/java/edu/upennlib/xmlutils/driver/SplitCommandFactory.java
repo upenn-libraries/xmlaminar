@@ -115,7 +115,7 @@ class SplitCommandFactory extends CommandFactory {
         @Override
         public File getInputBase() {
             if (input == null) {
-                return null;
+                return new File("");
             } else if ("-".equals(input.getPath())) {
                 return null;
             } else if (!input.isDirectory()) {

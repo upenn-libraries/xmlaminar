@@ -55,5 +55,6 @@ public class Flags {
     public static final List<String> RECORD_ID_XPATH_ARG = unmodifiableList(asList("record-xpath"));
     public static final List<String> SUBDIVIDE_ARG = unmodifiableList(asList("s", "subdivide-on-failure"));
     public static final List<String> OUTPUT_BASE_NAME_ARG = unmodifiableList(asList("b", "output-basename"));
+    public static final List<String> JOIN_ALL_ARG = unmodifiableList(asList("a", "all"));
 
 }

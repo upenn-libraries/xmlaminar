@@ -24,6 +24,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Iterator;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Future;
+import java.util.concurrent.Phaser;
+import java.util.concurrent.SynchronousQueue;
+import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -67,7 +72,15 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
 
     public JoiningXMLFilter(boolean multiOut) {
         this.multiOut = multiOut;
-        this.synchronousParser = (multiOut ? new SynchronousParser(this) : null);
+        if (multiOut) {
+            parseBeginPhaser = new Phaser(2);
+            parseEndPhaser = new Phaser(2);
+            this.synchronousParser = new SynchronousParser(this);
+        } else {
+            parseBeginPhaser = null;
+            parseEndPhaser = null;
+            this.synchronousParser = null;
+        }
         initialEventContentHandler = new InitialEventContentHandler();
         startEvents = new ArrayDeque<StructuralStartEvent>();
     }
@@ -104,14 +117,37 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
 
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
-        reset();
-        super.parse(input);
+        parse(input, null);
     }
     
     @Override
     public void parse(String systemId) throws SAXException, IOException {
+        parse(null, systemId);
+    }
+    
+    private void parse(InputSource input, String systemId) throws SAXException, IOException {
         reset();
-        super.parse(systemId);
+        try {
+            if (input != null) {
+                super.parse(input);
+            } else {
+                super.parse(systemId);
+            }
+        } catch (Throwable t) {
+            try {
+                if (consumerThrowable == null) {
+                    producerThrowable = t;
+                    consumerTask.cancel(true);
+                } else {
+                    t = consumerThrowable;
+                    consumerThrowable = null;
+                }
+            } finally {
+                outputCallback.finished(t);
+                throw new RuntimeException(t);
+            }
+        }
+        outputCallback.finished(null);
     }
 
     private String lastSystemId;
@@ -123,12 +159,12 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
         }
         setupParse(initialEventContentHandler);
         if (multiOut) {
+            OutputLooper outLoop = new OutputLooper(Thread.currentThread());
+            consumerTask = getExecutor().submit(outLoop);
             lastSystemId = in.getSystemId();
             try {
-                outputCallback.callback(new SAXSource(synchronousParser, in.getInputSource()));
-            } catch (SAXException ex) {
-                throw new RuntimeException(ex);
-            } catch (IOException ex) {
+                callbackQueue.put(in.getInputSource());
+            } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
         }
@@ -145,25 +181,22 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
             } else {
                 lastSystemId = systemId;
                 try {
-                    finished();
+                    localFinished();
                 } catch (SAXException ex) {
                     throw new RuntimeException(ex);
                 }
                 reset();
                 setupParse(initialEventContentHandler);
                 try {
-                    outputCallback.callback(new SAXSource(synchronousParser, in.getInputSource()));
-                } catch (SAXException ex) {
-                    throw new RuntimeException(ex);
-                } catch (IOException ex) {
+                    callbackQueue.put(in.getInputSource());
+                } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
             }
         }
     }
 
-    @Override
-    public void finished() throws SAXException {
+    private void localFinished() throws SAXException {
         super.setContentHandler(outputContentHandler);
         Iterator<StructuralStartEvent> iter = startEvents.iterator();
         while (iter.hasNext()) {
@@ -180,6 +213,57 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
             }
         }
     }
+    
+    @Override
+    public void finished() throws SAXException {
+        localFinished();
+        try {
+            callbackQueue.put(END_OUTPUT_LOOP);
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private static final InputSource END_OUTPUT_LOOP = new InputSource();
+    
+    private final BlockingQueue<InputSource> callbackQueue = new SynchronousQueue<InputSource>();
+    
+    private class OutputLooper implements Runnable {
+
+        private final Thread producer;
+        
+        private OutputLooper(Thread producer) {
+            this.producer = producer;
+        }
+        
+        private void relayOutputCallbacks() throws SAXException, IOException, InterruptedException {
+            InputSource in;
+            while ((in = callbackQueue.take()) != END_OUTPUT_LOOP) {
+                outputCallback.callback(new SAXSource(synchronousParser, in));
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                relayOutputCallbacks();
+            } catch (Throwable t) {
+                if (producerThrowable == null) {
+                    consumerThrowable = t;
+                    producer.interrupt();
+                } else {
+                    t = producerThrowable;
+                    producerThrowable = null;
+                    throw new RuntimeException(t);
+                }
+            }
+        }
+
+    }
+    
+    private Throwable producerThrowable;
+    private Throwable consumerThrowable;
+    private Future<?> consumerTask;
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
@@ -212,6 +296,8 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
         this.outputCallback = callback;
     }
     
+    private final Phaser parseBeginPhaser;
+    private final Phaser parseEndPhaser;
     private final XMLFilterImpl synchronousParser;
     
     private class SynchronousParser extends XMLFilterImpl {
@@ -229,9 +315,30 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
         public void parse(InputSource input) throws SAXException, IOException {
             parse();
         }
+
+        @Override
+        public void startDocument() throws SAXException {
+            try {
+                parseBeginPhaser.awaitAdvanceInterruptibly(parseBeginPhaser.arrive());
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+            super.startDocument();
+        }
         
+        @Override
+        public void endDocument() throws SAXException {
+            super.endDocument();
+            parseEndPhaser.arrive();
+        }
+
         private void parse() throws SAXException, IOException {
-            
+            parseBeginPhaser.arrive();
+            try {
+                parseEndPhaser.awaitAdvanceInterruptibly(parseEndPhaser.arrive());
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
         }
         
     }
