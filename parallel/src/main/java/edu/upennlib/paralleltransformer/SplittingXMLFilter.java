@@ -60,18 +60,6 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         sxf.setOutputCallback(new StdoutCallback());
         sxf.setInputType(InputType.indirect);
         sxf.parse(new InputSource("../cli/whole-indirect.txt"));
-        sxf.reset();
-        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
-        sxf.reset();
-        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
-        sxf.reset();
-        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
-        sxf.reset();
-        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
-        sxf.reset();
-        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
-        sxf.reset();
-        sxf.parse(new InputSource("../cli/whole-indirect.txt"));
     }
     
     public void ensureCleanInitialState() {
@@ -160,7 +148,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
             splitDirector.reset();
         }
         startEventStack.clear();
-        if (!parsing.compareAndSet(false, false)) {
+        if (!parsing.compareAndSet(false, false) && !cancel) {
             LOG.warn("at {}.reset(), parsing had been set to true", SplittingXMLFilter.class.getName(), new IllegalStateException());
         }
     }

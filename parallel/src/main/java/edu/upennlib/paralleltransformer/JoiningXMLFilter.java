@@ -117,15 +117,23 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
 
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
-        parse(input, null);
+        if (multiOut) {
+            parseMultiOut(input, null);
+        } else {
+            parse(input, null);
+        }
     }
     
     @Override
     public void parse(String systemId) throws SAXException, IOException {
-        parse(null, systemId);
+        if (multiOut) {
+            parseMultiOut(null, systemId);
+        } else {
+            parse(null, systemId);
+        }
     }
     
-    private void parse(InputSource input, String systemId) throws SAXException, IOException {
+    private void parseMultiOut(InputSource input, String systemId) throws SAXException, IOException {
         reset();
         try {
             if (input != null) {
@@ -148,6 +156,15 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
             }
         }
         outputCallback.finished(null);
+    }
+
+    private void parse(InputSource input, String systemId) throws SAXException, IOException {
+        reset();
+        if (input != null) {
+            super.parse(input);
+        } else {
+            super.parse(systemId);
+        }
     }
 
     private String lastSystemId;

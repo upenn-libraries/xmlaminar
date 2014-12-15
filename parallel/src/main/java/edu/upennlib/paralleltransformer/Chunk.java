@@ -278,9 +278,9 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
             } catch (SAXException ex) {
                 // NOOP
             }
-            LOG.warn("dropping {}; {}", rl.getRecordIdString(), ex.getMessageAndLocation());
+            LOG.warn("partial failure processing {}; dropped {}; {}", (inSource == null ? null : inSource.getSystemId()), rl.getRecordIdString(), ex.getMessageAndLocation());
         } else {
-            LOG.warn("dropping chunk; {}", ex.getMessageAndLocation());
+            LOG.warn("partial failure processing {}; dropped chunk; {}", (inSource == null ? null : inSource.getSystemId()), ex.getMessageAndLocation());
         }
         super.drop();
     }
@@ -298,7 +298,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         this.inSource = source.getInputSource();
         XMLReader reader = source.getXMLReader();
         in.setUnmodifiableParent(reader);
-        if (!subdivide) {
+        if (!subdivide && rl != null) {
             rl.setParent(reader);
             source.setXMLReader(rl);
         }
