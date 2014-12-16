@@ -630,12 +630,16 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
                 try {
                     switch (outputFieldColumnTypes[i]) {
                         case Types.NUMERIC:
-                            switch (expectedInputImplementation) {
-                                case CHAR_ARRAY:
-                                    readerContent = new StringReader(Long.toString(rs.getLong(outputFieldLabels[i])));
-                                    break;
-                                case BYTE_ARRAY:
-                                    binaryContent = new ByteArrayInputStream(Long.toString(rs.getLong(outputFieldLabels[i])).getBytes());
+                            long val = rs.getLong(outputFieldLabels[i]);
+                            if (!rs.wasNull()) {
+                                String valString = Long.toString(val);
+                                switch (expectedInputImplementation) {
+                                    case CHAR_ARRAY:
+                                        readerContent = new StringReader(valString);
+                                        break;
+                                    case BYTE_ARRAY:
+                                        binaryContent = new ByteArrayInputStream(valString.getBytes());
+                                }
                             }
                             break;
                         case Types.TIMESTAMP:
