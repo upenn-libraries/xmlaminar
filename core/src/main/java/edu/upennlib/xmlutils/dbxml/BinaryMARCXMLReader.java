@@ -70,7 +70,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     private long currentId = -1;
     private boolean logRecordAsError = false;
     private String logRecordErrorMessage;
-    private boolean printStackTraces = false;
+    private final boolean printStackTraces = false;
     private static final Logger logger = Logger.getLogger(BinaryMARCXMLReader.class);
 
     private static final int BYTE_BUFFER_INIT_SIZE = 2048;
