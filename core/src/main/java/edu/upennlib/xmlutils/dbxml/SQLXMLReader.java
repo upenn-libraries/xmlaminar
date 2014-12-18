@@ -178,7 +178,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         if (name.equals("http://xml.org/sax/properties/lexical-handler")) {
             return lh;
         }
-        throw new UnsupportedOperationException("getProperty("+name+")");
+        throw new SAXNotRecognizedException("getProperty("+name+")");
     }
 
     @Override
@@ -186,7 +186,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         if (name.equals("http://xml.org/sax/properties/lexical-handler")) {
             lh = (LexicalHandler)value;
         } else {
-            throw new UnsupportedOperationException("setProperty("+name+", "+value+")");
+            throw new SAXNotRecognizedException("setProperty("+name+", "+value+")");
         }
     }
 

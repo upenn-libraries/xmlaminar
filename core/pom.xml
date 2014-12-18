@@ -95,7 +95,7 @@
             <groupId>edu.upennlib</groupId>
             <artifactId>db-utils</artifactId>
             <version>1.2</version>
-            <optional>true</optional>
+            <optional>false</optional>
         </dependency>
         <dependency>
             <groupId>net.sf.saxon</groupId>
