@@ -45,6 +45,7 @@ public class Driver {
             Class.forName(ProcessCommandFactory.class.getCanonicalName());
             Class.forName(JoinCommandFactory.class.getCanonicalName());
             Class.forName(TeeCommandFactory.class.getCanonicalName());
+            Class.forName(RSXMLReaderCommandFactory.class.getCanonicalName());
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }

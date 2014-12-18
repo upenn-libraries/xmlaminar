@@ -56,5 +56,19 @@ public class Flags {
     public static final List<String> SUBDIVIDE_ARG = unmodifiableList(asList("s", "subdivide-on-failure"));
     public static final List<String> OUTPUT_BASE_NAME_ARG = unmodifiableList(asList("b", "output-basename"));
     public static final List<String> JOIN_ALL_ARG = unmodifiableList(asList("a", "all"));
+    public static final List<String> NO_INDENT_ARG = unmodifiableList(asList("no-indent"));
 
+    /*
+    SQL OPTIONS
+     */
+    public static final List<String> NAME_ARG = unmodifiableList(asList("name"));
+    public static final List<String> CONNECTION_CONFIG_FILE_ARG = unmodifiableList(asList("connection-config-file"));
+    public static final List<String> ID_FIELD_LABELS_ARG = unmodifiableList(asList("id-field-labels"));
+    public static final List<String> SQL_ARG = unmodifiableList(asList("sql"));
+
+    /*
+    CONFIG OPTIONS
+    */
+    public static final List<String> FILTER_ARG = unmodifiableList(asList("filter"));
+    
 }

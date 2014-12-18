@@ -52,6 +52,8 @@ public abstract class MultiOutCommand implements Command {
     protected OptionSpec<Integer> suffixLengthSpec;
     protected String outputExtension;
     protected OptionSpec<String> outputExtensionSpec;
+    protected boolean noIndent;
+    protected OptionSpec noIndentSpec;
 
     protected OptionSpec verboseSpec;
     protected OptionSpec helpSpec;
@@ -91,6 +93,7 @@ public abstract class MultiOutCommand implements Command {
                     .withRequiredArg().ofType(Integer.class).defaultsTo(5);
             outputExtensionSpec = parser.acceptsAll(Flags.OUTPUT_EXTENSION_ARG, "optional additional suffix")
                     .withRequiredArg().ofType(String.class);
+            noIndentSpec = parser.acceptsAll(Flags.NO_INDENT_ARG, "prevent default indenting of output");
         }
         verboseSpec = parser.acceptsAll(Flags.VERBOSE_ARG, "be more verbose");
         helpSpec = parser.acceptsAll(Flags.HELP_ARG, "show help").forHelp();
@@ -130,6 +133,7 @@ public abstract class MultiOutCommand implements Command {
             }
         }
         if (last) {
+            noIndent = options.has(noIndentSpec);
             suffixLength = options.valueOf(suffixLengthSpec);
             outputExtension = options.valueOf(outputExtensionSpec);
             if (options.has(baseFileSpec)) {
@@ -152,13 +156,14 @@ public abstract class MultiOutCommand implements Command {
         return true;
     }
 
-    protected static void configureInputSource(InputSource in, File file) throws FileNotFoundException {
+    protected static InputSource configureInputSource(InputSource in, File file) throws FileNotFoundException {
         if ("-".equals(file.getPath())) {
             in.setByteStream(System.in);
         } else {
             in.setByteStream(new BufferedInputStream(new FileInputStream(file)));
             in.setSystemId(file.getAbsolutePath());
         }
+        return in;
     }
 
         @Override

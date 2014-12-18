@@ -42,9 +42,8 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.EntityResolver;
@@ -73,15 +72,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     private Boolean[] requireForWrite;
     private String name;
     private File dumpFile;
-    private static final Logger logger = Logger.getLogger(IntegratorOutputNode.class);
-
-    public File getDumpFile() {
-        return dumpFile;
-    }
-
-    public void setDumpFile(File file) {
-        dumpFile = file;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(IntegratorOutputNode.class);
 
     private List<String> descendentsSpring = null;
     public void setDescendentsSpring(List<String> descendentsSpring) {
@@ -396,8 +387,6 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     private final LinkedHashSet<Integer> requiredIndexes = new LinkedHashSet<Integer>();
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, TransformerConfigurationException, TransformerException {
-        BasicConfigurator.configure();
-        logger.setLevel(Level.TRACE);
         IntegratorOutputNode root = new IntegratorOutputNode();
         root.addDescendent("/record/marc", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/marc.xml")), false);
         root.addDescendent("/record/holdings/holding", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/hldg.xml")), false);
