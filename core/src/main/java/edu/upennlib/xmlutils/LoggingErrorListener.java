@@ -61,7 +61,7 @@ public class LoggingErrorListener implements ErrorListener {
     
     private void log(TransformerException ex, ErrorLevel el) {
         LogLevel logLevel = levelMap.get(el);
-        switch (levelMap.get(el)) {
+        switch (logLevel) {
             case TRACE:
                 if (logger.isTraceEnabled()) {
                     logger.trace(ex.getMessageAndLocation());

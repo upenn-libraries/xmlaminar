@@ -17,7 +17,7 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
-import edu.upennlib.xmlutils.DumpingContentHandler;
+import edu.upennlib.xmlutils.DumpingLexicalXMLFilter;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.EOFException;
 import java.io.File;
@@ -64,7 +64,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
-    private final boolean debugging = true;
+    private static final boolean debugging = true;
     private final StatefulXMLFilter inputFilter;
     private ContentHandler output;
     private ContentHandler rawOutput;
@@ -294,7 +294,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     private void assignOutput(ContentHandler ch) {
         rawOutput = ch;
         if (dumpFile != null) {
-            DumpingContentHandler dumper = new DumpingContentHandler();
+            DumpingLexicalXMLFilter dumper = new DumpingLexicalXMLFilter();
             dumper.setDumpFile(dumpFile);
             dumper.setContentHandler(ch);
             output = dumper;

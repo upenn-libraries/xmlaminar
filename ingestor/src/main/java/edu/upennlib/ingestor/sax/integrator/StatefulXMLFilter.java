@@ -16,6 +16,7 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
+import edu.upennlib.xmlutils.EchoingContentHandler;
 import edu.upennlib.xmlutils.DevNullContentHandler;
 import edu.upennlib.xmlutils.SAXFeatures;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;

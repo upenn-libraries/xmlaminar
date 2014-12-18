@@ -18,9 +18,9 @@ package edu.upennlib.ingestor;
 
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
-import edu.upennlib.paralleltransformer.TransformingXMLFilter;
+import edu.upennlib.paralleltransformer.TXMLFilter;
 import edu.upennlib.solrposter.SAXSolrPoster;
-import edu.upennlib.xmlutils.DumpingContentHandler;
+import edu.upennlib.xmlutils.DumpingLexicalXMLFilter;
 import edu.upennlib.xmlutils.dbxml.PerformanceEvaluator;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -57,7 +57,7 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
     private String name = null;
     private IntegratorOutputNode integrator = null;
     private SAXSolrPoster solrPoster = null;
-    private TransformingXMLFilter joiner = null;
+    private TXMLFilter joiner = null;
     private static final Logger logger = Logger.getLogger(SAXIngestor.class);
     private PerformanceEvaluator pe;
     private volatile boolean ingestSuccessful = false;
@@ -68,13 +68,13 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
     private boolean autoRollback = DEFAULT_AUTOROLLBACK;
     private boolean autoCommit = DEFAULT_AUTOCOMMIT;
     private URI solrServerURI;
-    private DumpingContentHandler dch;
+    private DumpingLexicalXMLFilter dch;
 
     public void setDumpFile(File file) {
         if (file == null) {
             dch = null;
         } else {
-            dch = new DumpingContentHandler();
+            dch = new DumpingLexicalXMLFilter();
             dch.setDumpFile(file);
         }
     }
@@ -136,11 +136,11 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
         this.integrator = integrator;
     }
 
-    public TransformingXMLFilter getJoiner() {
+    public TXMLFilter getJoiner() {
         return joiner;
     }
 
-    public void setJoiner(TransformingXMLFilter joiner) {
+    public void setJoiner(TXMLFilter joiner) {
         this.joiner = joiner;
     }
 
@@ -156,7 +156,7 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
     public void run() {
         logger.trace("run() called on " + getName());
         long start = System.currentTimeMillis();
-        SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance(TransformingXMLFilter.TRANSFORMER_FACTORY_CLASS_NAME, null);
+        SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t;
         try {
             t = tf.newTransformer();
@@ -164,7 +164,7 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
             throw new RuntimeException(ex);
         }
         joiner.configureOutputTransformer((Controller) t);
-        joiner.setStreamingParent(integrator);
+        joiner.setParent(integrator);
         SolrServer server = solrPoster.getServer();
         if (autoRollback) {
             System.out.println("registering shutdown hook");

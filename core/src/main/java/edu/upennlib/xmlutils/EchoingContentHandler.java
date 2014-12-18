@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.upennlib.ingestor.sax.integrator;
+package edu.upennlib.xmlutils;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
