@@ -16,9 +16,11 @@
 
 package edu.upennlib.xmlutils.driver;
 
+import java.io.StringReader;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  *
@@ -66,9 +68,4 @@ public class Flags {
     public static final List<String> ID_FIELD_LABELS_ARG = unmodifiableList(asList("id-field-labels"));
     public static final List<String> SQL_ARG = unmodifiableList(asList("sql"));
 
-    /*
-    CONFIG OPTIONS
-    */
-    public static final List<String> FILTER_ARG = unmodifiableList(asList("filter"));
-    
 }

@@ -27,8 +27,8 @@ class JoinCommandFactory extends CommandFactory {
     }
     
     @Override
-    public Command newCommand(String[] args, boolean first, boolean last) {
-        return new JoinCommand(args, first, last);
+    public Command newCommand(boolean first, boolean last) {
+        return new JoinCommand(first, last);
     }
 
     @Override

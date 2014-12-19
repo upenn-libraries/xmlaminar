@@ -33,10 +33,13 @@ import java.util.logging.Logger;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 
 /**
@@ -61,7 +64,6 @@ public class JoinCommand implements Command {
 
     protected final OptionParser parser;
     
-    private final String[] args;
     protected final boolean first;
     protected final boolean last;
     
@@ -71,8 +73,7 @@ public class JoinCommand implements Command {
         tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
     }
     
-    protected JoinCommand(String[] args, boolean first, boolean last) {
-        this.args = args;
+    protected JoinCommand(boolean first, boolean last) {
         this.first = first;
         this.last = last;
         parser = new OptionParser();
@@ -157,7 +158,7 @@ public class JoinCommand implements Command {
     }
 
     @Override
-    public XMLFilter getXMLFilter(File inputBase, CommandType maxType) {
+    public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
         if (!init(parser.parse(args))) {
             return null;
         }
@@ -198,6 +199,11 @@ public class JoinCommand implements Command {
 
     @Override
     public File getInputBase() {
+        return null;
+    }
+
+    @Override
+    public ContentHandler getConfiguringContentHandler(File inputBase, CommandType maxType) {
         return null;
     }
 

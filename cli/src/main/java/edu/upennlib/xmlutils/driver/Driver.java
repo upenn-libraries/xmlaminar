@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import javax.xml.transform.TransformerConfigurationException;
@@ -36,6 +37,7 @@ import org.xml.sax.XMLReader;
  */
 public class Driver {
 
+    public static final String CONFIG_NAMESPACE_URI = "http://library.upenn.edu/xml-utils/config";
     private static final Logger logger = LoggerFactory.getLogger(Driver.class);
     
     static {
@@ -46,27 +48,29 @@ public class Driver {
             Class.forName(JoinCommandFactory.class.getCanonicalName());
             Class.forName(TeeCommandFactory.class.getCanonicalName());
             Class.forName(RSXMLReaderCommandFactory.class.getCanonicalName());
+            Class.forName(ConfigCommandFactory.class.getCanonicalName());
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }
         
     }
     
-    private static CommandType updateType(CommandType current, CommandType next) {
+    public static CommandType updateType(CommandType current, CommandType next) {
         return (next.compareTo(current) > 0 ? next : current);
     }
     
     public static void main(String[] args) throws IOException, TransformerConfigurationException {
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
-        LinkedList<Command> commands = buildCommandList(args, cfs);
-        Iterator<Command> iter = commands.iterator();
+        LinkedHashMap<Command, String[]> commands = buildCommandList(args, cfs);
+        Iterator<Map.Entry<Command, String[]>> iter = commands.entrySet().iterator();
         XMLFilter previous;
         InputSource in;
         File inputBase;
         CommandType maxType = null;
         if (iter.hasNext()) {
-            Command command = iter.next();
-            previous = command.getXMLFilter(null, maxType);
+            Map.Entry<Command, String[]> commandEntry = iter.next();
+            Command command = commandEntry.getKey();
+            previous = command.getXMLFilter(commandEntry.getValue(), null, maxType);
             if (previous == null) {
                 command.printHelpOn(System.err);
                 return;
@@ -75,8 +79,9 @@ public class Driver {
             in = command.getInput();
             maxType = command.getCommandType();
             while (iter.hasNext()) {
-                command = iter.next();
-                XMLFilter child = command.getXMLFilter(inputBase, maxType);
+                commandEntry = iter.next();
+                command = commandEntry.getKey();
+                XMLFilter child = command.getXMLFilter(commandEntry.getValue(), inputBase, maxType);
                 if (child == null) {
                     command.printHelpOn(System.err);
                     return;
@@ -113,8 +118,8 @@ public class Driver {
     
     private static final String LS = System.lineSeparator();
     
-    private static LinkedList<Command> buildCommandList(String[] args, Map<String, CommandFactory> cfs) {
-        LinkedList<Command> commandList = new LinkedList<Command>();
+    private static LinkedHashMap<Command, String[]> buildCommandList(String[] args, Map<String, CommandFactory> cfs) {
+        LinkedHashMap<Command, String[]> commandMap = new LinkedHashMap<Command, String[]>();
         CommandFactory current = null;
         int argStart = -1;
         boolean first = true;
@@ -123,7 +128,7 @@ public class Driver {
                 CommandFactory cf = cfs.get(args[i].substring(2));
                 if (cf != null) {
                     if (current != null) {
-                        commandList.add(current.newCommand(Arrays.copyOfRange(args, argStart, i), first, false));
+                        commandMap.put(current.newCommand(first, false), Arrays.copyOfRange(args, argStart, i));
                         first = false;
                     }
                     argStart = i + 1;
@@ -132,9 +137,9 @@ public class Driver {
             }
         }
         if (current != null) {
-            commandList.add(current.newCommand(Arrays.copyOfRange(args, argStart, args.length), first, true));
+            commandMap.put(current.newCommand(first, true), Arrays.copyOfRange(args, argStart, args.length));
         }
-        return commandList;
+        return commandMap;
     }
 
     private static class QuietUEH implements Thread.UncaughtExceptionHandler {

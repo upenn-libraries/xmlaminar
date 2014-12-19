@@ -16,9 +16,15 @@
 
 package edu.upennlib.xmlutils.driver;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
@@ -37,8 +43,8 @@ public abstract class CommandFactory {
         return Collections.unmodifiableMap(AVAILABLE_COMMAND_FACTORIES);
     }
     
-    public abstract Command newCommand(String[] args, boolean first, boolean last);
+    public abstract Command newCommand(boolean first, boolean last);
 
     public abstract String getKey();
-    
+
 }

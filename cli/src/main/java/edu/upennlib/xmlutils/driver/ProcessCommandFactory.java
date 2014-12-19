@@ -43,8 +43,8 @@ class ProcessCommandFactory extends CommandFactory {
     }
     
     @Override
-    public Command newCommand(String[] args, boolean first, boolean last) {
-        return new ProcessCommand(args, first, last);
+    public Command newCommand(boolean first, boolean last) {
+        return new ProcessCommand(first, last);
     }
 
     @Override
@@ -60,15 +60,13 @@ class ProcessCommandFactory extends CommandFactory {
         protected OptionSpec<String> recordIdXPathSpec;
         private boolean subdivide;
         protected OptionSpec subdivideSpec;
-        private final String[] args;
         private TXMLFilter txf;
 
-        public ProcessCommand(String[] args, boolean first, boolean last) {
-            super(args, first, last);
+        public ProcessCommand(boolean first, boolean last) {
+            super(first, last);
             xslSpec = parser.acceptsAll(Flags.XSL_FILE_ARG, "xsl file defining processing templates").withRequiredArg().ofType(File.class);
             recordIdXPathSpec = parser.acceptsAll(Flags.RECORD_ID_XPATH_ARG, "xpath specifying record id location").withRequiredArg().ofType(String.class);
             subdivideSpec = parser.acceptsAll(Flags.SUBDIVIDE_ARG, "define behavior on processing failure");
-            this.args = args;
         }
 
         @Override
@@ -81,7 +79,7 @@ class ProcessCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(File inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
             if (txf != null) {
                 return txf;
             }

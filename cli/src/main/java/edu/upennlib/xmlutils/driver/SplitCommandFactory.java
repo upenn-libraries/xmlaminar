@@ -41,8 +41,8 @@ class SplitCommandFactory extends CommandFactory {
     }
     
     @Override
-    public Command newCommand(String[] args, boolean first, boolean last) {
-        return new SplitCommand(args, first, last);
+    public Command newCommand(boolean first, boolean last) {
+        return new SplitCommand(first, last);
     }
 
     @Override
@@ -54,14 +54,12 @@ class SplitCommandFactory extends CommandFactory {
 
         private int chunkSize;
         protected OptionSpec<Integer> chunkSizeSpec;
-        private final String[] args;
 
-        public SplitCommand(String[] args, boolean first, boolean last) {
-            super(args, first, last);
+        public SplitCommand(boolean first, boolean last) {
+            super(first, last);
             chunkSizeSpec = parser.acceptsAll(Flags.SIZE_ARG, "size (in records) of output files (for split) "
                     + "or processing chunks (for process)").withRequiredArg().ofType(Integer.class)
                     .defaultsTo(100);
-            this.args = args;
         }
 
         @Override
@@ -72,7 +70,7 @@ class SplitCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(File inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
             if (!init(parser.parse(args))) {
                 return null;
             }

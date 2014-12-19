@@ -19,9 +19,13 @@ package edu.upennlib.xmlutils.driver;
 import edu.upennlib.paralleltransformer.SerializingXMLFilter;
 import edu.upennlib.xmlutils.dbxml.RSXMLReader;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.xml.transform.sax.SAXSource;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.helpers.XMLFilterImpl;
 
@@ -35,11 +39,11 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
     }
 
     @Override
-    public Command newCommand(String[] args, boolean first, boolean last) {
+    public Command newCommand(boolean first, boolean last) {
         if (!first) {
             throw new IllegalArgumentException("type "+RSXMLReaderCommandFactory.class+" must be first in pipeline");
         }
-        return new RSXMLReaderCommand(args, first, last);
+        return new RSXMLReaderCommand(first, last);
     }
 
     @Override
@@ -52,15 +56,13 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
         private boolean initialized = false;
         private final RSXMLReader rsxr = new RSXMLReader();
         private XMLFilter ret;
-        private final String[] args;
 
-        public RSXMLReaderCommand(String[] args, boolean first, boolean last) {
-            super(args, first, last);
-            this.args = args;
+        public RSXMLReaderCommand(boolean first, boolean last) {
+            super(first, last);
         }
         
         @Override
-        public XMLFilter getXMLFilter(File inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
             if (initialized) {
                 return ret;
             } else {

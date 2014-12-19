@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 
 /**
@@ -59,13 +60,13 @@ public abstract class MultiOutCommand implements Command {
     protected OptionSpec helpSpec;
 
     protected final OptionParser parser;
-    
+
     protected final boolean first;
     protected final boolean last;
-    
+
     private InputSource inSource;
-    
-    protected MultiOutCommand(String[] args, boolean first, boolean last) {
+
+    protected MultiOutCommand(boolean first, boolean last) {
         this.first = first;
         this.last = last;
         parser = new OptionParser();
@@ -147,7 +148,7 @@ public abstract class MultiOutCommand implements Command {
                 } else if (baseName != null) {
                     output = new File("");
                 } else {
-                    throw new IllegalArgumentException("if "+Flags.FILES_FROM_ARG.get(0)
+                    throw new IllegalArgumentException("if " + Flags.FILES_FROM_ARG.get(0)
                             + " specified, " + Flags.OUTPUT_BASE_NAME_ARG.get(0) + " or "
                             + Flags.OUTPUT_FILE_ARG.get(0) + " must also be specified");
                 }
@@ -166,24 +167,28 @@ public abstract class MultiOutCommand implements Command {
         return in;
     }
 
-        @Override
-        public InputSource getInput() throws FileNotFoundException {
-            if (inSource != null) {
-                return inSource;
-            } else if (first) {
-                inSource = new InputSource();
-                if (filesFrom != null) {
-                    configureInputSource(inSource, filesFrom);
-                } else if (input != null) {
-                    configureInputSource(inSource, input);
-                } else {
-                    throw new AssertionError();
-                }
-                return inSource;
+    @Override
+    public InputSource getInput() throws FileNotFoundException {
+        if (inSource != null) {
+            return inSource;
+        } else if (first) {
+            inSource = new InputSource();
+            if (filesFrom != null) {
+                configureInputSource(inSource, filesFrom);
+            } else if (input != null) {
+                configureInputSource(inSource, input);
             } else {
-                return null;
+                throw new AssertionError();
             }
+            return inSource;
+        } else {
+            return null;
         }
+    }
 
+    @Override
+    public ContentHandler getConfiguringContentHandler(File inputBase, CommandType maxType) {
+        return null;
+    }
 
 }

@@ -36,7 +36,6 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
     public static final String USER_KEY = "user";
     public static final String PASSWORD_KEY = "password";
     private static final Logger LOG = LoggerFactory.getLogger(SQLXMLReaderCommand.class);
-    private final String[] args;
     protected String name;
     private final OptionSpec<String> nameSpec;
     protected String host;
@@ -49,9 +48,8 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
     protected String idFieldLabels;
     private final OptionSpec<String> idFieldLabelsSpec;
 
-    public SQLXMLReaderCommand(String[] args, boolean first, boolean last) {
-        super(args, first, last);
-        this.args = args;
+    public SQLXMLReaderCommand(boolean first, boolean last) {
+        super(first, last);
         nameSpec = parser.acceptsAll(Flags.NAME_ARG, "optional name to identify this source")
                 .withRequiredArg().ofType(String.class);
         connectionConfigFileSpec = parser.acceptsAll(Flags.CONNECTION_CONFIG_FILE_ARG, 

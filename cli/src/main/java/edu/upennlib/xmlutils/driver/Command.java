@@ -18,8 +18,12 @@ package edu.upennlib.xmlutils.driver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.OutputStream;
+import javax.xml.transform.sax.SAXSource;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 
 /**
@@ -28,7 +32,9 @@ import org.xml.sax.XMLFilter;
  */
 public interface Command {
 
-    XMLFilter getXMLFilter(File inputBase, CommandType maxType);
+    XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType);
+    
+    ContentHandler getConfiguringContentHandler(File inputBase, CommandType maxType);
     
     InputSource getInput() throws FileNotFoundException;
     

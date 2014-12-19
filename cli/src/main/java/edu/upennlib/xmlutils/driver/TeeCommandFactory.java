@@ -19,9 +19,13 @@ package edu.upennlib.xmlutils.driver;
 import edu.upennlib.xmlutils.DumpingXMLFilter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import javax.xml.transform.sax.SAXSource;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 
 /**
@@ -35,15 +39,11 @@ class TeeCommandFactory extends CommandFactory {
     }
     
     @Override
-    public Command newCommand(String[] args, boolean first, boolean last) {
+    public Command newCommand(boolean first, boolean last) {
         if (first || last) {
             throw new IllegalArgumentException("Command \""+getKey()+"\" should not be first or last in chain");
         }
-        if (args.length != 1) {
-            throw new IllegalArgumentException("Command \""+getKey()+"\" should have only one argument: dumpfile");
-        }
-        File df = new File(args[0]);
-        return new TeeCommand(df);
+        return new TeeCommand();
     }
 
     @Override
@@ -53,14 +53,12 @@ class TeeCommandFactory extends CommandFactory {
     
     private class TeeCommand implements Command {
 
-        private final File df;
-        
-        private TeeCommand(File df) {
-            this.df = df;
-        }
-        
         @Override
-        public XMLFilter getXMLFilter(File inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
+            if (args.length != 1) {
+                throw new IllegalArgumentException("Command \"" + getKey() + "\" should have only one argument: dumpfile");
+            }
+            File df = new File(args[0]);
             DumpingXMLFilter dxf = new DumpingXMLFilter();
             String path = df.getPath();
             if ("-".equals(path)) {
@@ -94,7 +92,12 @@ class TeeCommandFactory extends CommandFactory {
         public CommandType getCommandType() {
             return CommandType.PASS_THROUGH;
         }
-        
+
+        @Override
+        public ContentHandler getConfiguringContentHandler(File inputBase, CommandType maxType) {
+            return null;
+        }
+
     }
 
 
