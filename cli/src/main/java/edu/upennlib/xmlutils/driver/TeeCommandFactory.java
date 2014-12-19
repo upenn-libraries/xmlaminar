@@ -91,7 +91,7 @@ class TeeCommandFactory extends CommandFactory {
         }
 
         @Override
-        public ContentHandler getConfiguringContentHandler(File inputBase, CommandType maxType) {
+        public XMLFilter getConfiguringXMLFilter(File inputBase, CommandType maxType) {
             return null;
         }
 

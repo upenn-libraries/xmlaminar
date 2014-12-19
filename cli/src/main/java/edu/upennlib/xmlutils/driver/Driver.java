@@ -17,12 +17,14 @@
 package edu.upennlib.xmlutils.driver;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.sax.SAXSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -48,6 +50,7 @@ public class Driver {
             Class.forName(TeeCommandFactory.class.getCanonicalName());
             Class.forName(RSXMLReaderCommandFactory.class.getCanonicalName());
             Class.forName(ConfigCommandFactory.class.getCanonicalName());
+            Class.forName(PipelineCommandFactory.class.getCanonicalName());
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }
@@ -58,10 +61,42 @@ public class Driver {
         return (next.compareTo(current) > 0 ? next : current);
     }
     
-    public static void main(String[] args) throws IOException, TransformerConfigurationException {
-        Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
-        LinkedHashMap<Command, String[]> commands = buildCommandList(args, cfs);
-        Iterator<Map.Entry<Command, String[]>> iter = commands.entrySet().iterator();
+    public static class XMLFilterSource extends SAXSource {
+
+        private XMLFilter filter;
+
+        public XMLFilterSource(XMLReader reader, InputSource inputSource) {
+            super(reader, inputSource);
+            filter = readerToFilter(reader);
+        }
+
+        @Override
+        public XMLFilter getXMLReader() {
+            return filter;
+        }
+        
+        @Override
+        public void setXMLReader(XMLReader reader) {
+            filter = readerToFilter(reader);
+            super.setXMLReader(reader);
+        }
+        
+        public void setXMLFilter(XMLFilter filter) {
+            this.filter = filter;
+            super.setXMLReader(filter);
+        }
+        
+        private static XMLFilter readerToFilter(XMLReader reader) {
+            if (reader instanceof XMLFilter) {
+                return (XMLFilter) reader;
+            } else {
+                throw new IllegalArgumentException("not instanceof "+XMLFilter.class.getSimpleName()+": "+reader);
+            }
+        }
+
+    }
+    
+    public static XMLFilterSource chainCommands(Iterator<Map.Entry<Command, String[]>> iter) throws FileNotFoundException {
         XMLFilter previous;
         InputSource in;
         File inputBase;
@@ -72,7 +107,7 @@ public class Driver {
             previous = command.getXMLFilter(commandEntry.getValue(), null, maxType);
             if (previous == null) {
                 command.printHelpOn(System.err);
-                return;
+                return null;
             }
             inputBase = command.getInputBase();
             in = command.getInput();
@@ -83,23 +118,33 @@ public class Driver {
                 XMLFilter child = command.getXMLFilter(commandEntry.getValue(), inputBase, maxType);
                 if (child == null) {
                     command.printHelpOn(System.err);
-                    return;
+                    return null;
                 }
                 maxType = updateType(maxType, command.getCommandType());
                 getRootParent(child).setParent(previous);
                 previous = child;
             }
+            return new XMLFilterSource(previous, in);
         } else {
             System.err.println("For help with a specific command: " + LS 
                     + "\t--command --help"+LS 
                     +"available commands: "+LS
-                    +"\t"+cfs.keySet());
-            return;
+                    +"\t"+CommandFactory.getAvailableCommandFactories().keySet());
+            return null;
         }
-        try {
-            previous.parse(in);
-        } catch (SAXException ex) {
-            throw new RuntimeException(ex);
+    }
+    
+    public static void main(String[] args) throws IOException, TransformerConfigurationException {
+        Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
+        LinkedHashMap<Command, String[]> commands = buildCommandList(args, cfs);
+        Iterator<Map.Entry<Command, String[]>> iter = commands.entrySet().iterator();
+        SAXSource source = chainCommands(iter);
+        if (source != null) {
+            try {
+                source.getXMLReader().parse(source.getInputSource());
+            } catch (SAXException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
     

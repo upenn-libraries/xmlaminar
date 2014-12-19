@@ -29,6 +29,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.XMLFilter;
 
 /**
  *
@@ -187,7 +188,7 @@ public abstract class MultiOutCommand implements Command {
     }
 
     @Override
-    public ContentHandler getConfiguringContentHandler(File inputBase, CommandType maxType) {
+    public XMLFilter getConfiguringXMLFilter(File inputBase, CommandType maxType) {
         return null;
     }
 

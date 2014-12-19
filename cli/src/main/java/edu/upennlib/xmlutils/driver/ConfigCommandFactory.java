@@ -36,6 +36,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
@@ -60,7 +61,14 @@ public class ConfigCommandFactory extends CommandFactory {
         return KEY;
     }
 
-    private static class ConfigCommand extends XMLFilterImpl implements Command {
+    static void verifyNamespaceURI(String uri) {
+        if (!Driver.CONFIG_NAMESPACE_URI.equals(uri)) {
+            throw new IllegalStateException("bad namespace uri; expected "
+                    + Driver.CONFIG_NAMESPACE_URI + ", found " + uri);
+        }
+    }
+
+    private static class ConfigCommand<T extends XMLFilter & ContentHandler> extends XMLFilterImpl implements Command {
 
         private static final SAXParserFactory spf;
         private static final Set<String> helpArgs;
@@ -125,7 +133,7 @@ public class ConfigCommandFactory extends CommandFactory {
         
         @Override
         public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
-            if (xmlFilter != null && verifyArgsUnchanged(args, inputBase, maxType)) {
+            if (xmlFilter != null && true || verifyArgsUnchanged(args, inputBase, maxType)) {
                 return xmlFilter;
             }
             this.inputBase = inputBase;
@@ -198,6 +206,9 @@ public class ConfigCommandFactory extends CommandFactory {
         public void endElement(String uri, String localName, String qName) throws SAXException {
             if (--depth == 0) {
                 registerTextProps();
+                System.out.println("endElement init xmlFilter"+currentCommand.getClass().getSimpleName());
+                xmlFilter = currentCommand.getXMLFilter(constructCommandLineArgs(), inputBase, maxType);
+                System.out.println("endElement init xmlFilter"+currentCommand.getClass().getSimpleName()+": "+xmlFilter);
             } else if (depth == 1) {
                 props.setProperty(workingPropName, propsBuilder.toString());
                 workingPropName = null;
@@ -222,11 +233,14 @@ public class ConfigCommandFactory extends CommandFactory {
                     throw new IllegalArgumentException("type must be one of " + cfs + "; found " + type);
                 }
                 currentCommand = cf.newCommand(first, last);
-                ContentHandler cch = currentCommand.getConfiguringContentHandler(inputBase, maxType);
+                T cch = currentCommand.getConfiguringXMLFilter(inputBase, maxType);
                 if (cch != null) {
                     delegateDepth = depth;
+                    XMLReader parent = getParent();
+                    parent.setContentHandler(passThrough);
+                    passThrough.setParent(parent);
                     passThrough.setContentHandler(cch);
-                    getParent().setContentHandler(passThrough);
+                    cch.setParent(passThrough);
                     cch.startDocument();
                     cch.startElement(uri, localName, qName, atts);
                 } else {
@@ -284,12 +298,14 @@ public class ConfigCommandFactory extends CommandFactory {
             props.putAll(newProps);
         }
 
-        private final PassThroughXMLFilter passThrough = new PassThroughXMLFilter();
-
         @Override
-        public ContentHandler getConfiguringContentHandler(File inputBase, CommandType maxType) {
+        public XMLFilter getConfiguringXMLFilter(File inputBase, CommandType maxType) {
+            this.inputBase = inputBase;
+            this.maxType = maxType;
             return this;
         }
+
+        private final PassThroughXMLFilter passThrough = new PassThroughXMLFilter();
 
         private class PassThroughXMLFilter extends XMLFilterImpl {
 
@@ -309,13 +325,6 @@ public class ConfigCommandFactory extends CommandFactory {
                 depth++;
             }
 
-        }
-
-        private void verifyNamespaceURI(String uri) {
-            if (!Driver.CONFIG_NAMESPACE_URI.equals(uri)) {
-                throw new IllegalStateException("bad namespace uri at depth " + depth + "; expected "
-                        + Driver.CONFIG_NAMESPACE_URI + ", found " + uri);
-            }
         }
 
         @Override
