@@ -198,9 +198,4 @@ public class JoinCommand implements Command {
         return null;
     }
 
-    @Override
-    public XMLFilter getConfiguringXMLFilter(File inputBase, CommandType maxType) {
-        return null;
-    }
-
 }

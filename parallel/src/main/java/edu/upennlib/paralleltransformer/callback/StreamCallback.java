@@ -16,6 +16,7 @@
 
 package edu.upennlib.paralleltransformer.callback;
 
+import edu.upennlib.paralleltransformer.TXMLFilter;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,12 +27,18 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
 /**
  *
  * @author magibney
  */
 public class StreamCallback {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(StreamCallback.class);
     
     static void writeToFile(SAXSource source, File nextFile, Transformer t) throws FileNotFoundException, IOException {
         File dir = nextFile.getParentFile();
@@ -50,6 +57,13 @@ public class StreamCallback {
 
     static void writeToStream(SAXSource source, StreamResult out, Transformer t) throws FileNotFoundException, IOException {
         t.reset();
+        try {
+            source.getXMLReader().setProperty(TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME, t);
+        } catch (SAXNotRecognizedException ex) {
+            LOG.info("ignoring setProperty({}) on "+source.getXMLReader(), TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
+        } catch (SAXNotSupportedException ex) {
+            LOG.info("ignoring setProperty({}) on "+source.getXMLReader(), TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
+        }
         try {
             t.transform(source, out);
         } catch (TransformerException ex) {

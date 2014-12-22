@@ -16,6 +16,8 @@
 
 package edu.upennlib.xmlutils.driver;
 
+import java.io.File;
+
 /**
  *
  * @author magibney
@@ -34,6 +36,11 @@ class JoinCommandFactory extends CommandFactory {
     @Override
     public String getKey() {
         return "join";
+    }
+
+    @Override
+    public CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType) {
+        return null;
     }
 
 

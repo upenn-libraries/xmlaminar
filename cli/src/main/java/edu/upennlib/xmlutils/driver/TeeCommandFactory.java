@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLFilter;
 
@@ -46,6 +45,11 @@ class TeeCommandFactory extends CommandFactory {
     @Override
     public String getKey() {
         return "tee";
+    }
+
+    @Override
+    public CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType) {
+        return null;
     }
     
     private class TeeCommand implements Command {
@@ -88,11 +92,6 @@ class TeeCommandFactory extends CommandFactory {
         @Override
         public CommandType getCommandType() {
             return CommandType.PASS_THROUGH;
-        }
-
-        @Override
-        public XMLFilter getConfiguringXMLFilter(File inputBase, CommandType maxType) {
-            return null;
         }
 
     }

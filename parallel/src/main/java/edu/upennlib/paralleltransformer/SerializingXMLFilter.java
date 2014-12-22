@@ -43,14 +43,12 @@ import org.xml.sax.helpers.XMLFilterImpl;
 public class SerializingXMLFilter extends XMLFilterImpl {
     
     private static final Logger LOG = LoggerFactory.getLogger(SerializingXMLFilter.class);
-    public static final boolean DEFAULT_NO_INDENT = false;
     private final TransformerHandler th;
     private final File output;
     private final boolean closeOnEndDocument;
-    private final boolean noIndent;
     private StreamResult res;
     
-    public SerializingXMLFilter(File output, boolean closeOnEndDocument, boolean noIndent) {
+    public SerializingXMLFilter(File output, boolean closeOnEndDocument) {
         SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         try {
             th = stf.newTransformerHandler();
@@ -58,16 +56,11 @@ public class SerializingXMLFilter extends XMLFilterImpl {
             throw new RuntimeException(ex);
         }
         this.output = output;
-        this.noIndent = noIndent;
         this.closeOnEndDocument = closeOnEndDocument;
     }
 
-    public SerializingXMLFilter(File output, boolean noIndent) {
-        this(output, !"-".equals(output.getPath()), noIndent);
-    }
-
     public SerializingXMLFilter(File output) {
-        this(output, DEFAULT_NO_INDENT);
+        this(output, !"-".equals(output.getPath()));
     }
 
     @Override
@@ -99,9 +92,6 @@ public class SerializingXMLFilter extends XMLFilterImpl {
         t.reset();
         if (t instanceof Controller) {
             ((Controller) t).clearDocumentPool();
-        }
-        if (!noIndent) {
-            t.setOutputProperty("indent", "yes");
         }
         try {
             setProperty(TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME, t);

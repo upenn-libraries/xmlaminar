@@ -21,6 +21,7 @@ import edu.upennlib.xmlutils.dbxml.RSXMLReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.transform.sax.SAXSource;
@@ -49,6 +50,11 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
     @Override
     public String getKey() {
         return "db-to-xml";
+    }
+
+    @Override
+    public CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType) {
+        return null;
     }
     
     private static class RSXMLReaderCommand extends SQLXMLReaderCommand {
@@ -84,11 +90,14 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
-            System.out.println();
             if (last) {
-                SerializingXMLFilter serializer = new SerializingXMLFilter(output, noIndent);
-                serializer.setParent(ret);
-                return serializer;
+                SerializingXMLFilter serializer = new SerializingXMLFilter(output);
+                if (noIndent) {
+                    serializer.setParent(ret);
+                } else {
+                    serializer.setParent(new OutputTransformerConfigurer(ret, Collections.singletonMap("indent", "yes")));
+                }
+                ret = serializer;
             }
             return ret;
         }

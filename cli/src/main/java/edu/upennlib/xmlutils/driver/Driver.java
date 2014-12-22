@@ -19,9 +19,11 @@ package edu.upennlib.xmlutils.driver;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXSource;
@@ -64,7 +66,14 @@ public class Driver {
     public static class XMLFilterSource extends SAXSource {
 
         private XMLFilter filter;
+        private File inputBase;
+        private CommandType commandType;
 
+        public XMLFilterSource(XMLReader reader, InputSource inputSource, File inputBase, CommandType commandType) {
+            this(reader, inputSource);
+            
+        }
+        
         public XMLFilterSource(XMLReader reader, InputSource inputSource) {
             super(reader, inputSource);
             filter = readerToFilter(reader);
@@ -86,6 +95,14 @@ public class Driver {
             super.setXMLReader(filter);
         }
         
+        public File getInputBase() {
+            return inputBase;
+        }
+        
+        public CommandType getCommandType() {
+            return commandType;
+        }
+    
         private static XMLFilter readerToFilter(XMLReader reader) {
             if (reader instanceof XMLFilter) {
                 return (XMLFilter) reader;
@@ -96,14 +113,15 @@ public class Driver {
 
     }
     
-    public static XMLFilterSource chainCommands(Iterator<Map.Entry<Command, String[]>> iter) throws FileNotFoundException {
+    public static XMLFilterSource chainCommands(boolean first, Iterator<Map.Entry<CommandFactory, String[]>> iter, boolean last) throws FileNotFoundException {
         XMLFilter previous;
         InputSource in;
         File inputBase;
         CommandType maxType = null;
         if (iter.hasNext()) {
-            Map.Entry<Command, String[]> commandEntry = iter.next();
-            Command command = commandEntry.getKey();
+            Map.Entry<CommandFactory, String[]> commandEntry = iter.next();
+            boolean localLast = !iter.hasNext();
+            Command command = commandEntry.getKey().newCommand(first, last && localLast);
             previous = command.getXMLFilter(commandEntry.getValue(), null, maxType);
             if (previous == null) {
                 command.printHelpOn(System.err);
@@ -112,19 +130,26 @@ public class Driver {
             inputBase = command.getInputBase();
             in = command.getInput();
             maxType = command.getCommandType();
-            while (iter.hasNext()) {
+            if (maxType == null) {
+                System.out.println("1"+command+", "+iter);
+            }
+            while (!localLast) {
                 commandEntry = iter.next();
-                command = commandEntry.getKey();
+                localLast = !iter.hasNext();
+                command = commandEntry.getKey().newCommand(false, last && localLast);
                 XMLFilter child = command.getXMLFilter(commandEntry.getValue(), inputBase, maxType);
                 if (child == null) {
                     command.printHelpOn(System.err);
                     return null;
                 }
                 maxType = updateType(maxType, command.getCommandType());
+            if (maxType == null) {
+                System.out.println("2"+command);
+            }
                 getRootParent(child).setParent(previous);
                 previous = child;
             }
-            return new XMLFilterSource(previous, in);
+            return new XMLFilterSource(previous, in, inputBase, maxType);
         } else {
             System.err.println("For help with a specific command: " + LS 
                     + "\t--command --help"+LS 
@@ -136,10 +161,11 @@ public class Driver {
     
     public static void main(String[] args) throws IOException, TransformerConfigurationException {
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
-        LinkedHashMap<Command, String[]> commands = buildCommandList(args, cfs);
-        Iterator<Map.Entry<Command, String[]>> iter = commands.entrySet().iterator();
-        SAXSource source = chainCommands(iter);
+        Iterable<Map.Entry<CommandFactory, String[]>> commands = buildCommandList(args, cfs);
+        Iterator<Map.Entry<CommandFactory, String[]>> iter = commands.iterator();
+        SAXSource source = chainCommands(true, iter, true);
         if (source != null) {
+            System.out.println(source.getXMLReader());
             try {
                 source.getXMLReader().parse(source.getInputSource());
             } catch (SAXException ex) {
@@ -162,8 +188,8 @@ public class Driver {
     
     private static final String LS = System.lineSeparator();
     
-    private static LinkedHashMap<Command, String[]> buildCommandList(String[] args, Map<String, CommandFactory> cfs) {
-        LinkedHashMap<Command, String[]> commandMap = new LinkedHashMap<Command, String[]>();
+    private static Iterable<Map.Entry<CommandFactory, String[]>> buildCommandList(String[] args, Map<String, CommandFactory> cfs) {
+        LinkedList<Map.Entry<CommandFactory, String[]>> commandMap = new LinkedList<Map.Entry<CommandFactory, String[]>>();
         CommandFactory current = null;
         int argStart = -1;
         boolean first = true;
@@ -172,7 +198,7 @@ public class Driver {
                 CommandFactory cf = cfs.get(args[i].substring(2));
                 if (cf != null) {
                     if (current != null) {
-                        commandMap.put(current.newCommand(first, false), Arrays.copyOfRange(args, argStart, i));
+                        commandMap.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(current, Arrays.copyOfRange(args, argStart, i)));
                         first = false;
                     }
                     argStart = i + 1;
@@ -181,7 +207,7 @@ public class Driver {
             }
         }
         if (current != null) {
-            commandMap.put(current.newCommand(first, true), Arrays.copyOfRange(args, argStart, args.length));
+            commandMap.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(current, Arrays.copyOfRange(args, argStart, args.length)));
         }
         return commandMap;
     }

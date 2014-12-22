@@ -187,9 +187,4 @@ public abstract class MultiOutCommand implements Command {
         }
     }
 
-    @Override
-    public XMLFilter getConfiguringXMLFilter(File inputBase, CommandType maxType) {
-        return null;
-    }
-
 }

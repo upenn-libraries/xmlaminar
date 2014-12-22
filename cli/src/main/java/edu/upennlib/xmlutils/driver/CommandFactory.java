@@ -16,15 +16,19 @@
 
 package edu.upennlib.xmlutils.driver;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.XMLFilter;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
  * @author magibney
  */
-public abstract class CommandFactory {
+public abstract class CommandFactory extends XMLFilterImpl {
 
     private static final Map<String, CommandFactory> AVAILABLE_COMMAND_FACTORIES = 
             new HashMap<String, CommandFactory>();
@@ -36,6 +40,8 @@ public abstract class CommandFactory {
     public static Map<String, CommandFactory> getAvailableCommandFactories() {
         return Collections.unmodifiableMap(AVAILABLE_COMMAND_FACTORIES);
     }
+    
+    public abstract CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType);
     
     public abstract Command newCommand(boolean first, boolean last);
 

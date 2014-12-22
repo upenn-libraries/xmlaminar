@@ -31,8 +31,6 @@ public interface Command {
 
     XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType);
     
-    <T extends XMLFilter & ContentHandler> T getConfiguringXMLFilter(File inputBase, CommandType maxType);
-    
     InputSource getInput() throws FileNotFoundException;
     
     File getInputBase();

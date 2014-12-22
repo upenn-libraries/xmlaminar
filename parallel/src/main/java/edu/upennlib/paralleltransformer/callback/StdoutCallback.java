@@ -31,6 +31,7 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 
 /**
@@ -39,17 +40,31 @@ import org.xml.sax.XMLReader;
  */
 public class StdoutCallback implements XMLReaderCallback {
     private final Transformer t;
+    private final XMLFilter outputFilter;
+
+    public StdoutCallback(Transformer t, XMLFilter outputFilter) {
+        this.t = t;
+        this.outputFilter = outputFilter;
+    }
 
     public StdoutCallback(Transformer t) {
-        this.t = t;
+        this(t, null);
+    }
+
+    public StdoutCallback(XMLFilter outputFilter) throws TransformerConfigurationException {
+        this(TransformerFactory.newInstance().newTransformer(), outputFilter);
     }
 
     public StdoutCallback() throws TransformerConfigurationException {
-        this(TransformerFactory.newInstance().newTransformer());
+        this(TransformerFactory.newInstance().newTransformer(), null);
     }
 
     @Override
     public void callback(SAXSource source) throws SAXException, IOException {
+        if (outputFilter != null) {
+            outputFilter.setParent(source.getXMLReader());
+            source.setXMLReader(outputFilter);
+        }
         StreamCallback.writeToStream(source, new StreamResult(System.out), t);
     }
 

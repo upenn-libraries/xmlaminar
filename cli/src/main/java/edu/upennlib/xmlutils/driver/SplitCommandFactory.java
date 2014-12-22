@@ -23,6 +23,7 @@ import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import java.io.File;
+import java.util.Collections;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -48,6 +49,11 @@ class SplitCommandFactory extends CommandFactory {
     @Override
     public String getKey() {
         return "split";
+    }
+
+    @Override
+    public CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType) {
+        return null;
     }
 
     private static class SplitCommand extends MultiOutCommand {
@@ -85,6 +91,7 @@ class SplitCommandFactory extends CommandFactory {
                 } catch (TransformerConfigurationException ex) {
                     throw new RuntimeException(ex);
                 }
+                XMLFilter outputFilter = noIndent ? null : new OutputTransformerConfigurer(Collections.singletonMap("indent", "yes"));
                 if (baseName != null) {
                     File resolvedBase;
                     if (output.isDirectory()) {
@@ -95,7 +102,7 @@ class SplitCommandFactory extends CommandFactory {
                     splitter.setOutputCallback(new IncrementingFileCallback(0,
                             t, suffixLength, resolvedBase, outputExtension));
                 } else if ("-".equals(output.getPath())) {
-                    splitter.setOutputCallback(new StdoutCallback(t));
+                    splitter.setOutputCallback(new StdoutCallback(t, outputFilter));
                 } else if (!output.isDirectory()) {
                     splitter.setOutputCallback(new StaticFileCallback(t, output));
                 } else {

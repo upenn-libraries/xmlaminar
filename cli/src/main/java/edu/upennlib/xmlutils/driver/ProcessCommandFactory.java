@@ -52,6 +52,11 @@ class ProcessCommandFactory extends CommandFactory {
         return "process";
     }
 
+    @Override
+    public CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType) {
+        return null;
+    }
+
     private static class ProcessCommand extends MultiOutCommand {
 
         private File xsl;
@@ -101,7 +106,6 @@ class ProcessCommandFactory extends CommandFactory {
                 } catch (TransformerConfigurationException ex) {
                     throw new RuntimeException(ex);
                 }
-                txf.configureOutputTransformer(t);
                 if (baseName != null) {
                     File resolvedBase;
                     if (output.isDirectory()) {
