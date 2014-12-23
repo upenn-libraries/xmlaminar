@@ -273,7 +273,6 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
             }
         }
         XMLReader parent = super.getParent();
-        System.out.println("parent of "+this+" is "+parent);
         parent.setDTDHandler(this);
         parent.setEntityResolver(this);
         parent.setErrorHandler(this);
@@ -284,7 +283,6 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
     public void parse(InputSource input) throws SAXException, IOException {
         try {
             setupParseLocal();
-            System.out.println(inputType);
             switch (inputType) {
                 case direct:
                     SAXSource source = new SAXSource(super.getParent(), input);

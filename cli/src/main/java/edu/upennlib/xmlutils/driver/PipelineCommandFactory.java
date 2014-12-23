@@ -124,26 +124,18 @@ public class PipelineCommandFactory extends CommandFactory {
                 throw new IllegalArgumentException("type must be one of " + cfs + "; found " + type);
             }
             CommandFactory currentCommandFactory = cf.getConfiguringXMLFilter(first && commandFactories.isEmpty(), inputBase, maxType);
-            if (currentCommandFactory != null) {
-                delegateDepth = depth;
-                XMLReader parent = getParent();
-                parent.setContentHandler(passThrough);
-                passThrough.setParent(parent);
-                passThrough.setContentHandler(currentCommandFactory);
-                currentCommandFactory.setParent(passThrough);
-                currentCommandFactory.startDocument();
-                currentCommandFactory.startElement(uri, localName, qName, atts);
-            } else {
-                currentCommandFactory = new ConfigCommandFactory().getConfiguringXMLFilter(first && commandFactories.isEmpty(), inputBase, maxType);
-                delegateDepth = depth;
-                XMLReader parent = getParent();
-                parent.setContentHandler(passThrough);
-                passThrough.setParent(parent);
-                passThrough.setContentHandler(currentCommandFactory);
-                currentCommandFactory.setParent(passThrough);
-                currentCommandFactory.startDocument();
-                currentCommandFactory.startElement(uri, localName, qName, atts);
+            if (currentCommandFactory == null) {
+                currentCommandFactory = new ConfigCommandFactory(true, first && commandFactories.isEmpty(), inputBase, maxType)
+                        .getConfiguringXMLFilter(first && commandFactories.isEmpty(), inputBase, maxType);
             }
+            delegateDepth = depth;
+            XMLReader parent = getParent();
+            parent.setContentHandler(passThrough);
+            passThrough.setParent(parent);
+            passThrough.setContentHandler(currentCommandFactory);
+            currentCommandFactory.setParent(passThrough);
+            currentCommandFactory.startDocument();
+            currentCommandFactory.startElement(uri, localName, qName, atts);
             commandFactories.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(currentCommandFactory, null));
         } else {
             throw new AssertionError("this should never happen");
@@ -200,7 +192,6 @@ public class PipelineCommandFactory extends CommandFactory {
         @Override
         public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
             try {
-                System.out.println("commandFactories.size()="+commandFactories.size()+", "+first+", "+last);
                 xmlFilterSource = Driver.chainCommands(first, commandFactories.iterator(), last);
             } catch (FileNotFoundException ex) {
                 throw new RuntimeException(ex);

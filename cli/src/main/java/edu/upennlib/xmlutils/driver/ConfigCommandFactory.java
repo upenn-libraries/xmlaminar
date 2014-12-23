@@ -60,7 +60,7 @@ public class ConfigCommandFactory extends CommandFactory {
         this(true, false, null, null);
     }
 
-    private ConfigCommandFactory(boolean direct, boolean first, File inputBase, CommandType maxType) {
+    public ConfigCommandFactory(boolean direct, boolean first, File inputBase, CommandType maxType) {
         this.direct = direct;
         this.first = first;
         this.inputBase = inputBase;
@@ -126,16 +126,12 @@ public class ConfigCommandFactory extends CommandFactory {
     private int depth = -1;
     private final Properties props = new Properties();
     private int delegateDepth = Integer.MAX_VALUE;
-    private boolean configured = false;
     private CommandFactory wrappedCommandFactory;
-    private XMLFilter xmlFilter;
 
     private void reset() {
         props.clear();
         depth = -1;
         delegateDepth = Integer.MAX_VALUE;
-        configured = false;
-        xmlFilter = null;
         propsBuilder.setLength(0);
     }
 
@@ -143,7 +139,6 @@ public class ConfigCommandFactory extends CommandFactory {
     public void endDocument() throws SAXException {
         depth--;
         super.endDocument();
-        configured = true;
     }
 
     @Override

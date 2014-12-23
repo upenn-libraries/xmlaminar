@@ -28,6 +28,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -54,6 +55,8 @@ public class JoinCommand implements Command {
     protected OptionSpec<File> outputFileSpec;
     protected OptionSpec joinAllSpec;
     protected boolean joinAll;
+    protected boolean noIndent;
+    protected OptionSpec noIndentSpec;
 
     protected OptionSpec verboseSpec;
     protected OptionSpec helpSpec;
@@ -85,6 +88,7 @@ public class JoinCommand implements Command {
             outputFileSpec = parser.acceptsAll(Flags.OUTPUT_FILE_ARG, "output")
                     .withRequiredArg().ofType(File.class)
                     .describedAs("'-' for stdout");
+            noIndentSpec = parser.acceptsAll(Flags.NO_INDENT_ARG, "prevent default indenting of output");
         }
         joinAllSpec = parser.acceptsAll(Flags.JOIN_ALL_ARG, "join all output, irrespective of input systemId");
         verboseSpec = parser.acceptsAll(Flags.VERBOSE_ARG, "be more verbose");
@@ -123,6 +127,7 @@ public class JoinCommand implements Command {
             } else {
                 output = new File("-");
             }
+            noIndent = options.has(noIndentSpec);
         }
         return true;
     }
@@ -167,7 +172,7 @@ public class JoinCommand implements Command {
         } else {
             if (joinAll) {
                 SerializingXMLFilter serializer = new SerializingXMLFilter(output);
-                serializer.setParent(joiner);
+                serializer.setParent(noIndent ? joiner : new OutputTransformerConfigurer(joiner, Collections.singletonMap("indent", "yes")));
                 return serializer;
             } else {
                 Transformer t;
@@ -176,8 +181,9 @@ public class JoinCommand implements Command {
                 } catch (TransformerConfigurationException ex) {
                     throw new RuntimeException(ex);
                 }
+                XMLFilter outputConfigurer = noIndent ? null : new OutputTransformerConfigurer(Collections.singletonMap("indent", "yes"));
                 if ("-".equals(output.getPath())) {
-                    joiner.setOutputCallback(new StdoutCallback(t));
+                    joiner.setOutputCallback(new StdoutCallback(t, outputConfigurer));
                 } else if (output.isDirectory()) {
                     joiner.setOutputCallback(new BaseRelativeFileCallback(inputBase, output, t));
                 } else {

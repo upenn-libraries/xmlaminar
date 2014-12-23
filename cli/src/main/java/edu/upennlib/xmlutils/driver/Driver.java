@@ -71,7 +71,8 @@ public class Driver {
 
         public XMLFilterSource(XMLReader reader, InputSource inputSource, File inputBase, CommandType commandType) {
             this(reader, inputSource);
-            
+            this.inputBase = inputBase;
+            this.commandType = commandType;
         }
         
         public XMLFilterSource(XMLReader reader, InputSource inputSource) {
@@ -130,9 +131,6 @@ public class Driver {
             inputBase = command.getInputBase();
             in = command.getInput();
             maxType = command.getCommandType();
-            if (maxType == null) {
-                System.out.println("1"+command+", "+iter);
-            }
             while (!localLast) {
                 commandEntry = iter.next();
                 localLast = !iter.hasNext();
@@ -143,9 +141,6 @@ public class Driver {
                     return null;
                 }
                 maxType = updateType(maxType, command.getCommandType());
-            if (maxType == null) {
-                System.out.println("2"+command);
-            }
                 getRootParent(child).setParent(previous);
                 previous = child;
             }
@@ -165,7 +160,6 @@ public class Driver {
         Iterator<Map.Entry<CommandFactory, String[]>> iter = commands.iterator();
         SAXSource source = chainCommands(true, iter, true);
         if (source != null) {
-            System.out.println(source.getXMLReader());
             try {
                 source.getXMLReader().parse(source.getInputSource());
             } catch (SAXException ex) {
@@ -189,7 +183,7 @@ public class Driver {
     private static final String LS = System.lineSeparator();
     
     private static Iterable<Map.Entry<CommandFactory, String[]>> buildCommandList(String[] args, Map<String, CommandFactory> cfs) {
-        LinkedList<Map.Entry<CommandFactory, String[]>> commandMap = new LinkedList<Map.Entry<CommandFactory, String[]>>();
+        LinkedList<Map.Entry<CommandFactory, String[]>> commandList = new LinkedList<Map.Entry<CommandFactory, String[]>>();
         CommandFactory current = null;
         int argStart = -1;
         boolean first = true;
@@ -198,7 +192,7 @@ public class Driver {
                 CommandFactory cf = cfs.get(args[i].substring(2));
                 if (cf != null) {
                     if (current != null) {
-                        commandMap.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(current, Arrays.copyOfRange(args, argStart, i)));
+                        commandList.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(current, Arrays.copyOfRange(args, argStart, i)));
                         first = false;
                     }
                     argStart = i + 1;
@@ -207,9 +201,9 @@ public class Driver {
             }
         }
         if (current != null) {
-            commandMap.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(current, Arrays.copyOfRange(args, argStart, args.length)));
+            commandList.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(current, Arrays.copyOfRange(args, argStart, args.length)));
         }
-        return commandMap;
+        return commandList;
     }
 
     private static class QuietUEH implements Thread.UncaughtExceptionHandler {
