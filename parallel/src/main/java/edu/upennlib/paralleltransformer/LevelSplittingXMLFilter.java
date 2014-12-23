@@ -64,7 +64,7 @@ public class LevelSplittingXMLFilter extends SplittingXMLFilter {
         SAXParser sp = spf.newSAXParser();
         XMLReader xmlReader = sp.getXMLReader();
         sxf.setParent(xmlReader);
-        sxf.setOutputCallback(new IncrementingFileCallback(0, t, "out/out-", ".xml"));
+        sxf.setOutputCallback(new IncrementingFileCallback(0, t, "out/out-", ".xml", null));
         File in = new File("blah.xml");
         InputSource inSource = new InputSource(new FileReader(in));
         inSource.setSystemId(in.getPath());

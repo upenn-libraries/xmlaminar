@@ -106,6 +106,7 @@ class ProcessCommandFactory extends CommandFactory {
                 } catch (TransformerConfigurationException ex) {
                     throw new RuntimeException(ex);
                 }
+                // No output configuring filter here; should be handled directly in stylesheet
                 if (baseName != null) {
                     File resolvedBase;
                     if (output.isDirectory()) {

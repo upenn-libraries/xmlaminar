@@ -85,7 +85,7 @@ public class NewClass {
                 }
             }
         });
-        txf.setOutputCallback(new IncrementingFileCallback("out/out"));
+        txf.setOutputCallback(new IncrementingFileCallback("out/out", null));
         InputSource inSource = new InputSource(new FileReader(in));
         inSource.setSystemId(in.getPath());
         ExecutorService executor = Executors.newCachedThreadPool();
@@ -109,7 +109,7 @@ public class NewClass {
         TXMLFilter txf = new TXMLFilter(new StreamSource(xsl), null);
         JoiningXMLFilter joiner = new JoiningXMLFilter();
         LevelSplittingXMLFilter sxf2 = new LevelSplittingXMLFilter();
-        sxf2.setOutputCallback(new IncrementingFileCallback("out/out"));
+        sxf2.setOutputCallback(new IncrementingFileCallback("out/out", null));
         sxf2.setChunkSize(2);
         sxf2.setParent(joiner);
         joiner.setParent(txf);
@@ -176,7 +176,7 @@ public class NewClass {
         spf.setNamespaceAware(true);
         txf.setParent(spf.newSAXParser().getXMLReader());
         txf.setInputType(QueueSourceXMLFilter.InputType.indirect);
-        txf.setOutputCallback(new IncrementingFileCallback("out"));
+        txf.setOutputCallback(new IncrementingFileCallback("out", null));
         ExecutorService executor = Executors.newCachedThreadPool();
         txf.setExecutor(executor);
         txf.parse(new InputSource(new FileInputStream(in)));
