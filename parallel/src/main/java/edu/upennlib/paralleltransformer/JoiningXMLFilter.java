@@ -30,9 +30,12 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.SynchronousQueue;
 import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +72,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
         joiner.setOutputCallback(new StdoutCallback());
         joiner.parse(new InputSource("../cli/test-multiout-joiner.txt"));
     }
-
+    
     public JoiningXMLFilter(boolean multiOut) {
         this.multiOut = multiOut;
         if (multiOut) {
@@ -234,10 +237,12 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     @Override
     public void finished() throws SAXException {
         localFinished();
-        try {
-            callbackQueue.put(END_OUTPUT_LOOP);
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
+        if (multiOut) {
+            try {
+                callbackQueue.put(END_OUTPUT_LOOP);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 

@@ -121,7 +121,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     private static final int DEPTH_LIMIT = 10;
 
-    private void addDescendent(LinkedList<String> pathElements, XMLReader source, boolean requireForWrite) {
+    public void addDescendent(LinkedList<String> pathElements, XMLReader source, boolean requireForWrite) {
         String subName = pathElements.removeFirst();
         IntegratorOutputNode subNode;
         int index = -1;
@@ -192,7 +192,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         if (unmodifiableFeatures.containsKey(name)) {
             return unmodifiableFeatures.get(name);
         } else {
-            throw new UnsupportedOperationException("getFeature("+name+")");
+            throw new SAXNotRecognizedException("getFeature("+name+")");
         }
     }
 
@@ -200,10 +200,10 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     public void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException {
         if (unmodifiableFeatures.containsKey(name)) {
             if (value != unmodifiableFeatures.get(name)) {
-                throw new UnsupportedOperationException("cannot set feature "+name+" to "+value);
+                throw new SAXNotSupportedException("cannot set feature "+name+" to "+value);
             }
         } else {
-            throw new UnsupportedOperationException("setFeature("+name+", "+value+")");
+            throw new SAXNotRecognizedException("setFeature("+name+", "+value+")");
         }
     }
 
@@ -212,7 +212,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         if ("http://xml.org/sax/properties/lexical-handler".equals(name)) {
             return lexicalHandler;
         } else {
-            throw new UnsupportedOperationException("getProperty("+name+")");
+            throw new SAXNotRecognizedException("getProperty("+name+")");
         }
     }
     LexicalHandler lexicalHandler = null;
@@ -222,7 +222,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         if ("http://xml.org/sax/properties/lexical-handler".equals(name)) {
             lexicalHandler = (LexicalHandler)value;
         } else {
-            throw new UnsupportedOperationException("setFeature("+name+", "+value+")");
+            throw new SAXNotRecognizedException("setFeature("+name+", "+value+")");
         }
     }
 

@@ -292,7 +292,9 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
                     consumerThrowable = null;
                 }
             } finally {
-                outputCallback.finished(t);
+                if (outputCallback != null) {
+                    outputCallback.finished(t);
+                }
                 throw new RuntimeException(t);
             }
         }

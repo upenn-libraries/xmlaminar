@@ -53,6 +53,8 @@ public class Driver {
             Class.forName(MARCRSXMLReaderCommandFactory.class.getCanonicalName());
             Class.forName(ConfigCommandFactory.class.getCanonicalName());
             Class.forName(PipelineCommandFactory.class.getCanonicalName());
+            Class.forName(IntegrateCommandFactory.class.getCanonicalName());
+            Class.forName(FileCommandFactory.class.getCanonicalName());
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
         }
