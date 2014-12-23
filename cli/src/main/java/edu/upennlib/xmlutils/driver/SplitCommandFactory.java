@@ -100,13 +100,13 @@ class SplitCommandFactory extends CommandFactory {
                         resolvedBase = baseName;
                     }
                     splitter.setOutputCallback(new IncrementingFileCallback(0,
-                            t, suffixLength, resolvedBase, outputExtension));
+                            t, suffixLength, resolvedBase, outputExtension, outputFilter));
                 } else if ("-".equals(output.getPath())) {
                     splitter.setOutputCallback(new StdoutCallback(t, outputFilter));
                 } else if (!output.isDirectory()) {
-                    splitter.setOutputCallback(new StaticFileCallback(t, output));
+                    splitter.setOutputCallback(new StaticFileCallback(t, output, outputFilter));
                 } else {
-                    splitter.setOutputCallback(new BaseRelativeIncrementingFileCalback(input, output, t, outputExtension, outputExtension != null, suffixLength));
+                    splitter.setOutputCallback(new BaseRelativeIncrementingFileCalback(input, output, t, outputExtension, outputExtension != null, suffixLength, outputFilter));
                 }
             }
             return splitter;

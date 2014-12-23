@@ -30,6 +30,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 
 /**
@@ -39,10 +40,16 @@ import org.xml.sax.XMLReader;
 public class StaticFileCallback implements XMLReaderCallback {
     private final File staticFile;
     private final Transformer t;
+    private final XMLFilter outputFilter;
 
-    public StaticFileCallback(Transformer t, File staticFile) {
+    public StaticFileCallback(Transformer t, File staticFile, XMLFilter outputFilter) {
         this.staticFile = staticFile;
         this.t = t;
+        this.outputFilter = outputFilter;
+    }
+
+    public StaticFileCallback(Transformer t, File staticFile) {
+        this(t, staticFile, null);
     }
 
     public StaticFileCallback(File staticFile) throws TransformerConfigurationException {
@@ -51,6 +58,10 @@ public class StaticFileCallback implements XMLReaderCallback {
 
     @Override
     public void callback(SAXSource source) throws SAXException, IOException {
+        if (outputFilter != null) {
+            outputFilter.setParent(source.getXMLReader());
+            source.setXMLReader(outputFilter);
+        }
         StreamCallback.writeToFile(source, staticFile, t);
     }
 

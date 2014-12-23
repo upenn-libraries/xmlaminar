@@ -114,13 +114,13 @@ class ProcessCommandFactory extends CommandFactory {
                         resolvedBase = baseName;
                     }
                     txf.setOutputCallback(new IncrementingFileCallback(0,
-                            t, suffixLength, resolvedBase, outputExtension));
+                            t, suffixLength, resolvedBase, outputExtension, null));
                 } else if ("-".equals(output.getPath())) {
                     txf.setOutputCallback(new StdoutCallback(t));
                 } else if (!output.isDirectory()) {
                     txf.setOutputCallback(new StaticFileCallback(t, output));
                 } else if (maxType == CommandType.SPLIT) {
-                    txf.setOutputCallback(new BaseRelativeIncrementingFileCalback((first ? input : inputBase), output, t, outputExtension, outputExtension != null, suffixLength));
+                    txf.setOutputCallback(new BaseRelativeIncrementingFileCalback((first ? input : inputBase), output, t, outputExtension, outputExtension != null, suffixLength, null));
                 } else {
                     txf.setOutputCallback(new BaseRelativeFileCallback((first ? input : inputBase), output, t, outputExtension, outputExtension != null));
                 }

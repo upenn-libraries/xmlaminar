@@ -22,6 +22,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
 
 /**
  *
@@ -31,22 +32,22 @@ public class BaseRelativeIncrementingFileCalback extends BaseRelativeFileCallbac
 
     private final int suffixLength;
     
-    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension, boolean replaceExtension, int suffixLength) {
+    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension, boolean replaceExtension, int suffixLength, XMLFilter outputFilter) {
         super(inputBase, outputBase, t, outputExtension, replaceExtension);
         this.suffixLength = suffixLength;
-        this.ifc = new IncrementingFileCallback(0, t, suffixLength);
+        this.ifc = new IncrementingFileCallback(0, t, suffixLength, outputFilter);
     }
 
-    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension, int suffixLength) {
+    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension, int suffixLength, XMLFilter outputFilter) {
         super(inputBase, outputBase, t, outputExtension);
         this.suffixLength = suffixLength;
-        this.ifc = new IncrementingFileCallback(0, t, suffixLength);
+        this.ifc = new IncrementingFileCallback(0, t, suffixLength, outputFilter);
     }
 
-    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, int suffixLength) {
+    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, int suffixLength, XMLFilter outputFilter) {
         super(inputBase, outputBase, t);
         this.suffixLength = suffixLength;
-        this.ifc = new IncrementingFileCallback(0, t, suffixLength);
+        this.ifc = new IncrementingFileCallback(0, t, suffixLength, outputFilter);
     }
 
     private final IncrementingFileCallback ifc;

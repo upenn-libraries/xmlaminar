@@ -29,6 +29,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
 
 /**
  *
@@ -45,40 +46,41 @@ public class IncrementingFileCallback implements XMLReaderCallback {
     private final String suffixFormat;
     private final Transformer t;
     private int i;
+    private final XMLFilter outputFilter;
 
     private static String getDefaultSuffixFormat(int suffixLength) {
         return "-%0" + suffixLength + 'd';
     }
 
-    public IncrementingFileCallback(String baseFile) throws TransformerConfigurationException {
-        this(TransformerFactory.newInstance().newTransformer(), baseFile);
+    public IncrementingFileCallback(String baseFile, XMLFilter outputFilter) throws TransformerConfigurationException {
+        this(TransformerFactory.newInstance().newTransformer(), baseFile, outputFilter);
     }
 
-    public IncrementingFileCallback(Transformer t, String baseFile) {
-        this(DEFAULT_START_INDEX, t, baseFile);
+    public IncrementingFileCallback(Transformer t, String baseFile, XMLFilter outputFilter) {
+        this(DEFAULT_START_INDEX, t, baseFile, outputFilter);
     }
 
-    public IncrementingFileCallback(int start, Transformer t, String baseFile) {
-        this(start, t, baseFile, "");
+    public IncrementingFileCallback(int start, Transformer t, String baseFile, XMLFilter outputFilter) {
+        this(start, t, baseFile, "", outputFilter);
     }
 
-    public IncrementingFileCallback(int start, Transformer t, String baseFile, String postSuffix) {
-        this(start, t, DEFAULT_SUFFIX_SIZE, baseFile, postSuffix);
+    public IncrementingFileCallback(int start, Transformer t, String baseFile, String postSuffix, XMLFilter outputFilter) {
+        this(start, t, DEFAULT_SUFFIX_SIZE, baseFile, postSuffix, outputFilter);
     }
 
-    public IncrementingFileCallback(int start, Transformer t, int suffixSize, String baseFile, String postSuffix) {
-        this(start, t, getDefaultSuffixFormat(suffixSize), new File(baseFile), postSuffix);
+    public IncrementingFileCallback(int start, Transformer t, int suffixSize, String baseFile, String postSuffix, XMLFilter outputFilter) {
+        this(start, t, getDefaultSuffixFormat(suffixSize), new File(baseFile), postSuffix, outputFilter);
     }
     
-    public IncrementingFileCallback(int start, Transformer t, int suffixSize) {
-        this(start, t, getDefaultSuffixFormat(suffixSize), null, null);
+    public IncrementingFileCallback(int start, Transformer t, int suffixSize, XMLFilter outputFilter) {
+        this(start, t, getDefaultSuffixFormat(suffixSize), null, null, outputFilter);
     }
 
-    public IncrementingFileCallback(int start, Transformer t, int suffixLength, File baseFile, String postSuffix) {
-        this(start, t, getDefaultSuffixFormat(suffixLength), baseFile, postSuffix);
+    public IncrementingFileCallback(int start, Transformer t, int suffixLength, File baseFile, String postSuffix, XMLFilter outputFilter) {
+        this(start, t, getDefaultSuffixFormat(suffixLength), baseFile, postSuffix, outputFilter);
     }
 
-    public IncrementingFileCallback(int start, Transformer t, String suffixFormat, File baseFile, String postSuffix) {
+    public IncrementingFileCallback(int start, Transformer t, String suffixFormat, File baseFile, String postSuffix, XMLFilter outputFilter) {
         this.i = start;
         this.t = t;
         this.baseFile = baseFile;
@@ -88,12 +90,17 @@ public class IncrementingFileCallback implements XMLReaderCallback {
         }
         this.postSuffix = postSuffix;
         this.suffixFormat = suffixFormat;
+        this.outputFilter = outputFilter;
     }
 
     @Override
     public void callback(SAXSource source) throws SAXException, IOException {
         File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) 
                 + (postSuffix != null ? postSuffix : StreamCallback.getExtension(source.getInputSource().getSystemId())));
+        if (outputFilter != null) {
+            outputFilter.setParent(source.getXMLReader());
+            source.setXMLReader(outputFilter);
+        }
         StreamCallback.writeToFile(source, nextFile, t);
     }
     

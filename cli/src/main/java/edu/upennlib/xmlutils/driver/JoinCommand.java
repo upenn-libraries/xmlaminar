@@ -187,7 +187,7 @@ public class JoinCommand implements Command {
                 } else if (output.isDirectory()) {
                     joiner.setOutputCallback(new BaseRelativeFileCallback(inputBase, output, t));
                 } else {
-                    joiner.setOutputCallback(new StaticFileCallback(t, output));
+                    joiner.setOutputCallback(new StaticFileCallback(t, output, outputConfigurer));
                 }
                 return joiner;
             }
