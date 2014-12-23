@@ -50,6 +50,7 @@ public class Driver {
             Class.forName(JoinCommandFactory.class.getCanonicalName());
             Class.forName(TeeCommandFactory.class.getCanonicalName());
             Class.forName(RSXMLReaderCommandFactory.class.getCanonicalName());
+            Class.forName(MARCRSXMLReaderCommandFactory.class.getCanonicalName());
             Class.forName(ConfigCommandFactory.class.getCanonicalName());
             Class.forName(PipelineCommandFactory.class.getCanonicalName());
         } catch (ClassNotFoundException ex) {
