@@ -22,6 +22,7 @@
 
 package edu.upennlib.paralleltransformer.callback;
 
+import edu.upennlib.xmlutils.VolatileSAXSource;
 import java.io.File;
 import java.io.IOException;
 import javax.xml.transform.Transformer;
@@ -57,7 +58,7 @@ public class StaticFileCallback implements XMLReaderCallback {
     }
 
     @Override
-    public void callback(SAXSource source) throws SAXException, IOException {
+    public void callback(VolatileSAXSource source) throws SAXException, IOException {
         if (outputFilter != null) {
             outputFilter.setParent(source.getXMLReader());
             source.setXMLReader(outputFilter);

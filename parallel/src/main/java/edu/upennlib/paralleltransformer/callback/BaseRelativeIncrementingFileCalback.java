@@ -16,6 +16,7 @@
 
 package edu.upennlib.paralleltransformer.callback;
 
+import edu.upennlib.xmlutils.VolatileSAXSource;
 import java.io.File;
 import java.io.IOException;
 import javax.xml.transform.Transformer;
@@ -54,7 +55,7 @@ public class BaseRelativeIncrementingFileCalback extends BaseRelativeFileCallbac
     private String lastPath;
     
     @Override
-    public void callback(SAXSource source) throws SAXException, IOException {
+    public void callback(VolatileSAXSource source) throws SAXException, IOException {
         InputSource input = source.getInputSource();
         String systemId = input.getSystemId();
         File nextFile = convertInToOutBase(systemId);

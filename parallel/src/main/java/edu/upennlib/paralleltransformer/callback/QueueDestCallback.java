@@ -23,6 +23,7 @@
 package edu.upennlib.paralleltransformer.callback;
 
 import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
+import edu.upennlib.xmlutils.VolatileSAXSource;
 import java.io.IOException;
 import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.InputSource;
@@ -42,7 +43,7 @@ public class QueueDestCallback implements XMLReaderCallback {
     }
     
     @Override
-    public void callback(SAXSource source) throws SAXException, IOException {
+    public void callback(VolatileSAXSource source) throws SAXException, IOException {
         try {
             dest.getParseQueue().put(source);
         } catch (InterruptedException ex) {

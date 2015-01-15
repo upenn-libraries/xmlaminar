@@ -23,6 +23,7 @@ import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.LoggingErrorListener;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
+import edu.upennlib.xmlutils.VolatileSAXSource;
 import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,14 +87,14 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     }
     
     public static void main(String[] args) throws Exception {
-        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id", false);
+        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/input/identity.xsl"), "/root/rec/@id", true);
         txf.setInputType(InputType.indirect);
-        txf.setOutputCallback(new StdoutCallback());
-        txf.parse(new InputSource("../cli/whole-indirect.txt"));
+        txf.setOutputCallback(new StaticFileCallback(new File("/dev/null")));
+        txf.parse(new InputSource("../cli/input/whole-bad-indirect.txt"));
     }
     
     @Override
-    protected void initialParse(SAXSource in) {
+    protected void initialParse(VolatileSAXSource in) {
         outputFuture = getExecutor().submit(new OutputRunnable(Thread.currentThread()));
         pq.reset();
         try {
@@ -104,7 +105,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     }
 
     @Override
-    protected void repeatParse(SAXSource in) {
+    protected void repeatParse(VolatileSAXSource in) {
         try {
             setupInputBuffer(in);
         } catch (InterruptedException ex) {
@@ -260,7 +261,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
             Chunk nextOut;
             try {
                 while ((nextOut = pq.nextOut()) != null) {
-                    SAXSource outSource = nextOut.getOutput();
+                    VolatileSAXSource outSource = nextOut.getOutput();
                     XMLReader r = new StateUpdatingXMLFilter(nextOut, outSource.getXMLReader(), ProcessingState.READY);
                     outSource.setXMLReader(r);
                     outputCallback.callback(outSource);

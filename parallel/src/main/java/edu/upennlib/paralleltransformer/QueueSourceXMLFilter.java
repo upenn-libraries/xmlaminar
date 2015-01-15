@@ -18,6 +18,7 @@ package edu.upennlib.paralleltransformer;
 
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.QueueDestCallback;
+import edu.upennlib.xmlutils.VolatileSAXSource;
 import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.BufferedReader;
 import java.io.File;
@@ -70,16 +71,16 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
     public static enum InputType { direct, indirect, queue }
     public static InputType DEFAULT_INPUT_TYPE = InputType.direct;
     
-    public SAXSource getFinishedSAXSource(Throwable t) {
+    public VolatileSAXSource getFinishedSAXSource(Throwable t) {
         return FINISHED.checkout(t);
     }
     
-    private static class ErrorSAXSource extends SAXSource {
+    private static class ErrorSAXSource extends VolatileSAXSource {
         
         private final AtomicBoolean checkedOutError = new AtomicBoolean(false);
         private Throwable t;
         
-        private SAXSource checkout(Throwable t) {
+        private VolatileSAXSource checkout(Throwable t) {
             if (t == null) {
                 return this;
             } else if (!checkedOutError.compareAndSet(false, true)) {
@@ -159,20 +160,20 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
      * Implementors will likely call setupParse(ContentHandler) 
      * or super.setContentHandler(ContentHandler) with an appropriate ContentHandler
      */
-    protected abstract void initialParse(SAXSource in);
+    protected abstract void initialParse(VolatileSAXSource in);
     
-    protected abstract void repeatParse(SAXSource in);
+    protected abstract void repeatParse(VolatileSAXSource in);
     
     protected abstract void finished() throws SAXException;
     
-    private BlockingQueue<SAXSource> parseQueue;
+    private BlockingQueue<VolatileSAXSource> parseQueue;
     private Future<?> parseQueueSupplier;
 
-    public void setParseQueue(BlockingQueue<SAXSource> queue) {
+    public void setParseQueue(BlockingQueue<VolatileSAXSource> queue) {
         parseQueue = queue;
     }
     
-    public BlockingQueue<SAXSource> getParseQueue() {
+    public BlockingQueue<VolatileSAXSource> getParseQueue() {
         return parseQueue;
     }
     
@@ -186,13 +187,13 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
 
     private void initProducer(InputSource input) {
         if (parseQueue == null) {
-            parseQueue = new ArrayBlockingQueue<SAXSource>(10, false);
+            parseQueue = new ArrayBlockingQueue<VolatileSAXSource>(10, false);
         }
         if (parseQueueSupplier == null) {
             Runnable parseQueueRunner = new ParseQueueSupplier(input, Thread.currentThread());
             parseQueueSupplier = executor.submit(parseQueueRunner);
         }
-        SAXSource next;
+        VolatileSAXSource next;
         try {
             if ((next = parseQueue.take()) != FINISHED) {
                 initialParse(next);
@@ -228,8 +229,8 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
     
     private void initProducerIterator(InputSource input) {
         try {
-            SAXSource next;
-            Iterator<SAXSource> sourceIter = new IndirectSourceSupplier(input);
+            VolatileSAXSource next;
+            Iterator<VolatileSAXSource> sourceIter = new IndirectSourceSupplier(input);
             if (sourceIter.hasNext()) {
                 next = sourceIter.next();
                 initialParse(next);
@@ -285,7 +286,7 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
             setupParseLocal();
             switch (inputType) {
                 case direct:
-                    SAXSource source = new SAXSource(super.getParent(), input);
+                    VolatileSAXSource source = new VolatileSAXSource(super.getParent(), input);
                     initialParse(source);
                     XMLReader xmlReader = source.getXMLReader();
                     xmlReader.setContentHandler(this);
@@ -330,7 +331,7 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
         return true;
     }
 
-    private class IndirectSourceSupplier implements Iterator<SAXSource> {
+    private class IndirectSourceSupplier implements Iterator<VolatileSAXSource> {
 
         private final InputSource input;
         private final Scanner s;
@@ -375,11 +376,11 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
         }
 
         @Override
-        public SAXSource next() {
+        public VolatileSAXSource next() {
             String next = s.next();
             InputSource nextIn = new InputSource(next);
             XMLReader xr = QueueSourceXMLFilter.super.getParent(); // defaults to parent
-            return new SAXSource(xr, nextIn);
+            return new VolatileSAXSource(xr, nextIn);
         }
 
         @Override

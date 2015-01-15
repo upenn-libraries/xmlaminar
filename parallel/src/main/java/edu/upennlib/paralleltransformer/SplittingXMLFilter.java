@@ -19,6 +19,7 @@ package edu.upennlib.paralleltransformer;
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
+import edu.upennlib.xmlutils.VolatileSAXSource;
 import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -94,13 +95,13 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
     }
     
     @Override
-    protected void initialParse(SAXSource in) {
+    protected void initialParse(VolatileSAXSource in) {
         synchronousParser.setParent(this);
         setupParse(in.getInputSource());
     }
 
     @Override
-    protected void repeatParse(SAXSource in) {
+    protected void repeatParse(VolatileSAXSource in) {
         reset(false);
         setupParse(in.getInputSource());
     }
@@ -235,7 +236,7 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         private void parseLoop(InputSource input, String systemId) throws SAXException, IOException {
             if (input != null) {
                 while (parsing.get()) {
-                    outputCallback.callback(new SAXSource(synchronousParser, input));
+                    outputCallback.callback(new VolatileSAXSource(synchronousParser, input));
                     try {
                         parseChunkDonePhaser.awaitAdvanceInterruptibly(parseChunkDonePhaser.arrive());
                     } catch (InterruptedException ex) {

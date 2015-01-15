@@ -19,6 +19,7 @@ package edu.upennlib.paralleltransformer;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.DevNullErrorListener;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
+import edu.upennlib.xmlutils.VolatileSAXSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -40,7 +42,9 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
@@ -115,7 +119,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
             boolean initialized = false;
             
             @Override
-            public void callback(SAXSource source) throws SAXException, IOException {
+            public void callback(VolatileSAXSource source) throws SAXException, IOException {
                 XMLReader reader = source.getXMLReader();
                 if (!initialized) {
                     initialized = true;
@@ -143,6 +147,48 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         out.clear();
         setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
     }
+    
+    public static XMLReader getRootParent(XMLReader child) {
+        if (child == null) {
+            return null;
+        } else {
+            XMLReader parent;
+            XMLReader init = child;
+            XMLReader ret = null;
+            List<String> blah = new ArrayList<String>(100);
+            do {
+                if (child instanceof UnboundedContentHandlerBuffer) {
+                    parent = ((UnboundedContentHandlerBuffer)child).getUnmodifiableParent();
+                } else if (child instanceof XMLFilter) {
+                    parent = ((XMLFilter)child).getParent();
+                } else {
+                    parent = null;
+                }
+                blah.add(child.getClass().getSimpleName());
+            } while ((child = parent) != null);
+            //return child;
+            System.err.println("XXX "+blah);
+            return init;
+        }
+    }
+
+
+    public static int getParentDepth(XMLFilter filter) {
+        int ret = 0;
+        XMLReader parent;
+        List<String> chain = new ArrayList<String>(100);
+        chain.add(filter.getClass().getSimpleName());
+        while ((filter instanceof UnboundedContentHandlerBuffer ? 
+                (parent = ((UnboundedContentHandlerBuffer)filter).getUnmodifiableParent()) != null : 
+                (parent = filter.getParent()) != null) &&
+                parent instanceof XMLFilter && ret < 100) {
+            ret++;
+            filter = (XMLFilter) parent;
+            chain.add(filter.getClass().getSimpleName());
+        }
+        System.err.println("XXX"+chain);
+        return ret;
+    }
 
     private void swapIO() {
         UnboundedContentHandlerBuffer tmp = in;
@@ -167,6 +213,9 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
     @Override
     public void run() {
         transformer.reset();
+        if (transformer instanceof Controller) {
+            ((Controller)transformer).clearDocumentPool();
+        }
         transformer.setErrorListener(devNullErrorListener);
         try {
             transformer.transform(new SAXSource(in, inSource), new SAXResult(out));
@@ -304,10 +353,10 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         }
         return in;
     }
-
-    SAXSource getOutput() {
+    
+    VolatileSAXSource getOutput() {
         out.setFlushOnParse(true);
-        return new SAXSource(out, inSource);
+        return new VolatileSAXSource(out, inSource);
     }
     
 }

@@ -27,6 +27,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import net.sf.saxon.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXNotRecognizedException;
@@ -57,6 +58,9 @@ public class StreamCallback {
 
     static void writeToStream(SAXSource source, StreamResult out, Transformer t) throws FileNotFoundException, IOException {
         t.reset();
+        if (t instanceof Controller) {
+            ((Controller)t).clearDocumentPool();
+        }
         try {
             source.getXMLReader().setProperty(TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME, t);
         } catch (SAXNotRecognizedException ex) {

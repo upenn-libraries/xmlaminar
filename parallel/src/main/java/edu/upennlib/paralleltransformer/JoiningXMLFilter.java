@@ -20,6 +20,7 @@ import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.DevNullContentHandler;
+import edu.upennlib.xmlutils.VolatileSAXSource;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -173,7 +174,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     private String lastSystemId;
     
     @Override
-    public void initialParse(SAXSource in) {
+    public void initialParse(VolatileSAXSource in) {
         if (multiOut) {
             setContentHandler(synchronousParser);
         }
@@ -191,7 +192,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     }
     
     @Override
-    public void repeatParse(SAXSource in) {
+    public void repeatParse(VolatileSAXSource in) {
         if (!multiOut) {
             setupParse(devNullContentHandler);
         } else {
@@ -261,7 +262,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
         private void relayOutputCallbacks() throws SAXException, IOException, InterruptedException {
             InputSource in;
             while ((in = callbackQueue.take()) != END_OUTPUT_LOOP) {
-                outputCallback.callback(new SAXSource(synchronousParser, in));
+                outputCallback.callback(new VolatileSAXSource(synchronousParser, in));
             }
         }
 

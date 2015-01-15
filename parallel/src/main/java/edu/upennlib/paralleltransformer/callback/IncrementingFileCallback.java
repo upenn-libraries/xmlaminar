@@ -22,6 +22,7 @@
 
 package edu.upennlib.paralleltransformer.callback;
 
+import edu.upennlib.xmlutils.VolatileSAXSource;
 import java.io.File;
 import java.io.IOException;
 import javax.xml.transform.Transformer;
@@ -94,7 +95,7 @@ public class IncrementingFileCallback implements XMLReaderCallback {
     }
 
     @Override
-    public void callback(SAXSource source) throws SAXException, IOException {
+    public void callback(VolatileSAXSource source) throws SAXException, IOException {
         File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) 
                 + (postSuffix != null ? postSuffix : StreamCallback.getExtension(source.getInputSource().getSystemId())));
         if (outputFilter != null) {

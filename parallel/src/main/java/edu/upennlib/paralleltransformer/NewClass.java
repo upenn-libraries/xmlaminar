@@ -18,6 +18,7 @@ package edu.upennlib.paralleltransformer;
 
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
+import edu.upennlib.xmlutils.VolatileSAXSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -68,7 +69,7 @@ public class NewClass {
         sxf.setOutputCallback(new XMLReaderCallback() {
             int i = 0;
             @Override
-            public void callback(SAXSource source) throws SAXException, IOException {
+            public void callback(VolatileSAXSource source) throws SAXException, IOException {
                 try {
                     txf.getParseQueue().put(source);
                 } catch (InterruptedException ex) {
@@ -136,7 +137,7 @@ public class NewClass {
         sxf.setOutputCallback(new XMLReaderCallback() {
             int i = 0;
             @Override
-            public void callback(SAXSource source) throws SAXException, IOException {
+            public void callback(VolatileSAXSource source) throws SAXException, IOException {
                 try {
                     joiner.getParseQueue().put(source);
                     System.out.println("what "+source.getInputSource().getSystemId()+", "+i++);

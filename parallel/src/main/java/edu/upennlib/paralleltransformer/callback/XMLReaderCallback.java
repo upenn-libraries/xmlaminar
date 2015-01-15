@@ -16,6 +16,7 @@
 
 package edu.upennlib.paralleltransformer.callback;
 
+import edu.upennlib.xmlutils.VolatileSAXSource;
 import java.io.IOException;
 import javax.xml.transform.sax.SAXSource;
 import org.xml.sax.InputSource;
@@ -33,7 +34,7 @@ import org.xml.sax.XMLReader;
  */
 public interface XMLReaderCallback {
 
-    void callback(SAXSource source) throws SAXException, IOException;
+    void callback(VolatileSAXSource source) throws SAXException, IOException;
 
     void finished(Throwable t);
     
