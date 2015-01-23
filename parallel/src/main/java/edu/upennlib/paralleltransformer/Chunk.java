@@ -123,6 +123,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
                 XMLReader reader = source.getXMLReader();
                 if (!initialized) {
                     initialized = true;
+                    source.setXMLReader(out.getUnmodifiableParent());
                     ContentHandler inputBuffer = newChunk.getInput(source);
                     reader.setContentHandler(inputBuffer);
                     reader.parse(source.getInputSource());
