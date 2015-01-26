@@ -149,48 +149,6 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         setState(ProcessingState.HAS_SUBDIVIDED_INPUT);
     }
     
-    public static XMLReader getRootParent(XMLReader child) {
-        if (child == null) {
-            return null;
-        } else {
-            XMLReader parent;
-            XMLReader init = child;
-            XMLReader ret = null;
-            List<String> blah = new ArrayList<String>(100);
-            do {
-                if (child instanceof UnboundedContentHandlerBuffer) {
-                    parent = ((UnboundedContentHandlerBuffer)child).getUnmodifiableParent();
-                } else if (child instanceof XMLFilter) {
-                    parent = ((XMLFilter)child).getParent();
-                } else {
-                    parent = null;
-                }
-                blah.add(child.getClass().getSimpleName());
-            } while ((child = parent) != null);
-            //return child;
-            System.err.println("XXX "+blah);
-            return init;
-        }
-    }
-
-
-    public static int getParentDepth(XMLFilter filter) {
-        int ret = 0;
-        XMLReader parent;
-        List<String> chain = new ArrayList<String>(100);
-        chain.add(filter.getClass().getSimpleName());
-        while ((filter instanceof UnboundedContentHandlerBuffer ? 
-                (parent = ((UnboundedContentHandlerBuffer)filter).getUnmodifiableParent()) != null : 
-                (parent = filter.getParent()) != null) &&
-                parent instanceof XMLFilter && ret < 100) {
-            ret++;
-            filter = (XMLFilter) parent;
-            chain.add(filter.getClass().getSimpleName());
-        }
-        System.err.println("XXX"+chain);
-        return ret;
-    }
-
     private void swapIO() {
         UnboundedContentHandlerBuffer tmp = in;
         in = out;
