@@ -177,6 +177,11 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
 
     private XMLReaderCallback outputCallback;
 
+    @Override
+    public boolean allowOutputCallback() {
+        return true;
+    }
+
     private static class StateUpdatingXMLFilter extends VolatileXMLFilterImpl {
         
         private final Chunk outputChunk;

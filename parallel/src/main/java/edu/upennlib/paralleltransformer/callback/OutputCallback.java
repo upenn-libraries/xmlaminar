@@ -27,6 +27,7 @@ package edu.upennlib.paralleltransformer.callback;
  * @author magibney
  */
 public interface OutputCallback {
+    boolean allowOutputCallback();
     XMLReaderCallback getOutputCallback(); 
     void setOutputCallback(XMLReaderCallback callback);
 }

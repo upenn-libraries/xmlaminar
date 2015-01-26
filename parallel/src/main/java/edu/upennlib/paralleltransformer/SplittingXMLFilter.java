@@ -190,6 +190,11 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
 
     private final SynchronousParser synchronousParser = new SynchronousParser();
 
+    @Override
+    public boolean allowOutputCallback() {
+        return true;
+    }
+
     private class SynchronousParser extends VolatileXMLFilterImpl {
 
         @Override

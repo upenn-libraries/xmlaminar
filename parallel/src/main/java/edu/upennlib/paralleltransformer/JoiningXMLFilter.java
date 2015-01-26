@@ -250,6 +250,11 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     private static final InputSource END_OUTPUT_LOOP = new InputSource();
     
     private final BlockingQueue<InputSource> callbackQueue = new SynchronousQueue<InputSource>();
+
+    @Override
+    public boolean allowOutputCallback() {
+        return multiOut;
+    }
     
     private class OutputLooper implements Runnable {
 

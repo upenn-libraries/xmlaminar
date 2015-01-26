@@ -258,8 +258,11 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
     private void setupParseLocal() throws SAXException {
         XMLReader localParent = getParent();
         if (localParent instanceof OutputCallback) {
-            setInputType(InputType.queue);
-            ((OutputCallback)localParent).setOutputCallback(new QueueDestCallback(this));
+            OutputCallback oc = (OutputCallback) localParent;
+            if (oc.allowOutputCallback()) {
+                setInputType(InputType.queue);
+                oc.setOutputCallback(new QueueDestCallback(this));
+            }
         }
         if (parseQueueSupplier == null) {
             if (executor == null) {
