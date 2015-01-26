@@ -23,10 +23,12 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
@@ -44,8 +46,8 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
 
     private static final Logger LOG = LoggerFactory.getLogger(ProcessingQueue.class);
     
-    private final ArrayBlockingQueue<Node<T>> mainPool;
-    private final ArrayBlockingQueue<Node<T>> subdividePool;
+    private final BlockingQueue<Node<T>> mainPool;
+    private final BlockingQueue<Node<T>> subdividePool;
 
     private ExecutorService workExecutor;
     private Set<Future<?>> activeWorkTasks;
@@ -61,7 +63,7 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
         for (int i = 0; i < size; i++) {
             mainPool.add(newNode(templateInstance, mainPool));
         }
-        subdividePool = new ArrayBlockingQueue<Node<T>>(size);
+        subdividePool = new LinkedBlockingQueue<Node<T>>();
         subdividePoolCapacity = size;
     }
     
@@ -171,12 +173,14 @@ public class ProcessingQueue<T extends DelegatingSubdividable<ProcessingState, T
     Node<T> getSubdivideNode(T templateInstance) {
         Node<T> node = POOL_SUBDIVIDE ? subdividePool.poll() : newNode(templateInstance, null);;
         if (node == null) {
-            if (subdividePoolSize.incrementAndGet() > subdividePoolCapacity) {
-                subdividePoolSize.set(subdividePoolCapacity);
+            int incremented;
+            if ((incremented = subdividePoolSize.incrementAndGet()) > subdividePoolCapacity) {
                 try {
                     if ((node = subdividePool.poll(100, TimeUnit.MILLISECONDS)) == null) {
-                        LOG.info("create new unassociated node to break deadlock");
-                        return newNode(templateInstance, null);
+                        LOG.info("create new unassociated node to break deadlock; poolSize="+incremented);
+                        return newNode(templateInstance, subdividePool);
+                    } else {
+                        subdividePoolSize.decrementAndGet();
                     }
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
