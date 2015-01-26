@@ -254,6 +254,7 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
     }
     
     private boolean createdExecutor = false;
+    private boolean autoSetParentExecutor = false;
     
     private void setupParseLocal() throws SAXException {
         XMLReader localParent = getParent();
@@ -273,6 +274,7 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
         if (localParent instanceof QueueSourceXMLFilter && executor != null) {
             QueueSourceXMLFilter qsxfp = (QueueSourceXMLFilter)localParent;
             if (qsxfp.getExecutor() == null) {
+                autoSetParentExecutor = true;
                 qsxfp.setExecutor(executor);
             }
         }
@@ -310,6 +312,10 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                 executor.shutdown();
                 executor = null;
                 createdExecutor = false;
+            }
+            if (autoSetParentExecutor) {
+                ((QueueSourceXMLFilter)getParent()).setExecutor(null);
+                autoSetParentExecutor = false;
             }
         }
     }
@@ -423,6 +429,8 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                     consumerThrowable = null;
                     throw new RuntimeException(t);
                 }
+            } finally {
+                parseQueueSupplier = null;
             }
         }
     }
