@@ -78,7 +78,7 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     public TXMLFilter(Source xslSource, String xpath, boolean subdivide) throws TransformerConfigurationException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         templates = tf.newTemplates(xslSource);
-        pq = new ProcessingQueue<Chunk>(100, new Chunk(templates, xpath, subdivide));
+        pq = new ProcessingQueue<Chunk>(10, new Chunk(templates, xpath, subdivide));
         this.subdivide = subdivide;
     }
     
