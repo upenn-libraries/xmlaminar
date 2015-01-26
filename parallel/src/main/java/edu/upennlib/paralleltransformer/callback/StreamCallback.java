@@ -64,9 +64,9 @@ public class StreamCallback {
         try {
             source.getXMLReader().setProperty(TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME, t);
         } catch (SAXNotRecognizedException ex) {
-            LOG.info("ignoring setProperty({}) on "+source.getXMLReader(), TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
+            LOG.trace("ignoring setProperty({}) on "+source.getXMLReader(), TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
         } catch (SAXNotSupportedException ex) {
-            LOG.info("ignoring setProperty({}) on "+source.getXMLReader(), TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
+            LOG.trace("ignoring setProperty({}) on "+source.getXMLReader(), TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
         }
         try {
             t.transform(source, out);
