@@ -96,6 +96,17 @@
             <artifactId>db-utils</artifactId>
             <version>1.2</version>
             <optional>false</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>oracle</groupId>
+                    <artifactId>jdbc</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc4</artifactId>
+            <version>10.2.0.5</version>
         </dependency>
         <dependency>
             <groupId>net.sf.saxon</groupId>
