@@ -75,8 +75,8 @@ class ProcessCommandFactory extends CommandFactory {
         }
 
         @Override
-        protected boolean init(OptionSet options) {
-            boolean ret = super.init(options);
+        protected boolean init(OptionSet options, InputCommandFactory.InputCommand inputBase) {
+            boolean ret = super.init(options, inputBase);
             xsl = options.valueOf(xslSpec);
             recordIdXPath = options.valueOf(recordIdXPathSpec);
             subdivide = options.has(subdivideSpec);
@@ -84,11 +84,11 @@ class ProcessCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
             if (txf != null) {
                 return txf;
             }
-            if (!init(parser.parse(args))) {
+            if (!init(parser.parse(args), inputBase)) {
                 return null;
             }
             try {
@@ -96,7 +96,7 @@ class ProcessCommandFactory extends CommandFactory {
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
             }
-            if (filesFrom != null) {
+            if (inputBase.filesFrom != null) {
                 txf.setInputType(QueueSourceXMLFilter.InputType.indirect);
             }
             if (last) {
@@ -121,9 +121,9 @@ class ProcessCommandFactory extends CommandFactory {
                 } else if (!output.isDirectory()) {
                     txf.setOutputCallback(new StaticFileCallback(t, output));
                 } else if (maxType == CommandType.SPLIT) {
-                    txf.setOutputCallback(new BaseRelativeIncrementingFileCalback((first ? input : inputBase.getInputBase()), output, t, outputExtension, outputExtension != null, suffixLength, null));
+                    txf.setOutputCallback(new BaseRelativeIncrementingFileCalback(inputBase.getInputBase(), output, t, outputExtension, outputExtension != null, suffixLength, null));
                 } else {
-                    txf.setOutputCallback(new BaseRelativeFileCallback((first ? input : inputBase.getInputBase()), output, t, outputExtension, outputExtension != null));
+                    txf.setOutputCallback(new BaseRelativeFileCallback(inputBase.getInputBase(), output, t, outputExtension, outputExtension != null));
                 }
             }
             return txf;
@@ -136,15 +136,7 @@ class ProcessCommandFactory extends CommandFactory {
 
         @Override
         public File getInputBase() {
-            if (input == null) {
-                return new File("");
-            } else if ("-".equals(input.getPath())) {
-                return null;
-            } else if (!input.isDirectory()) {
-                return null;
-            } else {
-                return input;
-            }
+            return inputBase.getInputBase();
         }
     }
 

@@ -68,12 +68,12 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
             if (initialized) {
                 return ret;
             } else {
                 initialized = true;
-                if (!init(parser.parse(args))) {
+                if (!init(parser.parse(args), inputBase)) {
                     return null;
                 } else {
                     ret = new XMLFilterImpl(rsxr);

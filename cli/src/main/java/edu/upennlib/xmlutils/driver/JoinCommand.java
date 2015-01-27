@@ -43,14 +43,10 @@ import org.xml.sax.XMLFilter;
  *
  * @author magibney
  */
-public class JoinCommand implements Command {
+public class JoinCommand implements Command<InputCommandFactory.InputCommand> {
 
     private static final TransformerFactory tf;
-    protected File filesFrom;
-    protected OptionSpec<File> filesFromSpec;
-    protected String delim;
-    protected OptionSpec nullDelimitedSpec;
-    protected OptionSpec<String> inputDelimiterSpec;
+    protected InputCommandFactory.InputCommand inputBase;
     protected File output;
     protected OptionSpec<File> outputFileSpec;
     protected OptionSpec joinAllSpec;
@@ -65,9 +61,7 @@ public class JoinCommand implements Command {
     
     protected final boolean first;
     protected final boolean last;
-    
-    private InputSource inSource;
-    
+        
     static {
         tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
     }
@@ -76,14 +70,6 @@ public class JoinCommand implements Command {
         this.first = first;
         this.last = last;
         parser = new OptionParser();
-        if (first) {
-            filesFromSpec = parser.acceptsAll(Flags.FILES_FROM_ARG, "indirect input")
-                    .withRequiredArg().ofType(File.class)
-                    .describedAs("'-' for stdin");
-            nullDelimitedSpec = parser.acceptsAll(Flags.FROM0_ARG, "indirect input file null-delimited");
-            inputDelimiterSpec = parser.acceptsAll(Flags.INPUT_DELIMITER_ARG, "directly specify input delimiter")
-                    .withRequiredArg().ofType(String.class).defaultsTo(System.lineSeparator());
-        }
         if (last) {
             outputFileSpec = parser.acceptsAll(Flags.OUTPUT_FILE_ARG, "output")
                     .withRequiredArg().ofType(File.class)
@@ -109,18 +95,6 @@ public class JoinCommand implements Command {
             return false;
         }
         joinAll = options.has(joinAllSpec);
-        if (first) {
-            if (options.has(nullDelimitedSpec)) {
-                delim = Character.toString('\0');
-            } else {
-                delim = options.valueOf(inputDelimiterSpec);
-            }
-            if (options.has(filesFromSpec)) {
-                filesFrom = options.valueOf(filesFromSpec);
-            } else {
-                filesFrom = new File("-");
-            }
-        }
         if (last) {
             if (options.has(outputFileSpec)) {
                 output = options.valueOf(outputFileSpec);
@@ -143,28 +117,21 @@ public class JoinCommand implements Command {
 
     @Override
     public InputSource getInput() throws FileNotFoundException {
-        if (inSource != null) {
-            return inSource;
-        } else if (first) {
-            inSource = new InputSource();
-            if (filesFrom != null) {
-                configureInputSource(inSource, filesFrom);
-            } else {
-                throw new AssertionError();
-            }
-            return inSource;
+        if (first) {
+            return inputBase.getInput();
         } else {
             return null;
         }
     }
 
     @Override
-    public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
+    public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
+        this.inputBase = inputBase;
         if (!init(parser.parse(args))) {
             return null;
         }
         JoiningXMLFilter joiner = new JoiningXMLFilter(!joinAll);
-        if (filesFrom != null) {
+        if (inputBase.filesFrom != null) {
             joiner.setInputType(QueueSourceXMLFilter.InputType.indirect);
         }
         if (!last) {

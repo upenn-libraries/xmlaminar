@@ -75,19 +75,19 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
         }
 
         @Override
-        protected boolean init(OptionSet options) {
-            boolean ret = super.init(options);
+        protected boolean init(OptionSet options, InputCommandFactory.InputCommand inputBase) {
+            boolean ret = super.init(options, inputBase);
             marcBinaryFieldLabel = options.valueOf(marcBinaryFieldLabelSpec);
             return ret;
         }
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
             if (initialized) {
                 return ret;
             } else {
                 initialized = true;
-                if (!init(parser.parse(args))) {
+                if (!init(parser.parse(args), inputBase)) {
                     return null;
                 } else {
                     ret = new XMLFilterImpl(mxr);

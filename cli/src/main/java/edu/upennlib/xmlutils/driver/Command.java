@@ -26,10 +26,11 @@ import org.xml.sax.XMLFilter;
 /**
  *
  * @author magibney
+ * @param <T> inputBase type for configuring input
  */
-public interface Command {
+public interface Command<T extends Command> {
 
-    <T extends Command> XMLFilter getXMLFilter(String[] args, T inputBase, CommandType maxType);
+    XMLFilter getXMLFilter(String[] args, T inputBase, CommandType maxType);
     
     InputSource getInput() throws FileNotFoundException;
     

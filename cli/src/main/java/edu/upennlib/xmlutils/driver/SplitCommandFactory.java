@@ -69,19 +69,19 @@ class SplitCommandFactory extends CommandFactory {
         }
 
         @Override
-        protected boolean init(OptionSet options) {
-            boolean ret = super.init(options);
+        protected boolean init(OptionSet options, InputCommandFactory.InputCommand inputBase) {
+            boolean ret = super.init(options, inputBase);
             chunkSize = options.valueOf(chunkSizeSpec);
             return ret;
         }
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
-            if (!init(parser.parse(args))) {
+        public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
+            if (!init(parser.parse(args), inputBase)) {
                 return null;
             }
             LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter(recordDepth, chunkSize);
-            if (filesFrom != null) {
+            if (inputBase.filesFrom != null) {
                 splitter.setInputType(QueueSourceXMLFilter.InputType.indirect);
             }
             if (last) {
@@ -106,7 +106,7 @@ class SplitCommandFactory extends CommandFactory {
                 } else if (!output.isDirectory()) {
                     splitter.setOutputCallback(new StaticFileCallback(t, output, outputFilter));
                 } else {
-                    splitter.setOutputCallback(new BaseRelativeIncrementingFileCalback(input, output, t, outputExtension, outputExtension != null, suffixLength, outputFilter));
+                    splitter.setOutputCallback(new BaseRelativeIncrementingFileCalback(inputBase.input, output, t, outputExtension, outputExtension != null, suffixLength, outputFilter));
                 }
             }
             return splitter;
@@ -119,15 +119,7 @@ class SplitCommandFactory extends CommandFactory {
 
         @Override
         public File getInputBase() {
-            if (input == null) {
-                return new File("");
-            } else if ("-".equals(input.getPath())) {
-                return null;
-            } else if (!input.isDirectory()) {
-                return null;
-            } else {
-                return input;
-            }
+            return inputBase.getInputBase();
         }
     }
 

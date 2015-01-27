@@ -64,23 +64,14 @@ class InputCommandFactory extends CommandFactory {
         protected String delim;
         protected OptionSpec nullDelimitedSpec;
         protected OptionSpec<String> inputDelimiterSpec;
-        protected File output;
-        protected OptionSpec<File> outputFileSpec;
-        protected File baseName;
-        protected OptionSpec<File> baseFileSpec;
-        protected int suffixLength;
-        protected OptionSpec<Integer> suffixLengthSpec;
-        protected String outputExtension;
-        protected OptionSpec<String> outputExtensionSpec;
-        protected boolean noIndent;
-        protected OptionSpec noIndentSpec;
 
         protected OptionSpec verboseSpec;
         protected OptionSpec helpSpec;
 
         protected final OptionParser parser;
 
-        private InputSource inSource;
+        private static final InputSource UNINITIALIZED_INPUT_SOURCE = new InputSource();
+        private InputSource inSource = UNINITIALIZED_INPUT_SOURCE;
 
         protected InputCommand(boolean first, boolean last) {
             if (!first || last) {
@@ -139,7 +130,7 @@ class InputCommandFactory extends CommandFactory {
             return true;
         }
 
-        protected static InputSource configureInputSource(InputSource in, File file) throws FileNotFoundException {
+        public static InputSource configureInputSource(InputSource in, File file) throws FileNotFoundException {
             if ("-".equals(file.getPath())) {
                 in.setByteStream(System.in);
             } else {
@@ -151,7 +142,7 @@ class InputCommandFactory extends CommandFactory {
 
         @Override
         public InputSource getInput() throws FileNotFoundException {
-            if (inSource != null) {
+            if (inSource != UNINITIALIZED_INPUT_SOURCE) {
                 return inSource;
             } else {
                 inSource = new InputSource();
@@ -173,7 +164,15 @@ class InputCommandFactory extends CommandFactory {
 
         @Override
         public File getInputBase() {
-            return input;
+            if (input == null) {
+                return null;
+            } else if ("-".equals(input.getPath())) {
+                return null;
+            } else if (!input.isDirectory()) {
+                return null;
+            } else {
+                return input;
+            }
         }
 
         @Override

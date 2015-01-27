@@ -35,17 +35,10 @@ import org.xml.sax.XMLFilter;
  *
  * @author magibney
  */
-public abstract class MultiOutCommand implements Command {
+public abstract class MultiOutCommand implements Command<InputCommandFactory.InputCommand> {
 
     protected int recordDepth;
     protected OptionSpec<Integer> recordDepthSpec;
-    protected File input;
-    protected OptionSpec<File> inputFileSpec;
-    protected File filesFrom;
-    protected OptionSpec<File> filesFromSpec;
-    protected String delim;
-    protected OptionSpec nullDelimitedSpec;
-    protected OptionSpec<String> inputDelimiterSpec;
     protected File output;
     protected OptionSpec<File> outputFileSpec;
     protected File baseName;
@@ -65,7 +58,7 @@ public abstract class MultiOutCommand implements Command {
     protected final boolean first;
     protected final boolean last;
 
-    private InputSource inSource;
+    protected InputCommandFactory.InputCommand inputBase;
 
     protected MultiOutCommand(boolean first, boolean last) {
         this.first = first;
@@ -73,17 +66,6 @@ public abstract class MultiOutCommand implements Command {
         parser = new OptionParser();
         recordDepthSpec = parser.acceptsAll(Flags.DEPTH_ARG, "set record element depth")
                 .withRequiredArg().ofType(Integer.class).defaultsTo(1);
-        if (first) {
-            inputFileSpec = parser.acceptsAll(Flags.INPUT_FILE_ARG, "input; default to stdin if no --files-from, otherwise CWD")
-                    .withRequiredArg().ofType(File.class)
-                    .describedAs("'-' for stdin");
-            filesFromSpec = parser.acceptsAll(Flags.FILES_FROM_ARG, "indirect input")
-                    .withRequiredArg().ofType(File.class)
-                    .describedAs("'-' for stdin");
-            nullDelimitedSpec = parser.acceptsAll(Flags.FROM0_ARG, "indirect input file null-delimited");
-            inputDelimiterSpec = parser.acceptsAll(Flags.INPUT_DELIMITER_ARG, "directly specify input delimiter")
-                    .withRequiredArg().ofType(String.class).defaultsTo(System.lineSeparator());
-        }
         if (last) {
             outputFileSpec = parser.acceptsAll(Flags.OUTPUT_FILE_ARG, "output")
                     .withRequiredArg().ofType(File.class)
@@ -110,30 +92,12 @@ public abstract class MultiOutCommand implements Command {
         }
     }
 
-    protected boolean init(OptionSet options) {
+    protected boolean init(OptionSet options, InputCommandFactory.InputCommand inputBase) {
+        this.inputBase = inputBase;
         if (options.has(helpSpec)) {
             return false;
         }
         recordDepth = options.valueOf(recordDepthSpec);
-        if (first) {
-            if (options.has(filesFromSpec)) {
-                filesFrom = options.valueOf(filesFromSpec);
-                if (options.has(nullDelimitedSpec)) {
-                    delim = Character.toString('\0');
-                } else {
-                    delim = options.valueOf(inputDelimiterSpec);
-                }
-            }
-            if (options.has(inputFileSpec)) {
-                input = options.valueOf(inputFileSpec);
-            } else {
-                if (filesFrom == null) {
-                    input = new File("-"); // if no files-from, default to stdin
-                } else {
-                    input = new File(""); // if files-from, default to CWD
-                }
-            }
-        }
         if (last) {
             noIndent = options.has(noIndentSpec);
             suffixLength = options.valueOf(suffixLengthSpec);
@@ -144,7 +108,7 @@ public abstract class MultiOutCommand implements Command {
             if (options.has(outputFileSpec)) {
                 output = options.valueOf(outputFileSpec);
             } else {
-                if (filesFrom == null) {
+                if (inputBase.filesFrom == null) {
                     output = new File("-");
                 } else if (baseName != null) {
                     output = new File("");
@@ -158,30 +122,10 @@ public abstract class MultiOutCommand implements Command {
         return true;
     }
 
-    protected static InputSource configureInputSource(InputSource in, File file) throws FileNotFoundException {
-        if ("-".equals(file.getPath())) {
-            in.setByteStream(System.in);
-        } else {
-            in.setByteStream(new BufferedInputStream(new FileInputStream(file)));
-            in.setSystemId(file.getAbsolutePath());
-        }
-        return in;
-    }
-
     @Override
     public InputSource getInput() throws FileNotFoundException {
-        if (inSource != null) {
-            return inSource;
-        } else if (first) {
-            inSource = new InputSource();
-            if (filesFrom != null) {
-                configureInputSource(inSource, filesFrom);
-            } else if (input != null) {
-                configureInputSource(inSource, input);
-            } else {
-                throw new AssertionError();
-            }
-            return inSource;
+        if (first) {
+            return inputBase.getInput();
         } else {
             return null;
         }

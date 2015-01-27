@@ -62,8 +62,8 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
     }
 
     @Override
-    protected boolean init(OptionSet options) {
-        boolean ret = super.init(options);
+    protected boolean init(OptionSet options, InputCommandFactory.InputCommand inputBase) {
+        boolean ret = super.init(options, inputBase);
         name = options.valueOf(nameSpec);
         sql = options.valueOf(sqlSpec);
         idFieldLabels = options.valueOf(idFieldLabelsSpec);
@@ -80,7 +80,7 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
     private Properties parseConnectionConfig(File configFile, Properties def) {
         InputStream in = null;
         try {
-            in = configureInputSource(new InputSource(), configFile).getByteStream();
+            in = InputCommandFactory.InputCommand.configureInputSource(new InputSource(), configFile).getByteStream();
             Properties ret = new Properties(def);
             ret.load(in);
             return ret;
@@ -100,15 +100,7 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
 
     @Override
     public File getInputBase() {
-        if (input == null) {
-            return new File("");
-        } else if ("-".equals(input.getPath())) {
-            return null;
-        } else if (!input.isDirectory()) {
-            return null;
-        } else {
-            return input;
-        }
+        return inputBase.getInputBase();
     }
 
     @Override
