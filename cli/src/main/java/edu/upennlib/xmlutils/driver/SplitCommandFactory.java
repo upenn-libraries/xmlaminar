@@ -52,7 +52,7 @@ class SplitCommandFactory extends CommandFactory {
     }
 
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
         return null;
     }
 
@@ -76,7 +76,7 @@ class SplitCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
             if (!init(parser.parse(args))) {
                 return null;
             }

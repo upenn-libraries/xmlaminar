@@ -53,7 +53,7 @@ class ProcessCommandFactory extends CommandFactory {
     }
 
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
         return null;
     }
 
@@ -84,7 +84,7 @@ class ProcessCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
             if (txf != null) {
                 return txf;
             }
@@ -121,9 +121,9 @@ class ProcessCommandFactory extends CommandFactory {
                 } else if (!output.isDirectory()) {
                     txf.setOutputCallback(new StaticFileCallback(t, output));
                 } else if (maxType == CommandType.SPLIT) {
-                    txf.setOutputCallback(new BaseRelativeIncrementingFileCalback((first ? input : inputBase), output, t, outputExtension, outputExtension != null, suffixLength, null));
+                    txf.setOutputCallback(new BaseRelativeIncrementingFileCalback((first ? input : inputBase.getInputBase()), output, t, outputExtension, outputExtension != null, suffixLength, null));
                 } else {
-                    txf.setOutputCallback(new BaseRelativeFileCallback((first ? input : inputBase), output, t, outputExtension, outputExtension != null));
+                    txf.setOutputCallback(new BaseRelativeFileCallback((first ? input : inputBase.getInputBase()), output, t, outputExtension, outputExtension != null));
                 }
             }
             return txf;

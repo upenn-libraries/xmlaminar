@@ -29,7 +29,7 @@ import org.xml.sax.XMLFilter;
  */
 public interface Command {
 
-    XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType);
+    <T extends Command> XMLFilter getXMLFilter(String[] args, T inputBase, CommandType maxType);
     
     InputSource getInput() throws FileNotFoundException;
     

@@ -48,14 +48,14 @@ class TeeCommandFactory extends CommandFactory {
     }
 
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
         return null;
     }
     
     private class TeeCommand implements Command {
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
             if (args.length != 1) {
                 throw new IllegalArgumentException("Command \"" + getKey() + "\" should have only one argument: dumpfile");
             }

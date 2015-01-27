@@ -66,7 +66,7 @@ class FileCommandFactory extends CommandFactory {
     }
     
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
         sb.setLength(0);
         return this;
     }
@@ -83,7 +83,7 @@ class FileCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
             if (ret == null) {
                 input = new InputSource(path != null ? path : args[0]);
                 try {

@@ -55,7 +55,7 @@ public class IntegrateCommandFactory extends CommandFactory {
 
     private final Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
 
-    private File inputBase;
+    private Command inputBase;
     private CommandType maxType;
     
     private int depth = -1;
@@ -67,7 +67,7 @@ public class IntegrateCommandFactory extends CommandFactory {
     }
     
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
         if (!first) {
             throw new IllegalArgumentException();
         }
@@ -160,7 +160,7 @@ public class IntegrateCommandFactory extends CommandFactory {
         }
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
             if (ret == null) {
                 ret = new XMLFilterImpl(root);
             }

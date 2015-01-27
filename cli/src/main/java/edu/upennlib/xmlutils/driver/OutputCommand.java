@@ -16,22 +16,14 @@
 
 package edu.upennlib.xmlutils.driver;
 
-import edu.upennlib.paralleltransformer.JoiningXMLFilter;
-import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
-import edu.upennlib.paralleltransformer.SerializingXMLFilter;
-import edu.upennlib.paralleltransformer.callback.BaseRelativeFileCallback;
-import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
-import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collections;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -43,9 +35,12 @@ import org.xml.sax.XMLFilter;
  *
  * @author magibney
  */
-public class JoinCommand implements Command {
+public abstract class OutputCommand implements Command {
 
-    private static final TransformerFactory tf;
+    protected int recordDepth;
+    protected OptionSpec<Integer> recordDepthSpec;
+    protected File input;
+    protected OptionSpec<File> inputFileSpec;
     protected File filesFrom;
     protected OptionSpec<File> filesFromSpec;
     protected String delim;
@@ -53,8 +48,12 @@ public class JoinCommand implements Command {
     protected OptionSpec<String> inputDelimiterSpec;
     protected File output;
     protected OptionSpec<File> outputFileSpec;
-    protected OptionSpec joinAllSpec;
-    protected boolean joinAll;
+    protected File baseName;
+    protected OptionSpec<File> baseFileSpec;
+    protected int suffixLength;
+    protected OptionSpec<Integer> suffixLengthSpec;
+    protected String outputExtension;
+    protected OptionSpec<String> outputExtensionSpec;
     protected boolean noIndent;
     protected OptionSpec noIndentSpec;
 
@@ -62,21 +61,22 @@ public class JoinCommand implements Command {
     protected OptionSpec helpSpec;
 
     protected final OptionParser parser;
-    
+
     protected final boolean first;
     protected final boolean last;
-    
+
     private InputSource inSource;
-    
-    static {
-        tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-    }
-    
-    protected JoinCommand(boolean first, boolean last) {
+
+    protected OutputCommand(boolean first, boolean last) {
         this.first = first;
         this.last = last;
         parser = new OptionParser();
+        recordDepthSpec = parser.acceptsAll(Flags.DEPTH_ARG, "set record element depth")
+                .withRequiredArg().ofType(Integer.class).defaultsTo(1);
         if (first) {
+            inputFileSpec = parser.acceptsAll(Flags.INPUT_FILE_ARG, "input; default to stdin if no --files-from, otherwise CWD")
+                    .withRequiredArg().ofType(File.class)
+                    .describedAs("'-' for stdin");
             filesFromSpec = parser.acceptsAll(Flags.FILES_FROM_ARG, "indirect input")
                     .withRequiredArg().ofType(File.class)
                     .describedAs("'-' for stdin");
@@ -88,9 +88,15 @@ public class JoinCommand implements Command {
             outputFileSpec = parser.acceptsAll(Flags.OUTPUT_FILE_ARG, "output")
                     .withRequiredArg().ofType(File.class)
                     .describedAs("'-' for stdout");
+            baseFileSpec = parser.acceptsAll(Flags.OUTPUT_BASE_NAME_ARG, "output base name")
+                    .withRequiredArg().ofType(File.class)
+                    .describedAs("'-' for stdout");
+            suffixLengthSpec = parser.acceptsAll(Flags.SUFFIX_LENGTH_ARG, "size of incremented suffix")
+                    .withRequiredArg().ofType(Integer.class).defaultsTo(5);
+            outputExtensionSpec = parser.acceptsAll(Flags.OUTPUT_EXTENSION_ARG, "optional additional suffix")
+                    .withRequiredArg().ofType(String.class);
             noIndentSpec = parser.acceptsAll(Flags.NO_INDENT_ARG, "prevent default indenting of output");
         }
-        joinAllSpec = parser.acceptsAll(Flags.JOIN_ALL_ARG, "join all output, irrespective of input systemId");
         verboseSpec = parser.acceptsAll(Flags.VERBOSE_ARG, "be more verbose");
         helpSpec = parser.acceptsAll(Flags.HELP_ARG, "show help").forHelp();
     }
@@ -108,37 +114,58 @@ public class JoinCommand implements Command {
         if (options.has(helpSpec)) {
             return false;
         }
-        joinAll = options.has(joinAllSpec);
+        recordDepth = options.valueOf(recordDepthSpec);
         if (first) {
-            if (options.has(nullDelimitedSpec)) {
-                delim = Character.toString('\0');
-            } else {
-                delim = options.valueOf(inputDelimiterSpec);
-            }
             if (options.has(filesFromSpec)) {
                 filesFrom = options.valueOf(filesFromSpec);
+                if (options.has(nullDelimitedSpec)) {
+                    delim = Character.toString('\0');
+                } else {
+                    delim = options.valueOf(inputDelimiterSpec);
+                }
+            }
+            if (options.has(inputFileSpec)) {
+                input = options.valueOf(inputFileSpec);
             } else {
-                filesFrom = new File("-");
+                if (filesFrom == null) {
+                    input = new File("-"); // if no files-from, default to stdin
+                } else {
+                    input = new File(""); // if files-from, default to CWD
+                }
             }
         }
         if (last) {
+            noIndent = options.has(noIndentSpec);
+            suffixLength = options.valueOf(suffixLengthSpec);
+            outputExtension = options.valueOf(outputExtensionSpec);
+            if (options.has(baseFileSpec)) {
+                baseName = options.valueOf(baseFileSpec);
+            }
             if (options.has(outputFileSpec)) {
                 output = options.valueOf(outputFileSpec);
             } else {
-                output = new File("-");
+                if (filesFrom == null) {
+                    output = new File("-");
+                } else if (baseName != null) {
+                    output = new File("");
+                } else {
+                    throw new IllegalArgumentException("if " + Flags.FILES_FROM_ARG.get(0)
+                            + " specified, " + Flags.OUTPUT_BASE_NAME_ARG.get(0) + " or "
+                            + Flags.OUTPUT_FILE_ARG.get(0) + " must also be specified");
+                }
             }
-            noIndent = options.has(noIndentSpec);
         }
         return true;
     }
 
-    protected static void configureInputSource(InputSource in, File file) throws FileNotFoundException {
+    protected static InputSource configureInputSource(InputSource in, File file) throws FileNotFoundException {
         if ("-".equals(file.getPath())) {
             in.setByteStream(System.in);
         } else {
             in.setByteStream(new BufferedInputStream(new FileInputStream(file)));
             in.setSystemId(file.getAbsolutePath());
         }
+        return in;
     }
 
     @Override
@@ -149,6 +176,8 @@ public class JoinCommand implements Command {
             inSource = new InputSource();
             if (filesFrom != null) {
                 configureInputSource(inSource, filesFrom);
+            } else if (input != null) {
+                configureInputSource(inSource, input);
             } else {
                 throw new AssertionError();
             }
@@ -156,52 +185,6 @@ public class JoinCommand implements Command {
         } else {
             return null;
         }
-    }
-
-    @Override
-    public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
-        if (!init(parser.parse(args))) {
-            return null;
-        }
-        JoiningXMLFilter joiner = new JoiningXMLFilter(!joinAll);
-        if (filesFrom != null) {
-            joiner.setInputType(QueueSourceXMLFilter.InputType.indirect);
-        }
-        if (!last) {
-            return joiner;
-        } else {
-            if (joinAll) {
-                SerializingXMLFilter serializer = new SerializingXMLFilter(output);
-                serializer.setParent(noIndent ? joiner : new OutputTransformerConfigurer(joiner, Collections.singletonMap("indent", "yes")));
-                return serializer;
-            } else {
-                Transformer t;
-                try {
-                    t = tf.newTransformer();
-                } catch (TransformerConfigurationException ex) {
-                    throw new RuntimeException(ex);
-                }
-                XMLFilter outputConfigurer = noIndent ? null : new OutputTransformerConfigurer(Collections.singletonMap("indent", "yes"));
-                if ("-".equals(output.getPath())) {
-                    joiner.setOutputCallback(new StdoutCallback(t, outputConfigurer));
-                } else if (output.isDirectory()) {
-                    joiner.setOutputCallback(new BaseRelativeFileCallback(inputBase.getInputBase(), output, t));
-                } else {
-                    joiner.setOutputCallback(new StaticFileCallback(t, output, outputConfigurer));
-                }
-                return joiner;
-            }
-        }
-    }
-
-    @Override
-    public CommandType getCommandType() {
-        return CommandType.JOIN;
-    }
-
-    @Override
-    public File getInputBase() {
-        return null;
     }
 
 }

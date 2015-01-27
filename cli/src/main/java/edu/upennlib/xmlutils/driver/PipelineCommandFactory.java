@@ -50,18 +50,18 @@ public class PipelineCommandFactory extends CommandFactory {
 
     private final boolean xmlConfigured;
     private final boolean first;
-    private final File inputBase;
+    private final Command inputBase;
     private final CommandType maxType;
     
     public PipelineCommandFactory() {
         this(false, false, null, null);
     }
     
-    private PipelineCommandFactory(boolean first, File inputBase, CommandType maxType) {
+    private PipelineCommandFactory(boolean first, Command inputBase, CommandType maxType) {
         this(true, first, inputBase, maxType);
     }
     
-    private PipelineCommandFactory(boolean xmlConfigured, boolean first, File inputBase, CommandType maxType) {
+    private PipelineCommandFactory(boolean xmlConfigured, boolean first, Command inputBase, CommandType maxType) {
         this.xmlConfigured = xmlConfigured;
         this.first = first;
         this.inputBase = inputBase;
@@ -69,7 +69,7 @@ public class PipelineCommandFactory extends CommandFactory {
     }
     
     @Override
-    public PipelineCommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType) {
+    public PipelineCommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
         return new PipelineCommandFactory(first, inputBase, maxType);
     }
 
@@ -190,7 +190,7 @@ public class PipelineCommandFactory extends CommandFactory {
         }
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, File inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
             try {
                 xmlFilterSource = Driver.chainCommands(first, commandFactories.iterator(), last);
             } catch (FileNotFoundException ex) {

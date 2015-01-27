@@ -116,6 +116,8 @@ public class Driver {
 
     }
     
+    private static final InputCommandFactory icf = new InputCommandFactory();
+    
     public static XMLFilterSource chainCommands(boolean first, Iterator<Map.Entry<CommandFactory, String[]>> iter, boolean last) throws FileNotFoundException {
         XMLFilter previous;
         InputSource in;
@@ -123,9 +125,23 @@ public class Driver {
         CommandType maxType = null;
         if (iter.hasNext()) {
             Map.Entry<CommandFactory, String[]> commandEntry = iter.next();
+            CommandFactory cf = commandEntry.getKey();
+            InputCommandFactory.InputCommand inputCommand = (InputCommandFactory.InputCommand) icf.newCommand(true, false);
+            String[] inputArgs;
+            if (cf instanceof InputCommandFactory) {
+                inputArgs = commandEntry.getValue();
+                if (!iter.hasNext()) {
+                    inputCommand.printHelpOn(System.err);
+                    return null;
+                }
+                commandEntry = iter.next();
+            } else {
+                inputArgs = new String[0];
+            }
             boolean localLast = !iter.hasNext();
             Command command = commandEntry.getKey().newCommand(first, last && localLast);
-            previous = command.getXMLFilter(commandEntry.getValue(), null, maxType);
+            inputCommand.init(inputArgs, command.getCommandType());
+            previous = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
             if (previous == null) {
                 command.printHelpOn(System.err);
                 return null;
@@ -137,7 +153,7 @@ public class Driver {
                 commandEntry = iter.next();
                 localLast = !iter.hasNext();
                 command = commandEntry.getKey().newCommand(false, last && localLast);
-                XMLFilter child = command.getXMLFilter(commandEntry.getValue(), inputBase, maxType);
+                XMLFilter child = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
                 if (child == null) {
                     command.printHelpOn(System.err);
                     return null;
@@ -188,14 +204,12 @@ public class Driver {
         LinkedList<Map.Entry<CommandFactory, String[]>> commandList = new LinkedList<Map.Entry<CommandFactory, String[]>>();
         CommandFactory current = null;
         int argStart = -1;
-        boolean first = true;
         for (int i = 0; i < args.length; i++) {
             if (args[i].startsWith("--")) {
                 CommandFactory cf = cfs.get(args[i].substring(2));
                 if (cf != null) {
                     if (current != null) {
                         commandList.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(current, Arrays.copyOfRange(args, argStart, i)));
-                        first = false;
                     }
                     argStart = i + 1;
                     current = cf;

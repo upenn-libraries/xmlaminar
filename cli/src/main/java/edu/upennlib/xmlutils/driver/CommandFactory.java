@@ -41,7 +41,7 @@ public abstract class CommandFactory extends XMLFilterImpl {
         return Collections.unmodifiableMap(AVAILABLE_COMMAND_FACTORIES);
     }
     
-    public abstract CommandFactory getConfiguringXMLFilter(boolean first, File inputBase, CommandType maxType);
+    public abstract CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType);
     
     public abstract Command newCommand(boolean first, boolean last);
 
