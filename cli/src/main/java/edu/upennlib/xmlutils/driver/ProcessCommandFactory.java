@@ -100,6 +100,9 @@ class ProcessCommandFactory extends CommandFactory {
                 txf.setInputType(QueueSourceXMLFilter.InputType.indirect);
             }
             if (last) {
+                if (true) {
+                    throw new AssertionError("XXX");
+                }
                 Transformer t;
                 try {
                     t = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null).newTransformer();

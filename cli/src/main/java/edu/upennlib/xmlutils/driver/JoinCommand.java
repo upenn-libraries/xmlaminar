@@ -137,6 +137,9 @@ public class JoinCommand implements Command<InputCommandFactory.InputCommand> {
         if (!last) {
             return joiner;
         } else {
+            if (true) {
+                throw new AssertionError("XXX");
+            }
             if (joinAll) {
                 SerializingXMLFilter serializer = new SerializingXMLFilter(output);
                 serializer.setParent(noIndent ? joiner : new OutputTransformerConfigurer(joiner, Collections.singletonMap("indent", "yes")));

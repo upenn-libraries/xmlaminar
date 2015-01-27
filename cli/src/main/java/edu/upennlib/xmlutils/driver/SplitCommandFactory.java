@@ -85,6 +85,9 @@ class SplitCommandFactory extends CommandFactory {
                 splitter.setInputType(QueueSourceXMLFilter.InputType.indirect);
             }
             if (last) {
+                if (true) {
+                    throw new AssertionError("XXX");
+                }
                 Transformer t;
                 try {
                     t = TransformerFactory.newInstance().newTransformer();

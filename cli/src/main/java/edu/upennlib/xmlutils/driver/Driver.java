@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -117,6 +118,7 @@ public class Driver {
     }
     
     private static final InputCommandFactory icf = new InputCommandFactory();
+    private static final OutputCommandFactory ocf = new OutputCommandFactory();
     
     public static XMLFilterSource chainCommands(boolean first, Iterator<Map.Entry<CommandFactory, String[]>> iter, boolean last) throws FileNotFoundException {
         XMLFilter previous;
@@ -139,6 +141,10 @@ public class Driver {
                 inputArgs = new String[0];
             }
             boolean localLast = !iter.hasNext();
+            if (localLast && !(cf instanceof OutputCommandFactory)) {
+                localLast = false;
+                iter = Collections.singletonMap((CommandFactory) ocf, new String[0]).entrySet().iterator();
+            }
             Command command = commandEntry.getKey().newCommand(first, last && localLast);
             inputCommand.init(inputArgs, command.getCommandType());
             previous = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
@@ -151,8 +157,13 @@ public class Driver {
             maxType = command.getCommandType();
             while (!localLast) {
                 commandEntry = iter.next();
+                cf = commandEntry.getKey();
                 localLast = !iter.hasNext();
-                command = commandEntry.getKey().newCommand(false, last && localLast);
+                if (localLast && !(cf instanceof OutputCommandFactory)) {
+                    localLast = false;
+                    iter = Collections.singletonMap((CommandFactory)ocf, new String[0]).entrySet().iterator();
+                }
+                command = cf.newCommand(false, last && localLast);
                 XMLFilter child = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
                 if (child == null) {
                     command.printHelpOn(System.err);
