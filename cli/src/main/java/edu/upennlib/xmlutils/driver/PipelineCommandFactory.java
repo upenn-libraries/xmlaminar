@@ -23,11 +23,14 @@ package edu.upennlib.xmlutils.driver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.AbstractMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -194,6 +197,8 @@ public class PipelineCommandFactory extends CommandFactory {
             try {
                 xmlFilterSource = Driver.chainCommands(first, commandFactories.iterator(), last);
             } catch (FileNotFoundException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
             return xmlFilterSource.getXMLReader();

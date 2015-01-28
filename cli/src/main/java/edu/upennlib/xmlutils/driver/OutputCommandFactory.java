@@ -158,7 +158,9 @@ class OutputCommandFactory extends CommandFactory {
             if (!init(parser.parse(args), inputBase)) {
                 return null;
             }
-            ret = new OutputXMLFilter(inputBase.input, output, baseName, suffixLength, outputExtension, noIndent);
+            String inBaseSystemId = inputBase.input.getSystemId();
+            File inBaseFile = inBaseSystemId == null ? null : new File(inBaseSystemId);
+            ret = new OutputXMLFilter(inBaseFile, output, baseName, suffixLength, outputExtension, noIndent);
             return ret;
         }
 

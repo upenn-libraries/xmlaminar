@@ -16,12 +16,19 @@
 
 package edu.upennlib.xmlutils.driver;
 
+import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -57,9 +64,9 @@ class InputCommandFactory extends CommandFactory {
 
     public static class InputCommand implements Command {
 
-        protected File input;
+        protected InputSource input;
         protected OptionSpec<File> inputFileSpec;
-        protected File filesFrom;
+        protected InputSource filesFrom;
         protected OptionSpec<File> filesFromSpec;
         protected String delim;
         protected OptionSpec nullDelimitedSpec;
@@ -100,41 +107,174 @@ class InputCommandFactory extends CommandFactory {
             }
         }
 
-        public boolean init(String[] args, CommandType type) {
-            return initOptionSet(parser.parse(args), type);
+        public boolean init(String[] args, CommandType type) throws IOException {
+            return initOptionSet(parser.parse(parseMainIn(args)), type);
         }
         
-        protected boolean initOptionSet(OptionSet options, CommandType type) {
+        private static final Pattern TRIM_OPTION_FLAG = Pattern.compile("^--?(?=[^-])");
+        
+        private static String trimOptionFlag(String flag) {
+            Matcher m = TRIM_OPTION_FLAG.matcher(flag);
+            if (!m.find()) {
+                return null;
+            } else {
+                return flag.substring(m.end());
+            }
+        }
+        
+        private String[] parseMainIn(String[] args) throws FileNotFoundException, IOException {
+            String mainInSpec;
+            if (args == null || args.length < 1) {
+                mainInSpec = "-";
+            } else {
+                mainInSpec = args[0];
+                if (parser.recognizedOptions().keySet().contains(trimOptionFlag(mainInSpec))) {
+                    return args;
+                }
+                args = Arrays.copyOfRange(args, 1, args.length);
+            }
+            File backingFile = null;
+            InputStream backing = null;
+            if ("-".equals(mainInSpec)) {
+                backing = System.in;
+            } else if ((backingFile = new File(mainInSpec)).isFile()) {
+                backing = new BufferedInputStream(new FileInputStream(backingFile));
+            }
+            if (backing == null) {
+                if (backingFile != null) {
+                    input = new InputSource(backingFile.getAbsolutePath());
+                }
+            } else {
+                final int firstByte = backing.read();
+                InputSource mainIn = new InputSource(new PrependInputStream(backing, firstByte));
+                if (backingFile != null) {
+                    mainIn.setSystemId(backingFile.getAbsolutePath());
+                }
+                if (firstByte == '<') {
+                    input = mainIn;
+                } else {
+                    filesFrom = mainIn;
+                }
+            }
+            return args;
+        }
+        
+        protected boolean initOptionSet(OptionSet options, CommandType type) throws FileNotFoundException, IOException {
             if (options.has(helpSpec)) {
                 return false;
             }
+            File filesFromFile = null;
             if (options.has(filesFromSpec)) {
-                filesFrom = options.valueOf(filesFromSpec);
-            } else if (type == CommandType.JOIN) {
-                filesFrom = new File("-");
+                filesFromFile = options.valueOf(filesFromSpec);
+            } else if (filesFrom == null && type == CommandType.JOIN) {
+                filesFromFile = new File("-");
             }
-            if (options.has(nullDelimitedSpec)) {
-                delim = Character.toString('\0');
-            } else {
-                delim = options.valueOf(inputDelimiterSpec);
+            if (filesFromFile != null) {
+                filesFrom = conditionallyConfigureInputSource(filesFrom, new InputSource(), filesFromFile);
             }
-            if (options.has(inputFileSpec)) {
-                input = options.valueOf(inputFileSpec);
-            } else {
-                if (filesFrom == null) {
-                    input = new File("-"); // if no files-from, default to stdin
+            if (filesFrom != null) {
+                if (options.has(nullDelimitedSpec)) {
+                    delim = Character.toString('\0');
                 } else {
-                    input = new File(""); // if files-from, default to CWD
+                    delim = options.valueOf(inputDelimiterSpec);
                 }
             }
+            File inputFile = null;
+            if (options.has(inputFileSpec)) {
+                inputFile = options.valueOf(inputFileSpec);
+            } else {
+                if (input == null) {
+                    if (filesFrom == null) {
+                        inputFile = new File("-"); // if no files-from, default to stdin
+                    } else {
+                        inputFile = new File(""); // if files-from, default to CWD
+                    }
+                }
+            }
+            if (inputFile != null) {
+                input = conditionallyConfigureInputSource(input, new InputSource(), inputFile);
+            }
             return true;
+        }
+        
+        private static class PrependInputStream extends FilterInputStream {
+
+            public PrependInputStream(InputStream in, int prepend) {
+                super(null);
+                this.in = new SelfEffacingInputStream(prepend, this, in);
+            }
+            
+            void setBacking(InputStream backing) {
+                in = backing;
+            }
+            
+        }
+        
+        private static class SelfEffacingInputStream extends ByteArrayInputStream {
+
+            private final PrependInputStream parent;
+            private final InputStream successor;
+            
+            public SelfEffacingInputStream(int prepend, PrependInputStream parent, InputStream successor) {
+                super(new byte[] {(byte)prepend});
+                this.parent = parent;
+                this.successor = successor;
+            }
+
+            @Override
+            public synchronized int read(byte[] b, int off, int len) {
+                int ret = super.read(b, off, len);
+                parent.setBacking(successor);
+                return ret;
+            }
+
+            @Override
+            public synchronized int read() {
+                int ret = super.read();
+                parent.setBacking(successor);
+                return ret;
+            }
+
+            @Override
+            public void close() throws IOException {
+                super.close();
+                successor.close();
+            }
+            
         }
 
         public static InputSource configureInputSource(InputSource in, File file) throws FileNotFoundException {
             if ("-".equals(file.getPath())) {
                 in.setByteStream(System.in);
             } else {
-                in.setByteStream(new BufferedInputStream(new FileInputStream(file)));
+                if (file.isFile()) {
+                    in.setByteStream(new BufferedInputStream(new FileInputStream(file)));
+                }
+                in.setSystemId(file.getAbsolutePath());
+            }
+            return in;
+        }
+
+        public static InputSource conditionallyConfigureInputSource(InputSource existing, InputSource in, File file) throws FileNotFoundException, IOException {
+            if (existing == null) {
+                return configureInputSource(in, file);
+            } else if ("-".equals(file.getPath())) {
+                if (existing.getSystemId() == null) {
+                    return existing;
+                }
+                in.setByteStream(System.in);
+            } else {
+                if (file.getAbsolutePath().equals(existing.getSystemId())) {
+                    return existing;
+                } else {
+                    InputStream existingIn = existing.getByteStream();
+                    if (existingIn != null) {
+                        existingIn.close();
+                    }
+                }
+                if (file.isFile()) {
+                    in.setByteStream(new BufferedInputStream(new FileInputStream(file)));
+                }
                 in.setSystemId(file.getAbsolutePath());
             }
             return in;
@@ -147,9 +287,9 @@ class InputCommandFactory extends CommandFactory {
             } else {
                 inSource = new InputSource();
                 if (filesFrom != null) {
-                    configureInputSource(inSource, filesFrom);
+                    inSource = filesFrom;
                 } else if (input != null) {
-                    configureInputSource(inSource, input);
+                    inSource = input;
                 } else {
                     throw new AssertionError();
                 }
@@ -166,12 +306,16 @@ class InputCommandFactory extends CommandFactory {
         public File getInputBase() {
             if (input == null) {
                 return null;
-            } else if ("-".equals(input.getPath())) {
-                return null;
-            } else if (!input.isDirectory()) {
-                return null;
             } else {
-                return input;
+                String inputSystemId;
+                File inputBase;
+                if ((inputSystemId = input.getSystemId()) == null) {
+                    return null;
+                } else if (!(inputBase = new File(inputSystemId)).isDirectory()) {
+                    return null;
+                } else {
+                    return inputBase;
+                }
             }
         }
 

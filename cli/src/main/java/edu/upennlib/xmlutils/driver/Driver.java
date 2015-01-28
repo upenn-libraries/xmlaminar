@@ -120,7 +120,7 @@ public class Driver {
     private static final InputCommandFactory icf = new InputCommandFactory();
     private static final OutputCommandFactory ocf = new OutputCommandFactory();
     
-    public static XMLFilterSource chainCommands(boolean first, Iterator<Map.Entry<CommandFactory, String[]>> iter, boolean last) throws FileNotFoundException {
+    public static XMLFilterSource chainCommands(boolean first, Iterator<Map.Entry<CommandFactory, String[]>> iter, boolean last) throws FileNotFoundException, IOException {
         XMLFilter previous;
         InputSource in;
         File inputBase;

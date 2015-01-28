@@ -109,7 +109,9 @@ class SplitCommandFactory extends CommandFactory {
                 } else if (!output.isDirectory()) {
                     splitter.setOutputCallback(new StaticFileCallback(t, output, outputFilter));
                 } else {
-                    splitter.setOutputCallback(new BaseRelativeIncrementingFileCalback(inputBase.input, output, t, outputExtension, outputExtension != null, suffixLength, outputFilter));
+                    String inBaseSystemId = inputBase.input.getSystemId();
+                    File inBaseFile = inBaseSystemId == null ? null : new File(inBaseSystemId);
+                    splitter.setOutputCallback(new BaseRelativeIncrementingFileCalback(inBaseFile, output, t, outputExtension, outputExtension != null, suffixLength, outputFilter));
                 }
             }
             return splitter;
