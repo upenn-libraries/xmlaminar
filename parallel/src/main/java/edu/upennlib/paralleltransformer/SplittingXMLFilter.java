@@ -213,10 +213,8 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
         private void parse() throws SAXException, IOException {
             parseBeginPhaser.arrive();
             try {
-                parseEndPhaser.awaitAdvanceInterruptibly(parseEndPhaser.arrive(), 4, TimeUnit.SECONDS);
+                parseEndPhaser.awaitAdvanceInterruptibly(parseEndPhaser.arrive());
             } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            } catch (TimeoutException ex) {
                 throw new RuntimeException(ex);
             }
             parseChunkDonePhaser.arrive();
