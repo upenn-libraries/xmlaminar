@@ -16,6 +16,7 @@
 
 package edu.upennlib.paralleltransformer;
 
+import static edu.upennlib.paralleltransformer.JoiningXMLFilter.GROUP_BY_SYSTEMID_FEATURE_NAME;
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
@@ -87,10 +88,19 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
     }
     
     public static void main(String[] args) throws Exception {
+        JoiningXMLFilter joiner = new JoiningXMLFilter(false);
+        SplittingXMLFilter sxf = new LevelSplittingXMLFilter(1, 10);
         TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/input/identity.xsl"), "/root/rec/@id", true);
-        txf.setInputType(InputType.indirect);
-        txf.setOutputCallback(new StaticFileCallback(new File("/dev/null")));
-        txf.parse(new InputSource("../cli/input/whole-bad-indirect.txt"));
+        sxf.setOutputCallback(new StdoutCallback());
+        joiner.setParent(txf);
+//        ExecutorService ex = Executors.newCachedThreadPool();
+//        sxf.setExecutor(ex);
+        sxf.setParent(joiner);
+        sxf.parse(new InputSource("../cli/var-length/50.xml"));
+        System.out.println("one!");
+        sxf.parse(new InputSource("../cli/var-length/25.xml"));
+        System.out.println("Done!");
+//        ex.shutdown();
     }
     
     @Override
@@ -372,6 +382,19 @@ public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
         }
         if (OUTPUT_TRANSFORMER_PROPERTY_NAME.equals(name)) {
             configureOutputTransformer((Transformer) value);
+        }
+    }
+    
+    @Override
+    public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
+        if (GROUP_BY_SYSTEMID_FEATURE_NAME.equals(name)) {
+            if (subdivide) {
+                return false;
+            } else {
+                return super.getFeature(name);
+            }
+        } else {
+            return super.getFeature(name);
         }
     }
     

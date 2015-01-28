@@ -45,6 +45,8 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 
@@ -255,6 +257,17 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     public boolean allowOutputCallback() {
         return multiOut;
     }
+
+    @Override
+    public boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException {
+        if (GROUP_BY_SYSTEMID_FEATURE_NAME.equals(name)) {
+            return true;
+        } else {
+            return super.getFeature(name);
+        }
+    }
+    
+    public static final String GROUP_BY_SYSTEMID_FEATURE_NAME = "http://transform.xml.javax/Transformer#groupBySystemId";
     
     private class OutputLooper implements Runnable {
 

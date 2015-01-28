@@ -16,7 +16,9 @@
 
 package edu.upennlib.xmlutils.driver;
 
+import edu.upennlib.paralleltransformer.JoiningXMLFilter;
 import edu.upennlib.paralleltransformer.SerializingXMLFilter;
+import edu.upennlib.paralleltransformer.callback.BaseRelativeFileCallback;
 import edu.upennlib.paralleltransformer.callback.BaseRelativeIncrementingFileCalback;
 import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
@@ -28,6 +30,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -36,6 +40,8 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 
@@ -212,6 +218,18 @@ class OutputCommandFactory extends CommandFactory {
                 super.parse(input);
             }
         }
+        
+        private static boolean ASSUME_GROUP_BY_SYSTEMID = true;
+        
+        private static boolean groupBySystemId(XMLReader reader) {
+            try {
+                return reader.getFeature(JoiningXMLFilter.GROUP_BY_SYSTEMID_FEATURE_NAME);
+            } catch (SAXNotRecognizedException ex) {
+                return ASSUME_GROUP_BY_SYSTEMID;
+            } catch (SAXNotSupportedException ex) {
+                return ASSUME_GROUP_BY_SYSTEMID;
+            }
+        }
 
         private boolean setupParse(InputSource inSource) throws SAXException, IOException {
             XMLReader parent = getParent();
@@ -239,7 +257,11 @@ class OutputCommandFactory extends CommandFactory {
                 } else if (!output.isDirectory()) {
                     callbackParent.setOutputCallback(new StaticFileCallback(t, output, outputFilter));
                 } else {
-                    callbackParent.setOutputCallback(new BaseRelativeIncrementingFileCalback(inputBase, output, t, outputExtension, outputExtension != null, suffixLength, outputFilter));
+                    if (groupBySystemId(parent)) {
+                        callbackParent.setOutputCallback(new BaseRelativeFileCallback(inputBase, output, t));
+                    } else {
+                        callbackParent.setOutputCallback(new BaseRelativeIncrementingFileCalback(inputBase, output, t, outputExtension, outputExtension != null, suffixLength, outputFilter));
+                    }
                 }
                 return true;
             } else {

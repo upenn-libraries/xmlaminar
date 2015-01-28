@@ -16,6 +16,7 @@
 
 package edu.upennlib.paralleltransformer;
 
+import static edu.upennlib.paralleltransformer.JoiningXMLFilter.GROUP_BY_SYSTEMID_FEATURE_NAME;
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
@@ -183,7 +184,9 @@ public class SplittingXMLFilter extends QueueSourceXMLFilter implements OutputCa
             } catch (SAXException ex) {
                 return consumerTask == null;
             }
-        } else {
+        } else if (GROUP_BY_SYSTEMID_FEATURE_NAME.equals(name)) {
+            return false;
+        }else {
             return super.getFeature(name);
         }
     }

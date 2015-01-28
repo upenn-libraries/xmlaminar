@@ -68,6 +68,7 @@ public class BaseRelativeIncrementingFileCalback extends BaseRelativeFileCallbac
                 ext = StreamCallback.getExtension(systemId);
             }
             ifc.setBaseFile(nextFile, ext);
+            lastPath = path;
         }
         ifc.callback(source);
     }
