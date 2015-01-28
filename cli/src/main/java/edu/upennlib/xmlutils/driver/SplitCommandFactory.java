@@ -81,7 +81,7 @@ class SplitCommandFactory extends CommandFactory {
                 return null;
             }
             LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter(recordDepth, chunkSize);
-            if (inputBase.filesFrom != null) {
+            if (first && inputBase.filesFrom != null) {
                 splitter.setInputType(QueueSourceXMLFilter.InputType.indirect);
             }
             if (last) {

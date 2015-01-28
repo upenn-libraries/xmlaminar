@@ -96,7 +96,7 @@ class ProcessCommandFactory extends CommandFactory {
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
             }
-            if (inputBase.filesFrom != null) {
+            if (first && inputBase.filesFrom != null) {
                 txf.setInputType(QueueSourceXMLFilter.InputType.indirect);
             }
             if (last) {

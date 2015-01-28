@@ -131,7 +131,7 @@ public class JoinCommand implements Command<InputCommandFactory.InputCommand> {
             return null;
         }
         JoiningXMLFilter joiner = new JoiningXMLFilter(!joinAll);
-        if (inputBase.filesFrom != null) {
+        if (first && inputBase.filesFrom != null) {
             joiner.setInputType(QueueSourceXMLFilter.InputType.indirect);
         }
         if (!last) {
