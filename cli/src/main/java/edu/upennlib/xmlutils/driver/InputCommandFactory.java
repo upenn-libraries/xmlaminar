@@ -166,8 +166,6 @@ class InputCommandFactory extends CommandFactory {
             File filesFromFile = null;
             if (options.has(filesFromSpec)) {
                 filesFromFile = options.valueOf(filesFromSpec);
-            } else if (filesFrom == null && type == CommandType.JOIN) {
-                filesFromFile = new File("-");
             }
             if (filesFromFile != null) {
                 filesFrom = conditionallyConfigureInputSource(filesFrom, new InputSource(), filesFromFile);
