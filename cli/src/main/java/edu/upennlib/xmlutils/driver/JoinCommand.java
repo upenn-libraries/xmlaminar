@@ -61,7 +61,7 @@ public class JoinCommand implements Command<InputCommandFactory.InputCommand> {
     
     protected final boolean first;
     protected final boolean last;
-        
+    
     static {
         tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
     }
@@ -137,7 +137,7 @@ public class JoinCommand implements Command<InputCommandFactory.InputCommand> {
         if (first && inputBase.filesFrom != null) {
             joiner.setInputType(QueueSourceXMLFilter.InputType.indirect);
         }
-        if (!last) {
+        if (true || !last) {
             return joiner;
         } else {
             if (true) {
@@ -175,6 +175,16 @@ public class JoinCommand implements Command<InputCommandFactory.InputCommand> {
     @Override
     public File getInputBase() {
         return null;
+    }
+
+    @Override
+    public boolean handlesOutput() {
+        return false;
+    }
+
+    @Override
+    public InitCommand inputHandler() {
+        return inputBase;
     }
 
 }

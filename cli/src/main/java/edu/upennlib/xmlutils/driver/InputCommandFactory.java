@@ -58,7 +58,7 @@ class InputCommandFactory extends CommandFactory {
     }
 
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
         return null;
     }
 
@@ -204,6 +204,16 @@ class InputCommandFactory extends CommandFactory {
             }
             return true;
         }
+
+        @Override
+        public boolean handlesOutput() {
+            return false;
+        }
+
+        @Override
+        public InitCommand inputHandler() {
+            return this;
+        }
         
         private static class PrependInputStream extends FilterInputStream {
 
@@ -306,8 +316,8 @@ class InputCommandFactory extends CommandFactory {
         }
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
-            throw new UnsupportedOperationException("Not supported yet.");
+        public XMLFilter getXMLFilter(String[] args, InitCommand inputBase, CommandType maxType) {
+            throw new UnsupportedOperationException("Not supported.");
         }
 
         @Override

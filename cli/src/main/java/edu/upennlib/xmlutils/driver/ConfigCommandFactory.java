@@ -60,7 +60,7 @@ public class ConfigCommandFactory extends CommandFactory {
         this(true, false, null, null);
     }
 
-    public ConfigCommandFactory(boolean direct, boolean first, Command inputBase, CommandType maxType) {
+    public ConfigCommandFactory(boolean direct, boolean first, InitCommand inputBase, CommandType maxType) {
         this.direct = direct;
         this.first = first;
         this.inputBase = inputBase;
@@ -69,7 +69,7 @@ public class ConfigCommandFactory extends CommandFactory {
 
     private final boolean direct;
     private final boolean first;
-    private final Command inputBase;
+    private final InitCommand inputBase;
     private final CommandType maxType;
 
     @Override
@@ -95,11 +95,11 @@ public class ConfigCommandFactory extends CommandFactory {
     }
 
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
         return new ConfigCommandFactory(false, first, inputBase, maxType);
     }
 
-    private String[] constructCommandLineArgs() {
+    String[] constructCommandLineArgs() {
         String[] ret = new String[props.size() * 2];
         int i = 0;
         for (String s : props.stringPropertyNames()) {
@@ -263,14 +263,14 @@ public class ConfigCommandFactory extends CommandFactory {
 
     }
 
-    private static class WrappedCommand implements Command {
+    private static class WrappedCommand<T extends InitCommand> implements Command<T> {
 
         private final String[] args;
-        private final Command inputBase;
+        private final T inputBase;
         private final CommandType maxType;
-        private final Command backing;
+        private final Command<T> backing;
 
-        public WrappedCommand(String[] args, Command inputBase, CommandType maxType, Command backing) {
+        public WrappedCommand(String[] args, T inputBase, CommandType maxType, Command backing) {
             this.args = args;
             this.inputBase = inputBase;
             this.maxType = maxType;
@@ -278,7 +278,7 @@ public class ConfigCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, T inputBase, CommandType maxType) {
             return backing.getXMLFilter(this.args, this.inputBase, this.maxType);
         }
 
@@ -302,9 +302,19 @@ public class ConfigCommandFactory extends CommandFactory {
             return backing.getCommandType();
         }
 
+        @Override
+        public boolean handlesOutput() {
+            return backing.handlesOutput();
+        }
+
+        @Override
+        public InitCommand inputHandler() {
+            return backing.inputHandler();
+        }
+
     }
     
-    private static class ConfigCommand implements Command {
+    private static class ConfigCommand<T extends Command & InitCommand> implements Command<T> {
 
         private static final Set<String> helpArgs;
         private InputSource configSource;
@@ -313,7 +323,7 @@ public class ConfigCommandFactory extends CommandFactory {
         private Command inputBase;
         private CommandType maxType;
         private String[] args;
-        private Command backing;
+        private Command<T> backing;
 
         static {
             Set<String> tmp = new HashSet<String>(2);
@@ -365,7 +375,7 @@ public class ConfigCommandFactory extends CommandFactory {
         }
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, T inputBase, CommandType maxType) {
             if (backing != null && (true || verifyArgsUnchanged(args, inputBase, maxType))) {
                 return backing.getXMLFilter(args, inputBase, maxType);
             }
@@ -398,6 +408,16 @@ public class ConfigCommandFactory extends CommandFactory {
         public void printHelpOn(OutputStream out) {
             PrintStream ps = new PrintStream(out);
             ps.println("command \"" + KEY + "\" accepts single config file argument");
+        }
+
+        @Override
+        public boolean handlesOutput() {
+            return backing.handlesOutput();
+        }
+
+        @Override
+        public InitCommand inputHandler() {
+            return backing.inputHandler();
         }
 
     }

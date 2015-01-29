@@ -52,7 +52,7 @@ class SplitCommandFactory extends CommandFactory {
     }
 
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
         return null;
     }
 
@@ -87,10 +87,7 @@ class SplitCommandFactory extends CommandFactory {
             if (first && inputBase.filesFrom != null) {
                 splitter.setInputType(QueueSourceXMLFilter.InputType.indirect);
             }
-            if (last) {
-                if (true) {
-                    throw new AssertionError("XXX");
-                }
+            if (false && last) {
                 Transformer t;
                 try {
                     t = TransformerFactory.newInstance().newTransformer();
@@ -128,6 +125,16 @@ class SplitCommandFactory extends CommandFactory {
         @Override
         public File getInputBase() {
             return inputBase.getInputBase();
+        }
+
+        @Override
+        public boolean handlesOutput() {
+            return false;
+        }
+
+        @Override
+        public InitCommand inputHandler() {
+            return inputBase;
         }
     }
 

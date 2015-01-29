@@ -53,18 +53,18 @@ public class PipelineCommandFactory extends CommandFactory {
 
     private final boolean xmlConfigured;
     private final boolean first;
-    private final Command inputBase;
+    private InitCommand inputBase;
     private final CommandType maxType;
     
     public PipelineCommandFactory() {
         this(false, false, null, null);
     }
     
-    private PipelineCommandFactory(boolean first, Command inputBase, CommandType maxType) {
+    private PipelineCommandFactory(boolean first, InitCommand inputBase, CommandType maxType) {
         this(true, first, inputBase, maxType);
     }
     
-    private PipelineCommandFactory(boolean xmlConfigured, boolean first, Command inputBase, CommandType maxType) {
+    private PipelineCommandFactory(boolean xmlConfigured, boolean first, InitCommand inputBase, CommandType maxType) {
         this.xmlConfigured = xmlConfigured;
         this.first = first;
         this.inputBase = inputBase;
@@ -72,7 +72,7 @@ public class PipelineCommandFactory extends CommandFactory {
     }
     
     @Override
-    public PipelineCommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
+    public PipelineCommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
         return new PipelineCommandFactory(first, inputBase, maxType);
     }
 
@@ -139,7 +139,12 @@ public class PipelineCommandFactory extends CommandFactory {
             currentCommandFactory.setParent(passThrough);
             currentCommandFactory.startDocument();
             currentCommandFactory.startElement(uri, localName, qName, atts);
-            commandFactories.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(currentCommandFactory, null));
+            if (cf instanceof InputCommandFactory) {
+                inputBase = (InputCommandFactory.InputCommand) cf.newCommand(first, false);
+                inputBase.setInputArgs(((ConfigCommandFactory)currentCommandFactory).constructCommandLineArgs());
+            } else {
+                commandFactories.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(currentCommandFactory, null));
+            }
         } else {
             throw new AssertionError("this should never happen");
         }
@@ -181,11 +186,11 @@ public class PipelineCommandFactory extends CommandFactory {
         depth++;
     }
 
-    private class PipelineCommand implements Command {
+    private class PipelineCommand implements Command<InputCommandFactory.InputCommand> {
 
         private final boolean first;
         private final boolean last;
-        private Driver.XMLFilterSource xmlFilterSource;
+        private Driver.XMLFilterSource<InputCommandFactory.InputCommand> xmlFilterSource;
 
         public PipelineCommand(boolean first, boolean last) {
             this.first = first;
@@ -193,9 +198,9 @@ public class PipelineCommandFactory extends CommandFactory {
         }
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
             try {
-                xmlFilterSource = Driver.chainCommands(first, commandFactories.iterator(), last);
+                xmlFilterSource = Driver.chainCommands(first, inputBase, commandFactories.iterator(), last);
             } catch (FileNotFoundException ex) {
                 throw new RuntimeException(ex);
             } catch (IOException ex) {
@@ -222,6 +227,16 @@ public class PipelineCommandFactory extends CommandFactory {
         @Override
         public CommandType getCommandType() {
             return xmlFilterSource.getCommandType();
+        }
+
+        @Override
+        public boolean handlesOutput() {
+            return xmlFilterSource.handlesOutput();
+        }
+
+        @Override
+        public InputCommandFactory.InputCommand inputHandler() {
+            return xmlFilterSource.inputHandler();
         }
     }
 

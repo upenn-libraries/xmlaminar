@@ -56,7 +56,7 @@ public class IntegrateCommandFactory extends CommandFactory {
 
     private final Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
 
-    private Command inputBase;
+    private InitCommand inputBase;
     private CommandType maxType;
     
     private int depth = -1;
@@ -68,7 +68,7 @@ public class IntegrateCommandFactory extends CommandFactory {
     }
     
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
         if (!first) {
             throw new IllegalArgumentException();
         }
@@ -150,11 +150,12 @@ public class IntegrateCommandFactory extends CommandFactory {
     private static final InputSource dummy = new InputSource();
     private static final boolean EXPECT_INPUT = false;
     
-    private class IntegrateCommand<T extends Command & InitCommand> implements Command<T> {
+    private class IntegrateCommand implements Command {
 
         private final boolean first;
         private final boolean last;
         private XMLFilter ret;
+        private InitCommand inputBase;
         
         public IntegrateCommand(boolean first, boolean last) {
             this.first = first;
@@ -162,9 +163,12 @@ public class IntegrateCommandFactory extends CommandFactory {
         }
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, T inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, InitCommand inputBase, CommandType maxType) {
             if (ret == null) {
-                CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
+                if (!CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT)) {
+                    return null;
+                }
+                this.inputBase = inputBase;
                 ret = new XMLFilterImpl(root);
             }
             return ret;
@@ -188,6 +192,16 @@ public class IntegrateCommandFactory extends CommandFactory {
         @Override
         public CommandType getCommandType() {
             return CommandType.PASS_THROUGH;
+        }
+
+        @Override
+        public boolean handlesOutput() {
+            return false;
+        }
+
+        @Override
+        public InitCommand inputHandler() {
+            return inputBase;
         }
     }
 

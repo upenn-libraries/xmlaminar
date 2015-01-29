@@ -39,7 +39,7 @@ class JoinCommandFactory extends CommandFactory {
     }
 
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
         return null;
     }
 

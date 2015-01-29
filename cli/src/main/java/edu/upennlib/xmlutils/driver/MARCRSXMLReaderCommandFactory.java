@@ -56,7 +56,7 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
     }
 
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
         return null;
     }
     
@@ -108,7 +108,7 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
-            if (last) {
+            if (false && last) {
                 SerializingXMLFilter serializer = new SerializingXMLFilter(output);
                 if (noIndent) {
                     serializer.setParent(ret);
@@ -118,6 +118,16 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
                 ret = serializer;
             }
             return ret;
+        }
+
+        @Override
+        public boolean handlesOutput() {
+            return false;
+        }
+
+        @Override
+        public InitCommand inputHandler() {
+            return inputBase;
         }
 
     }

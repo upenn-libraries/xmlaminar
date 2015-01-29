@@ -68,7 +68,7 @@ class OutputCommandFactory extends CommandFactory {
     }
 
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
         return null;
     }
 
@@ -178,6 +178,16 @@ class OutputCommandFactory extends CommandFactory {
         @Override
         public CommandType getCommandType() {
             return CommandType.PASS_THROUGH;
+        }
+
+        @Override
+        public boolean handlesOutput() {
+            return true;
+        }
+
+        @Override
+        public InputCommandFactory.InputCommand inputHandler() {
+            return inputBase;
         }
 
     }

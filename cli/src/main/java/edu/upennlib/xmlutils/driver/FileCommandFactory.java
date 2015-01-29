@@ -18,6 +18,7 @@ package edu.upennlib.xmlutils.driver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.logging.Level;
@@ -66,12 +67,12 @@ class FileCommandFactory extends CommandFactory {
     }
     
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
         sb.setLength(0);
         return this;
     }
 
-    private static class FileCommand implements Command {
+    private static class FileCommand<T extends InitCommand> implements InitCommand<T> {
 
         private InputSource input;
         private XMLFilter ret;
@@ -83,7 +84,7 @@ class FileCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, InitCommand inputBase, CommandType maxType) {
             if (ret == null) {
                 input = new InputSource(path != null ? path : args[0]);
                 try {
@@ -116,6 +117,26 @@ class FileCommandFactory extends CommandFactory {
         @Override
         public CommandType getCommandType() {
             return CommandType.PASS_THROUGH;
+        }
+
+        @Override
+        public boolean handlesOutput() {
+            return false;
+        }
+
+        @Override
+        public InitCommand inputHandler() {
+            return this;
+        }
+
+        @Override
+        public boolean init(boolean expectInput) throws IOException {
+            return true;
+        }
+
+        @Override
+        public void setInputArgs(String[] args) {
+            throw new UnsupportedOperationException("Not supported.");
         }
         
     }

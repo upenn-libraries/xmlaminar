@@ -48,17 +48,20 @@ class TeeCommandFactory extends CommandFactory {
     }
 
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
         return null;
     }
     
     private class TeeCommand implements Command {
 
+        private InitCommand inputBase;
+        
         @Override
-        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, InitCommand inputBase, CommandType maxType) {
             if (args.length != 1) {
                 throw new IllegalArgumentException("Command \"" + getKey() + "\" should have only one argument: dumpfile");
             }
+            this.inputBase = inputBase;
             File df = new File(args[0]);
             DumpingXMLFilter dxf = new DumpingXMLFilter();
             String path = df.getPath();
@@ -92,6 +95,16 @@ class TeeCommandFactory extends CommandFactory {
         @Override
         public CommandType getCommandType() {
             return CommandType.PASS_THROUGH;
+        }
+
+        @Override
+        public boolean handlesOutput() {
+            return false;
+        }
+
+        @Override
+        public InitCommand inputHandler() {
+            return inputBase;
         }
 
     }

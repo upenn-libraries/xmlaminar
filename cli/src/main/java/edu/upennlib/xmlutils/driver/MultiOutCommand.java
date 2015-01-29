@@ -98,7 +98,7 @@ public abstract class MultiOutCommand implements Command<InputCommandFactory.Inp
             return false;
         }
         recordDepth = options.valueOf(recordDepthSpec);
-        if (last) {
+        if (false && last) {
             noIndent = options.has(noIndentSpec);
             suffixLength = options.valueOf(suffixLengthSpec);
             outputExtension = options.valueOf(outputExtensionSpec);

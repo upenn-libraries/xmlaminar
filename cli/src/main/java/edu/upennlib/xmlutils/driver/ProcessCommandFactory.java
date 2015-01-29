@@ -53,7 +53,7 @@ class ProcessCommandFactory extends CommandFactory {
     }
 
     @Override
-    public CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType) {
+    public CommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
         return null;
     }
 
@@ -102,7 +102,7 @@ class ProcessCommandFactory extends CommandFactory {
             if (first && inputBase.filesFrom != null) {
                 txf.setInputType(QueueSourceXMLFilter.InputType.indirect);
             }
-            if (last) {
+            if (false && last) {
                 if (true) {
                     throw new AssertionError("XXX");
                 }
@@ -143,6 +143,16 @@ class ProcessCommandFactory extends CommandFactory {
         @Override
         public File getInputBase() {
             return inputBase.getInputBase();
+        }
+
+        @Override
+        public boolean handlesOutput() {
+            return false;
+        }
+
+        @Override
+        public InitCommand inputHandler() {
+            return inputBase;
         }
     }
 

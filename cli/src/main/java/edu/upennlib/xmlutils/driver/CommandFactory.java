@@ -31,7 +31,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author magibney
  */
-public abstract class CommandFactory<T extends Command & InitCommand> extends XMLFilterImpl {
+public abstract class CommandFactory<T extends InitCommand> extends XMLFilterImpl {
 
     private static final Map<String, CommandFactory> AVAILABLE_COMMAND_FACTORIES = 
             new HashMap<String, CommandFactory>();
@@ -50,13 +50,20 @@ public abstract class CommandFactory<T extends Command & InitCommand> extends XM
 
     public abstract String getKey();
     
-    public static <T extends Command & InitCommand> void conditionalInit(boolean first, T command, boolean expectInput) {
+    public static <T extends InitCommand> boolean conditionalInit(boolean first, T command, boolean expectInput) {
         if (first) {
             try {
-                command.init(expectInput);
+                if (command.init(expectInput)) {
+                    return true;
+                } else {
+                    command.printHelpOn(System.err);
+                    return false;
+                }
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
+        } else {
+            return true;
         }
     }
 

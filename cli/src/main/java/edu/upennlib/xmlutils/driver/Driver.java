@@ -66,21 +66,33 @@ public class Driver {
         return (next.compareTo(current) > 0 ? next : current);
     }
     
-    public static class XMLFilterSource extends SAXSource {
+    public static class XMLFilterSource<T extends Command & InitCommand> extends SAXSource {
 
         private XMLFilter filter;
         private File inputBase;
         private CommandType commandType;
+        private final boolean handlesOutput;
+        private final T inputHandler;
 
-        public XMLFilterSource(XMLReader reader, InputSource inputSource, File inputBase, CommandType commandType) {
-            this(reader, inputSource);
+        public XMLFilterSource(XMLReader reader, InputSource inputSource, File inputBase, CommandType commandType, boolean handlesOutput, T inputHandler) {
+            this(reader, inputSource, handlesOutput, inputHandler);
             this.inputBase = inputBase;
             this.commandType = commandType;
         }
         
-        public XMLFilterSource(XMLReader reader, InputSource inputSource) {
+        public XMLFilterSource(XMLReader reader, InputSource inputSource, boolean handlesOutput, T inputHandler) {
             super(reader, inputSource);
             filter = readerToFilter(reader);
+            this.handlesOutput = handlesOutput;
+            this.inputHandler = inputHandler;
+        }
+        
+        public boolean handlesOutput() {
+            return handlesOutput;
+        }
+
+        public T inputHandler() {
+            return inputHandler;
         }
 
         @Override
@@ -120,7 +132,7 @@ public class Driver {
     private static final InputCommandFactory icf = new InputCommandFactory();
     private static final OutputCommandFactory ocf = new OutputCommandFactory();
     
-    public static XMLFilterSource chainCommands(boolean first, Iterator<Map.Entry<CommandFactory, String[]>> iter, boolean last) throws FileNotFoundException, IOException {
+    public static XMLFilterSource chainCommands(boolean first, InitCommand inputCommand, Iterator<Map.Entry<CommandFactory, String[]>> iter, boolean last) throws FileNotFoundException, IOException {
         XMLFilter previous;
         InputSource in;
         File inputBase;
@@ -128,7 +140,9 @@ public class Driver {
         if (iter.hasNext()) {
             Map.Entry<CommandFactory, String[]> commandEntry = iter.next();
             CommandFactory cf = commandEntry.getKey();
-            InputCommandFactory.InputCommand inputCommand = (InputCommandFactory.InputCommand) icf.newCommand(true, false);
+            if (inputCommand == null) {
+                inputCommand = (InitCommand) icf.newCommand(true, false);
+            }
             String[] inputArgs;
             if (cf instanceof InputCommandFactory) {
                 inputArgs = commandEntry.getValue();
@@ -137,20 +151,22 @@ public class Driver {
                     return null;
                 }
                 commandEntry = iter.next();
+                cf = commandEntry.getKey();
             } else {
                 inputArgs = new String[0];
             }
             boolean localLast = !iter.hasNext();
-            if (localLast && !(cf instanceof OutputCommandFactory)) {
-                localLast = false;
-                iter = Collections.singletonMap((CommandFactory) ocf, new String[0]).entrySet().iterator();
-            }
-            Command command = commandEntry.getKey().newCommand(first, last && localLast);
+            Command command = cf.newCommand(first, last && localLast);
             inputCommand.setInputArgs(inputArgs);
             previous = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
+            inputCommand = command.inputHandler();
             if (previous == null) {
                 command.printHelpOn(System.err);
                 return null;
+            }
+            if (localLast && !command.handlesOutput()) {
+                localLast = false;
+                iter = Collections.singletonMap((CommandFactory) ocf, new String[0]).entrySet().iterator();
             }
             inputBase = command.getInputBase();
             in = command.getInput();
@@ -159,21 +175,21 @@ public class Driver {
                 commandEntry = iter.next();
                 cf = commandEntry.getKey();
                 localLast = !iter.hasNext();
-                if (localLast && !(cf instanceof OutputCommandFactory)) {
-                    localLast = false;
-                    iter = Collections.singletonMap((CommandFactory)ocf, new String[0]).entrySet().iterator();
-                }
                 command = cf.newCommand(false, last && localLast);
                 XMLFilter child = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
                 if (child == null) {
                     command.printHelpOn(System.err);
                     return null;
                 }
+                if (last && localLast && !command.handlesOutput()) {
+                    localLast = false;
+                    iter = Collections.singletonMap((CommandFactory)ocf, new String[0]).entrySet().iterator();
+                }
                 maxType = updateType(maxType, command.getCommandType());
                 getRootParent(child).setParent(previous);
                 previous = child;
             }
-            return new XMLFilterSource(previous, in, inputBase, maxType);
+            return new XMLFilterSource(previous, in, inputBase, maxType, command.handlesOutput(), command.inputHandler());
         } else {
             System.err.println("For help with a specific command: " + LS 
                     + "\t--command --help"+LS 
@@ -187,7 +203,7 @@ public class Driver {
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
         Iterable<Map.Entry<CommandFactory, String[]>> commands = buildCommandList(args, cfs);
         Iterator<Map.Entry<CommandFactory, String[]>> iter = commands.iterator();
-        SAXSource source = chainCommands(true, iter, true);
+        SAXSource source = chainCommands(true, null, iter, true);
         if (source != null) {
             try {
                 source.getXMLReader().parse(source.getInputSource());

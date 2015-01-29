@@ -29,7 +29,7 @@ import org.xml.sax.XMLFilter;
  * @author magibney
  * @param <T> inputBase type for configuring input
  */
-public interface Command<T extends Command & InitCommand> {
+public interface Command<T extends InitCommand> {
 
     XMLFilter getXMLFilter(String[] args, T inputBase, CommandType maxType);
     
@@ -40,5 +40,9 @@ public interface Command<T extends Command & InitCommand> {
     void printHelpOn(OutputStream out);
     
     CommandType getCommandType();
+    
+    boolean handlesOutput();
+    
+    InitCommand inputHandler();
     
 }
