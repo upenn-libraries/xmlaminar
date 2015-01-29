@@ -301,7 +301,7 @@ public class ConfigCommandFactory extends CommandFactory {
         public CommandType getCommandType() {
             return backing.getCommandType();
         }
-        
+
     }
     
     private static class ConfigCommand implements Command {

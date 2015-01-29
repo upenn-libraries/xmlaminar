@@ -146,7 +146,7 @@ public class Driver {
                 iter = Collections.singletonMap((CommandFactory) ocf, new String[0]).entrySet().iterator();
             }
             Command command = commandEntry.getKey().newCommand(first, last && localLast);
-            inputCommand.init(inputArgs, command.getCommandType());
+            inputCommand.setInputArgs(inputArgs);
             previous = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
             if (previous == null) {
                 command.printHelpOn(System.err);

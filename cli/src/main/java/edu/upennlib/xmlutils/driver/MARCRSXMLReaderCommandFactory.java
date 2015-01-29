@@ -81,11 +81,14 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
             return ret;
         }
 
+        private static final boolean EXPECT_INPUT = false; // for now, change for parameterized SQL
+        
         @Override
         public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
             if (initialized) {
                 return ret;
             } else {
+                CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
                 initialized = true;
                 if (!init(parser.parse(args), inputBase)) {
                     return null;

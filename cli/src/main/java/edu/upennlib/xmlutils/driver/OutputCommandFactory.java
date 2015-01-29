@@ -95,7 +95,7 @@ class OutputCommandFactory extends CommandFactory {
 
         protected OutputCommand(boolean first, boolean last) {
             if (first || !last) {
-                throw new IllegalArgumentException(KEY + " command must be first or last");
+                throw new IllegalArgumentException(KEY + " command last, and must not be first");
             }
             parser = new OptionParser();
             outputFileSpec = parser.acceptsAll(Flags.OUTPUT_FILE_ARG, "output")

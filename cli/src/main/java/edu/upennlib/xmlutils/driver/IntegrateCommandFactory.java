@@ -25,6 +25,7 @@ import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
 import edu.upennlib.paralleltransformer.InputSourceXMLReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.AbstractMap;
 import java.util.ArrayDeque;
@@ -147,8 +148,9 @@ public class IntegrateCommandFactory extends CommandFactory {
     private final PassThroughXMLFilter passThrough = new PassThroughXMLFilter();
 
     private static final InputSource dummy = new InputSource();
+    private static final boolean EXPECT_INPUT = false;
     
-    private class IntegrateCommand implements Command {
+    private class IntegrateCommand<T extends Command & InitCommand> implements Command<T> {
 
         private final boolean first;
         private final boolean last;
@@ -160,8 +162,9 @@ public class IntegrateCommandFactory extends CommandFactory {
         }
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, Command inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(String[] args, T inputBase, CommandType maxType) {
             if (ret == null) {
+                CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
                 ret = new XMLFilterImpl(root);
             }
             return ret;

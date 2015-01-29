@@ -17,9 +17,12 @@
 package edu.upennlib.xmlutils.driver;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.helpers.XMLFilterImpl;
@@ -28,7 +31,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author magibney
  */
-public abstract class CommandFactory extends XMLFilterImpl {
+public abstract class CommandFactory<T extends Command & InitCommand> extends XMLFilterImpl {
 
     private static final Map<String, CommandFactory> AVAILABLE_COMMAND_FACTORIES = 
             new HashMap<String, CommandFactory>();
@@ -41,10 +44,20 @@ public abstract class CommandFactory extends XMLFilterImpl {
         return Collections.unmodifiableMap(AVAILABLE_COMMAND_FACTORIES);
     }
     
-    public abstract CommandFactory getConfiguringXMLFilter(boolean first, Command inputBase, CommandType maxType);
+    public abstract CommandFactory getConfiguringXMLFilter(boolean first, T inputBase, CommandType maxType);
     
     public abstract Command newCommand(boolean first, boolean last);
 
     public abstract String getKey();
+    
+    public static <T extends Command & InitCommand> void conditionalInit(boolean first, T command, boolean expectInput) {
+        if (first) {
+            try {
+                command.init(expectInput);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
 
 }

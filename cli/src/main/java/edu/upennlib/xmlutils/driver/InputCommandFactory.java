@@ -62,7 +62,7 @@ class InputCommandFactory extends CommandFactory {
         return null;
     }
 
-    public static class InputCommand implements Command {
+    public static class InputCommand implements Command, InitCommand {
 
         protected InputSource input;
         protected OptionSpec<File> inputFileSpec;
@@ -107,8 +107,15 @@ class InputCommandFactory extends CommandFactory {
             }
         }
 
-        public boolean init(String[] args, CommandType type) throws IOException {
-            return initOptionSet(parser.parse(parseMainIn(args)), type);
+        public void setInputArgs(String[] args) {
+            this.args = args;
+        }
+        
+        private String[] args;
+        
+        @Override
+        public boolean init(boolean expectInput) throws IOException {
+            return initOptionSet(parser.parse(parseMainIn(args, expectInput)));
         }
         
         private static final Pattern TRIM_OPTION_FLAG = Pattern.compile("^--?(?=[^-])");
@@ -122,9 +129,12 @@ class InputCommandFactory extends CommandFactory {
             }
         }
         
-        private String[] parseMainIn(String[] args) throws FileNotFoundException, IOException {
+        private String[] parseMainIn(String[] args, boolean expectInput) throws FileNotFoundException, IOException {
             String mainInSpec;
             if (args == null || args.length < 1) {
+                if (!expectInput) {
+                    return args;
+                }
                 mainInSpec = "-";
             } else {
                 mainInSpec = args[0];
@@ -159,7 +169,7 @@ class InputCommandFactory extends CommandFactory {
             return args;
         }
         
-        protected boolean initOptionSet(OptionSet options, CommandType type) throws FileNotFoundException, IOException {
+        protected boolean initOptionSet(OptionSet options) throws FileNotFoundException, IOException {
             if (options.has(helpSpec)) {
                 return false;
             }

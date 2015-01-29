@@ -124,8 +124,11 @@ public class JoinCommand implements Command<InputCommandFactory.InputCommand> {
         }
     }
 
+    private static final boolean EXPECT_INPUT = true;
+    
     @Override
     public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
+        CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
         this.inputBase = inputBase;
         if (!init(parser.parse(args))) {
             return null;

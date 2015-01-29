@@ -18,6 +18,7 @@ package edu.upennlib.xmlutils.driver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.OutputStream;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -28,7 +29,7 @@ import org.xml.sax.XMLFilter;
  * @author magibney
  * @param <T> inputBase type for configuring input
  */
-public interface Command<T extends Command> {
+public interface Command<T extends Command & InitCommand> {
 
     XMLFilter getXMLFilter(String[] args, T inputBase, CommandType maxType);
     
