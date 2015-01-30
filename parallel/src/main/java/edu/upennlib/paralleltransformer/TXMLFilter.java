@@ -70,27 +70,28 @@ import org.xml.sax.helpers.XMLFilterImpl;
  */
 public class TXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
 
+    private static final int DEFAULT_RECORD_LEVEL = 1;
     private static final boolean DEFAULT_SUBDIVIDE = false;
     private final ProcessingQueue<Chunk> pq;
     private final Templates templates;
     private final boolean subdivide;
     private static final Logger LOG = LoggerFactory.getLogger(TXMLFilter.class);
 
-    public TXMLFilter(Source xslSource, String xpath, boolean subdivide) throws TransformerConfigurationException {
+    public TXMLFilter(Source xslSource, String xpath, boolean subdivide, int recordLevel) throws TransformerConfigurationException {
         TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         templates = tf.newTemplates(xslSource);
-        pq = new ProcessingQueue<Chunk>(10, new Chunk(templates, xpath, subdivide));
+        pq = new ProcessingQueue<Chunk>(10, new Chunk(templates, xpath, subdivide, recordLevel));
         this.subdivide = subdivide;
     }
     
     public TXMLFilter(Source xslSource, String xpath) throws TransformerConfigurationException {
-        this(xslSource, xpath, DEFAULT_SUBDIVIDE);
+        this(xslSource, xpath, DEFAULT_SUBDIVIDE, DEFAULT_RECORD_LEVEL);
     }
     
     public static void main(String[] args) throws Exception {
         JoiningXMLFilter joiner = new JoiningXMLFilter(false);
         SplittingXMLFilter sxf = new LevelSplittingXMLFilter(1, 10);
-        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/input/identity.xsl"), "/root/rec/@id", true);
+        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/input/identity.xsl"), "/root/rec/@id", true, DEFAULT_RECORD_LEVEL);
         sxf.setOutputCallback(new StdoutCallback());
         joiner.setParent(txf);
 //        ExecutorService ex = Executors.newCachedThreadPool();

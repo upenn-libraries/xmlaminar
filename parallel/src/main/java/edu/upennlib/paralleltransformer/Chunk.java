@@ -67,8 +67,8 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         return (subdivide ? recordCount > 1 : false);
     }
 
-    public Chunk(Templates t, String xpath, boolean subdivide) {
-        this(t, getRecordLogger(xpath, subdivide), subdivide);
+    public Chunk(Templates t, String xpath, boolean subdivide, int recordDepth) {
+        this(t, getRecordLogger(xpath, subdivide), subdivide, recordDepth);
     }
     
     private static RecordMonitorXMLFilter getRecordLogger(String xpath, boolean subdivide) {
@@ -81,7 +81,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
         }
     }
     
-    private Chunk(Templates t, RecordMonitorXMLFilter rl, boolean subdivide) {
+    private Chunk(Templates t, RecordMonitorXMLFilter rl, boolean subdivide, int recordDepth) {
         this.rl = rl;
         templates = t;
         try {
@@ -90,6 +90,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
             throw new RuntimeException(ex);
         }
         this.subdivide = subdivide;
+        splitter.setRecordLevel(recordDepth);
     }
 
     private final LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter();
@@ -295,7 +296,7 @@ public class Chunk extends DelegatingSubdividable<ProcessingState, Chunk, Node<C
     
     @Override
     public Chunk newInstance() {
-        return new Chunk(templates, rl == null ? null : rl.newInstance(), subdivide);
+        return new Chunk(templates, rl == null ? null : rl.newInstance(), subdivide, splitter.getRecordLevel());
     }
 
     public void writeOutputTo(ContentHandler ch) throws SAXException {

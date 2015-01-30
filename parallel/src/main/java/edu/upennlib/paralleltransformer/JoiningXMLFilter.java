@@ -68,7 +68,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     private ContentHandler outputContentHandler;
 
     public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, IOException, TransformerException {
-        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id", true);
+        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id", true, 1);
         JoiningXMLFilter joiner = new JoiningXMLFilter(true);
         txf.setInputType(InputType.indirect);
         joiner.setParent(txf);
