@@ -156,15 +156,11 @@ public class Driver {
                     inputArgs = new String[0];
                 }
                 inputCommand.setInputArgs(inputArgs);
-            } else {
-                System.out.println("hey! "+inputCommand.filesFrom);
             }
             boolean localLast = !iter.hasNext();
             Command command = cf.newCommand(first, last && localLast);
-            System.out.println("hey1! "+command);
             previous = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
             inputCommand = (InputCommandFactory.InputCommand) command.inputHandler();
-            System.out.println("hey2! " + inputCommand.filesFrom);
             if (previous == null) {
                 command.printHelpOn(System.err);
                 return null;

@@ -205,7 +205,6 @@ public class PipelineCommandFactory extends CommandFactory {
             try {
                 if (inputCommandFactory != null) {
                     args = inputCommandFactory.constructCommandLineArgs(PipelineCommandFactory.this.inputBase);
-                    System.out.println("blah: " + Arrays.asList(args));
                     PipelineCommandFactory.this.inputBase.setInputArgs(args);
                 }
                 xmlFilterSource = Driver.chainCommands(first, PipelineCommandFactory.this.inputBase, commandFactories.iterator(), last);
