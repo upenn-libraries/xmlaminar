@@ -116,6 +116,7 @@ class InputCommandFactory extends CommandFactory {
             }
         }
 
+        @Override
         public void setInputArgs(String[] args) {
             this.args = args;
         }
@@ -129,7 +130,7 @@ class InputCommandFactory extends CommandFactory {
         
         private static final Pattern TRIM_OPTION_FLAG = Pattern.compile("^--?(?=[^-])");
         
-        private static String trimOptionFlag(String flag) {
+        public static String trimOptionFlag(String flag) {
             Matcher m = TRIM_OPTION_FLAG.matcher(flag);
             if (!m.find()) {
                 return null;

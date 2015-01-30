@@ -25,10 +25,12 @@ import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
+import static edu.upennlib.xmlutils.driver.InputCommandFactory.InputCommand.trimOptionFlag;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -135,7 +137,7 @@ class OutputCommandFactory extends CommandFactory {
             }
             if (options.has(outputFileSpec)) {
                 output = options.valueOf(outputFileSpec);
-            } else {
+            } else if (output == null) {
                 if (inputBase.filesFrom == null) {
                     output = new File("-");
                 } else if (baseName != null) {
@@ -155,13 +157,26 @@ class OutputCommandFactory extends CommandFactory {
             return null;
         }
 
+        private String[] parseMainOut(String[] args) {
+            if (args == null || args.length < 1) {
+                return args;
+            } else {
+                String mainOutSpec = args[0];
+                if (parser.recognizedOptions().keySet().contains(trimOptionFlag(mainOutSpec))) {
+                    return args;
+                }
+                output = new File(mainOutSpec);
+                return Arrays.copyOfRange(args, 1, args.length);
+            }
+        }
+        
         @Override
         public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
             if (ret != null) {
                 return ret;
             }
             this.inputBase = inputBase;
-            if (!init(parser.parse(args), inputBase)) {
+            if (!init(parser.parse(parseMainOut(args)), inputBase)) {
                 return null;
             }
             String inBaseSystemId = inputBase.input.getSystemId();
