@@ -247,12 +247,16 @@ public class Driver {
     private static Iterable<Map.Entry<CommandFactory, String[]>> buildCommandList(String[] args, Map<String, CommandFactory> cfs) {
         LinkedList<Map.Entry<CommandFactory, String[]>> commandList = new LinkedList<Map.Entry<CommandFactory, String[]>>();
         CommandFactory current = null;
-        int argStart = -1;
+        int argStart = 0;
         for (int i = 0; i < args.length; i++) {
             if (args[i].startsWith("--")) {
                 CommandFactory cf = cfs.get(args[i].substring(2));
                 if (cf != null) {
                     if (current != null) {
+                        commandList.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(current, Arrays.copyOfRange(args, argStart, i)));
+                    } else if (i > 0) {
+                        // pass extra leading arguments to induced input command factory
+                        current = new InputCommandFactory();
                         commandList.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(current, Arrays.copyOfRange(args, argStart, i)));
                     }
                     argStart = i + 1;
