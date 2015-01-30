@@ -21,6 +21,7 @@
  */
 package edu.upennlib.xmlutils.driver;
 
+import edu.upennlib.xmlutils.DevNullContentHandler;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -108,6 +109,8 @@ public class PipelineCommandFactory extends CommandFactory {
 
     private int delegateDepth = Integer.MAX_VALUE;
 
+    private static final ContentHandler DEV_NULL_CONTENT_HANDLER = new DevNullContentHandler();
+    
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         ConfigCommandFactory.verifyNamespaceURI(uri);
@@ -136,14 +139,22 @@ public class PipelineCommandFactory extends CommandFactory {
             XMLReader parent = getParent();
             parent.setContentHandler(passThrough);
             passThrough.setParent(parent);
-            passThrough.setContentHandler(currentCommandFactory);
-            currentCommandFactory.setParent(passThrough);
-            currentCommandFactory.startDocument();
-            currentCommandFactory.startElement(uri, localName, qName, atts);
             if (cf instanceof InputCommandFactory) {
-                inputBase = (InputCommandFactory.InputCommand) cf.newCommand(first, false);
-                inputCommandFactory = (ConfigCommandFactory) currentCommandFactory;
+                if (inputBase == null || !inputBase.isExplicit()) {
+                    inputBase = (InputCommandFactory.InputCommand) cf.newCommand(first, false);
+                    inputCommandFactory = (ConfigCommandFactory) currentCommandFactory;
+                    passThrough.setContentHandler(currentCommandFactory);
+                    currentCommandFactory.setParent(passThrough);
+                    currentCommandFactory.startDocument();
+                    currentCommandFactory.startElement(uri, localName, qName, atts);
+                } else {
+                    passThrough.setContentHandler(DEV_NULL_CONTENT_HANDLER);
+                }
             } else {
+                passThrough.setContentHandler(currentCommandFactory);
+                currentCommandFactory.setParent(passThrough);
+                currentCommandFactory.startDocument();
+                currentCommandFactory.startElement(uri, localName, qName, atts);
                 commandFactories.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(currentCommandFactory, null));
             }
         } else {

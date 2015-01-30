@@ -145,6 +145,11 @@ class FileCommandFactory extends CommandFactory {
         public Set<String> recognizedOptions() {
             return Collections.EMPTY_SET;
         }
+
+        @Override
+        public boolean isExplicit() {
+            return true;
+        }
         
     }
 

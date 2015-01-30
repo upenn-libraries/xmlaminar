@@ -142,9 +142,9 @@ public class Driver {
             Map.Entry<CommandFactory, String[]> commandEntry = iter.next();
             CommandFactory cf = commandEntry.getKey();
             if (inputCommand == null) {
-                inputCommand = (InputCommandFactory.InputCommand) icf.newCommand(true, false);
                 String[] inputArgs;
                 if (cf instanceof InputCommandFactory) {
+                    inputCommand = (InputCommandFactory.InputCommand) icf.newCommand(true, false);
                     inputArgs = commandEntry.getValue();
                     if (!iter.hasNext()) {
                         inputCommand.printHelpOn(System.err);
@@ -153,8 +153,18 @@ public class Driver {
                     commandEntry = iter.next();
                     cf = commandEntry.getKey();
                 } else {
+                    inputCommand = (InputCommandFactory.InputCommand) icf.newCommand(true, false, false);
                     inputArgs = new String[0];
                 }
+                inputCommand.setInputArgs(inputArgs);
+            } else if (!inputCommand.isExplicit() && cf instanceof InputCommandFactory) {
+                String[] inputArgs = commandEntry.getValue();
+                if (!iter.hasNext()) {
+                    inputCommand.printHelpOn(System.err);
+                    return null;
+                }
+                commandEntry = iter.next();
+                cf = commandEntry.getKey();
                 inputCommand.setInputArgs(inputArgs);
             }
             boolean localLast = !iter.hasNext();

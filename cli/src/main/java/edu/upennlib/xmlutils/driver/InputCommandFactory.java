@@ -50,7 +50,11 @@ class InputCommandFactory extends CommandFactory {
 
     @Override
     public Command newCommand(boolean first, boolean last) {
-        return new InputCommand(first, last);
+        return newCommand(first, last, DEFAULT_EXPLICIT);
+    }
+    
+    public Command newCommand(boolean first, boolean last, boolean explicit) {
+        return new InputCommand(first, last, explicit);
     }
 
     @Override
@@ -63,8 +67,11 @@ class InputCommandFactory extends CommandFactory {
         return null;
     }
 
+    private static final boolean DEFAULT_EXPLICIT = true;
+    
     public static class InputCommand implements Command, InitCommand {
 
+        private final boolean explicit;
         protected InputSource input;
         protected OptionSpec<File> inputFileSpec;
         protected InputSource filesFrom;
@@ -81,7 +88,8 @@ class InputCommandFactory extends CommandFactory {
         private static final InputSource UNINITIALIZED_INPUT_SOURCE = new InputSource();
         private InputSource inSource = UNINITIALIZED_INPUT_SOURCE;
 
-        protected InputCommand(boolean first, boolean last) {
+        protected InputCommand(boolean first, boolean last, boolean explicit) {
+            this.explicit = explicit;
             if (!first || last) {
                 throw new IllegalArgumentException(InputCommand.class + " must be first in chain");
             }
@@ -219,6 +227,11 @@ class InputCommandFactory extends CommandFactory {
         @Override
         public Set<String> recognizedOptions() {
             return parser.recognizedOptions().keySet();
+        }
+
+        @Override
+        public boolean isExplicit() {
+            return explicit;
         }
         
         private static class PrependInputStream extends FilterInputStream {
