@@ -87,13 +87,13 @@ class ProcessCommandFactory extends CommandFactory {
         
         @Override
         public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
-            CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
             if (txf != null) {
                 return txf;
             }
             if (!init(parser.parse(args), inputBase)) {
                 return null;
             }
+            CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
             try {
                 txf = new TXMLFilter(new StreamSource(xsl), recordIdXPath, subdivide);
             } catch (TransformerConfigurationException ex) {

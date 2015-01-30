@@ -98,27 +98,6 @@ public abstract class MultiOutCommand implements Command<InputCommandFactory.Inp
             return false;
         }
         recordDepth = options.valueOf(recordDepthSpec);
-        if (false && last) {
-            noIndent = options.has(noIndentSpec);
-            suffixLength = options.valueOf(suffixLengthSpec);
-            outputExtension = options.valueOf(outputExtensionSpec);
-            if (options.has(baseFileSpec)) {
-                baseName = options.valueOf(baseFileSpec);
-            }
-            if (options.has(outputFileSpec)) {
-                output = options.valueOf(outputFileSpec);
-            } else {
-                if (inputBase.filesFrom == null) {
-                    output = new File("-");
-                } else if (baseName != null) {
-                    output = new File("");
-                } else {
-                    throw new IllegalArgumentException("if " + Flags.FILES_FROM_ARG.get(0)
-                            + " specified, " + Flags.OUTPUT_BASE_NAME_ARG.get(0) + " or "
-                            + Flags.OUTPUT_FILE_ARG.get(0) + " must also be specified");
-                }
-            }
-        }
         return true;
     }
 

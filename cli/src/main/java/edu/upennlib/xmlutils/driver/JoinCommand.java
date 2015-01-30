@@ -84,7 +84,7 @@ public class JoinCommand implements Command<InputCommandFactory.InputCommand> {
     @Override
     public void printHelpOn(OutputStream out) {
         try {
-            parser.printHelpOn(System.err);
+            parser.printHelpOn(out);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -128,11 +128,11 @@ public class JoinCommand implements Command<InputCommandFactory.InputCommand> {
     
     @Override
     public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
-        CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
         this.inputBase = inputBase;
         if (!init(parser.parse(args))) {
             return null;
         }
+        CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
         JoiningXMLFilter joiner = new JoiningXMLFilter(!joinAll);
         if (first && inputBase.filesFrom != null) {
             joiner.setInputType(QueueSourceXMLFilter.InputType.indirect);

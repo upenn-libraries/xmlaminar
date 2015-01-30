@@ -79,10 +79,10 @@ class SplitCommandFactory extends CommandFactory {
         
         @Override
         public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
-            CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
             if (!init(parser.parse(args), inputBase)) {
                 return null;
             }
+            CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
             LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter(recordDepth, chunkSize);
             if (first && inputBase.filesFrom != null) {
                 splitter.setInputType(QueueSourceXMLFilter.InputType.indirect);
