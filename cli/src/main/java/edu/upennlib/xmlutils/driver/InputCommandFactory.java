@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import joptsimple.OptionParser;
@@ -213,6 +214,11 @@ class InputCommandFactory extends CommandFactory {
         @Override
         public InitCommand inputHandler() {
             return this;
+        }
+
+        @Override
+        public Set<String> recognizedOptions() {
+            return parser.recognizedOptions().keySet();
         }
         
         private static class PrependInputStream extends FilterInputStream {

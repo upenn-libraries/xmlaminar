@@ -132,8 +132,9 @@ public class Driver {
     private static final InputCommandFactory icf = new InputCommandFactory();
     private static final OutputCommandFactory ocf = new OutputCommandFactory();
     
-    public static XMLFilterSource chainCommands(boolean first, InitCommand inputCommand, Iterator<Map.Entry<CommandFactory, String[]>> iter, boolean last) throws FileNotFoundException, IOException {
+    public static XMLFilterSource chainCommands(boolean first, InitCommand init, Iterator<Map.Entry<CommandFactory, String[]>> iter, boolean last) throws FileNotFoundException, IOException {
         XMLFilter previous;
+        InputCommandFactory.InputCommand inputCommand = (InputCommandFactory.InputCommand) init;
         InputSource in;
         File inputBase;
         CommandType maxType = null;
@@ -141,25 +142,29 @@ public class Driver {
             Map.Entry<CommandFactory, String[]> commandEntry = iter.next();
             CommandFactory cf = commandEntry.getKey();
             if (inputCommand == null) {
-                inputCommand = (InitCommand) icf.newCommand(true, false);
-            }
-            String[] inputArgs;
-            if (cf instanceof InputCommandFactory) {
-                inputArgs = commandEntry.getValue();
-                if (!iter.hasNext()) {
-                    inputCommand.printHelpOn(System.err);
-                    return null;
+                inputCommand = (InputCommandFactory.InputCommand) icf.newCommand(true, false);
+                String[] inputArgs;
+                if (cf instanceof InputCommandFactory) {
+                    inputArgs = commandEntry.getValue();
+                    if (!iter.hasNext()) {
+                        inputCommand.printHelpOn(System.err);
+                        return null;
+                    }
+                    commandEntry = iter.next();
+                    cf = commandEntry.getKey();
+                } else {
+                    inputArgs = new String[0];
                 }
-                commandEntry = iter.next();
-                cf = commandEntry.getKey();
+                inputCommand.setInputArgs(inputArgs);
             } else {
-                inputArgs = new String[0];
+                System.out.println("hey! "+inputCommand.filesFrom);
             }
             boolean localLast = !iter.hasNext();
             Command command = cf.newCommand(first, last && localLast);
-            inputCommand.setInputArgs(inputArgs);
+            System.out.println("hey1! "+command);
             previous = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
-            inputCommand = command.inputHandler();
+            inputCommand = (InputCommandFactory.InputCommand) command.inputHandler();
+            System.out.println("hey2! " + inputCommand.filesFrom);
             if (previous == null) {
                 command.printHelpOn(System.err);
                 return null;

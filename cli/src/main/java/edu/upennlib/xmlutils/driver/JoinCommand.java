@@ -129,6 +129,7 @@ public class JoinCommand implements Command<InputCommandFactory.InputCommand> {
     @Override
     public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
         CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
+        System.out.println(first+", "+inputBase.filesFrom);
         this.inputBase = inputBase;
         if (!init(parser.parse(args))) {
             return null;

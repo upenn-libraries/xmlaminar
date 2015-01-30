@@ -78,7 +78,7 @@ public class ConfigCommandFactory extends CommandFactory {
             return new ConfigCommand(first, last);
         } else {
             Command backing = wrappedCommandFactory.newCommand(first, last);
-            return new WrappedCommand(constructCommandLineArgs(), inputBase, maxType, backing);
+            return new WrappedCommand(constructCommandLineArgs(inputBase), inputBase, maxType, backing);
         }
     }
 
@@ -99,14 +99,24 @@ public class ConfigCommandFactory extends CommandFactory {
         return new ConfigCommandFactory(false, first, inputBase, maxType);
     }
 
-    String[] constructCommandLineArgs() {
+    String[] constructCommandLineArgs(InitCommand inputBase) {
+        Set<String> recognizedOptions = inputBase.recognizedOptions();
         String[] ret = new String[props.size() * 2];
         int i = 0;
         for (String s : props.stringPropertyNames()) {
-            ret[i++] = "--".concat(s);
-            ret[i++] = props.getProperty(s);
+            String val = props.getProperty(s);
+            if ((val == null || "".equals(val)) && !recognizedOptions.contains(s)) {
+                ret[i++] = s;
+            } else {
+                ret[i++] = "--".concat(s);
+                ret[i++] = val;
+            }
         }
-        return ret;
+        if (i == ret.length) {
+            return ret;
+        } else {
+            return Arrays.copyOf(ret, i);
+        }
     }
 
     private ConfigCommandFactory configure(InputSource configSource) {

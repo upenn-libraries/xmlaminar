@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -141,7 +142,7 @@ public class PipelineCommandFactory extends CommandFactory {
             currentCommandFactory.startElement(uri, localName, qName, atts);
             if (cf instanceof InputCommandFactory) {
                 inputBase = (InputCommandFactory.InputCommand) cf.newCommand(first, false);
-                inputBase.setInputArgs(((ConfigCommandFactory)currentCommandFactory).constructCommandLineArgs());
+                inputCommandFactory = (ConfigCommandFactory) currentCommandFactory;
             } else {
                 commandFactories.add(new AbstractMap.SimpleImmutableEntry<CommandFactory, String[]>(currentCommandFactory, null));
             }
@@ -150,6 +151,8 @@ public class PipelineCommandFactory extends CommandFactory {
         }
         depth++;
     }
+    
+    private ConfigCommandFactory inputCommandFactory;
 
     private final PassThroughXMLFilter passThrough = new PassThroughXMLFilter();
 
@@ -200,7 +203,12 @@ public class PipelineCommandFactory extends CommandFactory {
         @Override
         public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
             try {
-                xmlFilterSource = Driver.chainCommands(first, inputBase, commandFactories.iterator(), last);
+                if (inputCommandFactory != null) {
+                    args = inputCommandFactory.constructCommandLineArgs(PipelineCommandFactory.this.inputBase);
+                    System.out.println("blah: " + Arrays.asList(args));
+                    PipelineCommandFactory.this.inputBase.setInputArgs(args);
+                }
+                xmlFilterSource = Driver.chainCommands(first, PipelineCommandFactory.this.inputBase, commandFactories.iterator(), last);
             } catch (FileNotFoundException ex) {
                 throw new RuntimeException(ex);
             } catch (IOException ex) {

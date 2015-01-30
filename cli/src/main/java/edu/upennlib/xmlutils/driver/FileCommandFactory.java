@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Collections;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
@@ -137,6 +139,11 @@ class FileCommandFactory extends CommandFactory {
         @Override
         public void setInputArgs(String[] args) {
             throw new UnsupportedOperationException("Not supported.");
+        }
+
+        @Override
+        public Set<String> recognizedOptions() {
+            return Collections.EMPTY_SET;
         }
         
     }
