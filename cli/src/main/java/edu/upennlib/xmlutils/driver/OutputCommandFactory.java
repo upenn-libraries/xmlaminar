@@ -94,11 +94,13 @@ class OutputCommandFactory extends CommandFactory {
 
         private InputCommandFactory.InputCommand inputBase;
         private XMLFilter ret;
+        private final boolean last;
 
         protected OutputCommand(boolean first, boolean last) {
-            if (first || !last) {
-                throw new IllegalArgumentException(KEY + " command last, and must not be first");
+            if (first) {
+                throw new IllegalArgumentException(KEY + " command must not be first");
             }
+            this.last = last;
             parser = new OptionParser();
             outputFileSpec = parser.acceptsAll(Flags.OUTPUT_FILE_ARG, "output")
                     .withRequiredArg().ofType(File.class)
@@ -172,6 +174,9 @@ class OutputCommandFactory extends CommandFactory {
         
         @Override
         public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
+            if (!last) {
+                throw new IllegalStateException("this.last == "+last);
+            }
             if (ret != null) {
                 return ret;
             }

@@ -132,7 +132,7 @@ public class Driver {
     private static final InputCommandFactory icf = new InputCommandFactory();
     private static final OutputCommandFactory ocf = new OutputCommandFactory();
     
-    public static XMLFilterSource chainCommands(boolean first, InitCommand init, Iterator<Map.Entry<CommandFactory, String[]>> iter, boolean last) throws FileNotFoundException, IOException {
+    public static XMLFilterSource chainCommands(boolean first, InitCommand init, Iterator<Map.Entry<CommandFactory, String[]>> iter, final boolean last) throws FileNotFoundException, IOException {
         XMLFilter previous;
         InputCommandFactory.InputCommand inputCommand = (InputCommandFactory.InputCommand) init;
         InputSource in;
@@ -186,19 +186,25 @@ public class Driver {
                 commandEntry = iter.next();
                 cf = commandEntry.getKey();
                 localLast = !iter.hasNext();
+                Command lastCommand = command;
                 command = cf.newCommand(false, last && localLast);
-                XMLFilter child = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
-                if (child == null) {
-                    command.printHelpOn(System.err);
-                    return null;
+                if (command.handlesOutput() && !(last && localLast)) {
+                    localLast = true;
+                    command = lastCommand;
+                } else {
+                    XMLFilter child = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
+                    if (child == null) {
+                        command.printHelpOn(System.err);
+                        return null;
+                    }
+                    if (last && localLast && !command.handlesOutput()) {
+                        localLast = false;
+                        iter = Collections.singletonMap((CommandFactory) ocf, new String[0]).entrySet().iterator();
+                    }
+                    maxType = updateType(maxType, command.getCommandType());
+                    getRootParent(child).setParent(previous);
+                    previous = child;
                 }
-                if (last && localLast && !command.handlesOutput()) {
-                    localLast = false;
-                    iter = Collections.singletonMap((CommandFactory)ocf, new String[0]).entrySet().iterator();
-                }
-                maxType = updateType(maxType, command.getCommandType());
-                getRootParent(child).setParent(previous);
-                previous = child;
             }
             return new XMLFilterSource(previous, in, inputBase, maxType, command.handlesOutput(), command.inputHandler());
         } else {
