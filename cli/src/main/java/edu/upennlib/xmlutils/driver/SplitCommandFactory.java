@@ -18,17 +18,14 @@ package edu.upennlib.xmlutils.driver;
 
 import edu.upennlib.paralleltransformer.LevelSplittingXMLFilter;
 import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
-import edu.upennlib.paralleltransformer.callback.BaseRelativeIncrementingFileCalback;
-import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
-import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
-import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import java.io.File;
-import java.util.Collections;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.xml.sax.InputSource;
 import org.xml.sax.XMLFilter;
 
 /**
@@ -56,23 +53,44 @@ class SplitCommandFactory extends CommandFactory {
         return null;
     }
 
-    private static class SplitCommand extends MultiOutCommand {
+    private static class SplitCommand implements Command<InputCommandFactory.InputCommand> {
 
         private int chunkSize;
-        protected OptionSpec<Integer> chunkSizeSpec;
+        private final OptionSpec<Integer> chunkSizeSpec;
+        private int recordDepth;
+        private final OptionSpec<Integer> recordDepthSpec;
+
+        private final OptionSpec verboseSpec;
+        private final OptionSpec helpSpec;
+
+        protected final OptionParser parser;
+
+        protected final boolean first;
+        protected final boolean last;
+        
+        private InputCommandFactory.InputCommand inputBase;
 
         public SplitCommand(boolean first, boolean last) {
-            super(first, last);
+            this.first = first;
+            this.last = last;
+            parser = new OptionParser();
+            recordDepthSpec = parser.acceptsAll(Flags.DEPTH_ARG, "set record element depth")
+                    .withRequiredArg().ofType(Integer.class).defaultsTo(1);
             chunkSizeSpec = parser.acceptsAll(Flags.SIZE_ARG, "size (in records) of output files (for split) "
                     + "or processing chunks (for process)").withRequiredArg().ofType(Integer.class)
                     .defaultsTo(100);
+            verboseSpec = parser.acceptsAll(Flags.VERBOSE_ARG, "be more verbose");
+            helpSpec = parser.acceptsAll(Flags.HELP_ARG, "show help").forHelp();
         }
 
-        @Override
         protected boolean init(OptionSet options, InputCommandFactory.InputCommand inputBase) {
-            boolean ret = super.init(options, inputBase);
+            this.inputBase = inputBase;
+            if (options.has(helpSpec)) {
+                return false;
+            }
+            recordDepth = options.valueOf(recordDepthSpec);
             chunkSize = options.valueOf(chunkSizeSpec);
-            return ret;
+            return true;
         }
         
         private static final boolean EXPECT_INPUT = true;
@@ -86,33 +104,6 @@ class SplitCommandFactory extends CommandFactory {
             LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter(recordDepth, chunkSize);
             if (first && inputBase.filesFrom != null) {
                 splitter.setInputType(QueueSourceXMLFilter.InputType.indirect);
-            }
-            if (false && last) {
-                Transformer t;
-                try {
-                    t = TransformerFactory.newInstance().newTransformer();
-                } catch (TransformerConfigurationException ex) {
-                    throw new RuntimeException(ex);
-                }
-                XMLFilter outputFilter = noIndent ? null : new OutputTransformerConfigurer(Collections.singletonMap("indent", "yes"));
-                if (baseName != null) {
-                    File resolvedBase;
-                    if (output.isDirectory()) {
-                        resolvedBase = new File(output.toURI().resolve(baseName.toURI()));
-                    } else {
-                        resolvedBase = baseName;
-                    }
-                    splitter.setOutputCallback(new IncrementingFileCallback(0,
-                            t, suffixLength, resolvedBase, outputExtension, outputFilter));
-                } else if ("-".equals(output.getPath())) {
-                    splitter.setOutputCallback(new StdoutCallback(t, outputFilter));
-                } else if (!output.isDirectory()) {
-                    splitter.setOutputCallback(new StaticFileCallback(t, output, outputFilter));
-                } else {
-                    String inBaseSystemId = inputBase.input.getSystemId();
-                    File inBaseFile = inBaseSystemId == null ? null : new File(inBaseSystemId);
-                    splitter.setOutputCallback(new BaseRelativeIncrementingFileCalback(inBaseFile, output, t, outputExtension, outputExtension != null, suffixLength, outputFilter));
-                }
             }
             return splitter;
         }
@@ -135,6 +126,24 @@ class SplitCommandFactory extends CommandFactory {
         @Override
         public InitCommand inputHandler() {
             return inputBase;
+        }
+
+        @Override
+        public InputSource getInput() throws FileNotFoundException {
+            if (first) {
+                return inputBase.getInput();
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public void printHelpOn(OutputStream out) {
+            try {
+                parser.printHelpOn(out);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 

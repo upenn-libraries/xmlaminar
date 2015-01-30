@@ -18,18 +18,11 @@ package edu.upennlib.xmlutils.driver;
 
 import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
 import edu.upennlib.paralleltransformer.TXMLFilter;
-import edu.upennlib.paralleltransformer.callback.BaseRelativeFileCallback;
-import edu.upennlib.paralleltransformer.callback.BaseRelativeIncrementingFileCalback;
-import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
-import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
-import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -161,11 +154,11 @@ class ProcessCommandFactory extends CommandFactory {
 
         @Override
         public void printHelpOn(OutputStream out) {
-        try {
-            parser.printHelpOn(out);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+            try {
+                parser.printHelpOn(out);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
