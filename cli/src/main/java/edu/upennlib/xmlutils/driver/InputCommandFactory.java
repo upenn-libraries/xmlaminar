@@ -17,6 +17,7 @@
 package edu.upennlib.xmlutils.driver;
 
 import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
+import static edu.upennlib.xmlutils.driver.CommandFactory.registerCommandFactory;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -28,13 +29,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
+import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
@@ -44,8 +51,12 @@ class InputCommandFactory extends CommandFactory {
 
     private static final String KEY = "input";
 
+    private static final SAXParserFactory spf;
+
     static {
         registerCommandFactory(new InputCommandFactory());
+        spf = SAXParserFactory.newInstance();
+        spf.setNamespaceAware(true);
     }
 
     @Override
@@ -335,9 +346,26 @@ class InputCommandFactory extends CommandFactory {
             }
         }
 
+        private XMLFilter fileRet;
+        
         @Override
         public XMLFilter getXMLFilter(String[] args, InitCommand inputBase, CommandType maxType) {
-            throw new UnsupportedOperationException("Not supported.");
+            if (fileRet == null) {
+                setInputArgs(args);
+                try {
+                    init(true);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                try {
+                    fileRet = new XMLFilterImpl(spf.newSAXParser().getXMLReader());
+                } catch (ParserConfigurationException ex) {
+                    throw new RuntimeException(ex);
+                } catch (SAXException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            return fileRet;
         }
 
         @Override
