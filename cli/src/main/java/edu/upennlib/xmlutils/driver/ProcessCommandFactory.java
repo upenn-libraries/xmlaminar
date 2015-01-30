@@ -24,12 +24,17 @@ import edu.upennlib.paralleltransformer.callback.IncrementingFileCallback;
 import edu.upennlib.paralleltransformer.callback.StaticFileCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
+import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.xml.sax.InputSource;
 import org.xml.sax.XMLFilter;
 
 /**
@@ -57,30 +62,50 @@ class ProcessCommandFactory extends CommandFactory {
         return null;
     }
 
-    private static class ProcessCommand extends MultiOutCommand {
+    private static class ProcessCommand implements Command<InputCommandFactory.InputCommand> {
 
+        private final boolean first;
+        private final boolean last;
+        private int recordDepth;
+        private final OptionSpec<Integer> recordDepthSpec;
         private File xsl;
-        protected OptionSpec<File> xslSpec;
+        private final OptionSpec<File> xslSpec;
         private String recordIdXPath;
-        protected OptionSpec<String> recordIdXPathSpec;
+        private final OptionSpec<String> recordIdXPathSpec;
         private boolean subdivide;
-        protected OptionSpec subdivideSpec;
+        private final OptionSpec subdivideSpec;
+        private final OptionSpec verboseSpec;
+        private final OptionSpec helpSpec;
+
         private TXMLFilter txf;
 
+        protected final OptionParser parser;
+        protected InputCommandFactory.InputCommand inputBase;
+
+
         public ProcessCommand(boolean first, boolean last) {
-            super(first, last);
+            this.first = first;
+            this.last = last;
+            parser = new OptionParser();
+            recordDepthSpec = parser.acceptsAll(Flags.DEPTH_ARG, "set record element depth")
+                    .withRequiredArg().ofType(Integer.class).defaultsTo(1);
             xslSpec = parser.acceptsAll(Flags.XSL_FILE_ARG, "xsl file defining processing templates").withRequiredArg().ofType(File.class);
             recordIdXPathSpec = parser.acceptsAll(Flags.RECORD_ID_XPATH_ARG, "xpath specifying record id location").withRequiredArg().ofType(String.class);
             subdivideSpec = parser.acceptsAll(Flags.SUBDIVIDE_ARG, "define behavior on processing failure");
+            verboseSpec = parser.acceptsAll(Flags.VERBOSE_ARG, "be more verbose");
+            helpSpec = parser.acceptsAll(Flags.HELP_ARG, "show help").forHelp();
         }
 
-        @Override
         protected boolean init(OptionSet options, InputCommandFactory.InputCommand inputBase) {
-            boolean ret = super.init(options, inputBase);
+            this.inputBase = inputBase;
+            if (options.has(helpSpec)) {
+                return false;
+            }
+            recordDepth = options.valueOf(recordDepthSpec);
             xsl = options.valueOf(xslSpec);
             recordIdXPath = options.valueOf(recordIdXPathSpec);
             subdivide = options.has(subdivideSpec);
-            return ret;
+            return true;
         }
         
         private static final boolean EXPECT_INPUT = true;
@@ -95,42 +120,12 @@ class ProcessCommandFactory extends CommandFactory {
             }
             CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
             try {
-                txf = new TXMLFilter(new StreamSource(xsl), recordIdXPath, subdivide);
+                txf = new TXMLFilter(new StreamSource(xsl), recordIdXPath, subdivide, recordDepth);
             } catch (TransformerConfigurationException ex) {
                 throw new RuntimeException(ex);
             }
             if (first && inputBase.filesFrom != null) {
                 txf.setInputType(QueueSourceXMLFilter.InputType.indirect);
-            }
-            if (false && last) {
-                if (true) {
-                    throw new AssertionError("XXX");
-                }
-                Transformer t;
-                try {
-                    t = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null).newTransformer();
-                } catch (TransformerConfigurationException ex) {
-                    throw new RuntimeException(ex);
-                }
-                // No output configuring filter here; should be handled directly in stylesheet
-                if (baseName != null) {
-                    File resolvedBase;
-                    if (output.isDirectory()) {
-                        resolvedBase = new File(output.toURI().resolve(baseName.toURI()));
-                    } else {
-                        resolvedBase = baseName;
-                    }
-                    txf.setOutputCallback(new IncrementingFileCallback(0,
-                            t, suffixLength, resolvedBase, outputExtension, null));
-                } else if ("-".equals(output.getPath())) {
-                    txf.setOutputCallback(new StdoutCallback(t));
-                } else if (!output.isDirectory()) {
-                    txf.setOutputCallback(new StaticFileCallback(t, output));
-                } else if (maxType == CommandType.SPLIT) {
-                    txf.setOutputCallback(new BaseRelativeIncrementingFileCalback(inputBase.getInputBase(), output, t, outputExtension, outputExtension != null, suffixLength, null));
-                } else {
-                    txf.setOutputCallback(new BaseRelativeFileCallback(inputBase.getInputBase(), output, t, outputExtension, outputExtension != null));
-                }
             }
             return txf;
         }
@@ -153,6 +148,24 @@ class ProcessCommandFactory extends CommandFactory {
         @Override
         public InitCommand inputHandler() {
             return inputBase;
+        }
+
+        @Override
+        public InputSource getInput() throws FileNotFoundException {
+            if (first) {
+                return inputBase.getInput();
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public void printHelpOn(OutputStream out) {
+        try {
+            parser.printHelpOn(out);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
         }
     }
 
