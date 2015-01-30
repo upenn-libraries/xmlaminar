@@ -184,8 +184,11 @@ public class ConfigCommandFactory extends CommandFactory {
             CommandFactory cf = cfs.get(type = atts.getValue("type"));
             if (cf == null) {
                 throw new IllegalArgumentException("type must be one of " + cfs + "; found " + type);
+            } else if (cf instanceof ConfigCommandFactory) {
+                wrappedCommandFactory = null;
+            } else {
+                wrappedCommandFactory = cf.getConfiguringXMLFilter(first, inputBase, maxType);
             }
-            wrappedCommandFactory = cf.getConfiguringXMLFilter(first, inputBase, maxType);
             if (wrappedCommandFactory != null) {
                 delegateDepth = depth;
                 XMLReader parent = getParent();
