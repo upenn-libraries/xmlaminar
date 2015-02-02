@@ -42,15 +42,17 @@ public class StaticFileCallback implements XMLReaderCallback {
     private final File staticFile;
     private final Transformer t;
     private final XMLFilter outputFilter;
+    private final boolean gzipOutput;
 
-    public StaticFileCallback(Transformer t, File staticFile, XMLFilter outputFilter) {
+    public StaticFileCallback(Transformer t, File staticFile, XMLFilter outputFilter, boolean gzipOutput) {
         this.staticFile = staticFile;
         this.t = t;
         this.outputFilter = outputFilter;
+        this.gzipOutput = gzipOutput;
     }
 
     public StaticFileCallback(Transformer t, File staticFile) {
-        this(t, staticFile, null);
+        this(t, staticFile, null, false);
     }
 
     public StaticFileCallback(File staticFile) throws TransformerConfigurationException {
@@ -63,7 +65,7 @@ public class StaticFileCallback implements XMLReaderCallback {
             outputFilter.setParent(source.getXMLReader());
             source.setXMLReader(outputFilter);
         }
-        StreamCallback.writeToFile(source, staticFile, t);
+        StreamCallback.writeToFile(source, staticFile, t, gzipOutput);
     }
 
     @Override

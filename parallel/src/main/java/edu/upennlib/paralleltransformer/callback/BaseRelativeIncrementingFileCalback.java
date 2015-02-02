@@ -33,22 +33,22 @@ public class BaseRelativeIncrementingFileCalback extends BaseRelativeFileCallbac
 
     private final int suffixLength;
     
-    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension, boolean replaceExtension, int suffixLength, XMLFilter outputFilter) {
-        super(inputBase, outputBase, t, outputExtension, replaceExtension);
+    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension, boolean replaceExtension, int suffixLength, XMLFilter outputFilter, boolean gzipOutput) {
+        super(inputBase, outputBase, t, outputExtension, replaceExtension, gzipOutput);
         this.suffixLength = suffixLength;
-        this.ifc = new IncrementingFileCallback(0, t, suffixLength, outputFilter);
+        this.ifc = new IncrementingFileCallback(0, t, suffixLength, outputFilter, gzipOutput);
     }
 
-    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension, int suffixLength, XMLFilter outputFilter) {
-        super(inputBase, outputBase, t, outputExtension);
+    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, String outputExtension, int suffixLength, XMLFilter outputFilter, boolean gzipOutput) {
+        super(inputBase, outputBase, t, outputExtension, gzipOutput);
         this.suffixLength = suffixLength;
-        this.ifc = new IncrementingFileCallback(0, t, suffixLength, outputFilter);
+        this.ifc = new IncrementingFileCallback(0, t, suffixLength, outputFilter, gzipOutput);
     }
 
-    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, int suffixLength, XMLFilter outputFilter) {
-        super(inputBase, outputBase, t);
+    public BaseRelativeIncrementingFileCalback(File inputBase, File outputBase, Transformer t, int suffixLength, XMLFilter outputFilter, boolean gzipOutput) {
+        super(inputBase, outputBase, t, gzipOutput);
         this.suffixLength = suffixLength;
-        this.ifc = new IncrementingFileCallback(0, t, suffixLength, outputFilter);
+        this.ifc = new IncrementingFileCallback(0, t, suffixLength, outputFilter, gzipOutput);
     }
 
     private final IncrementingFileCallback ifc;

@@ -45,6 +45,7 @@ public class Flags {
     public static final List<String> OUTPUT_FILE_ARG = unmodifiableList(asList("o", "output"));
     public static final List<String> SUFFIX_LENGTH_ARG = unmodifiableList(asList("l", "suffix-length"));
     public static final List<String> OUTPUT_EXTENSION_ARG = unmodifiableList(asList("output-extension"));
+    public static final List<String> GZIP_OUTPUT_ARG = unmodifiableList(asList("z", "gzip"));
 
     /*
     SPECIAL OPTIONS

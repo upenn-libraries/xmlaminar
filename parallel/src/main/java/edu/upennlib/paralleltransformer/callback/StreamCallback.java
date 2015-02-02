@@ -41,7 +41,7 @@ public class StreamCallback {
     
     private static final Logger LOG = LoggerFactory.getLogger(StreamCallback.class);
     
-    static void writeToFile(SAXSource source, File nextFile, Transformer t) throws FileNotFoundException, IOException {
+    static void writeToFile(SAXSource source, File nextFile, Transformer t, boolean gzipOutput) throws FileNotFoundException, IOException {
         File dir = nextFile.getParentFile();
         if (!dir.isDirectory()) {
             dir.mkdirs();

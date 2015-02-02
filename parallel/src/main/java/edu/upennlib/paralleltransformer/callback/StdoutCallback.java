@@ -25,6 +25,8 @@ package edu.upennlib.paralleltransformer.callback;
 import edu.upennlib.xmlutils.VolatileSAXSource;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -40,24 +42,27 @@ import org.xml.sax.XMLReader;
  * @author magibney
  */
 public class StdoutCallback implements XMLReaderCallback {
+    private static final boolean DEFAULT_GZIP_OUTPUT = false;
     private final Transformer t;
     private final XMLFilter outputFilter;
+    private final boolean gzipOutput;
 
-    public StdoutCallback(Transformer t, XMLFilter outputFilter) {
+    public StdoutCallback(Transformer t, XMLFilter outputFilter, boolean gzipOutput) {
         this.t = t;
         this.outputFilter = outputFilter;
+        this.gzipOutput = gzipOutput;
     }
 
     public StdoutCallback(Transformer t) {
-        this(t, null);
+        this(t, null, false);
     }
 
     public StdoutCallback(XMLFilter outputFilter) throws TransformerConfigurationException {
-        this(TransformerFactory.newInstance().newTransformer(), outputFilter);
+        this(TransformerFactory.newInstance().newTransformer(), outputFilter, DEFAULT_GZIP_OUTPUT);
     }
 
     public StdoutCallback() throws TransformerConfigurationException {
-        this(TransformerFactory.newInstance().newTransformer(), null);
+        this(TransformerFactory.newInstance().newTransformer(), null, DEFAULT_GZIP_OUTPUT);
     }
 
     @Override
@@ -66,7 +71,13 @@ public class StdoutCallback implements XMLReaderCallback {
             outputFilter.setParent(source.getXMLReader());
             source.setXMLReader(outputFilter);
         }
-        StreamCallback.writeToStream(source, new StreamResult(System.out), t);
+        OutputStream out;
+        if (gzipOutput) {
+            out = new GZIPOutputStream(System.out);
+        } else {
+            out = System.out;
+        }
+        StreamCallback.writeToStream(source, new StreamResult(out), t);
     }
 
     @Override

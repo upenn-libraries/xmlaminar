@@ -38,6 +38,7 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
     private final Transformer t;
     protected final String outputExtension;
     protected final boolean replaceExtension;
+    private final boolean gzipOutput;
     
     private Path validateBase(File file) {
         if (!file.isDirectory()) {
@@ -46,34 +47,38 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
         return file.getAbsoluteFile().toPath().normalize();
     }
     
-    public BaseRelativeFileCallback(File inputBase, File outputBase, Transformer t, String outputExtension, boolean replaceExtension) {
+    public BaseRelativeFileCallback(File inputBase, File outputBase, Transformer t, String outputExtension, boolean replaceExtension, boolean gzipOutput) {
         this.inputBase = validateBase(inputBase);
         this.outputBase = validateBase(outputBase);
         this.t = t;
         this.outputExtension = (outputExtension == null ? null : ".".concat(outputExtension));
         this.replaceExtension = replaceExtension;
+        this.gzipOutput = gzipOutput;
     }
     
-    public BaseRelativeFileCallback(File inputBase, File outputBase, Transformer t, String outputExtension) {
-        this(inputBase, outputBase, t, outputExtension, DEFAULT_REPLACE_EXTENSION);
+    public BaseRelativeFileCallback(File inputBase, File outputBase, Transformer t, String outputExtension, boolean gzipOutput) {
+        this(inputBase, outputBase, t, outputExtension, DEFAULT_REPLACE_EXTENSION, gzipOutput);
     }
     
-    public BaseRelativeFileCallback(File inputBase, File outputBase, Transformer t) {
-        this(inputBase, outputBase, t, DEFAULT_OUTPUT_EXTENSION);
+    public BaseRelativeFileCallback(File inputBase, File outputBase, Transformer t, boolean gzipOutput) {
+        this(inputBase, outputBase, t, DEFAULT_OUTPUT_EXTENSION, gzipOutput);
     }
     
     @Override
     public void callback(VolatileSAXSource source) throws SAXException, IOException {
-        File nextFile = convertInToOut(source.getInputSource().getSystemId());
-        StreamCallback.writeToFile(source, nextFile, t);
+        File nextFile = convertInToOut(source.getInputSource().getSystemId(), gzipOutput);
+        StreamCallback.writeToFile(source, nextFile, t, gzipOutput);
     }
     
-    protected File convertInToOut(String path) {
+    protected File convertInToOut(String path, boolean gzipOutput) {
         if (outputExtension != null) {
             if (replaceExtension) {
                 path = StreamCallback.getBasename(path).concat(outputExtension);
             } else {
                 path = path.concat(outputExtension);
+            }
+            if (gzipOutput) {
+                path = path.concat(".gz");
             }
         }
         Path tmp = new File(path).getAbsoluteFile().toPath().normalize();

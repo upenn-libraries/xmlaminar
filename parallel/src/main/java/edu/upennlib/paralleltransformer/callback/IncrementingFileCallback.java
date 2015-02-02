@@ -39,6 +39,7 @@ import org.xml.sax.XMLFilter;
 public class IncrementingFileCallback implements XMLReaderCallback {
     private static final int DEFAULT_START_INDEX = 0;
     private static final int DEFAULT_SUFFIX_SIZE = 5;
+    private static final boolean DEFAULT_GZIP_OUTPUT = false;
 
     private File baseFile;
     private File parentFile;
@@ -46,6 +47,7 @@ public class IncrementingFileCallback implements XMLReaderCallback {
     private final String postSuffix;
     private final String suffixFormat;
     private final Transformer t;
+    private final boolean gzipOutput;
     private int i;
     private final XMLFilter outputFilter;
 
@@ -70,18 +72,18 @@ public class IncrementingFileCallback implements XMLReaderCallback {
     }
 
     public IncrementingFileCallback(int start, Transformer t, int suffixSize, String baseFile, String postSuffix, XMLFilter outputFilter) {
-        this(start, t, getDefaultSuffixFormat(suffixSize), new File(baseFile), postSuffix, outputFilter);
+        this(start, t, getDefaultSuffixFormat(suffixSize), new File(baseFile), postSuffix, outputFilter, DEFAULT_GZIP_OUTPUT);
     }
     
-    public IncrementingFileCallback(int start, Transformer t, int suffixSize, XMLFilter outputFilter) {
-        this(start, t, getDefaultSuffixFormat(suffixSize), null, null, outputFilter);
+    public IncrementingFileCallback(int start, Transformer t, int suffixSize, XMLFilter outputFilter, boolean gzipOutput) {
+        this(start, t, getDefaultSuffixFormat(suffixSize), null, null, outputFilter, gzipOutput);
     }
 
-    public IncrementingFileCallback(int start, Transformer t, int suffixLength, File baseFile, String postSuffix, XMLFilter outputFilter) {
-        this(start, t, getDefaultSuffixFormat(suffixLength), baseFile, postSuffix, outputFilter);
+    public IncrementingFileCallback(int start, Transformer t, int suffixLength, File baseFile, String postSuffix, XMLFilter outputFilter, boolean gzipOutput) {
+        this(start, t, getDefaultSuffixFormat(suffixLength), baseFile, postSuffix, outputFilter, gzipOutput);
     }
 
-    public IncrementingFileCallback(int start, Transformer t, String suffixFormat, File baseFile, String postSuffix, XMLFilter outputFilter) {
+    public IncrementingFileCallback(int start, Transformer t, String suffixFormat, File baseFile, String postSuffix, XMLFilter outputFilter, boolean gzipOutput) {
         this.i = start;
         this.t = t;
         this.baseFile = baseFile;
@@ -92,17 +94,19 @@ public class IncrementingFileCallback implements XMLReaderCallback {
         this.postSuffix = postSuffix;
         this.suffixFormat = suffixFormat;
         this.outputFilter = outputFilter;
+        this.gzipOutput = gzipOutput;
     }
 
     @Override
     public void callback(VolatileSAXSource source) throws SAXException, IOException {
-        File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++) 
-                + (postSuffix != null ? postSuffix : StreamCallback.getExtension(source.getInputSource().getSystemId())));
+        File nextFile = new File(parentFile, namePrefix + String.format(suffixFormat, i++)
+                + (postSuffix != null ? postSuffix : StreamCallback.getExtension(source.getInputSource().getSystemId()))
+                + (gzipOutput ? ".gz" : ""));
         if (outputFilter != null) {
             outputFilter.setParent(source.getXMLReader());
             source.setXMLReader(outputFilter);
         }
-        StreamCallback.writeToFile(source, nextFile, t);
+        StreamCallback.writeToFile(source, nextFile, t, gzipOutput);
     }
     
     public void setBaseFile(File file, String ext, boolean reset) {

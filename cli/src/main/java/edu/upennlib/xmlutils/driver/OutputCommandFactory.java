@@ -86,6 +86,8 @@ class OutputCommandFactory extends CommandFactory {
         protected OptionSpec<String> outputExtensionSpec;
         protected boolean noIndent;
         protected OptionSpec noIndentSpec;
+        protected boolean gzipOutput;
+        protected OptionSpec gzipOutputSpec;
 
         protected OptionSpec verboseSpec;
         protected OptionSpec helpSpec;
@@ -112,6 +114,7 @@ class OutputCommandFactory extends CommandFactory {
             outputExtensionSpec = parser.acceptsAll(Flags.OUTPUT_EXTENSION_ARG, "optional additional suffix")
                     .withRequiredArg().ofType(String.class);
             noIndentSpec = parser.acceptsAll(Flags.NO_INDENT_ARG, "prevent default indenting of output");
+            gzipOutputSpec = parser.acceptsAll(Flags.GZIP_OUTPUT_ARG, "gzip output");
 
             verboseSpec = parser.acceptsAll(Flags.VERBOSE_ARG, "be more verbose");
             helpSpec = parser.acceptsAll(Flags.HELP_ARG, "show help").forHelp();
@@ -131,6 +134,7 @@ class OutputCommandFactory extends CommandFactory {
                 return false;
             }
             noIndent = options.has(noIndentSpec);
+            gzipOutput = options.has(gzipOutputSpec);
             suffixLength = options.valueOf(suffixLengthSpec);
             outputExtension = options.valueOf(outputExtensionSpec);
             if (options.has(baseFileSpec)) {
@@ -185,7 +189,7 @@ class OutputCommandFactory extends CommandFactory {
             }
             String inBaseSystemId = inputBase.input.getSystemId();
             File inBaseFile = inBaseSystemId == null ? null : new File(inBaseSystemId);
-            ret = new OutputXMLFilter(inBaseFile, output, baseName, suffixLength, outputExtension, noIndent);
+            ret = new OutputXMLFilter(inBaseFile, output, baseName, suffixLength, outputExtension, noIndent, gzipOutput);
             return ret;
         }
 
@@ -219,12 +223,13 @@ class OutputCommandFactory extends CommandFactory {
         private final int suffixLength;
         private final String outputExtension;
         private final boolean noIndent;
+        private final boolean gzipOutput;
 
-        private OutputXMLFilter(File inputBase, File output, File baseName, int suffixLength, String outputExtension, boolean noIndent) {
-            this(inputBase, output, baseName, suffixLength, outputExtension, noIndent, null);
+        private OutputXMLFilter(File inputBase, File output, File baseName, int suffixLength, String outputExtension, boolean noIndent, boolean gzipOutput) {
+            this(inputBase, output, baseName, suffixLength, outputExtension, noIndent, null, gzipOutput);
         }
 
-        public OutputXMLFilter(File inputBase, File output, File baseName, int suffixLength, String outputExtension, boolean noIndent, XMLReader parent) {
+        public OutputXMLFilter(File inputBase, File output, File baseName, int suffixLength, String outputExtension, boolean noIndent, XMLReader parent, boolean gzipOutput) {
             super(parent);
             this.inputBase = inputBase;
             this.output = output;
@@ -232,6 +237,7 @@ class OutputCommandFactory extends CommandFactory {
             this.suffixLength = suffixLength;
             this.outputExtension = outputExtension;
             this.noIndent = noIndent;
+            this.gzipOutput = gzipOutput;
         }
 
         @Override
@@ -280,16 +286,16 @@ class OutputCommandFactory extends CommandFactory {
                         resolvedBase = baseName;
                     }
                     callbackParent.setOutputCallback(new IncrementingFileCallback(0,
-                            t, suffixLength, resolvedBase, outputExtension, outputFilter));
+                            t, suffixLength, resolvedBase, outputExtension, outputFilter, gzipOutput));
                 } else if ("-".equals(output.getPath())) {
-                    callbackParent.setOutputCallback(new StdoutCallback(t, outputFilter));
+                    callbackParent.setOutputCallback(new StdoutCallback(t, outputFilter, gzipOutput));
                 } else if (!output.isDirectory()) {
-                    callbackParent.setOutputCallback(new StaticFileCallback(t, output, outputFilter));
+                    callbackParent.setOutputCallback(new StaticFileCallback(t, output, outputFilter, gzipOutput));
                 } else {
                     if (groupBySystemId(parent)) {
-                        callbackParent.setOutputCallback(new BaseRelativeFileCallback(inputBase, output, t));
+                        callbackParent.setOutputCallback(new BaseRelativeFileCallback(inputBase, output, t, gzipOutput));
                     } else {
-                        callbackParent.setOutputCallback(new BaseRelativeIncrementingFileCalback(inputBase, output, t, outputExtension, outputExtension != null, suffixLength, outputFilter));
+                        callbackParent.setOutputCallback(new BaseRelativeIncrementingFileCalback(inputBase, output, t, outputExtension, outputExtension != null, suffixLength, outputFilter, gzipOutput));
                     }
                 }
                 return true;
