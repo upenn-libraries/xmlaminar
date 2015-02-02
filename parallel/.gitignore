@@ -5,3 +5,4 @@ lib
 out
 target
 work
+/src/test/resources
