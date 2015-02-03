@@ -61,7 +61,7 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
     private static class RSXMLReaderCommand extends SQLXMLReaderCommand {
 
         private boolean initialized = false;
-        private final RSXMLReader rsxr = new RSXMLReader();
+        private RSXMLReader rsxr;
         private XMLFilter ret;
 
         public RSXMLReaderCommand(boolean first, boolean last) {
@@ -80,6 +80,7 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
                 if (!init(parser.parse(args), inputBase)) {
                     return null;
                 } else {
+                    rsxr = new RSXMLReader(batchSize);
                     ret = new XMLFilterImpl(rsxr);
                 }
             }
@@ -87,15 +88,6 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
             rsxr.setIdFieldLabels(parseIdFieldLabels(idFieldLabels));
             rsxr.setDataSource(SQLXMLReader.newDataSource(connectionConfigFile));
             rsxr.setSql(sql);
-            if (false && last) {
-                SerializingXMLFilter serializer = new SerializingXMLFilter(output);
-                if (noIndent) {
-                    serializer.setParent(ret);
-                } else {
-                    serializer.setParent(new OutputTransformerConfigurer(ret, Collections.singletonMap("indent", "yes")));
-                }
-                ret = serializer;
-            }
             return ret;
         }
 

@@ -65,6 +65,10 @@ public class RSXMLReader extends SQLXMLReader {
         super(InputImplementation.CHAR_ARRAY, unmodifiableFeatures);
     }
 
+    public RSXMLReader(int batchSize) {
+        super(InputImplementation.CHAR_ARRAY, unmodifiableFeatures, batchSize);
+    }
+
     @Override
     protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, char[] content, int endIndex) throws SAXException, IOException {
         if (content != null) {
