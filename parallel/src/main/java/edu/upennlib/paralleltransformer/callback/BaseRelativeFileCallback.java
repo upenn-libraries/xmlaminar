@@ -77,9 +77,9 @@ public class BaseRelativeFileCallback implements XMLReaderCallback {
             } else {
                 path = path.concat(outputExtension);
             }
-            if (gzipOutput) {
-                path = path.concat(".gz");
-            }
+        }
+        if (gzipOutput) {
+            path = path.concat(".gz");
         }
         Path tmp = new File(path).getAbsoluteFile().toPath().normalize();
         return outputBase.resolve(inputBase.relativize(tmp)).toFile();

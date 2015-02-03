@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -46,9 +48,10 @@ public class SerializingXMLFilter extends XMLFilterImpl {
     private final TransformerHandler th;
     private final File output;
     private final boolean closeOnEndDocument;
+    private final boolean gzipOutput;
     private StreamResult res;
     
-    public SerializingXMLFilter(File output, boolean closeOnEndDocument) {
+    public SerializingXMLFilter(File output, boolean gzipOutput, boolean closeOnEndDocument) {
         SAXTransformerFactory stf = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         try {
             th = stf.newTransformerHandler();
@@ -57,10 +60,15 @@ public class SerializingXMLFilter extends XMLFilterImpl {
         }
         this.output = output;
         this.closeOnEndDocument = closeOnEndDocument;
+        this.gzipOutput = gzipOutput;
+    }
+    
+    public SerializingXMLFilter(File output, boolean gzipOutput) {
+        this(output, gzipOutput, !"-".equals(output.getPath()));
     }
 
     public SerializingXMLFilter(File output) {
-        this(output, !"-".equals(output.getPath()));
+        this(output, false);
     }
 
     @Override
@@ -101,16 +109,19 @@ public class SerializingXMLFilter extends XMLFilterImpl {
             LOG.info("ignoring setProperty({})", TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
         }
         res = new StreamResult();
-        if ("-".equals(output.getPath())) {
-            res.setOutputStream(System.out);
-        } else {
-            res.setSystemId(output);
-            try {
-                res.setOutputStream(new BufferedOutputStream(new FileOutputStream(output)));
-            } catch (FileNotFoundException ex) {
-                throw new RuntimeException(ex);
+        OutputStream out = null;
+        try {
+            if ("-".equals(output.getPath())) {
+                out = gzipOutput ? new GZIPOutputStream(System.out) : System.out;
+            } else {
+                res.setSystemId(output);
+                out = new FileOutputStream(output);
+                out = gzipOutput ? new GZIPOutputStream(out) : new BufferedOutputStream(out);
             }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
+        res.setOutputStream(out);
         th.setResult(res);
         setContentHandler(th);
     }

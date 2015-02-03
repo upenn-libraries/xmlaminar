@@ -26,7 +26,10 @@ import edu.upennlib.xmlutils.VolatileSAXSource;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.StringReader;
 import java.util.zip.GZIPOutputStream;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -46,6 +49,7 @@ public class StdoutCallback implements XMLReaderCallback {
     private final Transformer t;
     private final XMLFilter outputFilter;
     private final boolean gzipOutput;
+    private OutputStream out;
 
     public StdoutCallback(Transformer t, XMLFilter outputFilter, boolean gzipOutput) {
         this.t = t;
@@ -71,17 +75,22 @@ public class StdoutCallback implements XMLReaderCallback {
             outputFilter.setParent(source.getXMLReader());
             source.setXMLReader(outputFilter);
         }
-        OutputStream out;
-        if (gzipOutput) {
-            out = new GZIPOutputStream(System.out);
-        } else {
-            out = System.out;
+        if (out == null) {
+            out = gzipOutput ? new GZIPOutputStream(System.out) : System.out;
         }
         StreamCallback.writeToStream(source, new StreamResult(out), t);
     }
 
     @Override
     public void finished(Throwable t) {
+        try {
+            if (gzipOutput) {
+                ((GZIPOutputStream) out).finish();
+            }
+            out.flush();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
     
 }

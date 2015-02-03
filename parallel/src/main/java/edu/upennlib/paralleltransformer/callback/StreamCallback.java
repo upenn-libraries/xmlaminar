@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.sax.SAXSource;
@@ -46,7 +47,12 @@ public class StreamCallback {
         if (!dir.isDirectory()) {
             dir.mkdirs();
         }
-        OutputStream out = new BufferedOutputStream(new FileOutputStream(nextFile));
+        OutputStream out = new FileOutputStream(nextFile);
+        if (gzipOutput) {
+            out = new GZIPOutputStream(out);
+        } else {
+            out = new BufferedOutputStream(out);
+        }
         StreamResult res = new StreamResult(out);
         res.setSystemId(nextFile);
         try {
