@@ -20,6 +20,7 @@ import edu.upennlib.dbutils.ConnectionException;
 import edu.upennlib.xmlutils.SAXFeatures;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -131,10 +132,7 @@ public class RSXMLReader extends SQLXMLReader {
 
         RSXMLReader instance = new RSXMLReader();
         logger.setLevel(Level.WARN);
-        instance.setHost(host);
-        instance.setSid(sid);
-        instance.setUser(user);
-        instance.setPwd(pwd);
+        instance.setDataSource(newDataSource(new File("work/connection.properties")));
         instance.setSql(sqlItemStatus);
         instance.setIdFieldLabels(itemStatusIdFields);
 

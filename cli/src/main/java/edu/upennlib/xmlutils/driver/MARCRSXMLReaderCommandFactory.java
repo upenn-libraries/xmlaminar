@@ -19,6 +19,7 @@ package edu.upennlib.xmlutils.driver;
 import edu.upennlib.paralleltransformer.SerializingXMLFilter;
 import edu.upennlib.xmlutils.dbxml.BinaryMARCXMLReader;
 import edu.upennlib.xmlutils.dbxml.RSXMLReader;
+import edu.upennlib.xmlutils.dbxml.SQLXMLReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
     private static class MARCRSXMLReaderCommand extends SQLXMLReaderCommand {
 
         private boolean initialized = false;
-        private final BinaryMARCXMLReader mxr = new BinaryMARCXMLReader();
+        private BinaryMARCXMLReader mxr;
         private XMLFilter ret;
         protected String marcBinaryFieldLabel;
         private final OptionSpec<String> marcBinaryFieldLabelSpec;
@@ -93,30 +94,15 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
                 if (!init(parser.parse(args), inputBase)) {
                     return null;
                 } else {
+                    mxr = new BinaryMARCXMLReader(batchSize);
                     ret = new XMLFilterImpl(mxr);
                 }
             }
             mxr.setName(name);
             mxr.setIdFieldLabels(parseIdFieldLabels(idFieldLabels));
-            mxr.setOutputFieldLabels(new String[] {marcBinaryFieldLabel});
-            try {
-                mxr.setHost(host);
-                mxr.setSid(sid);
-                mxr.setUser(user);
-                mxr.setPwd(password);
-                mxr.setSql(sql);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-            if (false && last) {
-                SerializingXMLFilter serializer = new SerializingXMLFilter(output);
-                if (noIndent) {
-                    serializer.setParent(ret);
-                } else {
-                    serializer.setParent(new OutputTransformerConfigurer(ret, Collections.singletonMap("indent", "yes")));
-                }
-                ret = serializer;
-            }
+            mxr.setOutputFieldLabels(new String[]{marcBinaryFieldLabel});
+            mxr.setDataSource(SQLXMLReader.newDataSource(connectionConfigFile));
+            mxr.setSql(sql);
             return ret;
         }
 

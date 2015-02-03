@@ -17,17 +17,19 @@
 package edu.upennlib.xmlutils.dbxml;
 
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
-import edu.upennlib.dbutils.Connection;
-import edu.upennlib.dbutils.ConnectionException;
-import edu.upennlib.dbutils.DirectConnection;
 import edu.upennlib.xmlutils.BoundedXMLFilterBuffer;
 import edu.upennlib.xmlutils.SAXFeatures;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -35,8 +37,16 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.sql.DataSource;
+import oracle.jdbc.pool.OracleConnectionPoolDataSource;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.EntityResolver;
@@ -57,8 +67,9 @@ import org.xml.sax.helpers.AttributesImpl;
 public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigurable {
 
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
+    public static final int DEFAULT_CHUNK_SIZE = 6;
     private String name;
-    private Connection connection;
+    private final int chunkSize;
     private String sql;
     private static final Logger logger = Logger.getLogger(SQLXMLReader.class);
     private ResultSet rs;
@@ -73,13 +84,39 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     private static final HashMap<String, Boolean> featureDefaults = new HashMap<String, Boolean>();
     private final HashMap<String, Boolean> features = new HashMap<String, Boolean>();
     private final HashMap<String, Boolean> unmodifiableFeatures = new HashMap<String, Boolean>();
+    private DataSource ds;
     
-    public void setConnection(Connection connection) {
-        this.connection = connection;
+    public DataSource getDataSource() {
+        return ds;
     }
     
-    public Connection getConnection() {
-        return connection;
+    public void setDataSource(DataSource ds) {
+        this.ds = ds;
+    }
+    
+    public static DataSource newDataSource(File connectionProps) {
+        try {
+            OracleConnectionPoolDataSource ds = (OracleConnectionPoolDataSource) Class.forName("oracle.jdbc.pool.OracleConnectionPoolDataSource").newInstance();
+            Connection c;
+            ds.setDriverType("thin");
+            ds.setPortNumber(1521);
+            Properties cProps = new Properties();
+            cProps.load(new FileReader(connectionProps));
+            ds.setServerName((String) cProps.remove("server"));
+            ds.setDatabaseName((String) cProps.remove("database"));
+            ds.setConnectionProperties(cProps);
+            return ds;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
+        } catch (InstantiationException ex) {
+            throw new RuntimeException(ex);
+        } catch (IllegalAccessException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     protected static enum InputImplementation { CHAR_ARRAY, BYTE_ARRAY };
@@ -93,6 +130,11 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     }
 
     protected SQLXMLReader(InputImplementation expectedInputImplementation, Map<String, Boolean> unmodifiableFeatures) {
+        this(expectedInputImplementation, unmodifiableFeatures, DEFAULT_CHUNK_SIZE);
+    }
+
+    protected SQLXMLReader(InputImplementation expectedInputImplementation, Map<String, Boolean> unmodifiableFeatures, int chunkSize) {
+        this.chunkSize = chunkSize;
         this.expectedInputImplementation = expectedInputImplementation;
         for (Entry<String, Boolean> e : unmodifiableFeatures.entrySet()) {
             if (unmodifiableFeaturesAbs.containsKey(e.getKey())) {
@@ -231,7 +273,73 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     }
 
     private boolean parsing = false;
+    
+    private Iterator<String> paramIter;
+    
+    public void setQueryParams(Iterator<String> paramIter) {
+        this.paramIter = paramIter;
+    }
 
+    private static class InputSourceIterator implements Iterator<String> {
+
+        private final Scanner s;
+        private boolean done = false;
+
+        private InputSourceIterator(InputSource in, Pattern inputDelimPattern) {
+            Reader r;
+            InputStream stream;
+            String systemId;
+            if ((r = in.getCharacterStream()) != null) {
+                s = new Scanner(r);
+            } else if ((stream = in.getByteStream()) != null) {
+                s = new Scanner(stream);
+            } else if ((systemId = in.getSystemId()) != null) {
+                try {
+                    s = new Scanner(new File(systemId));
+                } catch (FileNotFoundException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } else {
+                throw new RuntimeException("input source contains no information");
+            }
+            s.useDelimiter(inputDelimPattern);
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (done) {
+                return false;
+            } else if (s.hasNext()) {
+                return true;
+            } else {
+                s.close();
+                done = true;
+                return false;
+            }
+        }
+
+        @Override
+        public String next() {
+            return s.next();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Not supported.");
+        }
+        
+    }
+    
+    private Pattern inputDelimPattern = Pattern.compile(System.lineSeparator(), Pattern.LITERAL);
+    
+    public void setInputDelimPattern(String inputDelim) {
+        inputDelimPattern = Pattern.compile(inputDelim, Pattern.LITERAL);
+    }
+    
+    public String getInputDelimPattern() {
+        return inputDelimPattern == null ? null : inputDelimPattern.pattern();
+    }
+    
     @Override
     public final void parse(InputSource input) throws IOException, SAXException {
         if (!parsing) {
@@ -239,13 +347,16 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
             buffer.clear();
             buffer.setParent(this);
             buffer.setContentHandler(ch);
+            if (parameterizedSQL && paramIter == null) {
+                paramIter = new InputSourceIterator(input, inputDelimPattern);
+            }
             buffer.parse(input);
         } else {
+            Connection connection = null;
             try {
                 try {
-                    initializeResultSet();
-                } catch (ConnectionException ex) {
-                    throw new IOException(ex);
+                    connection = ds.getConnection();
+                    initializeResultSet(connection);
                 } catch (SQLException ex) {
                     throw new IOException(ex);
                 }
@@ -255,7 +366,13 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
                     throw new IOException(ex);
                 }
             } finally {
-                connection.close();
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    } catch (SQLException ex) {
+                        logger.error("exception closing connection", ex);
+                    }
+                }
 
                 if (rs != null) {
                     try {
@@ -272,11 +389,11 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     //@Override
     public final void parseOld(InputSource input) throws IOException, SAXException {
         parsing = true;
+        Connection connection = null;
         try {
             try {
-                initializeResultSet();
-            } catch (ConnectionException ex) {
-                throw new IOException(ex);
+                connection = ds.getConnection();
+                initializeResultSet(connection);
             } catch (SQLException ex) {
                 throw new IOException(ex);
             }
@@ -286,6 +403,13 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
                 throw new IOException(ex);
             }
         } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    logger.error("exception closing connection", ex);
+                }
+            }
             if (rs != null) {
                 try {
                     rs.close();
@@ -297,10 +421,27 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         parsing = false;
     }
 
-    private void initializeResultSet() throws ConnectionException, SQLException {
+    private void initializePreparedStatement(PreparedStatement ps) throws SQLException {
+        if (!parameterizedSQL || !paramIter.hasNext()) {
+            return;
+        }
+        int val = Integer.parseInt(paramIter.next());
+        for (int i = 1; i <= chunkSize; i++) {
+            ps.setInt(i, val);
+            if (paramIter.hasNext()) {
+                val = Integer.parseInt(paramIter.next());
+            }
+        }
+        if (paramIter.hasNext()) {
+            logger.warn("paramIter not exhausted");
+        }
+    }
+    
+    private void initializeResultSet(Connection connection) throws SQLException {
         logger.trace("initializing resultset");
-        connection.setSql(sql);
-        rs = connection.getResultSet();
+        PreparedStatement ps = connection.prepareStatement(sql);
+        initializePreparedStatement(ps);
+        rs = ps.executeQuery();
         if (pe != null) {
             pe.notifyStart();
         }
@@ -344,78 +485,46 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
     public void parse(String systemId) throws IOException, SAXException {
         throw new UnsupportedOperationException("parse(String "+systemId+")");
     }
-    
-    public void setHost(String host) throws ConnectionException {
-        logger.trace("set host: " + host);
-        if (connection == null) {
-            connection = new DirectConnection();
-        }
-        connection.setHost(host);
-    }
 
-    public String getHost() {
-        if (connection == null) {
-            return null;
-        } else {
-            return connection.getHost();
-        }
-    }
-
-    public void setSid(String sid) throws ConnectionException {
-        logger.trace("set sid: " + sid);
-        if (connection == null) {
-            connection = new DirectConnection();
-        }
-        connection.setSid(sid);
-    }
-    
-    public String getSid() {
-        if (connection == null) {
-            return null;
-        } else {
-            return connection.getSid();
-        }
-    }
-
-    public void setSql(String sql) throws ConnectionException {
+    public void setSql(String sql) {
         logger.trace("set sql: " + sql);
-		this.sql = sql;
+        String parameterized = parameterizeSQL(sql, chunkSize);
+        if (parameterized != null) {
+            parameterizedSQL = true;
+            this.sql = parameterized;
+        } else {
+            this.sql = sql;
+        }
+    }
+    
+    private boolean parameterizedSQL = false;
+
+    private static final String ID_STRING = "<ID_STRING>";
+
+    private static final Pattern ID_STRING_PATTERN = Pattern.compile(ID_STRING, Pattern.LITERAL);
+    
+    protected static String parameterizeSQL(String sql, int chunkSize) {
+        Matcher m = ID_STRING_PATTERN.matcher(sql);
+        if (!m.find()) {
+            return null;
+        } else {
+            StringBuffer sb = new StringBuffer(sql.length() - ID_STRING.length() + (chunkSize * 2));
+            sb.append('?');
+            for (int i = 1; i < chunkSize; i++) {
+                sb.append(",?");
+            }
+            String replacement = sb.toString();
+            sb.setLength(0);
+            do {
+                m.appendReplacement(sb, replacement);
+            } while (m.find());
+            m.appendTail(sb);
+            return sb.toString();
+        }
     }
 
     public String getSql() {
 	    return sql;
-    }
-
-    public void setUser(String user) throws ConnectionException {
-        logger.trace("set user: " + user);
-        if (connection == null) {
-            connection = new DirectConnection();
-        }
-        connection.setUser(user);
-    }
-
-    public String getUser() {
-        if (connection == null) {
-            return null;
-        } else {
-            return connection.getUser();
-        }
-    }
-
-    public void setPwd(String pwd) throws ConnectionException {
-        logger.trace("set pwd: " + pwd);
-        if (connection == null) {
-            connection = new DirectConnection();
-        }
-        connection.setPwd(pwd);
-    }
-
-    public String getPwd() {
-        if (connection == null) {
-            return null;
-        } else {
-            return connection.getPwd();
-        }
     }
 
     public static final String INTEGRATOR_URI = "http://integrator";

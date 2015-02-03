@@ -18,6 +18,7 @@ package edu.upennlib.xmlutils.driver;
 
 import edu.upennlib.paralleltransformer.SerializingXMLFilter;
 import edu.upennlib.xmlutils.dbxml.RSXMLReader;
+import edu.upennlib.xmlutils.dbxml.SQLXMLReader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -84,15 +85,8 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
             }
             rsxr.setName(name);
             rsxr.setIdFieldLabels(parseIdFieldLabels(idFieldLabels));
-            try {
-                rsxr.setHost(host);
-                rsxr.setSid(sid);
-                rsxr.setUser(user);
-                rsxr.setPwd(password);
-                rsxr.setSql(sql);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
+            rsxr.setDataSource(SQLXMLReader.newDataSource(connectionConfigFile));
+            rsxr.setSql(sql);
             if (false && last) {
                 SerializingXMLFilter serializer = new SerializingXMLFilter(output);
                 if (noIndent) {

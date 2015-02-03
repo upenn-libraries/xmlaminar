@@ -20,12 +20,14 @@ import edu.upennlib.dbutils.ConnectionException;
 import edu.upennlib.xmlutils.SAXFeatures;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -34,10 +36,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.MalformedInputException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -47,6 +51,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
+import oracle.jdbc.pool.OracleConnectionPoolDataSource;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -66,6 +71,10 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
 
     public BinaryMARCXMLReader() {
         super(InputImplementation.BYTE_ARRAY, unmodifiableFeatures);
+    }
+    
+    public BinaryMARCXMLReader(int batchSize) {
+        super(InputImplementation.BYTE_ARRAY, unmodifiableFeatures, batchSize);
     }
 
     private final UnboundedContentHandlerBuffer outputBuffer = new UnboundedContentHandlerBuffer();
@@ -206,29 +215,15 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     }
 
     public static BinaryMARCXMLReader getTestInstance(int lowBibId, int highBibId) throws ConnectionException {
-        Properties props = new Properties();
-        try {
-            props.load(new FileReader("work/connection.properties"));
-        } catch (FileNotFoundException ex) {
-            throw new RuntimeException(ex);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-        final String host = props.getProperty("server");
-        final String sid = props.getProperty("database");
-        final String user = props.getProperty("user");
-        final String pwd = props.getProperty("password");
         final String sql = "SELECT DISTINCT BIB_DATA.BIB_ID, BIB_DATA.SEQNUM, BIB_DATA.RECORD_SEGMENT "
                 + "FROM PENNDB.BIB_DATA, BIB_MASTER "
                 + "WHERE BIB_DATA.BIB_ID = BIB_MASTER.BIB_ID AND  BIB_MASTER.SUPPRESS_IN_OPAC = 'N' "
-                + "AND BIB_DATA.BIB_ID > "+lowBibId+" AND BIB_DATA.BIB_ID < "+highBibId+" "
+//                + "AND BIB_DATA.BIB_ID > "+lowBibId+" AND BIB_DATA.BIB_ID < "+highBibId+" "
+                + "AND BIB_DATA.BIB_ID IN (<ID_STRING>) "
                 + "ORDER BY BIB_ID, SEQNUM";
 
         BinaryMARCXMLReader instance = new BinaryMARCXMLReader();
-        instance.setHost(host);
-        instance.setSid(sid);
-        instance.setUser(user);
-        instance.setPwd(pwd);
+        instance.setDataSource(newDataSource(new File("work/connection.properties")));
         instance.setSql(sql);
         String[] ifl = {"BIB_ID"};
         instance.setIdFieldLabels(ifl);
@@ -236,14 +231,14 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         instance.setOutputFieldLabels(ofl);
         return instance;
     }
-
+    
     public static void runTestInstanceToFile(BinaryMARCXMLReader instance) throws TransformerConfigurationException, TransformerException, IOException {
         SAXTransformerFactory stf = (SAXTransformerFactory)TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
         Transformer t = stf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("/tmp/marc.xml"));
         long start = System.currentTimeMillis();
-        t.transform(new SAXSource(instance, new InputSource()), new StreamResult(bos));
+        t.transform(new SAXSource(instance, new InputSource(new StringReader("12"))), new StreamResult(bos));
         bos.close();
         System.out.println("duration: "+(System.currentTimeMillis() - start));
     }
