@@ -104,9 +104,9 @@ public class SerializingXMLFilter extends XMLFilterImpl {
         try {
             setProperty(TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME, t);
         } catch (SAXNotRecognizedException ex) {
-            LOG.info("ignoring setProperty({})", TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
+            LOG.trace("ignoring setProperty({})", TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
         } catch (SAXNotSupportedException ex) {
-            LOG.info("ignoring setProperty({})", TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
+            LOG.trace("ignoring setProperty({})", TXMLFilter.OUTPUT_TRANSFORMER_PROPERTY_NAME);
         }
         res = new StreamResult();
         OutputStream out = null;
