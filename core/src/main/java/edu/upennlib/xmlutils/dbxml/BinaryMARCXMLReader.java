@@ -22,6 +22,7 @@ import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -36,6 +37,7 @@ import java.nio.charset.MalformedInputException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -204,10 +206,18 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
     }
 
     public static BinaryMARCXMLReader getTestInstance(int lowBibId, int highBibId) throws ConnectionException {
-        final String host = "[host_or_ip]";
-        final String sid = "[sid]";
-        final String user = "[username]";
-        final String pwd = "[password]";
+        Properties props = new Properties();
+        try {
+            props.load(new FileReader("work/connection.properties"));
+        } catch (FileNotFoundException ex) {
+            throw new RuntimeException(ex);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        final String host = props.getProperty("server");
+        final String sid = props.getProperty("database");
+        final String user = props.getProperty("user");
+        final String pwd = props.getProperty("password");
         final String sql = "SELECT DISTINCT BIB_DATA.BIB_ID, BIB_DATA.SEQNUM, BIB_DATA.RECORD_SEGMENT "
                 + "FROM PENNDB.BIB_DATA, BIB_MASTER "
                 + "WHERE BIB_DATA.BIB_ID = BIB_MASTER.BIB_ID AND  BIB_MASTER.SUPPRESS_IN_OPAC = 'N' "
