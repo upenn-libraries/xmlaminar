@@ -16,6 +16,8 @@
 
 package edu.upennlib.xmlutils.driver;
 
+import edu.upennlib.paralleltransformer.InputSplitter;
+import edu.upennlib.paralleltransformer.JoiningXMLFilter;
 import edu.upennlib.paralleltransformer.SerializingXMLFilter;
 import edu.upennlib.xmlutils.dbxml.RSXMLReader;
 import edu.upennlib.xmlutils.dbxml.SQLXMLReader;
@@ -81,7 +83,10 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
                     return null;
                 } else {
                     rsxr = new RSXMLReader(batchSize);
-                    ret = new XMLFilterImpl(rsxr);
+                    JoiningXMLFilter joiner = new JoiningXMLFilter(true);
+                    joiner.setParent(rsxr);
+                    joiner.setIteratorWrapper(new InputSplitter(batchSize));
+                    ret = joiner;
                 }
             }
             rsxr.setName(name);
