@@ -22,16 +22,12 @@ import edu.upennlib.xmlutils.VolatileSAXSource;
 import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -42,21 +38,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.sax.SAXSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
@@ -227,10 +217,43 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
         }
     }
     
+    public static interface IteratorWrapper<T> {
+        Iterator<T> wrapIterator(Iterator<T> base);
+    }
+    
+    private IteratorWrapper<VolatileSAXSource> iteratorWrapper;
+    
+    public IteratorWrapper<VolatileSAXSource> getIteratorWrapper() {
+        return iteratorWrapper;
+    }
+    
+    public void setIteratorWrapper(IteratorWrapper<VolatileSAXSource> iteratorWrapper) {
+        this.iteratorWrapper = iteratorWrapper;
+    }
+    
+    private Iterator<VolatileSAXSource> initIterator(InputSource input) {
+        if (iteratorWrapper == null) {
+            return new IndirectSourceSupplier(input);
+        } else {
+            Iterator<VolatileSAXSource> base;
+            switch (inputType) {
+                case indirect:
+                    base = new IndirectSourceSupplier(input);
+                    break;
+                case direct:
+                    base = Collections.singletonList(new VolatileSAXSource(super.getParent(), input)).iterator();
+                    break;
+                default:
+                    throw new AssertionError("should never reach here");
+            }
+            return iteratorWrapper.wrapIterator(base);
+        }
+    }
+    
     private void initProducerIterator(InputSource input) {
         try {
             VolatileSAXSource next;
-            Iterator<VolatileSAXSource> sourceIter = new IndirectSourceSupplier(input);
+            Iterator<VolatileSAXSource> sourceIter = initIterator(input);
             if (sourceIter.hasNext()) {
                 next = sourceIter.next();
                 initialParse(next);
@@ -289,7 +312,22 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
     public void parse(InputSource input) throws SAXException, IOException {
         try {
             setupParseLocal();
-            switch (inputType) {
+            InputType induced;
+            if (iteratorWrapper == null) {
+                induced = inputType;
+            } else {
+                switch (inputType) {
+                    case direct:
+                        induced = InputType.indirect;
+                        break;
+                    case indirect:
+                        induced = inputType;
+                        break;
+                    default:
+                        throw new IllegalStateException("cannot wrap iterator for inputType="+inputType);
+                }
+            }
+            switch (induced) {
                 case direct:
                     VolatileSAXSource source = new VolatileSAXSource(super.getParent(), input);
                     initialParse(source);

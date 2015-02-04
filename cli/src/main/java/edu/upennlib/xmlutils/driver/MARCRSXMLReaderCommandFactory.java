@@ -16,23 +16,16 @@
 
 package edu.upennlib.xmlutils.driver;
 
-import edu.upennlib.paralleltransformer.SerializingXMLFilter;
+import edu.upennlib.paralleltransformer.InputSplitter;
+import edu.upennlib.paralleltransformer.JoiningXMLFilter;
 import edu.upennlib.xmlutils.dbxml.BinaryMARCXMLReader;
-import edu.upennlib.xmlutils.dbxml.RSXMLReader;
 import edu.upennlib.xmlutils.dbxml.SQLXMLReader;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.transform.sax.SAXSource;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
@@ -95,7 +88,10 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
                     return null;
                 } else {
                     mxr = new BinaryMARCXMLReader(batchSize);
-                    ret = new XMLFilterImpl(mxr);
+                    JoiningXMLFilter joiner = new JoiningXMLFilter(true);
+                    joiner.setParent(mxr);
+                    joiner.setIteratorWrapper(new InputSplitter(batchSize));
+                    ret = joiner;
                 }
             }
             mxr.setName(name);

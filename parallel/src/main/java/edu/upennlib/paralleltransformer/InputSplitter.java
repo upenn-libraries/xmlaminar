@@ -16,54 +16,45 @@
 
 package edu.upennlib.paralleltransformer;
 
-import edu.upennlib.paralleltransformer.callback.OutputCallback;
-import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.VolatileSAXSource;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  *
  * @author magibney
  */
-public class SplitInputXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
+public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<VolatileSAXSource> {
 
-    private XMLReaderCallback callback;
-    
+    private static final String DEFAULT_DELIM = System.lineSeparator();
     private final int chunkSize;
     private final Pattern inputDelimPattern;
     private final String outputDelim;
-    private Scanner s;
     
-    public SplitInputXMLFilter(int chunkSize, String inputDelimPattern, int inputDelimPatternFlags, String outputDelim) {
+    public InputSplitter(int chunkSize, String inputDelimPattern, int inputDelimPatternFlags, String outputDelim) {
         this.chunkSize = chunkSize;
         this.outputDelim = outputDelim;
         this.inputDelimPattern = Pattern.compile(inputDelimPattern, inputDelimPatternFlags);
     }
     
-    public SplitInputXMLFilter(int chunkSize, String delim) {
+    public InputSplitter(int chunkSize, String delim) {
         this(chunkSize, delim, Pattern.LITERAL, delim);
     }
     
-    public SplitInputXMLFilter(int chunkSize) {
-        this(chunkSize, System.lineSeparator());
+    public InputSplitter(int chunkSize) {
+        this(chunkSize, DEFAULT_DELIM);
     }
     
-    @Override
-    protected void initialParse(VolatileSAXSource in) {
-        repeatParse(in);
-    }
-
-    @Override
-    protected void repeatParse(VolatileSAXSource in) {
-        InputSource is = in.getInputSource();
+    private static Scanner initializeScanner(InputSource is, Pattern inputDelimPattern) {
+        Scanner s;
         Reader r;
         InputStream stream;
         String systemId;
@@ -77,41 +68,43 @@ public class SplitInputXMLFilter extends QueueSourceXMLFilter implements OutputC
             } catch (FileNotFoundException ex) {
                 throw new RuntimeException(ex);
             }
+        } else {
+            throw new IllegalStateException("input source contains no information");
         }
         s.useDelimiter(inputDelimPattern);
-        while (s.hasNext()) {
-            InputSource downstream = new InputSource(in.getSystemId());
-            try {
-                splittingReader.reset();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-            downstream.setCharacterStream(splittingReader);
-            try {
-                callback.callback(new VolatileSAXSource(downstream));
-            } catch (SAXException ex) {
-                throw new RuntimeException(ex);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
+        return s;
     }
     
-    private final SplittingReader splittingReader = new SplittingReader();
-    
-    private class SplittingReader extends Reader {
+    private static class SplittingReader extends Reader {
 
         private int count = 0;
         private int index = -1;
         private String current = null;
         private boolean delim = false;
+        private Scanner s;
+        private final int chunkSize;
+        private final String outputDelim;
+        
+        private SplittingReader(int chunkSize, String outputDelim) {
+            this.chunkSize = chunkSize;
+            this.outputDelim = outputDelim;
+        }
         
         @Override
-        public void reset() throws IOException {
+        public void reset() {
             count = 0;
             index = -1;
             current = null;
             delim = false;
+        }
+        
+        public void init(Scanner s) {
+            reset();
+            this.s = s;
+        }
+        
+        public boolean isFinished() {
+            return (s == null || !s.hasNext()) && (index < 0 || index >= current.length());
         }
         
         @Override
@@ -152,29 +145,60 @@ public class SplitInputXMLFilter extends QueueSourceXMLFilter implements OutputC
         public void close() throws IOException {
             if (!s.hasNext()) {
                 s.close();
+                s = null;
             }
         }
         
     }
 
     @Override
-    protected void finished() throws SAXException {
-        callback.finished(null);
+    public Iterator<VolatileSAXSource> wrapIterator(Iterator<VolatileSAXSource> base) {
+        return new SplittingIterator(base, chunkSize, outputDelim, inputDelimPattern);
     }
+    
+    private static class SplittingIterator implements Iterator<VolatileSAXSource> {
 
-    @Override
-    public boolean allowOutputCallback() {
-        return true;
-    }
+        private final Iterator<VolatileSAXSource> base;
+        private final Pattern inputDelimPattern;
+        private final SplittingReader sr;
+        private String currentSystemId;
+        private XMLReader currentXMLReader;
+        
+        private SplittingIterator(Iterator<VolatileSAXSource> base, int chunkSize, String outputDelim, Pattern inputDelimPattern) {
+            this.base = base;
+            this.inputDelimPattern = inputDelimPattern;
+            this.sr = new SplittingReader(chunkSize, outputDelim);
+        }
+        
+        @Override
+        public boolean hasNext() {
+            if (!sr.isFinished()) {
+                return true;
+            } else {
+                return base.hasNext();
+            }
+        }
 
-    @Override
-    public XMLReaderCallback getOutputCallback() {
-        return callback;
-    }
+        @Override
+        public VolatileSAXSource next() {
+            if (sr.isFinished()) {
+                VolatileSAXSource backing = base.next();
+                InputSource backingIn = backing.getInputSource();
+                currentXMLReader = backing.getXMLReader();
+                currentSystemId = backingIn.getSystemId();
+                sr.init(initializeScanner(backingIn, inputDelimPattern));
+            }
+            sr.reset();
+            InputSource splitIn = new InputSource(sr);
+            splitIn.setSystemId(currentSystemId);
+            return new VolatileSAXSource(currentXMLReader, splitIn);
+        }
 
-    @Override
-    public void setOutputCallback(XMLReaderCallback callback) {
-        this.callback = callback;
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Not supported.");
+        }
+        
     }
     
 }

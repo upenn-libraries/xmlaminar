@@ -20,6 +20,7 @@ import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.xmlutils.BoundedXMLFilterBuffer;
 import edu.upennlib.xmlutils.SAXFeatures;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
+import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -42,7 +43,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
@@ -55,7 +55,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.XMLReader;
 import org.apache.log4j.Logger;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
@@ -64,7 +63,7 @@ import org.xml.sax.helpers.AttributesImpl;
  *
  * @author michael
  */
-public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigurable {
+public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements IndexedPropertyConfigurable {
 
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     public static final int DEFAULT_CHUNK_SIZE = 6;
@@ -435,6 +434,7 @@ public abstract class SQLXMLReader implements XMLReader, IndexedPropertyConfigur
         if (paramIter.hasNext()) {
             logger.warn("paramIter not exhausted");
         }
+        paramIter = null;
     }
     
     private void initializeResultSet(Connection connection) throws SQLException {
