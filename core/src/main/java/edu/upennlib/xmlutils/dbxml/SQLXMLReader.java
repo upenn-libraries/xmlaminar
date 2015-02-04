@@ -351,11 +351,9 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
             }
             buffer.parse(input);
         } else {
-            Connection connection = null;
             try {
                 try {
-                    connection = ds.getConnection();
-                    initializeResultSet(connection);
+                    initializeResultSet();
                 } catch (SQLException ex) {
                     throw new IOException(ex);
                 }
@@ -365,14 +363,6 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
                     throw new IOException(ex);
                 }
             } finally {
-                if (connection != null) {
-                    try {
-                        connection.close();
-                    } catch (SQLException ex) {
-                        logger.error("exception closing connection", ex);
-                    }
-                }
-
                 if (rs != null) {
                     try {
                         rs.close();
@@ -388,11 +378,9 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     //@Override
     public final void parseOld(InputSource input) throws IOException, SAXException {
         parsing = true;
-        Connection connection = null;
         try {
             try {
-                connection = ds.getConnection();
-                initializeResultSet(connection);
+                initializeResultSet();
             } catch (SQLException ex) {
                 throw new IOException(ex);
             }
@@ -402,13 +390,6 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
                 throw new IOException(ex);
             }
         } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    logger.error("exception closing connection", ex);
-                }
-            }
             if (rs != null) {
                 try {
                     rs.close();
@@ -420,7 +401,15 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         parsing = false;
     }
 
-    private void initializePreparedStatement(PreparedStatement ps) throws SQLException {
+    private void initializePreparedStatement() throws SQLException {
+        if (ps == null) {
+            if (connection == null) {
+                connection = ds.getConnection();
+            }
+            ps = connection.prepareStatement(sql);
+        } else {
+            ps.clearParameters();
+        }
         if (!parameterizedSQL || !paramIter.hasNext()) {
             return;
         }
@@ -437,10 +426,12 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         paramIter = null;
     }
     
-    private void initializeResultSet(Connection connection) throws SQLException {
+    private Connection connection;
+    private PreparedStatement ps;
+    
+    private void initializeResultSet() throws SQLException {
         logger.trace("initializing resultset");
-        PreparedStatement ps = connection.prepareStatement(sql);
-        initializePreparedStatement(ps);
+        initializePreparedStatement();
         rs = ps.executeQuery();
         if (pe != null) {
             pe.notifyStart();
