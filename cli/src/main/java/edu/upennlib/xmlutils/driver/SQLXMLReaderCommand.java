@@ -65,7 +65,7 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
                 .withRequiredArg().ofType(File.class);
         sqlSpec = parser.acceptsAll(Flags.SQL_ARG).withRequiredArg().ofType(String.class);
         batchSizeSpec = parser.acceptsAll(Flags.SIZE_ARG).withRequiredArg().ofType(Integer.class).defaultsTo(6);
-        lookaheadFactorSpec = parser.acceptsAll(Flags.LOOKAHEAD_FACTOR_ARG).withRequiredArg().ofType(Integer.class).defaultsTo(0);
+        lookaheadFactorSpec = parser.acceptsAll(Flags.LOOKAHEAD_FACTOR_ARG, "prefetch input chunks asynchronously").withRequiredArg().ofType(Integer.class).defaultsTo(0);
         idFieldLabelsSpec = parser.acceptsAll(Flags.ID_FIELD_LABELS_ARG, "ordered list of"
                 + " sorted field names by which to group output")
                 .withRequiredArg().ofType(String.class);
