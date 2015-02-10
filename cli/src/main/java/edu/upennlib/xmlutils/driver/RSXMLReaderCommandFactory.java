@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.transform.sax.SAXSource;
@@ -82,10 +84,13 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
                 if (!init(parser.parse(args), inputBase)) {
                     return null;
                 } else {
-                    rsxr = new RSXMLReader(batchSize);
+                    rsxr = new RSXMLReader(batchSize, lookaheadFactor);
                     JoiningXMLFilter joiner = new JoiningXMLFilter(true);
+                    if (lookaheadFactor > 0) {
+                        rsxr.setExecutor(Executors.newCachedThreadPool(DAEMON_THREAD_FACTORY));
+                    }
                     joiner.setParent(rsxr);
-                    joiner.setIteratorWrapper(new InputSplitter(batchSize));
+                    joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor));
                     ret = joiner;
                 }
             }

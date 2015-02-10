@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXSource;
+import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -216,6 +217,7 @@ public class Driver {
     }
     
     public static void main(String[] args) throws IOException, TransformerConfigurationException {
+        BasicConfigurator.configure();
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
         Iterable<Map.Entry<CommandFactory, String[]>> commands = buildCommandList(args, cfs);
         Iterator<Map.Entry<CommandFactory, String[]>> iter = commands.iterator();

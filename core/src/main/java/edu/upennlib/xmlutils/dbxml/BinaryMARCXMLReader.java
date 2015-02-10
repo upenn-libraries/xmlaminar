@@ -41,6 +41,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -73,8 +75,8 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         super(InputImplementation.BYTE_ARRAY, unmodifiableFeatures);
     }
     
-    public BinaryMARCXMLReader(int batchSize) {
-        super(InputImplementation.BYTE_ARRAY, unmodifiableFeatures, batchSize);
+    public BinaryMARCXMLReader(int batchSize, int lookaheadFactor) {
+        super(InputImplementation.BYTE_ARRAY, unmodifiableFeatures, batchSize, lookaheadFactor);
     }
 
     private final UnboundedContentHandlerBuffer outputBuffer = new UnboundedContentHandlerBuffer();
@@ -222,7 +224,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
                 + "AND BIB_DATA.BIB_ID IN (<ID_STRING>) "
                 + "ORDER BY BIB_ID, SEQNUM";
 
-        BinaryMARCXMLReader instance = new BinaryMARCXMLReader();
+        BinaryMARCXMLReader instance = new BinaryMARCXMLReader(1, 1);
         instance.setDataSource(newDataSource(new File("work/connection.properties")));
         instance.setSql(sql);
         String[] ifl = {"BIB_ID"};
@@ -236,11 +238,16 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         SAXTransformerFactory stf = (SAXTransformerFactory)TransformerFactory.newInstance(TRANSFORMER_FACTORY_CLASS_NAME, null);
         Transformer t = stf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
+        ExecutorService exec = Executors.newCachedThreadPool();
+        instance.setExecutor(exec);
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream("/tmp/marc.xml"));
         long start = System.currentTimeMillis();
-        t.transform(new SAXSource(instance, new InputSource(new StringReader("12"))), new StreamResult(bos));
+        t.transform(new SAXSource(instance, new InputSource(new StringReader("12\n7113\n7540"))), new StreamResult(bos));
+        t.transform(new SAXSource(instance, new InputSource(new StringReader("7113\n7540"))), new StreamResult(bos));
+        t.transform(new SAXSource(instance, new InputSource(new StringReader("7540"))), new StreamResult(bos));
         bos.close();
         System.out.println("duration: "+(System.currentTimeMillis() - start));
+        exec.shutdown();
     }
 
     CharsetDecoder decodeUTF8 = Charset.forName("UTF8").newDecoder();

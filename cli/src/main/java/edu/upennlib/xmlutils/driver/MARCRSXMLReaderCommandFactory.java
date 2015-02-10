@@ -21,6 +21,8 @@ import edu.upennlib.paralleltransformer.JoiningXMLFilter;
 import edu.upennlib.xmlutils.dbxml.BinaryMARCXMLReader;
 import edu.upennlib.xmlutils.dbxml.SQLXMLReader;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import joptsimple.OptionSet;
@@ -87,10 +89,13 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
                 if (!init(parser.parse(args), inputBase)) {
                     return null;
                 } else {
-                    mxr = new BinaryMARCXMLReader(batchSize);
+                    mxr = new BinaryMARCXMLReader(batchSize, lookaheadFactor);
+                    if (lookaheadFactor > 0) {
+                        mxr.setExecutor(Executors.newCachedThreadPool(DAEMON_THREAD_FACTORY));
+                    }
                     JoiningXMLFilter joiner = new JoiningXMLFilter(true);
                     joiner.setParent(mxr);
-                    joiner.setIteratorWrapper(new InputSplitter(batchSize));
+                    joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor));
                     ret = joiner;
                 }
             }

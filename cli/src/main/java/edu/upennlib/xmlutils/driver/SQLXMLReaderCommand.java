@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.concurrent.ThreadFactory;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.slf4j.Logger;
@@ -42,6 +43,18 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
     private final OptionSpec<String> idFieldLabelsSpec;
     protected Integer batchSize;
     private final OptionSpec<Integer> batchSizeSpec;
+    protected Integer lookaheadFactor;
+    private final OptionSpec<Integer> lookaheadFactorSpec;
+    
+    protected static final ThreadFactory DAEMON_THREAD_FACTORY = new ThreadFactory() {
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r);
+            t.setDaemon(true);
+            return t;
+        }
+    };
 
     public SQLXMLReaderCommand(boolean first, boolean last) {
         super(first, last);
@@ -52,6 +65,7 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
                 .withRequiredArg().ofType(File.class);
         sqlSpec = parser.acceptsAll(Flags.SQL_ARG).withRequiredArg().ofType(String.class);
         batchSizeSpec = parser.acceptsAll(Flags.SIZE_ARG).withRequiredArg().ofType(Integer.class).defaultsTo(6);
+        lookaheadFactorSpec = parser.acceptsAll(Flags.LOOKAHEAD_FACTOR_ARG).withRequiredArg().ofType(Integer.class).defaultsTo(0);
         idFieldLabelsSpec = parser.acceptsAll(Flags.ID_FIELD_LABELS_ARG, "ordered list of"
                 + " sorted field names by which to group output")
                 .withRequiredArg().ofType(String.class);
@@ -64,6 +78,7 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
         sql = options.valueOf(sqlSpec);
         idFieldLabels = options.valueOf(idFieldLabelsSpec);
         batchSize = options.valueOf(batchSizeSpec);
+        lookaheadFactor = options.valueOf(lookaheadFactorSpec);
         if (options.has(connectionConfigFileSpec)) {
             connectionConfigFile = options.valueOf(connectionConfigFileSpec);
         }

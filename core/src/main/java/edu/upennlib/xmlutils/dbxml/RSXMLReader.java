@@ -65,8 +65,8 @@ public class RSXMLReader extends SQLXMLReader {
         super(InputImplementation.CHAR_ARRAY, unmodifiableFeatures);
     }
 
-    public RSXMLReader(int batchSize) {
-        super(InputImplementation.CHAR_ARRAY, unmodifiableFeatures, batchSize);
+    public RSXMLReader(int batchSize, int lookaheadFactor) {
+        super(InputImplementation.CHAR_ARRAY, unmodifiableFeatures, batchSize, lookaheadFactor);
     }
 
     @Override
