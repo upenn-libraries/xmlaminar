@@ -83,7 +83,6 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
         @Override
         public XMLFilter getXMLFilter(ArgFactory arf, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
             String[] args = arf.getArgs(parser.recognizedOptions().keySet());
-            System.err.println("XXX "+Arrays.asList(args));
             if (initialized) {
                 return ret;
             } else {

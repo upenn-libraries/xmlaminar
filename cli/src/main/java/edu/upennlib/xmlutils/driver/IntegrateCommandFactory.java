@@ -133,7 +133,6 @@ public class IntegrateCommandFactory extends CommandFactory {
             if (cf == null) {
                 throw new IllegalArgumentException("type must be one of " + cfs + "; found " + type);
             }
-            System.err.println("overrides: "+overrides);
             delegateCommandFactory = cf.getConfiguringXMLFilter(true, inputBase, maxType);
             if (delegateCommandFactory == null) {
                 delegateCommandFactory = new ConfigCommandFactory(false, true, inputBase, maxType);
