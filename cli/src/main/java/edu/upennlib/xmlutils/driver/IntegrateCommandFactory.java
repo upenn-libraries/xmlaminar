@@ -120,8 +120,7 @@ public class IntegrateCommandFactory extends CommandFactory {
             }
             delegateCommandFactory = cf.getConfiguringXMLFilter(true, inputBase, maxType);
             if (delegateCommandFactory == null) {
-                delegateCommandFactory = new ConfigCommandFactory(true, true, inputBase, maxType)
-                        .getConfiguringXMLFilter(true, inputBase, maxType);
+                delegateCommandFactory = new ConfigCommandFactory(false, true, inputBase, maxType);
             }
             delegateDepth = depth;
             XMLReader parent = getParent();

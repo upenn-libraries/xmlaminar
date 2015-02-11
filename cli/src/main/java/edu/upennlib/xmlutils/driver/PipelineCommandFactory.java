@@ -132,8 +132,7 @@ public class PipelineCommandFactory extends CommandFactory {
             }
             CommandFactory currentCommandFactory = cf.getConfiguringXMLFilter(first && commandFactories.isEmpty(), inputBase, maxType);
             if (currentCommandFactory == null) {
-                currentCommandFactory = new ConfigCommandFactory(true, first && commandFactories.isEmpty(), inputBase, maxType)
-                        .getConfiguringXMLFilter(first && commandFactories.isEmpty(), inputBase, maxType);
+                currentCommandFactory = new ConfigCommandFactory(false, first && commandFactories.isEmpty(), inputBase, maxType);
             }
             delegateDepth = depth;
             XMLReader parent = getParent();
