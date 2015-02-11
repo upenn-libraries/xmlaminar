@@ -45,6 +45,8 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
     private final OptionSpec<Integer> batchSizeSpec;
     protected Integer lookaheadFactor;
     private final OptionSpec<Integer> lookaheadFactorSpec;
+    protected boolean expectPresplitInput;
+    private final OptionSpec expectPresplitInputSpec;
     
     protected static final ThreadFactory DAEMON_THREAD_FACTORY = new ThreadFactory() {
 
@@ -58,6 +60,7 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
 
     public SQLXMLReaderCommand(boolean first, boolean last) {
         super(first, last);
+        expectPresplitInputSpec = parser.acceptsAll(Flags.EXPECT_PRESPLIT_INPUT_ARG);
         nameSpec = parser.acceptsAll(Flags.NAME_ARG, "optional name to identify this source")
                 .withRequiredArg().ofType(String.class);
         connectionConfigFileSpec = parser.acceptsAll(Flags.CONNECTION_CONFIG_FILE_ARG, 
@@ -79,6 +82,7 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
         idFieldLabels = options.valueOf(idFieldLabelsSpec);
         batchSize = options.valueOf(batchSizeSpec);
         lookaheadFactor = options.valueOf(lookaheadFactorSpec);
+        expectPresplitInput = options.has(expectPresplitInputSpec);
         if (options.has(connectionConfigFileSpec)) {
             connectionConfigFile = options.valueOf(connectionConfigFileSpec);
         }

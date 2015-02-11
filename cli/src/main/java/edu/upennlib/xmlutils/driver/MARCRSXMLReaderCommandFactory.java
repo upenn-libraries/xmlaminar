@@ -93,10 +93,14 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
                     if (lookaheadFactor > 0) {
                         mxr.setExecutor(Executors.newCachedThreadPool(DAEMON_THREAD_FACTORY));
                     }
-                    JoiningXMLFilter joiner = new JoiningXMLFilter(true);
-                    joiner.setParent(mxr);
-                    joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor));
-                    ret = joiner;
+                    if (expectPresplitInput) {
+                        ret = mxr;
+                    } else {
+                        JoiningXMLFilter joiner = new JoiningXMLFilter(true);
+                        joiner.setParent(mxr);
+                        joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor));
+                        ret = joiner;
+                    }
                 }
             }
             mxr.setName(name);

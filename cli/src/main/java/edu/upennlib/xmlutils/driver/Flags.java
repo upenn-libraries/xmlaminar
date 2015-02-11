@@ -68,5 +68,6 @@ public class Flags {
     public static final List<String> MARC_FIELD_LABEL_ARG = unmodifiableList(asList("marc-binary-field-label"));
     public static final List<String> SQL_ARG = unmodifiableList(asList("sql"));
     public static final List<String> LOOKAHEAD_FACTOR_ARG = unmodifiableList(asList("l", "lookahead"));
+    public static final List<String> EXPECT_PRESPLIT_INPUT_ARG = unmodifiableList(asList("expect-presplit-input"));
 
 }

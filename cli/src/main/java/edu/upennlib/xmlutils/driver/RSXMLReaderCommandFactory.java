@@ -85,13 +85,17 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
                     return null;
                 } else {
                     rsxr = new RSXMLReader(batchSize, lookaheadFactor);
-                    JoiningXMLFilter joiner = new JoiningXMLFilter(true);
                     if (lookaheadFactor > 0) {
                         rsxr.setExecutor(Executors.newCachedThreadPool(DAEMON_THREAD_FACTORY));
                     }
-                    joiner.setParent(rsxr);
-                    joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor));
-                    ret = joiner;
+                    if (expectPresplitInput) {
+                        ret = rsxr;
+                    } else {
+                        JoiningXMLFilter joiner = new JoiningXMLFilter(true);
+                        joiner.setParent(rsxr);
+                        joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor));
+                        ret = joiner;
+                    }
                 }
             }
             rsxr.setName(name);
