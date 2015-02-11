@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.xml.sax.ContentHandler;
@@ -47,6 +48,10 @@ public abstract class CommandFactory<T extends InitCommand> extends XMLFilterImp
     public abstract CommandFactory getConfiguringXMLFilter(boolean first, T inputBase, CommandType maxType);
     
     public abstract Command newCommand(boolean first, boolean last);
+    
+    public Command newCommand(boolean first, boolean last, Properties overrides) {
+        return newCommand(first, last);// default impl ignores overrides
+    }
 
     public abstract String getKey();
     

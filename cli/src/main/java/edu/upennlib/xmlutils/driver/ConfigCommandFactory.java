@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -74,11 +75,20 @@ public class ConfigCommandFactory extends CommandFactory {
 
     @Override
     public Command newCommand(boolean first, boolean last) {
+        return newCommand(first, last, null);
+    }
+
+    @Override
+    public Command newCommand(boolean first, boolean last, Properties overrides) {
         if (direct) {
-            return new ConfigCommand(first, last);
+            return new ConfigCommand(first, last, overrides);
         } else {
-            Command backing = wrappedCommandFactory.newCommand(first, last);
-            return new WrappedCommand(constructCommandLineArgs(inputBase), inputBase, maxType, backing);
+            Command backing;
+            backing = wrappedCommandFactory.newCommand(first, last, overrides);
+            System.err.println("in newCommand: " + overrides);
+            Set<String> recognizedOptions = inputBase.recognizedOptions();
+            return new WrappedCommand(constructCommandLineArgs(props, recognizedOptions, overrides), 
+                    inputBase, maxType, backing);
         }
     }
 
@@ -99,24 +109,36 @@ public class ConfigCommandFactory extends CommandFactory {
         return new ConfigCommandFactory(false, first, inputBase, maxType);
     }
 
-    String[] constructCommandLineArgs(InitCommand inputBase) {
-        Set<String> recognizedOptions = inputBase.recognizedOptions();
-        String[] ret = new String[props.size() * 2];
+    private static String[] constructCommandLineArgs(Properties props, Set<String> recognizedOptions, Properties overrides) {
+        ArrayList<String> ret = new ArrayList<String>(props.size() * 2);
         int i = 0;
         for (String s : props.stringPropertyNames()) {
-            String val = props.getProperty(s);
-            if ((val == null || "".equals(val)) && !recognizedOptions.contains(s)) {
-                ret[i++] = s;
-            } else {
-                ret[i++] = "--".concat(s);
-                ret[i++] = val;
+            if (overrides == null || !overrides.containsKey(s)) {
+                String val = props.getProperty(s);
+                if ((val == null || "".equals(val)) && !recognizedOptions.contains(s)) {
+                    ret.add(s);
+                } else {
+                    ret.add("--".concat(s));
+                    ret.add(val);
+                }
             }
         }
-        if (i == ret.length) {
-            return ret;
-        } else {
-            return Arrays.copyOf(ret, i);
+        if (overrides != null) {
+            for (String s : overrides.stringPropertyNames()) {
+                String val = overrides.getProperty(s);
+                if ((val == null || "".equals(val)) && !recognizedOptions.contains(s)) {
+                    ret.add(s);
+                } else {
+                    ret.add("--".concat(s));
+                    ret.add(val);
+                }
+            }
         }
+        return ret.toArray(new String[ret.size()]);
+    }
+    
+    String[] constructCommandLineArgs(InitCommand inputBase) {
+        return constructCommandLineArgs(props, inputBase.recognizedOptions(), null);
     }
 
     private ConfigCommandFactory configure(InputSource configSource) {
@@ -337,6 +359,7 @@ public class ConfigCommandFactory extends CommandFactory {
         private CommandType maxType;
         private String[] args;
         private Command<T> backing;
+        private final Properties overrides;
 
         static {
             Set<String> tmp = new HashSet<String>(2);
@@ -345,13 +368,14 @@ public class ConfigCommandFactory extends CommandFactory {
             helpArgs = Collections.unmodifiableSet(tmp);
         }
 
-        public ConfigCommand(boolean first, boolean last) {
+        public ConfigCommand(boolean first, boolean last, Properties overrides) {
             this.first = first;
             this.last = last;
+            this.overrides = overrides;
         }
 
         private boolean parseArgs(String[] args) {
-            if (args.length != 1 || helpArgs.contains(args[0])) {
+            if (args.length < 1 || helpArgs.contains(args[0])) {
                 return false;
             }
             File f = new File(args[0]);
@@ -398,7 +422,7 @@ public class ConfigCommandFactory extends CommandFactory {
             if (!parseArgs(args)) {
                 return null;
             }
-            backing = new ConfigCommandFactory(false, first, inputBase, maxType).configure(configSource).newCommand(first, last);
+            backing = new ConfigCommandFactory(false, first, inputBase, maxType).configure(configSource).newCommand(first, last, overrides);
             return backing.getXMLFilter(null, inputBase, maxType);
         }
 

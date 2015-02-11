@@ -255,7 +255,7 @@ public class IntegrateCommandFactory extends CommandFactory {
     }
     
     private void addNode() {
-        Command command = delegateCommandFactory.newCommand(true, false);
+        Command command = delegateCommandFactory.newCommand(true, false, overrides);
         XMLFilter xmlFilter = command.getXMLFilter(null, inputBase, maxType);
         XMLFilter inputConfigured;
         try {
