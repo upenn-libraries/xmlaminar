@@ -176,12 +176,12 @@ class OutputCommandFactory extends CommandFactory {
         }
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(ArgFactory arf, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
             if (ret != null) {
                 return ret;
             }
             this.inputBase = inputBase;
-            if (!init(parser.parse(parseMainOut(args)), inputBase)) {
+            if (!init(parser.parse(parseMainOut(arf.getArgs(parser.recognizedOptions().keySet()))), inputBase)) {
                 return null;
             }
             if (first || !last) {

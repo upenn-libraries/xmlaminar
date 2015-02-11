@@ -191,7 +191,7 @@ public class IntegrateCommandFactory extends CommandFactory {
         }
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, InitCommand inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(ArgFactory arf, InitCommand inputBase, CommandType maxType) {
             if (ret == null) {
                 if (!CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT)) {
                     return null;

@@ -211,8 +211,9 @@ public class PipelineCommandFactory extends CommandFactory {
         }
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(ArgFactory arf, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
             try {
+                String[] args;
                 if (inputCommandFactory != null) {
                     args = inputCommandFactory.constructCommandLineArgs(PipelineCommandFactory.this.inputBase);
                     PipelineCommandFactory.this.inputBase.setInputArgs(args);

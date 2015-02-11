@@ -96,8 +96,8 @@ class SplitCommandFactory extends CommandFactory {
         private static final boolean EXPECT_INPUT = true;
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
-            if (!init(parser.parse(args), inputBase)) {
+        public XMLFilter getXMLFilter(ArgFactory arf, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
+            if (!init(parser.parse(arf.getArgs(parser.recognizedOptions().keySet())), inputBase)) {
                 return null;
             }
             CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);

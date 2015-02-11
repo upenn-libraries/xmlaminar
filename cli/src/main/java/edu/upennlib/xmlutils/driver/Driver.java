@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXSource;
 import org.apache.log4j.BasicConfigurator;
@@ -58,6 +59,22 @@ public class Driver {
             Class.forName(IntegrateCommandFactory.class.getCanonicalName());
         } catch (ClassNotFoundException ex) {
             throw new RuntimeException(ex);
+        }
+        
+    }
+    
+    public static class StaticArgFactory implements Command.ArgFactory {
+
+        private final String[] args;
+        
+        public StaticArgFactory(String[] args) {
+            this.args = args;
+        }
+        
+        @Override
+        public String[] getArgs(Set<String> recognizedOptions) {
+            System.err.println("getArgs static: "+Arrays.asList(args));
+            return args;
         }
         
     }
@@ -169,7 +186,7 @@ public class Driver {
             }
             boolean localLast = !iter.hasNext();
             Command command = cf.newCommand(first, last && localLast);
-            previous = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
+            previous = command.getXMLFilter(new StaticArgFactory(commandEntry.getValue()), inputCommand, maxType);
             inputCommand = (InputCommandFactory.InputCommand) command.inputHandler();
             if (previous == null) {
                 command.printHelpOn(System.err);
@@ -192,7 +209,7 @@ public class Driver {
                     localLast = true;
                     command = lastCommand;
                 } else {
-                    XMLFilter child = command.getXMLFilter(commandEntry.getValue(), inputCommand, maxType);
+                    XMLFilter child = command.getXMLFilter(new StaticArgFactory(commandEntry.getValue()), inputCommand, maxType);
                     if (child == null) {
                         command.printHelpOn(System.err);
                         return null;

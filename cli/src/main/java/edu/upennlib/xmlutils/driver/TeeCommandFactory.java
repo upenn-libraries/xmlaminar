@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Collections;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLFilter;
 
@@ -57,7 +58,8 @@ class TeeCommandFactory extends CommandFactory {
         private InitCommand inputBase;
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, InitCommand inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(ArgFactory arf, InitCommand inputBase, CommandType maxType) {
+            String[] args = arf.getArgs(Collections.EMPTY_SET);
             if (args.length != 1) {
                 throw new IllegalArgumentException("Command \"" + getKey() + "\" should have only one argument: dumpfile");
             }

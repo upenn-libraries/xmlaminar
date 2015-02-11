@@ -349,9 +349,10 @@ class InputCommandFactory extends CommandFactory {
         private XMLFilter fileRet;
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, InitCommand inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(ArgFactory arf, InitCommand inputBase, CommandType maxType) {
             if (fileRet == null) {
-                setInputArgs(args);
+                setInputArgs(arf.getArgs(parser.recognizedOptions().keySet()));
+                System.err.println("INPUT ARGS: "+Arrays.asList(args)+", "+parser.recognizedOptions().keySet());
                 try {
                     init(true);
                 } catch (IOException ex) {

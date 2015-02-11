@@ -75,13 +75,13 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
         private static final boolean EXPECT_INPUT = false; // for now, change for parameterized SQL
 
         @Override
-        public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(ArgFactory arf, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
             if (initialized) {
                 return ret;
             } else {
                 CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
                 initialized = true;
-                if (!init(parser.parse(args), inputBase)) {
+                if (!init(parser.parse(arf.getArgs(parser.recognizedOptions().keySet())), inputBase)) {
                     return null;
                 } else {
                     rsxr = new RSXMLReader(batchSize, lookaheadFactor);

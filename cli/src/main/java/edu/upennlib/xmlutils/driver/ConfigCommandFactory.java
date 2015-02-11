@@ -86,12 +86,34 @@ public class ConfigCommandFactory extends CommandFactory {
             Command backing;
             backing = wrappedCommandFactory.newCommand(first, last, overrides);
             System.err.println("in newCommand: " + overrides);
-            Set<String> recognizedOptions = inputBase.recognizedOptions();
-            return new WrappedCommand(constructCommandLineArgs(props, recognizedOptions, overrides), 
-                    inputBase, maxType, backing);
+            Command.ArgFactory arf = new OverrideArgFactory(props, inputBase.recognizedOptions(), overrides);
+            return new WrappedCommand(arf, inputBase, maxType, backing);
         }
     }
 
+    private static class OverrideArgFactory implements Command.ArgFactory {
+
+        private final Properties props;
+        private final Set<String> recognizedInputOptions;
+        private final Properties overrides;
+
+        public OverrideArgFactory(Properties props, Set<String> recognizedInputOptions, Properties overrides) {
+            this.props = props;
+            this.recognizedInputOptions = recognizedInputOptions;
+            this.overrides = overrides;
+        }
+        
+        @Override
+        public String[] getArgs(Set<String> recognizedOptions) {
+            Set<String> rec = new HashSet<String>(recognizedInputOptions.size() + recognizedOptions.size());
+            rec.addAll(recognizedOptions);
+            rec.addAll(recognizedInputOptions);
+            System.err.println("getArgs: "+rec);
+            return constructCommandLineArgs(props, rec, overrides);
+        }
+        
+    }
+    
     @Override
     public String getKey() {
         return KEY;
@@ -125,12 +147,14 @@ public class ConfigCommandFactory extends CommandFactory {
         }
         if (overrides != null) {
             for (String s : overrides.stringPropertyNames()) {
-                String val = overrides.getProperty(s);
-                if ((val == null || "".equals(val)) && !recognizedOptions.contains(s)) {
-                    ret.add(s);
-                } else {
-                    ret.add("--".concat(s));
-                    ret.add(val);
+                if (recognizedOptions.contains(s)) {
+                    String val = overrides.getProperty(s);
+                    if ((val == null || "".equals(val))) {
+                        ret.add(s);
+                    } else {
+                        ret.add("--".concat(s));
+                        ret.add(val);
+                    }
                 }
             }
         }
@@ -300,21 +324,21 @@ public class ConfigCommandFactory extends CommandFactory {
 
     private static class WrappedCommand<T extends InitCommand> implements Command<T> {
 
-        private final String[] args;
+        private final ArgFactory arf;
         private final T inputBase;
         private final CommandType maxType;
         private final Command<T> backing;
 
-        public WrappedCommand(String[] args, T inputBase, CommandType maxType, Command backing) {
-            this.args = args;
+        public WrappedCommand(ArgFactory arf, T inputBase, CommandType maxType, Command backing) {
+            this.arf = arf;
             this.inputBase = inputBase;
             this.maxType = maxType;
             this.backing = backing;
         }
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, T inputBase, CommandType maxType) {
-            return backing.getXMLFilter(this.args, this.inputBase, this.maxType);
+        public XMLFilter getXMLFilter(ArgFactory arf, T inputBase, CommandType maxType) {
+            return backing.getXMLFilter(this.arf, this.inputBase, this.maxType);
         }
 
         @Override
@@ -394,31 +418,14 @@ public class ConfigCommandFactory extends CommandFactory {
             return true;
         }
 
-        private boolean verifyArgsUnchanged(String[] args, Command inputBase, CommandType maxType) {
-            if (inputBase == null ? this.inputBase != null : !inputBase.equals(this.inputBase)) {
-                return false;
-            } else if (maxType == null ? this.maxType != null : !maxType.equals(this.maxType)) {
-                return false;
-            } else if (this.args == null || args.length != this.args.length) {
-                return false;
-            } else {
-                for (int i = 0; i < args.length; i++) {
-                    if (!args[i].equals(this.args[i])) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
         @Override
-        public XMLFilter getXMLFilter(String[] args, T inputBase, CommandType maxType) {
-            if (backing != null && (true || verifyArgsUnchanged(args, inputBase, maxType))) {
-                return backing.getXMLFilter(args, inputBase, maxType);
+        public XMLFilter getXMLFilter(ArgFactory arf, T inputBase, CommandType maxType) {
+            if (backing != null) {
+                return backing.getXMLFilter(arf, inputBase, maxType);
             }
             this.inputBase = inputBase;
             this.maxType = maxType;
-            this.args = args;
+            this.args = arf.getArgs(Collections.EMPTY_SET);
             if (!parseArgs(args)) {
                 return null;
             }

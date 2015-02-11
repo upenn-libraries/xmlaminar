@@ -81,7 +81,8 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
         private static final boolean EXPECT_INPUT = false; // for now, change for parameterized SQL
         
         @Override
-        public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
+        public XMLFilter getXMLFilter(ArgFactory arf, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
+            String[] args = arf.getArgs(parser.recognizedOptions().keySet());
             System.err.println("XXX "+Arrays.asList(args));
             if (initialized) {
                 return ret;
