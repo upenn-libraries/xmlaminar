@@ -21,6 +21,7 @@ import edu.upennlib.paralleltransformer.JoiningXMLFilter;
 import edu.upennlib.xmlutils.dbxml.BinaryMARCXMLReader;
 import edu.upennlib.xmlutils.dbxml.SQLXMLReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
@@ -81,6 +82,7 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
         
         @Override
         public XMLFilter getXMLFilter(String[] args, InputCommandFactory.InputCommand inputBase, CommandType maxType) {
+            System.err.println("XXX "+Arrays.asList(args));
             if (initialized) {
                 return ret;
             } else {

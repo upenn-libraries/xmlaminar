@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.xml.sax.Attributes;
@@ -100,12 +101,26 @@ public class IntegrateCommandFactory extends CommandFactory {
 
     private final ArrayDeque<Entry<String, Boolean>> outputElementStack = new ArrayDeque<Entry<String, Boolean>>();
     private CommandFactory delegateCommandFactory;
+    private final Properties overrides = new Properties();
+    
+    private String parsePropName;
+    private final StringBuilder propBuilder = new StringBuilder();
     
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         if (!Driver.CONFIG_NAMESPACE_URI.equals(uri)) {
             String required = atts.getValue(Driver.CONFIG_NAMESPACE_URI, "required");
             outputElementStack.add(new AbstractMap.SimpleImmutableEntry<String, Boolean>(localName, required == null ? false : Boolean.parseBoolean(required)));
+        } else if ("property".equals(localName)) {
+            parsePropName = atts.getValue("name");
+            if (parsePropName != null) {
+                parsePropName = parsePropName.trim();
+                if (parsePropName.length() < 1) {
+                    parsePropName = null;
+                } else {
+                    propBuilder.setLength(0);
+                }
+            }
         } else if (!"source".equals(localName)) {
             throw new IllegalStateException("bad element localName for integrator source; expected \"source\", found " + localName);
         } else if (depth == 0) {
@@ -118,6 +133,7 @@ public class IntegrateCommandFactory extends CommandFactory {
             if (cf == null) {
                 throw new IllegalArgumentException("type must be one of " + cfs + "; found " + type);
             }
+            System.err.println("overrides: "+overrides);
             delegateCommandFactory = cf.getConfiguringXMLFilter(true, inputBase, maxType);
             if (delegateCommandFactory == null) {
                 delegateCommandFactory = new ConfigCommandFactory(false, true, inputBase, maxType);
@@ -134,12 +150,25 @@ public class IntegrateCommandFactory extends CommandFactory {
         super.startElement(uri, localName, qName, atts);
         depth++;
     }
+
+    @Override
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        super.characters(ch, start, length);
+        if (parsePropName != null) {
+            propBuilder.append(ch, start, length);
+        }
+    }
     
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         depth--;
         if (!Driver.CONFIG_NAMESPACE_URI.equals(uri)) {
             outputElementStack.removeLast();
+        } else if (parsePropName != null) {
+            if ("property".equals(localName)) {
+                overrides.setProperty(parsePropName, propBuilder.toString());
+            }
+            parsePropName = null;
         }
         super.endElement(uri, localName, qName);
     }
