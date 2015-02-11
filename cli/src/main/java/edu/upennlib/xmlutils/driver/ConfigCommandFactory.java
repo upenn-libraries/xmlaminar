@@ -85,7 +85,6 @@ public class ConfigCommandFactory extends CommandFactory {
         } else {
             Command backing;
             backing = wrappedCommandFactory.newCommand(first, last, overrides);
-            System.err.println("in newCommand: " + overrides);
             Command.ArgFactory arf = new OverrideArgFactory(props, inputBase.recognizedOptions(), overrides);
             return new WrappedCommand(arf, inputBase, maxType, backing);
         }
@@ -108,7 +107,6 @@ public class ConfigCommandFactory extends CommandFactory {
             Set<String> rec = new HashSet<String>(recognizedInputOptions.size() + recognizedOptions.size());
             rec.addAll(recognizedOptions);
             rec.addAll(recognizedInputOptions);
-            System.err.println("getArgs: "+rec);
             return constructCommandLineArgs(props, rec, overrides);
         }
         

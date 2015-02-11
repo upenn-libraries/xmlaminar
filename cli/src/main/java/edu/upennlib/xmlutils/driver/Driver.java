@@ -73,7 +73,6 @@ public class Driver {
         
         @Override
         public String[] getArgs(Set<String> recognizedOptions) {
-            System.err.println("getArgs static: "+Arrays.asList(args));
             return args;
         }
         
