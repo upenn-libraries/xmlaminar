@@ -83,6 +83,9 @@ public class StdoutCallback implements XMLReaderCallback {
 
     @Override
     public void finished(Throwable t) {
+        if (t != null) {
+            throw new RuntimeException(t);
+        }
         try {
             if (gzipOutput) {
                 ((GZIPOutputStream) out).finish();
