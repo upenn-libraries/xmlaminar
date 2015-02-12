@@ -27,9 +27,13 @@ import java.io.StringReader;
 import java.nio.CharBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -89,7 +93,7 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         if (lookahead < 1) {
             blah = sr;
         } else {
-            blah = new BufferingSplittingReader(sr, lookahead);
+            blah = new BufferingSplittingReader(sr, lookahead, FORKABLE_READER_FACTORY);
         }
         char[] cbuf = new char[2048];
 //        ArrayList<Reader> stuff = new ArrayList<Reader>();
@@ -101,12 +105,27 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
 //        blah = stuff.iterator();
         while (blah.hasNext()) {
             Reader next = blah.next();
-            int read;
-            System.out.println("start");
-            while ((read = next.read(cbuf, 0, cbuf.length)) != -1) {
-                System.out.append(CharBuffer.wrap(cbuf, 0, read));
+            List<Reader> readerList;
+            if (next instanceof ForkableReader) {
+                int count = 4;
+                readerList = new ArrayList<Reader>(count);
+                readerList.add(next);
+                ForkableReader cloneableReader = (ForkableReader) next;
+                for (int i = 1; i < count; i++) {
+                    readerList.add(cloneableReader.forkReader());
+                }
+            } else {
+                readerList = Collections.singletonList(next);
             }
-            System.out.println("end");
+            for (Reader r : readerList) {
+                int read;
+                System.out.println("start"+r);
+                while ((read = r.read(cbuf, 0, cbuf.length)) != -1) {
+                    System.out.append(CharBuffer.wrap(cbuf, 0, read));
+                }
+                r.close();
+                System.out.println("end");
+            }
         }
     }
     
@@ -132,6 +151,26 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         return s;
     }
     
+    public static interface ReaderFactory {
+        Reader newReader(int startPosition, int trimPosition, CircularCharBuffer ccb, BufferingSplittingReader backing);
+    }
+    
+    public static final ReaderFactory FORKABLE_READER_FACTORY = new ReaderFactory() {
+
+        @Override
+        public Reader newReader(int startPosition, int trimPosition, CircularCharBuffer ccb, BufferingSplittingReader backing) {
+            return new CloneableCCBReader(startPosition, trimPosition, ccb, backing);
+        }
+    };
+    
+    public static final ReaderFactory DIRECT_READER_FACTORY = new ReaderFactory() {
+
+        @Override
+        public Reader newReader(int startPosition, int trimPosition, CircularCharBuffer ccb, BufferingSplittingReader backing) {
+            return new CCBReader(startPosition, trimPosition, ccb, backing);
+        }
+    };
+    
     private static class BufferingSplittingReader extends FilterReader implements Iterator<Reader> {
 
         private final CircularCharBuffer ccb;
@@ -140,12 +179,14 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         private int next = 0;
         private final ArrayDeque<Integer> boundaries = new ArrayDeque<Integer>();
         private final ArrayDeque<Integer> readers = new ArrayDeque<Integer>();
+        private final ReaderFactory rf;
         
-        public BufferingSplittingReader(SplittingReader in, int lookaheadFactor) {
+        public BufferingSplittingReader(SplittingReader in, int lookaheadFactor, ReaderFactory rf) {
             super(in);
             sr = in;
             this.chunkSize = lookaheadFactor + 1;
             this.ccb = new CircularCharBuffer();
+            this.rf = rf;
         }
         
         @Override
@@ -202,7 +243,7 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
                 ccb.trim(readers.remove());
             }
             readers.add(trimPosition);
-            return new CCBReader(startPosition, trimPosition, ccb, this);
+            return rf.newReader(startPosition, trimPosition, ccb, this);
         }
         
         public void close(int position) throws IOException {
@@ -259,6 +300,67 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         @Override
         public void close() throws IOException {
             backing.close(trimPosition);
+        }
+        
+    }
+    
+    public static interface ForkableReader {
+        Reader forkReader();
+    }
+    
+    private static class CloneableCCBReader extends Reader implements ForkableReader {
+
+        private final int trimPosition;
+        private int position;
+        private final CircularCharBuffer ccb;
+        private final BufferingSplittingReader backing;
+        private final AtomicInteger clones;
+        private final Lock backingLock;
+
+        public CloneableCCBReader(int startPosition, int trimPosition, CircularCharBuffer ccb, BufferingSplittingReader backing) {
+            this.ccb = ccb;
+            this.backing = backing;
+            this.position = startPosition;
+            this.trimPosition = trimPosition;
+            this.clones = new AtomicInteger(0);
+            this.backingLock = new ReentrantLock(false);
+        }
+        
+        private CloneableCCBReader(CloneableCCBReader template) {
+            this.ccb = template.ccb;
+            this.backing = template.backing;
+            this.position = template.position;
+            this.trimPosition = template.trimPosition;
+            this.clones = template.clones;
+            clones.incrementAndGet();
+            this.backingLock = template.backingLock;
+        }
+        
+        @Override
+        public CloneableCCBReader forkReader() {
+            return new CloneableCCBReader(this);
+        }
+        
+        @Override
+        public int read(char[] cbuf, int off, int len) throws IOException {
+            int ret;
+            backingLock.lock();
+            try {
+                if ((ret = ccb.read(cbuf, off, len, position)) >= 0 
+                        || (ret = backing.read(cbuf, off, len)) >= 0) {
+                    position += ret;
+                }
+            } finally {
+                backingLock.unlock();
+            }
+            return ret;
+        }
+
+        @Override
+        public void close() throws IOException {
+            if (clones.decrementAndGet() < 0) {
+                backing.close(trimPosition);
+            }
         }
         
     }
@@ -373,7 +475,7 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
             if (lookaheadFactor < 1) {
                 this.sr = splitter;
             } else {
-                this.sr = new BufferingSplittingReader(splitter, lookaheadFactor);
+                this.sr = new BufferingSplittingReader(splitter, lookaheadFactor, DIRECT_READER_FACTORY);
             }
         }
         
