@@ -22,7 +22,11 @@
 package edu.upennlib.xmlutils.driver;
 
 import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
+import edu.upennlib.ingestor.sax.integrator.StatefulXMLFilter;
 import edu.upennlib.paralleltransformer.InputSourceXMLReader;
+import edu.upennlib.paralleltransformer.InputSplitter;
+import edu.upennlib.paralleltransformer.JoiningXMLFilter;
+import edu.upennlib.xmlutils.dbxml.SQLXMLReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,12 +34,12 @@ import java.io.OutputStream;
 import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -196,14 +200,33 @@ public class IntegrateCommandFactory extends CommandFactory {
                     return null;
                 }
                 this.inputBase = inputBase;
-                ret = new XMLFilterImpl(root);
+                int batchSize = Integer.parseInt(overrides.getProperty("chunk-size", "-1"));
+                int lookaheadFactor = Integer.parseInt(overrides.getProperty("lookahead", "-1"));
+                JoiningXMLFilter joiner = new JoiningXMLFilter(true);
+                boolean allowFork = sxfs.size() > 1;
+                XMLReader inputHandler;
+                if (sxfs.isEmpty()) {
+                    inputHandler = root;
+                } else if (allowFork) {
+                    inputHandler = new InputMultiplier(root, sxfs.toArray(new StatefulXMLFilter[sxfs.size()]));
+                } else {
+                    inputHandler = new InputSetter(root, sxfs.get(0));
+                }
+                joiner.setParent(inputHandler);
+                joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor, allowFork));
+                ret = joiner;
+                //ret = new XMLFilterImpl(root);
             }
             return ret;
         }
 
         @Override
         public InputSource getInput() throws FileNotFoundException {
-            return dummy;
+            if (first) {
+                return inputBase.getInput();
+            } else {
+                return null;
+            }
         }
 
         @Override
@@ -232,6 +255,69 @@ public class IntegrateCommandFactory extends CommandFactory {
         }
     }
 
+    private static IntegratorOutputNode firstIntegratorParent(XMLReader reader) {
+        do {
+            if (reader == null) {
+                return null;
+            } else if (reader instanceof IntegratorOutputNode) {
+                return (IntegratorOutputNode) reader;
+            }
+        } while (reader instanceof XMLFilter && (reader = ((XMLFilter)reader).getParent()) != null);
+        return null;
+    }
+    
+    private static class InputMultiplier extends InputSetter {
+
+        private final StatefulXMLFilter[] children;
+        
+        public InputMultiplier(XMLReader parent, StatefulXMLFilter... children) {
+            super(parent, (children == null ? null : children[0]));
+            if (children == null || children.length < 2) {
+                this.children = null;
+            } else {
+                this.children = Arrays.copyOfRange(children, 1, children.length);
+            }
+        }
+
+        @Override
+        public void parse(InputSource input) throws SAXException, IOException {
+            if (children != null) {
+                InputSplitter.ForkableInputSource fis = (InputSplitter.ForkableInputSource) input;
+                for (StatefulXMLFilter sxf : children) {
+                    sxf.setInputSource(fis.fork());
+                }
+            }
+            super.parse(input);
+        }
+
+    }
+
+    private static class InputSetter extends XMLFilterImpl {
+
+        private final StatefulXMLFilter sxf;
+        private IntegratorOutputNode ion;
+        
+        public InputSetter(XMLReader parent, StatefulXMLFilter sxf) {
+            super(parent);
+            this.ion = firstIntegratorParent(parent);
+            this.sxf = sxf;
+        }
+
+        @Override
+        public void setParent(XMLReader parent) {
+            this.ion = firstIntegratorParent(parent);
+            super.setParent(parent);
+        }
+        
+        @Override
+        public void parse(InputSource input) throws SAXException, IOException {
+            ion.reset();
+            sxf.setInputSource(input);
+            super.parse(input);
+        }
+
+    }
+
     private class PassThroughXMLFilter extends XMLFilterImpl {
 
         @Override
@@ -253,20 +339,29 @@ public class IntegrateCommandFactory extends CommandFactory {
 
     }
     
+    private final List<StatefulXMLFilter> sxfs = new ArrayList<StatefulXMLFilter>();
+    
     private void addNode() {
         Command command = delegateCommandFactory.newCommand(true, false, overrides);
         XMLFilter xmlFilter = command.getXMLFilter(null, inputBase, maxType);
         XMLFilter inputConfigured;
-        try {
-            inputConfigured = new InputSourceXMLReader(xmlFilter, command.getInput());
-        } catch (FileNotFoundException ex) {
-            throw new RuntimeException(ex);
+        if (xmlFilter instanceof SQLXMLReader) {
+            inputConfigured = xmlFilter;
+        } else {
+            try {
+                inputConfigured = new InputSourceXMLReader(xmlFilter, command.getInput());
+            } catch (FileNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
         }
         LinkedList<String> pathElements = new LinkedList<String>();
         for (Entry<String, Boolean> e : outputElementStack) {
             pathElements.add(e.getKey());
         }
-        root.addDescendent(pathElements, inputConfigured, outputElementStack.peekLast().getValue());
+        StatefulXMLFilter sxf = root.addDescendent(pathElements, inputConfigured, outputElementStack.peekLast().getValue());
+        if (xmlFilter instanceof SQLXMLReader) {
+            sxfs.add(sxf);
+        }
         delegateCommandFactory = null;
     }
 
