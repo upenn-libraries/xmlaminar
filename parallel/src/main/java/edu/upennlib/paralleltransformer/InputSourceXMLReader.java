@@ -22,19 +22,20 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.IOException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
  * @author magibney
  */
-public class InputSourceXMLReader extends XMLFilterImpl {
+public class InputSourceXMLReader extends VolatileXMLFilterImpl {
 
     private final InputSource source;
+    private boolean parsed = false;
     
     public InputSourceXMLReader(InputSource source) {
         this(null, source);
@@ -52,7 +53,14 @@ public class InputSourceXMLReader extends XMLFilterImpl {
 
     @Override
     public void parse(InputSource input) throws SAXException, IOException {
-        super.parse(source);
+        InputSource in;
+        if (!parsed) {
+            parsed = true;
+            in = source;
+        } else {
+            in = new InputSource(source.getSystemId());
+        }
+        super.parse(in);
     }
     
 }

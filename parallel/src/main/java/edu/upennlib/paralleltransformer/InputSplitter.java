@@ -46,28 +46,36 @@ import org.xml.sax.helpers.XMLFilterImpl;
 public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<VolatileSAXSource> {
 
     private static final String DEFAULT_DELIM = System.lineSeparator();
+    private static final boolean DEFAULT_ALLOW_FORK = false;
+    private static final int DEFAULT_LOOKAHEAD_FACTOR = 0;
+    private final boolean allowFork;
     private final int chunkSize;
     private final Pattern inputDelimPattern;
     private final String outputDelim;
     private final int lookaheadFactor;
     
-    public InputSplitter(int chunkSize, int lookaheadFactor, String inputDelimPattern, int inputDelimPatternFlags, String outputDelim) {
+    public InputSplitter(int chunkSize, int lookaheadFactor, String inputDelimPattern, int inputDelimPatternFlags, String outputDelim, boolean allowFork) {
         this.chunkSize = chunkSize;
         this.lookaheadFactor = lookaheadFactor;
         this.outputDelim = outputDelim;
         this.inputDelimPattern = Pattern.compile(inputDelimPattern, inputDelimPatternFlags);
+        this.allowFork = allowFork;
     }
     
-    public InputSplitter(int chunkSize, int lookaheadFactor, String delim) {
-        this(chunkSize, lookaheadFactor, delim, Pattern.LITERAL, delim);
+    public InputSplitter(int chunkSize, int lookaheadFactor, String delim, boolean allowFork) {
+        this(chunkSize, lookaheadFactor, delim, Pattern.LITERAL, delim, allowFork);
+    }
+    
+    public InputSplitter(int chunkSize, int lookaheadFactor, boolean allowFork) {
+        this(chunkSize, lookaheadFactor, DEFAULT_DELIM, allowFork);
     }
     
     public InputSplitter(int chunkSize, int lookaheadFactor) {
-        this(chunkSize, lookaheadFactor, DEFAULT_DELIM);
+        this(chunkSize, lookaheadFactor, DEFAULT_ALLOW_FORK);
     }
     
     public InputSplitter(int chunkSize) {
-        this(chunkSize, 0);
+        this(chunkSize, DEFAULT_LOOKAHEAD_FACTOR);
     }
     
     public static void main(String[] args) throws Exception {
@@ -106,13 +114,13 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         while (blah.hasNext()) {
             Reader next = blah.next();
             List<Reader> readerList;
-            if (next instanceof ForkableReader) {
+            if (next instanceof Forkable) {
                 int count = 4;
                 readerList = new ArrayList<Reader>(count);
                 readerList.add(next);
-                ForkableReader cloneableReader = (ForkableReader) next;
+                Forkable<Reader> cloneableReader = (Forkable<Reader>) next;
                 for (int i = 1; i < count; i++) {
-                    readerList.add(cloneableReader.forkReader());
+                    readerList.add(cloneableReader.fork());
                 }
             } else {
                 readerList = Collections.singletonList(next);
@@ -151,19 +159,19 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         return s;
     }
     
-    public static interface ReaderFactory {
-        Reader newReader(int startPosition, int trimPosition, CircularCharBuffer ccb, BufferingSplittingReader backing);
+    private static interface ReaderFactory<T extends Reader> {
+        T newReader(int startPosition, int trimPosition, CircularCharBuffer ccb, BufferingSplittingReader backing);
     }
     
-    public static final ReaderFactory FORKABLE_READER_FACTORY = new ReaderFactory() {
+    private static final ReaderFactory<ForkableReader> FORKABLE_READER_FACTORY = new ReaderFactory<ForkableReader>() {
 
         @Override
-        public Reader newReader(int startPosition, int trimPosition, CircularCharBuffer ccb, BufferingSplittingReader backing) {
-            return new CloneableCCBReader(startPosition, trimPosition, ccb, backing);
+        public ForkableReader newReader(int startPosition, int trimPosition, CircularCharBuffer ccb, BufferingSplittingReader backing) {
+            return new ForkableCCBReader(startPosition, trimPosition, ccb, backing);
         }
     };
     
-    public static final ReaderFactory DIRECT_READER_FACTORY = new ReaderFactory() {
+    private static final ReaderFactory<Reader>  DIRECT_READER_FACTORY = new ReaderFactory<Reader>() {
 
         @Override
         public Reader newReader(int startPosition, int trimPosition, CircularCharBuffer ccb, BufferingSplittingReader backing) {
@@ -171,7 +179,7 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         }
     };
     
-    private static class BufferingSplittingReader extends FilterReader implements Iterator<Reader> {
+    private static class BufferingSplittingReader<T extends Reader> extends FilterReader implements Iterator<T> {
 
         private final CircularCharBuffer ccb;
         private final SplittingReader sr;
@@ -179,9 +187,9 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         private int next = 0;
         private final ArrayDeque<Integer> boundaries = new ArrayDeque<Integer>();
         private final ArrayDeque<Integer> readers = new ArrayDeque<Integer>();
-        private final ReaderFactory rf;
+        private final ReaderFactory<T> rf;
         
-        public BufferingSplittingReader(SplittingReader in, int lookaheadFactor, ReaderFactory rf) {
+        public BufferingSplittingReader(SplittingReader in, int lookaheadFactor, ReaderFactory<T> rf) {
             super(in);
             sr = in;
             this.chunkSize = lookaheadFactor + 1;
@@ -211,7 +219,7 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         private final char[] cbuf = new char[2048];
         
         @Override
-        public Reader next() {
+        public T next() {
             if (!sr.isFinished() || ccb.size() == 0) {
                 this.in = sr.next();
             }
@@ -304,11 +312,47 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         
     }
     
-    public static interface ForkableReader {
-        Reader forkReader();
+    public static interface Forkable<T> {
+        T fork();
     }
     
-    private static class CloneableCCBReader extends Reader implements ForkableReader {
+    private static abstract class ForkableReader extends Reader implements Forkable<Reader> {
+        
+    }
+    
+    public static class ForkableInputSource extends InputSource implements Forkable<InputSource> {
+
+        private ForkableInputSource(ForkableReader characterStream) {
+            super(characterStream);
+        }
+        
+        @Override
+        public InputSource fork() {
+            InputSource ret = new InputSource(((ForkableReader)getCharacterStream()).fork());
+            ret.setSystemId(getSystemId());
+            return ret;
+        }
+        
+    }
+    
+    public static class ForkableVolatileSAXSource extends VolatileSAXSource implements Forkable<VolatileSAXSource> {
+
+        private ForkableVolatileSAXSource(XMLReader reader, ForkableInputSource inputSource) {
+            super(reader, inputSource);
+        }
+
+        private ForkableVolatileSAXSource(ForkableInputSource inputSource) {
+            super(inputSource);
+        }
+        
+        @Override
+        public VolatileSAXSource fork() {
+            return new VolatileSAXSource(getXMLReader(), ((ForkableInputSource)getInputSource()).fork());
+        }
+        
+    }
+    
+    private static class ForkableCCBReader extends ForkableReader {
 
         private final int trimPosition;
         private int position;
@@ -317,7 +361,7 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         private final AtomicInteger clones;
         private final Lock backingLock;
 
-        public CloneableCCBReader(int startPosition, int trimPosition, CircularCharBuffer ccb, BufferingSplittingReader backing) {
+        public ForkableCCBReader(int startPosition, int trimPosition, CircularCharBuffer ccb, BufferingSplittingReader backing) {
             this.ccb = ccb;
             this.backing = backing;
             this.position = startPosition;
@@ -326,7 +370,7 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
             this.backingLock = new ReentrantLock(false);
         }
         
-        private CloneableCCBReader(CloneableCCBReader template) {
+        private ForkableCCBReader(ForkableCCBReader template) {
             this.ccb = template.ccb;
             this.backing = template.backing;
             this.position = template.position;
@@ -337,8 +381,8 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         }
         
         @Override
-        public CloneableCCBReader forkReader() {
-            return new CloneableCCBReader(this);
+        public Reader fork() {
+            return new ForkableCCBReader(this);
         }
         
         @Override
@@ -365,7 +409,7 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         
     }
     
-    private static class SplittingReader extends Reader implements Iterator<Reader> {
+    private static class SplittingReader<T extends SplittingReader<T>> extends Reader implements Iterator<T> {
 
         private int count = 0;
         private int index = -1;
@@ -444,12 +488,12 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
         }
 
         @Override
-        public Reader next() {
+        public T next() {
             reset();
             if (isFinished()) {
                 this.s = backing.next();
             }
-            return this;
+            return (T) this;
         }
 
         @Override
@@ -461,21 +505,60 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
 
     @Override
     public Iterator<VolatileSAXSource> wrapIterator(Iterator<VolatileSAXSource> base) {
-        return new SplittingIterator(base, chunkSize, outputDelim, inputDelimPattern, lookaheadFactor);
+        return new SplittingIterator(base, chunkSize, outputDelim, inputDelimPattern, lookaheadFactor, allowFork);
     }
     
-    private static class SplittingIterator implements Iterator<VolatileSAXSource> {
+    private static interface VolatileSAXSourceFactory<T extends Reader> {
+        VolatileSAXSource newInstance(XMLReader xmlReader, String systemId, T reader);
+    }
+    
+    private static final VolatileSAXSourceFactory<Reader> STANDARD_VSSF = new StandardVolatileSAXSourceFactory();
+    
+    private static class StandardVolatileSAXSourceFactory implements VolatileSAXSourceFactory<Reader> {
 
-        private final Iterator<Reader> sr;
-        private final ScannerSupplier ss;
+        @Override
+        public VolatileSAXSource newInstance(XMLReader xmlReader, String systemId, Reader reader) {
+            InputSource splitIn = new InputSource(reader);
+            splitIn.setSystemId(systemId);
+            return new VolatileSAXSource(xmlReader, splitIn);
+        }
         
-        private SplittingIterator(Iterator<VolatileSAXSource> base, int chunkSize, String outputDelim, Pattern inputDelimPattern, int lookaheadFactor) {
+    }
+    
+    private static final VolatileSAXSourceFactory<ForkableReader> FORKING_VSSF = new ForkingVolatileSAXSourceFactory();
+    
+    private static class ForkingVolatileSAXSourceFactory implements VolatileSAXSourceFactory<ForkableReader> {
+
+        @Override
+        public VolatileSAXSource newInstance(XMLReader xmlReader, String systemId, ForkableReader reader) {
+            ForkableInputSource splitIn = new ForkableInputSource(reader);
+            splitIn.setSystemId(systemId);
+            return new ForkableVolatileSAXSource(xmlReader, splitIn);
+        }
+        
+    }
+    
+    private static class SplittingIterator<T extends Reader> implements Iterator<VolatileSAXSource> {
+
+        private final Iterator<T> sr;
+        private final ScannerSupplier ss;
+        private final VolatileSAXSourceFactory<T> vssf;
+        
+        private SplittingIterator(Iterator<VolatileSAXSource> base, int chunkSize, String outputDelim, Pattern inputDelimPattern, int lookaheadFactor, boolean allowFork) {
             this.ss = new ScannerSupplier(base, inputDelimPattern);
             SplittingReader splitter = new SplittingReader(chunkSize, outputDelim, ss);
+            ReaderFactory rf;
+            if (allowFork) {
+                rf = FORKABLE_READER_FACTORY;
+                vssf = (VolatileSAXSourceFactory<T>) FORKING_VSSF;
+            } else {
+                rf = DIRECT_READER_FACTORY;
+                vssf = (VolatileSAXSourceFactory<T>) STANDARD_VSSF;
+            }
             if (lookaheadFactor < 1) {
                 this.sr = splitter;
             } else {
-                this.sr = new BufferingSplittingReader(splitter, lookaheadFactor, DIRECT_READER_FACTORY);
+                this.sr = new BufferingSplittingReader(splitter, lookaheadFactor, rf);
             }
         }
         
@@ -486,9 +569,8 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
 
         @Override
         public VolatileSAXSource next() {
-            InputSource splitIn = new InputSource(sr.next());
-            splitIn.setSystemId(ss.getSystemId());
-            return new VolatileSAXSource(ss.getXMLReader(), splitIn);
+            T next = sr.next();
+            return vssf.newInstance(ss.getXMLReader(), ss.getSystemId(), next);
         }
 
         @Override
