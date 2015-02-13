@@ -79,6 +79,8 @@ public class StatefulXMLFilter extends VolatileXMLFilterImpl implements IdQuerya
         finished = false;
         lastWasEndElement = false;
         writingOutput = false;
+        selfId = false;
+        id.clear();
         tmpBuffer.clear();
         clearBuffers(endElementEventStack);
         clearBuffers(startElementEventStack);
@@ -548,7 +550,7 @@ public class StatefulXMLFilter extends VolatileXMLFilterImpl implements IdQuerya
 
     private void pop() {
         if (lastWasEndElement) {
-            if (writingOutput) {
+            if (writingOutput || endElementEventStack[level].size() < 1) {
                 UnboundedContentHandlerBuffer tmp = endElementEventStack[level + 1];
                 endElementEventStack[level + 1] = tmpBuffer;
                 tmpBuffer = tmp;

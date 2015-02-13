@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<integ:root xmlns:integ="http://integrator">
+   <integ:BIB_ID id="4246413">
+      <integ:MFHD_ID id="4377645" self="true">
+         <mfhd_id>4377645</mfhd_id>
+         <display_call_no>SF891 .S53 2008</display_call_no>
+         <normalized_call_no>SF  891            S 53   2008</normalized_call_no>
+         <hold_create_date>2007-12-20 08:53:50.0</hold_create_date>
+         <last_hold_update>2013-04-26 14:44:17.0</last_hold_update>
+         <call_no_type>0</call_no_type>
+         <hold_location_code>vete</hold_location_code>
+         <location_name>Veterinary School Library</location_name>
+         <location_display_name>Veterinary Library</location_display_name>
+      </integ:MFHD_ID>
+      <integ:MFHD_ID id="4377646" self="true">
+         <mfhd_id>4377646</mfhd_id>
+         <display_call_no>SF891 .S53 2008</display_call_no>
+         <normalized_call_no>SF  891            S 53   2008</normalized_call_no>
+         <hold_create_date>2007-12-20 08:54:31.0</hold_create_date>
+         <last_hold_update>2007-12-21 10:59:12.0</last_hold_update>
+         <call_no_type>0</call_no_type>
+         <hold_location_code>vete</hold_location_code>
+         <location_name>Veterinary School Library</location_name>
+         <location_display_name>Veterinary Library</location_display_name>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="4246415">
+      <integ:MFHD_ID id="4377647" self="true">
+         <mfhd_id>4377647</mfhd_id>
+         <display_call_no>Ms. Coll. 650</display_call_no>
+         <normalized_call_no>MS. COLL. 650</normalized_call_no>
+         <hold_create_date>2007-12-20 09:00:03.0</hold_create_date>
+         <last_hold_update>2007-12-20 09:01:01.0</last_hold_update>
+         <call_no_type>8</call_no_type>
+         <hold_location_code>scmss</hold_location_code>
+         <location_name>Rare Bk &amp; Mss Manuscripts</location_name>
+         <location_display_name>Rare Book &amp; Ms Library Manuscripts</location_display_name>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+</integ:root>

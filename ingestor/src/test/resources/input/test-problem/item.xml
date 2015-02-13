@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<integ:root xmlns:integ="http://integrator">
+   <integ:BIB_ID id="4246413">
+      <integ:MFHD_ID id="4377645">
+         <integ:ITEM_ID id="3912257" self="true">
+            <item_id>3912257</item_id>
+            <item_create_date>2007-12-21 11:02:03.0</item_create_date>
+            <num_holds>0</num_holds>
+            <temp_location>0</temp_location>
+            <perm_location>145</perm_location>
+            <perm_location_code>vete</perm_location_code>
+            <perm_location_name>Veterinary School Library</perm_location_name>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+      <integ:MFHD_ID id="4377646">
+         <integ:ITEM_ID id="3912252" self="true">
+            <item_id>3912252</item_id>
+            <item_create_date>2007-12-21 11:00:05.0</item_create_date>
+            <num_holds>0</num_holds>
+            <temp_location>0</temp_location>
+            <perm_location>145</perm_location>
+            <perm_location_code>vete</perm_location_code>
+            <perm_location_name>Veterinary School Library</perm_location_name>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+      <integ:MFHD_ID id="4386590">
+         <integ:ITEM_ID id="4046222" self="true">
+            <item_id>4046222</item_id>
+            <item_create_date>2008-10-01 18:20:06.0</item_create_date>
+            <num_holds>0</num_holds>
+            <temp_location>0</temp_location>
+            <perm_location>133</perm_location>
+            <perm_location_code>newb</perm_location_code>
+            <perm_location_name>New Bolton Library</perm_location_name>
+         </integ:ITEM_ID>
+      </integ:MFHD_ID>
+   </integ:BIB_ID>
+</integ:root>

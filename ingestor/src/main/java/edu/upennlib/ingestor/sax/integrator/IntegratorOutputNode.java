@@ -439,10 +439,17 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     
     public static void main(String[] args) throws Exception {
         IntegratorOutputNode root = new IntegratorOutputNode();
-        root.addDescendent("/record/marc", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/marc.xml")), false);
-        root.addDescendent("/record/holdings/holding", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/hldg.xml")), false);
-        root.addDescendent("/record/holdings/holding/items/item", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/itemAll.xml")), false);
-        root.addDescendent("/record/holdings/holding/items/item/itemStatuses/itemStatus", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/itemStatus.xml")), false);
+        boolean testProblem = true;
+        if (testProblem) {
+            root.addDescendent("/record/marc", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/test-problem/bib.xml")), false);
+            root.addDescendent("/record/holdings/holding", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/test-problem/mfhd.xml")), false);
+            root.addDescendent("/record/holdings/holding/items/item", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/test-problem/item.xml")), false);
+        } else {
+            root.addDescendent("/record/marc", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/marc.xml")), false);
+            root.addDescendent("/record/holdings/holding", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/hldg.xml")), false);
+            root.addDescendent("/record/holdings/holding/items/item", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/itemAll.xml")), false);
+            root.addDescendent("/record/holdings/holding/items/item/itemStatuses/itemStatus", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/itemStatus.xml")), false);
+        }
 //        root.addDescendent("/items/item", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/item.xml")), false);
 //        root.addDescendent("/items/item/itemStatuses/itemStatus", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/itemStatus.xml")), false);
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);

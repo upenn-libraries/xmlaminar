@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<integ:root xmlns:integ="http://integrator">
+   <integ:BIB_ID id="4246413" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>01552cam a22003854a 4500</marc:leader>
+         <marc:controlfield tag="001">4246413</marc:controlfield>
+         <marc:controlfield tag="005">20100415175337.0</marc:controlfield>
+         <marc:controlfield tag="008">070531s2008    moua     b    000 0 eng d</marc:controlfield>
+         <marc:datafield tag="010" ind1=" " ind2=" ">
+            <marc:subfield code="a">  2007924244</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocn154692152</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(PUVoyagerBIBID)4246413</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">BTCTA</marc:subfield>
+            <marc:subfield code="c">BTCTA</marc:subfield>
+            <marc:subfield code="d">BAKER</marc:subfield>
+            <marc:subfield code="d">YDXCP</marc:subfield>
+            <marc:subfield code="d">GZM</marc:subfield>
+            <marc:subfield code="d">CUX</marc:subfield>
+            <marc:subfield code="d">PAU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">0721605613</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="020" ind1=" " ind2=" ">
+            <marc:subfield code="a">9780721605616</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)154692152</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="050" ind1=" " ind2="4">
+            <marc:subfield code="a">SF891</marc:subfield>
+            <marc:subfield code="b">.S53 2008</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Maggs, David J.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="a">Slatter's fundamentals of veterinary ophthalmology /</marc:subfield>
+            <marc:subfield code="c">David J. Maggs, Paul E. Miller, Ron Ofri.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="3" ind2="0">
+            <marc:subfield code="a">Veterinary ophthalmology</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="246" ind1="3" ind2="0">
+            <marc:subfield code="a">Fundamentals of veterinary ophthalmology</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="250" ind1=" " ind2=" ">
+            <marc:subfield code="a">4th ed.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="260" ind1=" " ind2=" ">
+            <marc:subfield code="a">St. Louis, MO :</marc:subfield>
+            <marc:subfield code="b">Saunders Elsevier,</marc:subfield>
+            <marc:subfield code="c">c2008.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">xi, 478 p. :</marc:subfield>
+            <marc:subfield code="b">ill. (mostly col.) ;</marc:subfield>
+            <marc:subfield code="c">29 cm.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Previous ed. published as: Fundamentals of veterinary ophthalmology. Philadelphia, Saunders, 2001.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="504" ind1=" " ind2=" ">
+            <marc:subfield code="a">Includes bibliographical references and index.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="590" ind1=" " ind2=" ">
+            <marc:subfield code="a">Acquired for the Penn Libraries with assistance from the Clarence J. Marshall Memorial Library Fund.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1=" " ind2="0">
+            <marc:subfield code="a">Veterinyary ophthalmology.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="650" ind1="1" ind2="2">
+            <marc:subfield code="a">Eye Diseases</marc:subfield>
+            <marc:subfield code="x">veterinary.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Miller, Paul E.,</marc:subfield>
+            <marc:subfield code="d">1957-</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Ofri, Ron.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="700" ind1="1" ind2=" ">
+            <marc:subfield code="a">Slatter, Douglas H.</marc:subfield>
+            <marc:subfield code="t">Fundamentals of veterinary ophthalmology.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="710" ind1="2" ind2=" ">
+            <marc:subfield code="a">Clarence J. Marshall Memorial Library Fund.</marc:subfield>
+            <marc:subfield code="5">PU</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="856" ind1="4" ind2="2">
+            <marc:subfield code="3">The Clarence J. Marshall Memorial Library Fund Home Page</marc:subfield>
+            <marc:subfield code="u">http://hdl.library.upenn.edu/1017.12/366248</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAU</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+   <integ:BIB_ID id="4246415" self="true">
+      <marc:record xmlns:marc="http://www.loc.gov/MARC21/slim">
+         <marc:leader>01001cpdaa2200241Ia 4500</marc:leader>
+         <marc:controlfield tag="001">4246415</marc:controlfield>
+         <marc:controlfield tag="005">20080123091518.0</marc:controlfield>
+         <marc:controlfield tag="008">071220i19401959pau                 eng d</marc:controlfield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)ocn184925011</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="040" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAULM</marc:subfield>
+            <marc:subfield code="c">PAULM</marc:subfield>
+            <marc:subfield code="e">dacs</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="035" ind1=" " ind2=" ">
+            <marc:subfield code="a">(OCoLC)184925011</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="079" ind1=" " ind2=" ">
+            <marc:subfield code="a">ocn184925006</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="099" ind1=" " ind2="9">
+            <marc:subfield code="a">Ms. Coll. 650</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="049" ind1=" " ind2=" ">
+            <marc:subfield code="a">PAUM</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="100" ind1="1" ind2=" ">
+            <marc:subfield code="a">Shapiro, Harry,</marc:subfield>
+            <marc:subfield code="d">1897-1971.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="245" ind1="0" ind2="0">
+            <marc:subfield code="k">Correspondence</marc:subfield>
+            <marc:subfield code="b">with Van Wyck Brooks,</marc:subfield>
+            <marc:subfield code="f">1940-1959.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="300" ind1=" " ind2=" ">
+            <marc:subfield code="a">7</marc:subfield>
+            <marc:subfield code="f">items (11 leaves)</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="500" ind1=" " ind2=" ">
+            <marc:subfield code="a">Contains 2 items (4 leaves) from Van Wyck Brooks. Brooks items are photocopies.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="520" ind1=" " ind2=" ">
+            <marc:subfield code="a">Brooks's letters concern Kotirau, Frank Stimson's Polynesian wife.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="545" ind1="0" ind2=" ">
+            <marc:subfield code="a">Shapiro was Frank Stimson's friend, and one of the group that arranged for Donald Marshall to join Stimson in Tahiti.</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="773" ind1="0" ind2=" ">
+            <marc:subfield code="t">Van Wyck Brooks Papers.</marc:subfield>
+            <marc:subfield code="g">Folder 2572</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="852" ind1=" " ind2=" ">
+            <marc:subfield code="b">Rare Book &amp; Manuscript Library</marc:subfield>
+            <marc:subfield code="a">University of Pennsylvania</marc:subfield>
+            <marc:subfield code="e">3420 Walnut Street, Philadelphia, Pennsylvania 19104-6206.</marc:subfield>
+            <marc:subfield code="j">Ms. Coll. 650</marc:subfield>
+         </marc:datafield>
+         <marc:datafield tag="994" ind1=" " ind2=" ">
+            <marc:subfield code="a">C0</marc:subfield>
+            <marc:subfield code="b">PAULM</marc:subfield>
+         </marc:datafield>
+      </marc:record>
+   </integ:BIB_ID>
+</integ:root>
