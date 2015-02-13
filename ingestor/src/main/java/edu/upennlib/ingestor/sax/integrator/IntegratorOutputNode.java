@@ -17,6 +17,7 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
+import edu.upennlib.paralleltransformer.InputSourceXMLReader;
 import edu.upennlib.xmlutils.DumpingLexicalXMLFilter;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.EOFException;
@@ -30,6 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -73,6 +75,27 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     private String name;
     private File dumpFile;
     private static final Logger logger = LoggerFactory.getLogger(IntegratorOutputNode.class);
+
+    private static final SAXParserFactory spf = SAXParserFactory.newInstance();
+    
+    static {
+        spf.setNamespaceAware(true);
+    }
+
+    @Override
+    public void reset() {
+        if (childNodes != null) {
+            for (IdQueryable child : childNodes) {
+                child.reset();
+            }
+        }
+        if (inputFilter != null) {
+            inputFilter.reset();
+        }
+        if (rawOutput != null && rawOutput instanceof IdQueryable) {
+            ((IdQueryable) rawOutput).reset();
+        }
+    }
 
     private List<String> descendentsSpring = null;
     public void setDescendentsSpring(List<String> descendentsSpring) {
@@ -121,10 +144,10 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     private static final int DEPTH_LIMIT = 10;
 
-    public void addDescendent(LinkedList<String> pathElements, XMLReader source, boolean requireForWrite) {
+    public StatefulXMLFilter addDescendent(LinkedList<String> pathElements, XMLReader source, boolean requireForWrite) {
         String subName = pathElements.removeFirst();
         IntegratorOutputNode subNode;
-        int index = -1;
+        int index;
         if ((index = names.indexOf(subName)) != -1) {
             if (pathElements.isEmpty()) {
                 throw new RuntimeException("duplicate element path specification: "+subName);
@@ -143,16 +166,17 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 }
                 subNode = new IntegratorOutputNode(sxf);
                 requires.add(requireForWrite);
+                names.add(subName);
+                nodes.add(subNode);
+                return sxf;
             } else {
                 subNode = new IntegratorOutputNode(null);
                 requires.add(false); // Otherwise add node manually (explicitly).
+                names.add(subName);
+                nodes.add(subNode);
             }
-            names.add(subName);
-            nodes.add(subNode);
         }
-        if (!pathElements.isEmpty()) {
-            subNode.addDescendent(pathElements, source, requireForWrite);
-        }
+        return subNode.addDescendent(pathElements, source, requireForWrite);
     }
 
     public void setAggregating(boolean aggregating) {
@@ -296,8 +320,17 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     private Boolean aggregating = null;
 
-    @Override
-    public void run() {
+    private boolean initialzed = false;
+    
+    /**
+     * 
+     * @return true if node has children
+     */
+    private boolean init() {
+        if (initialzed) {
+            return !nodes.isEmpty();
+        }
+        initialzed = true;
         if (nodes.isEmpty()) {
             if (inputFilter == null) {
                 throw new IllegalStateException();
@@ -306,8 +339,8 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     assignOutput(inputFilter);
                     notify();
                 }
-                inputFilter.run();
             }
+            return false;
         } else {
             if (output == null) {
                 synchronized (this) {
@@ -333,10 +366,18 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             childNodes = nodes.toArray(new IdQueryable[size]);
             childElementNames = names.toArray(new String[size]);
             requireForWrite = requires.toArray(new Boolean[size]);
-
+            return true;
+        }
+    }
+    
+    @Override
+    public void run() {
+        if (!init()) {
+            inputFilter.run();
+        } else {
             ThreadGroup threadGroup = new ThreadGroup("integratorThreads");
             Thread.UncaughtExceptionHandler interrupter = new ThreadGroupInterrupter(Thread.currentThread());
-            
+
             for (int i = 0; i < childNodes.length; i++) {
                 Thread t;
                 if (childElementNames[i] != null) {
@@ -386,22 +427,37 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     private final LinkedHashSet<Integer> requiredIndexes = new LinkedHashSet<Integer>();
 
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, TransformerConfigurationException, TransformerException {
+    private static XMLReader getXR() {
+        try {
+            return spf.newSAXParser().getXMLReader();
+        } catch (ParserConfigurationException ex) {
+            throw new RuntimeException(ex);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    public static void main(String[] args) throws Exception {
         IntegratorOutputNode root = new IntegratorOutputNode();
-        root.addDescendent("/record/marc", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/marc.xml")), false);
-        root.addDescendent("/record/holdings/holding", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/hldg.xml")), false);
-        root.addDescendent("/record/holdings/holding/items/item", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/itemAll.xml")), false);
-        root.addDescendent("/record/holdings/holding/items/item/itemStatuses/itemStatus", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/itemStatus.xml")), false);
+        root.addDescendent("/record/marc", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/marc.xml")), false);
+        root.addDescendent("/record/holdings/holding", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/hldg.xml")), false);
+        root.addDescendent("/record/holdings/holding/items/item", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/itemAll.xml")), false);
+        root.addDescendent("/record/holdings/holding/items/item/itemStatuses/itemStatus", new InputSourceXMLReader(getXR(), new InputSource("./src/test/resources/input/real/itemStatus.xml")), false);
 //        root.addDescendent("/items/item", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/item.xml")), false);
 //        root.addDescendent("/items/item/itemStatuses/itemStatus", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/itemStatus.xml")), false);
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
-        one(t, root);
+        one(t, root, "/tmp/output.xml");
+        root.reset();
+        t.reset();
+        t.setOutputProperty(OutputKeys.INDENT, "yes");
+        one(t, root, "/tmp/output2.xml");
+        System.err.println("DONE!");
     }
 
-    private static void one(Transformer t, IntegratorOutputNode root) throws TransformerException {
-        t.transform(new SAXSource(root, new InputSource()), new StreamResult("/tmp/output.xml"));
+    private static void one(Transformer t, IntegratorOutputNode root, String systemId) throws TransformerException {
+        t.transform(new SAXSource(root, new InputSource()), new StreamResult(systemId));
     }
 
     private static void two(Transformer t, IntegratorOutputNode root) throws TransformerException, SAXException {

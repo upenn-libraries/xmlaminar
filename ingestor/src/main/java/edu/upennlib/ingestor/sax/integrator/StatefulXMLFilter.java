@@ -16,10 +16,12 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
+import edu.upennlib.paralleltransformer.InputSourceXMLReader;
 import edu.upennlib.xmlutils.EchoingContentHandler;
 import edu.upennlib.xmlutils.DevNullContentHandler;
 import edu.upennlib.xmlutils.SAXFeatures;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
+import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -38,13 +41,14 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
  * @author michael
  */
-public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
+public class StatefulXMLFilter extends VolatileXMLFilterImpl implements IdQueryable {
 
 
     private static final boolean debugging = true;
@@ -65,6 +69,22 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
     private final Lock lock = new ReentrantLock();
     private final Condition stateNotWait = lock.newCondition();
     private final Condition stateIsWait = lock.newCondition();
+
+    @Override
+    public void reset() {
+        state = State.STEP;
+        level = -1;
+        refLevel = -1;
+        finished = false;
+        lastWasEndElement = false;
+        writingOutput = false;
+    }
+    
+    private void clearBuffers(UnboundedContentHandlerBuffer[] buffers) {
+        for (UnboundedContentHandlerBuffer uchb : buffers) {
+            uchb.clear();
+        }
+    }
 
     @Override
     public void setName(String name) {
@@ -200,7 +220,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         level++;
         switch (state) {
             case WAIT:
-                throw new IllegalStateException();
+                throw new IllegalStateException("at level "+level);
             case SKIP:
                 break;
             case PLAY:
@@ -526,6 +546,7 @@ public class StatefulXMLFilter extends XMLFilterImpl implements IdQueryable {
         if (lastWasEndElement) {
             if (writingOutput) {
                 UnboundedContentHandlerBuffer tmp = endElementEventStack[level + 1];
+                endElementEventStack[level].clear();
                 endElementEventStack[level + 1] = tmpBuffer;
                 tmpBuffer = tmp;
             }

@@ -27,6 +27,8 @@ import org.xml.sax.SAXException;
  */
 public interface IdQueryable extends Runnable, IndexedPropertyConfigurable {
 
+    void reset();
+    
     public Comparable getId() throws EOFException;
 
     public boolean self();
