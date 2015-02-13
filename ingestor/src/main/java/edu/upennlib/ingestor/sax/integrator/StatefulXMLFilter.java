@@ -74,10 +74,14 @@ public class StatefulXMLFilter extends VolatileXMLFilterImpl implements IdQuerya
     public void reset() {
         state = State.STEP;
         level = -1;
+        selfLevel = -1;
         refLevel = -1;
         finished = false;
         lastWasEndElement = false;
         writingOutput = false;
+        tmpBuffer.clear();
+        clearBuffers(endElementEventStack);
+        clearBuffers(startElementEventStack);
     }
     
     private void clearBuffers(UnboundedContentHandlerBuffer[] buffers) {
@@ -546,7 +550,6 @@ public class StatefulXMLFilter extends VolatileXMLFilterImpl implements IdQuerya
         if (lastWasEndElement) {
             if (writingOutput) {
                 UnboundedContentHandlerBuffer tmp = endElementEventStack[level + 1];
-                endElementEventStack[level].clear();
                 endElementEventStack[level + 1] = tmpBuffer;
                 tmpBuffer = tmp;
             }
