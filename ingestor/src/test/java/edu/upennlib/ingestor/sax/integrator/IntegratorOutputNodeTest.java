@@ -52,6 +52,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.xml.sax.SAXParseException;
 
 /**
  *
@@ -224,7 +225,7 @@ public class IntegratorOutputNodeTest {
             verify(root, null, true);
             assertFalse("invocation did not throw exception!", true);
         } catch (RuntimeException ex) {
-            assertTrue(ex.getCause() instanceof InterruptedException);
+            assertTrue(ex.getCause() instanceof SAXParseException);
         }
 
     }

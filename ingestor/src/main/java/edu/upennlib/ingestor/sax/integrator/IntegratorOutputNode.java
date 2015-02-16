@@ -25,19 +25,27 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
@@ -175,6 +183,9 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 names.add(subName);
                 nodes.add(subNode);
             }
+        }
+        if (executor != null) {
+            subNode.setExecutor(executor);
         }
         return subNode.addDescendent(pathElements, source, requireForWrite);
     }
@@ -322,6 +333,16 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 
     private boolean initialzed = false;
     
+    private static final ThreadFactory DAEMON_THREAD_FACTORY = new ThreadFactory() {
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r);
+            t.setDaemon(true);
+            return t;
+        }
+    };
+    
     /**
      * 
      * @return true if node has children
@@ -342,6 +363,9 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             }
             return false;
         } else {
+            if (executor == null) {
+                setExecutor(Executors.newCachedThreadPool(DAEMON_THREAD_FACTORY));
+            }
             if (output == null) {
                 synchronized (this) {
                     StatefulXMLFilter sxf = new StatefulXMLFilter(DEPTH_LIMIT);
@@ -349,6 +373,9 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     assignOutput(sxf);
                     notify();
                 }
+            }
+            for (IdQueryable node : nodes) {
+                ((IntegratorOutputNode) node).setExecutor(executor);
             }
             if (inputFilter != null) {
                 names.addFirst(null);
@@ -370,28 +397,117 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         }
     }
     
+    private ExecutorService executor;
+    
+    private JobMonitor<Void> childJobMonitor;
+    
+    private Future<?> childJobFuture;
+    
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+    
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+        this.childJobMonitor = new JobMonitor<Void>(executor);
+    }
+    
+    private static class JobMonitor<T> implements Runnable {
+
+        private Collection<? extends Runnable> jobs;
+        private final BlockingQueue<Future<T>> jobQueue = new LinkedBlockingQueue<Future<T>>();
+        private final Collection<Future<T>> activeJobs = new HashSet<Future<T>>();
+        private final ExecutorCompletionService<T> backing;
+        private Throwable upstreamThrowable;
+        private Thread target;
+
+        public JobMonitor(ExecutorService backing) {
+            this.backing = new ExecutorCompletionService<T>(backing, jobQueue);
+        }
+        
+        public void init(Collection<? extends Runnable> jobs, Thread target) {
+            this.jobs = jobs;
+            this.target = target;
+        }
+
+        private void invokeJobs() {
+            for (Runnable r : jobs) {
+                activeJobs.add(backing.submit(r, null));
+            }
+        }
+        
+        private void join() throws InterruptedException, ExecutionException {
+            while (!activeJobs.isEmpty()) {
+                Future<T> job = jobQueue.take();
+                try {
+                    job.get();
+                    activeJobs.remove(job);
+                } catch (ExecutionException ex) {
+                    activeJobs.remove(job);
+                    drainActiveJobs();
+                    throw ex;
+                }
+            }
+        }
+
+        private void drainActiveJobs() throws InterruptedException {
+            int remaining = activeJobs.size();
+            for (Future<T> remainingJob : activeJobs) {
+                remainingJob.cancel(true);
+            }
+            for (int i = 0; i < remaining; i++) {
+                activeJobs.remove(jobQueue.take());
+            }
+            target.interrupt();
+        }
+
+        @Override
+        public void run() {
+            try {
+                try {
+                    invokeJobs();
+                    join();
+                } catch (InterruptedException ex) {
+                    upstreamThrowable = ex;
+                    drainActiveJobs();
+                    throw new RuntimeException(ex);
+                } catch (ExecutionException ex) {
+                    upstreamThrowable = ex.getCause();
+                    drainActiveJobs();
+                    throw new RuntimeException(ex);
+                } catch (Throwable t) {
+                    drainActiveJobs();
+                    throw new RuntimeException(t);
+                }
+            } catch (InterruptedException ex) {
+                if (upstreamThrowable == null) {
+                    upstreamThrowable = ex;
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+
+    };
+
     @Override
     public void run() {
         if (!init()) {
             inputFilter.run();
         } else {
-            ThreadGroup threadGroup = new ThreadGroup("integratorThreads");
-            Thread.UncaughtExceptionHandler interrupter = new ThreadGroupInterrupter(Thread.currentThread());
-
             for (int i = 0; i < childNodes.length; i++) {
-                Thread t;
-                if (childElementNames[i] != null) {
-                    childNodes[i].setName(childElementNames[i]);
-                    t = new Thread(threadGroup, childNodes[i], childElementNames[i]+"<-"+Thread.currentThread().getName());
-                } else {
-                    t = new Thread(threadGroup, childNodes[i], childNodes[i].getName()+"<-"+Thread.currentThread().getName());
-                }
-                t.setUncaughtExceptionHandler(interrupter);
-                t.start();
+//                String setThreadName;
+//                if (childElementNames[i] != null) {
+//                    childNodes[i].setName(childElementNames[i]);
+//                    setThreadName = childElementNames[i]+"<-"+Thread.currentThread().getName();
+//                } else {
+//                    setThreadName = childNodes[i].getName()+"<-"+Thread.currentThread().getName();
+//                }
                 if (requireForWrite[i]) {
                     requiredIndexes.add(i);
                 }
             }
+            childJobMonitor.init(Arrays.asList(childNodes), Thread.currentThread());
+            childJobFuture = executor.submit(childJobMonitor);
             try {
                 if (childNodes.length <= Integer.SIZE) {
                     int requiredIndexesBitflags = 0;
@@ -403,28 +519,30 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                     run2();
                 }
             } catch (SAXException ex) {
+                handleLocalException();
                 throw new RuntimeException(ex);
+            } catch (Throwable t) {
+                handleLocalException();
+                throw new RuntimeException(t);
             }
         }
     }
 
-    private static class ThreadGroupInterrupter implements Thread.UncaughtExceptionHandler {
-
-        private final Thread target;
-
-        private ThreadGroupInterrupter(Thread target) {
-            this.target = target;
+    private void handleLocalException() {
+        if (childJobMonitor.upstreamThrowable != null) {
+            Throwable t = childJobMonitor.upstreamThrowable;
+            if (t instanceof RuntimeException) {
+                throw (RuntimeException) t;
+            } else if (t instanceof ExecutionException) {
+                throw new RuntimeException(t.getCause());
+            } else {
+                throw new RuntimeException(t);
+            }
+        } else {
+            childJobFuture.cancel(true);
         }
-        
-        @Override
-        public void uncaughtException(Thread t, Throwable e) {
-            e.printStackTrace(System.err);
-            t.getThreadGroup().interrupt();
-            target.interrupt();
-        }
-
     }
-
+    
     private final LinkedHashSet<Integer> requiredIndexes = new LinkedHashSet<Integer>();
 
     private static XMLReader getXR() {
@@ -452,6 +570,8 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         }
 //        root.addDescendent("/items/item", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/item.xml")), false);
 //        root.addDescendent("/items/item/itemStatuses/itemStatus", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/itemStatus.xml")), false);
+        ExecutorService executor = Executors.newCachedThreadPool();
+        root.setExecutor(executor);
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -460,6 +580,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
         t.reset();
         t.setOutputProperty(OutputKeys.INDENT, "yes");
         one(t, root, "/tmp/output2.xml");
+        executor.shutdown();
         System.err.println("DONE!");
     }
 
