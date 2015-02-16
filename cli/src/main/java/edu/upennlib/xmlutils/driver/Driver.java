@@ -16,6 +16,7 @@
 
 package edu.upennlib.xmlutils.driver;
 
+import edu.upennlib.xmlutils.SAXProperties;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,6 +27,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXSource;
 import org.apache.log4j.BasicConfigurator;
@@ -33,6 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 
@@ -239,10 +244,28 @@ public class Driver {
         Iterator<Map.Entry<CommandFactory, String[]>> iter = commands.iterator();
         SAXSource source = chainCommands(true, null, iter, true);
         if (source != null) {
+            ExecutorService executor = null;
             try {
-                source.getXMLReader().parse(source.getInputSource());
+                XMLReader xmlReader = source.getXMLReader();
+                executor = Executors.newCachedThreadPool();
+                try {
+                    xmlReader.setProperty(SAXProperties.EXECUTOR_SERVICE_PROPERTY_NAME, executor);
+                } catch (SAXNotRecognizedException ex) {
+                    executor.shutdown();
+                    executor = null;
+                    logger.trace("ignoring " + ex);
+                } catch (SAXNotSupportedException ex) {
+                    executor.shutdown();
+                    executor = null;
+                    logger.trace("ignoring " + ex);
+                }
+                xmlReader.parse(source.getInputSource());
             } catch (SAXException ex) {
                 throw new RuntimeException(ex);
+            } finally {
+                if (executor != null) {
+                    executor.shutdown();
+                }
             }
         }
     }

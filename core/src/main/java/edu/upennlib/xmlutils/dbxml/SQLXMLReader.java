@@ -19,6 +19,7 @@ package edu.upennlib.xmlutils.dbxml;
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.xmlutils.BoundedXMLFilterBuffer;
 import edu.upennlib.xmlutils.SAXFeatures;
+import edu.upennlib.xmlutils.SAXProperties;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.ByteArrayInputStream;
@@ -264,7 +265,11 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     @Override
     public void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException {
         if (name.equals("http://xml.org/sax/properties/lexical-handler")) {
-            lh = (LexicalHandler)value;
+            lh = (LexicalHandler) value;
+        } else if (SAXProperties.EXECUTOR_SERVICE_PROPERTY_NAME.equals(name)) {
+            if (getExecutor() == null) {
+                setExecutor((ExecutorService) value);
+            }
         } else {
             throw new SAXNotRecognizedException("setProperty("+name+", "+value+")");
         }

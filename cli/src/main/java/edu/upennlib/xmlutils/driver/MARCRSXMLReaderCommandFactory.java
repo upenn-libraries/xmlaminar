@@ -92,9 +92,9 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
                     return null;
                 } else {
                     mxr = new BinaryMARCXMLReader(batchSize, lookaheadFactor);
-                    if (lookaheadFactor > 0) {
-                        mxr.setExecutor(Executors.newCachedThreadPool(DAEMON_THREAD_FACTORY));
-                    }
+//                    if (lookaheadFactor > 0) {
+//                        mxr.setExecutor(Executors.newCachedThreadPool(DAEMON_THREAD_FACTORY));
+//                    }
                     if (expectPresplitInput) {
                         ret = mxr;
                     } else {

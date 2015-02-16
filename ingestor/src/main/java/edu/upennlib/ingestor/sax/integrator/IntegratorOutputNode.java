@@ -19,6 +19,7 @@ package edu.upennlib.ingestor.sax.integrator;
 import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.paralleltransformer.InputSourceXMLReader;
 import edu.upennlib.xmlutils.DumpingLexicalXMLFilter;
+import edu.upennlib.xmlutils.SAXProperties;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.EOFException;
 import java.io.File;
@@ -41,6 +42,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -255,9 +257,11 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
     @Override
     public void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException {
         if ("http://xml.org/sax/properties/lexical-handler".equals(name)) {
-            lexicalHandler = (LexicalHandler)value;
+            lexicalHandler = (LexicalHandler) value;
+        } else if (SAXProperties.EXECUTOR_SERVICE_PROPERTY_NAME.equals(name)) {
+            setExecutor((ExecutorService) value);
         } else {
-            throw new SAXNotRecognizedException("setFeature("+name+", "+value+")");
+            throw new SAXNotRecognizedException("setFeature(" + name + ", " + value + ")");
         }
     }
 
@@ -393,6 +397,17 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
             childNodes = nodes.toArray(new IdQueryable[size]);
             childElementNames = names.toArray(new String[size]);
             requireForWrite = requires.toArray(new Boolean[size]);
+            for (IdQueryable idq : childNodes) {
+                if (idq instanceof XMLReader) {
+                    try {
+                        ((XMLReader) idq).setProperty(SAXProperties.EXECUTOR_SERVICE_PROPERTY_NAME, executor);
+                    } catch (SAXNotRecognizedException ex) {
+                        logger.trace("ignoring "+ex);
+                    } catch (SAXNotSupportedException ex) {
+                        logger.trace("ignoring "+ex);
+                    }
+                }
+            }
             return true;
         }
     }
@@ -518,6 +533,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
                 } else {
                     run2();
                 }
+                childJobFuture.get();
             } catch (SAXException ex) {
                 handleLocalException();
                 throw new RuntimeException(ex);
@@ -571,7 +587,7 @@ public class IntegratorOutputNode implements IdQueryable, XMLReader {
 //        root.addDescendent("/items/item", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/item.xml")), false);
 //        root.addDescendent("/items/item/itemStatuses/itemStatus", new PreConfiguredXMLReader(new InputSource("./src/test/resources/input/real/itemStatus.xml")), false);
         ExecutorService executor = Executors.newCachedThreadPool();
-        root.setExecutor(executor);
+        root.setProperty(SAXProperties.EXECUTOR_SERVICE_PROPERTY_NAME, executor);
         SAXTransformerFactory tf = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         Transformer t = tf.newTransformer();
         t.setOutputProperty(OutputKeys.INDENT, "yes");

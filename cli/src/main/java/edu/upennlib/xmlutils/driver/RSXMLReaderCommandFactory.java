@@ -85,9 +85,9 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
                     return null;
                 } else {
                     rsxr = new RSXMLReader(batchSize, lookaheadFactor);
-                    if (lookaheadFactor > 0) {
-                        rsxr.setExecutor(Executors.newCachedThreadPool(DAEMON_THREAD_FACTORY));
-                    }
+//                    if (lookaheadFactor > 0) {
+//                        rsxr.setExecutor(Executors.newCachedThreadPool(DAEMON_THREAD_FACTORY));
+//                    }
                     if (expectPresplitInput) {
                         ret = rsxr;
                     } else {
