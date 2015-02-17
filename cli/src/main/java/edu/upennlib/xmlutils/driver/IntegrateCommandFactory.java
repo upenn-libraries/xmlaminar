@@ -212,6 +212,7 @@ public class IntegrateCommandFactory extends CommandFactory {
                 } else {
                     inputHandler = new InputSetter(root, sxfs.get(0));
                 }
+                System.err.println("HAY "+allowFork);
                 joiner.setParent(inputHandler);
                 joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor, allowFork));
                 ret = joiner;

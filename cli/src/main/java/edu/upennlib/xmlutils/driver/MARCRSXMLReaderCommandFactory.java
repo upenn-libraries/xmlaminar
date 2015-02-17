@@ -21,9 +21,6 @@ import edu.upennlib.paralleltransformer.JoiningXMLFilter;
 import edu.upennlib.xmlutils.dbxml.BinaryMARCXMLReader;
 import edu.upennlib.xmlutils.dbxml.SQLXMLReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import joptsimple.OptionSet;
@@ -95,7 +92,13 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
 //                    if (lookaheadFactor > 0) {
 //                        mxr.setExecutor(Executors.newCachedThreadPool(DAEMON_THREAD_FACTORY));
 //                    }
-                    if (expectPresplitInput) {
+                    mxr.setSuppressParameterizedClause(suppressParamClause);
+                    mxr.setName(name);
+                    mxr.setIdFieldLabels(parseIdFieldLabels(idFieldLabels));
+                    mxr.setOutputFieldLabels(new String[]{marcBinaryFieldLabel});
+                    mxr.setDataSource(SQLXMLReader.newDataSource(connectionConfigFile));
+                    mxr.setSql(sql);
+                    if (expectPresplitInput || !mxr.isParameterized()) {
                         ret = mxr;
                     } else {
                         JoiningXMLFilter joiner = new JoiningXMLFilter(true);
@@ -105,11 +108,6 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
                     }
                 }
             }
-            mxr.setName(name);
-            mxr.setIdFieldLabels(parseIdFieldLabels(idFieldLabels));
-            mxr.setOutputFieldLabels(new String[]{marcBinaryFieldLabel});
-            mxr.setDataSource(SQLXMLReader.newDataSource(connectionConfigFile));
-            mxr.setSql(sql);
             return ret;
         }
 

@@ -469,6 +469,19 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         
     }
     
+    private boolean suppressParameterizedClause = false;
+    
+    public void setSuppressParameterizedClause(boolean suppress) {
+        if (this.suppressParameterizedClause != suppress) {
+            compiledSql = null;
+            this.suppressParameterizedClause = suppress;
+        }
+    }
+    
+    public boolean isSuppressParameterizedClause() {
+        return suppressParameterizedClause;
+    }
+    
     private Pattern inputDelimPattern = Pattern.compile(System.lineSeparator(), Pattern.LITERAL);
     
     public void setInputDelimPattern(String inputDelim) {
@@ -513,7 +526,7 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
                 StatementEnqueuer direct = null;
                 String startId;
                 try {
-                    if (executor != null && (startId = startIds.poll()) != null) {
+                    if (rsQueueLength > 1 && parameterizedSQL && (startId = startIds.poll()) != null) {
                         direct = rsQueue.get(startId);
                         rs = direct.getResultSet(paramIter);
                     } else {
@@ -522,7 +535,7 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
                         direct.run();
                         rs = direct.getResultSet(null);
                     }
-                    if (executor != null && paramIter.hasNext() && (se = psQueue.poll()) != null) {
+                    if (rsQueueLength > 1 && parameterizedSQL && paramIter.hasNext() && (se = psQueue.poll()) != null) {
                         startId = se.init(paramIter, startIds.peekLast());
                         if (startId == null) {
                             psQueue.add(se);
@@ -696,12 +709,23 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     private void compileSQL() throws ParseException {
         String parameterized = parameterizeSQL(sql, chunkSize);
         if (parameterized != null) {
-            parameterizedSQL = true;
+            parameterizedSQL = !suppressParameterizedClause;
             this.compiledSql = parameterized;
         } else {
             parameterizedSQL = false;
             this.compiledSql = sql;
         }
+    }
+    
+    public boolean isParameterized() {
+        if (compiledSql == null) {
+            try {
+                compileSQL();
+            } catch (ParseException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        return parameterizedSQL;
     }
     
     private boolean parameterizedSQL = false;
@@ -722,27 +746,30 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
             do {
                 if (m.group(1) != null) {
                     lastWasStart = true;
-                    depth++;
-                    sb.append(sql, contentOffset, m.start());
+                    if (depth++ < 1 || !suppressParameterizedClause) {
+                        sb.append(sql, contentOffset, m.start());
+                    }
                     contentOffset = m.end() - 1;
                 } else {
                     if (--depth < 0) {
                         throw new ParseException(sql, m.start());
                     }
-                    int endContent = m.start() + 1;
-                    Matcher m1;
-                    if (lastWasStart && (m1 = PARAM_PATTERN.matcher(sql.substring(contentOffset, endContent))).matches()) {
-                        sb.append('?');
-                        String typeName = m1.group(1);
-                        boolean repeatParam = m1.group(2) != null;
-                        paramType = SQLParam.valueOf(typeName);
-                        if (repeatParam) {
-                            for (int i = 1; i < chunkSize; i++) {
-                                sb.append(",?");
+                    if (!suppressParameterizedClause) {
+                        int endContent = m.start() + 1;
+                        Matcher m1;
+                        if (lastWasStart && (m1 = PARAM_PATTERN.matcher(sql.substring(contentOffset, endContent))).matches()) {
+                            sb.append('?');
+                            String typeName = m1.group(1);
+                            boolean repeatParam = m1.group(2) != null;
+                            paramType = SQLParam.valueOf(typeName);
+                            if (repeatParam) {
+                                for (int i = 1; i < chunkSize; i++) {
+                                    sb.append(",?");
+                                }
                             }
+                        } else {
+                            sb.append(sql, contentOffset, endContent);
                         }
-                    } else {
-                        sb.append(sql, contentOffset, endContent);
                     }
                     lastWasStart = false;
                     contentOffset = m.end();
@@ -758,7 +785,8 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     
     public static void main(String[] args) throws Exception {
         SQLXMLReader mxr = new BinaryMARCXMLReader();
-        String parameterized = mxr.parameterizeSQL("<\\ and id in (<\\INTEGER*\\>)\\>", 6);
+        mxr.suppressParameterizedClause = true;
+        String parameterized = mxr.parameterizeSQL("something <\\ and id in (<\\INTEGER*\\>)\\> else ", 6);
         System.out.println(parameterized);
     }
     

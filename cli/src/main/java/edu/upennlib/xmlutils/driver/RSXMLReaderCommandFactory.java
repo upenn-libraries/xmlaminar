@@ -18,22 +18,12 @@ package edu.upennlib.xmlutils.driver;
 
 import edu.upennlib.paralleltransformer.InputSplitter;
 import edu.upennlib.paralleltransformer.JoiningXMLFilter;
-import edu.upennlib.paralleltransformer.SerializingXMLFilter;
 import edu.upennlib.xmlutils.dbxml.RSXMLReader;
 import edu.upennlib.xmlutils.dbxml.SQLXMLReader;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.transform.sax.SAXSource;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 /**
  *
@@ -88,7 +78,12 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
 //                    if (lookaheadFactor > 0) {
 //                        rsxr.setExecutor(Executors.newCachedThreadPool(DAEMON_THREAD_FACTORY));
 //                    }
-                    if (expectPresplitInput) {
+                    rsxr.setSuppressParameterizedClause(suppressParamClause);
+                    rsxr.setName(name);
+                    rsxr.setIdFieldLabels(parseIdFieldLabels(idFieldLabels));
+                    rsxr.setDataSource(SQLXMLReader.newDataSource(connectionConfigFile));
+                    rsxr.setSql(sql);
+                    if (expectPresplitInput || !rsxr.isParameterized()) {
                         ret = rsxr;
                     } else {
                         JoiningXMLFilter joiner = new JoiningXMLFilter(true);
@@ -98,10 +93,6 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
                     }
                 }
             }
-            rsxr.setName(name);
-            rsxr.setIdFieldLabels(parseIdFieldLabels(idFieldLabels));
-            rsxr.setDataSource(SQLXMLReader.newDataSource(connectionConfigFile));
-            rsxr.setSql(sql);
             return ret;
         }
 

@@ -69,5 +69,6 @@ public class Flags {
     public static final List<String> SQL_ARG = unmodifiableList(asList("sql"));
     public static final List<String> LOOKAHEAD_FACTOR_ARG = unmodifiableList(asList("l", "lookahead"));
     public static final List<String> EXPECT_PRESPLIT_INPUT_ARG = unmodifiableList(asList("expect-presplit-input"));
+    public static final List<String> SUPPRESS_PARAM_CLAUSE_ARG = unmodifiableList(asList("suppress-param-clause"));
 
 }
