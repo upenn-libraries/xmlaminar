@@ -36,6 +36,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -496,7 +497,11 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
             buffer.setParent(this);
             buffer.setContentHandler(ch);
             if (compiledSql == null) {
-                compileSQL();
+                try {
+                    compileSQL();
+                } catch (ParseException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
             if (parameterizedSQL && paramIter == null) {
                 paramIter = new InputSourceIterator(input, inputDelimPattern);
@@ -688,7 +693,7 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         compiledSql = null;
     }
 
-    private void compileSQL() {
+    private void compileSQL() throws ParseException {
         String parameterized = parameterizeSQL(sql, chunkSize);
         if (parameterized != null) {
             parameterizedSQL = true;
@@ -701,19 +706,92 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     
     private boolean parameterizedSQL = false;
 
-    private static final String ID_STRING = "<ID_STRING>";
-
-    private static final Pattern ID_STRING_PATTERN = Pattern.compile(ID_STRING, Pattern.LITERAL);
+    private static final String SUPPORTED_PARAM_TYPES;
     
-    protected static String parameterizeSQL(String sql, int chunkSize) {
-        Matcher m = ID_STRING_PATTERN.matcher(sql);
+    private static final Pattern PARAM_CLAUSE_DELIMS = Pattern.compile("(<\\\\[^\\\\])|([^\\\\]\\\\>)");    
+    
+    private String parameterizeSQL(String sql, int chunkSize) throws ParseException {
+        Matcher m = PARAM_CLAUSE_DELIMS.matcher(sql);
+        StringBuilder sb = new StringBuilder();
+        int depth = 0;
+        boolean lastWasStart = false;
+        int contentOffset = 0;
         if (!m.find()) {
             return null;
         } else {
-            StringBuffer sb = new StringBuffer(sql.length() - ID_STRING.length() + (chunkSize * 2));
+            do {
+                if (m.group(1) != null) {
+                    lastWasStart = true;
+                    depth++;
+                    sb.append(sql, contentOffset, m.start());
+                    contentOffset = m.end() - 1;
+                } else {
+                    if (--depth < 0) {
+                        throw new ParseException(sql, m.start());
+                    }
+                    int endContent = m.start() + 1;
+                    Matcher m1;
+                    if (lastWasStart && (m1 = PARAM_PATTERN.matcher(sql.substring(contentOffset, endContent))).matches()) {
+                        sb.append('?');
+                        String typeName = m1.group(1);
+                        boolean repeatParam = m1.group(2) != null;
+                        paramType = SQLParam.valueOf(typeName);
+                        if (repeatParam) {
+                            for (int i = 1; i < chunkSize; i++) {
+                                sb.append(",?");
+                            }
+                        }
+                    } else {
+                        sb.append(sql, contentOffset, endContent);
+                    }
+                    lastWasStart = false;
+                    contentOffset = m.end();
+                }
+            } while (m.find());
+        }
+        if (depth != 0) {
+            throw new ParseException(sql, sql.length());
+        }
+        sb.append(sql, contentOffset, sql.length());
+        return sb.toString();
+    }
+    
+    public static void main(String[] args) throws Exception {
+        SQLXMLReader mxr = new BinaryMARCXMLReader();
+        String parameterized = mxr.parameterizeSQL("<\\ and id in (<\\INTEGER*\\>)\\>", 6);
+        System.out.println(parameterized);
+    }
+    
+    static {
+        StringBuilder sb = new StringBuilder();
+        SQLParam[] vals = SQLParam.values();
+        if (vals.length > 0) {
+            sb.append('(').append(vals[0].toString());
+            for (int i = 1; i < vals.length; i++) {
+                sb.append('|').append(vals[i].toString());
+            }
+            sb.append(")(\\*)?");
+        }
+        SUPPORTED_PARAM_TYPES = sb.toString();
+    }
+    
+    private static final Pattern PARAM_PATTERN = Pattern.compile(SUPPORTED_PARAM_TYPES);
+    
+    protected String parameterizeSQLOld(String sql, int chunkSize) {
+        Matcher m = PARAM_PATTERN.matcher(sql);
+        if (!m.find()) {
+            paramType = null;
+            return null;
+        } else {
+            String typeName = m.group(1);
+            boolean repeatParam = m.group(2) != null;
+            paramType = SQLParam.valueOf(typeName);
+            StringBuffer sb = new StringBuffer(sql.length() - typeName.length() + (chunkSize * 2));
             sb.append('?');
-            for (int i = 1; i < chunkSize; i++) {
-                sb.append(",?");
+            if (repeatParam) {
+                for (int i = 1; i < chunkSize; i++) {
+                    sb.append(",?");
+                }
             }
             String replacement = sb.toString();
             sb.setLength(0);

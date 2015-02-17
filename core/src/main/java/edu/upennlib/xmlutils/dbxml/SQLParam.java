@@ -26,45 +26,66 @@ import java.sql.Types;
  */
 public enum SQLParam {
     
-    INTEGER(Types.INTEGER, new Int()),
-    BIGINT(Types.BIGINT, new BigInt());
+    INTEGER(Types.INTEGER, new Int(), Integer.class),
+    BIGINT(Types.BIGINT, new BigInt(), Long.class);
 
     public PreparedStatement init(PreparedStatement ps, int index, String val) throws SQLException {
+        return init(ps, index, psInit.convert(val));
+    }
+    
+    public <T> PreparedStatement init(PreparedStatement ps, int index, T val) throws SQLException {
         return psInit.init(ps, index, val);
     }
     
-    public int getType() {
+    public int getSQLType() {
         return type;
+    }
+    
+    public Class<?> getType() {
+        return clazz;
     }
     
     private final int type;
     private final PreparedStatementInit psInit;
+    private final Class<?> clazz;
     
-    private SQLParam(int type, PreparedStatementInit psInit) {
+    private <T> SQLParam(int type, PreparedStatementInit<T> psInit, Class<T> clazz) {
         this.type = type;
         this.psInit = psInit;
+        this.clazz = clazz;
     }
     
-    private static interface PreparedStatementInit {
-        PreparedStatement init(PreparedStatement ps, int index, String val) throws SQLException;
+    private static interface PreparedStatementInit<T> {
+        T convert(String val);
+        PreparedStatement init(PreparedStatement ps, int index, T val) throws SQLException;
     }
     
-    private static class Int implements PreparedStatementInit {
+    private static class Int implements PreparedStatementInit<Integer> {
 
         @Override
-        public PreparedStatement init(PreparedStatement ps, int index, String val) throws SQLException {
-            ps.setInt(index, Integer.parseInt(val));
+        public PreparedStatement init(PreparedStatement ps, int index, Integer val) throws SQLException {
+            ps.setInt(index, val);
             return ps;
+        }
+
+        @Override
+        public Integer convert(String val) {
+            return Integer.parseInt(val);
         }
         
     }
 
-    private static class BigInt implements PreparedStatementInit {
+    private static class BigInt implements PreparedStatementInit<Long> {
 
         @Override
-        public PreparedStatement init(PreparedStatement ps, int index, String val) throws SQLException {
-            ps.setLong(index, Long.parseLong(val));
+        public PreparedStatement init(PreparedStatement ps, int index, Long val) throws SQLException {
+            ps.setLong(index, val);
             return ps;
+        }
+
+        @Override
+        public Long convert(String val) {
+            return Long.parseLong(val);
         }
 
     }

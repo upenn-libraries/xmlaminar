@@ -23,7 +23,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -36,14 +35,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.MalformedInputException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -53,8 +49,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
-import oracle.jdbc.pool.OracleConnectionPoolDataSource;
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
@@ -221,7 +215,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
                 + "FROM PENNDB.BIB_DATA, BIB_MASTER "
                 + "WHERE BIB_DATA.BIB_ID = BIB_MASTER.BIB_ID AND  BIB_MASTER.SUPPRESS_IN_OPAC = 'N' "
 //                + "AND BIB_DATA.BIB_ID > "+lowBibId+" AND BIB_DATA.BIB_ID < "+highBibId+" "
-                + "AND BIB_DATA.BIB_ID IN (<ID_STRING>) "
+                + "<\\AND BIB_DATA.BIB_ID IN (<\\INTEGER*\\>) \\>"
                 + "ORDER BY BIB_ID, SEQNUM";
 
         BinaryMARCXMLReader instance = new BinaryMARCXMLReader(1, 1);
