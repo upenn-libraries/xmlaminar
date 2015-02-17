@@ -163,8 +163,8 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         features.keySet().removeAll(this.unmodifiableFeatures.keySet());
         psQueue = new ArrayBlockingQueue<StatementEnqueuer>(rsQueueLength);
         if (rsQueueLength > 1) {
-            rsQueue = new ConcurrentHashMap<Integer, StatementEnqueuer>(rsQueueLength);
-            startIds = new LinkedBlockingDeque<Integer>(rsQueueLength);
+            rsQueue = new ConcurrentHashMap<String, StatementEnqueuer>(rsQueueLength);
+            startIds = new LinkedBlockingDeque<String>(rsQueueLength);
         } else {
             rsQueue = null;
             startIds = null;
@@ -373,15 +373,15 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         
     }
     
-    private final Map<Integer, StatementEnqueuer> rsQueue;
+    private final Map<String, StatementEnqueuer> rsQueue;
     private final BlockingQueue<StatementEnqueuer> psQueue;
-    private final LinkedBlockingDeque<Integer> startIds;
+    private final LinkedBlockingDeque<String> startIds;
     
     private class StatementEnqueuer implements Runnable {
 
         private volatile boolean complete = false;
         private ResultSet rs;
-        private int startId;
+        private String startId;
         private Connection connection;
         private PreparedStatement ps;
         private SQLException ex;
@@ -392,14 +392,14 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
 
         private void reset() {
             rs = null;
-            startId = -1;
+            startId = null;
             ex = null;
             rex = null;
             e = null;
             complete = false;
         }
         
-        public int init(Iterator<String> paramIter, Integer lastStartId) throws SQLException {
+        public String init(Iterator<String> paramIter, String lastStartId) throws SQLException {
             PSInitStruct psInit = initializePreparedStatement(connection, ps, paramIter, lastStartId);
             connection = psInit.c;
             ps = psInit.ps;
@@ -431,8 +431,8 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
                 if (!paramIter.hasNext()) {
                     throw new IllegalStateException();
                 }
-                int compareStartId = Integer.parseInt(paramIter.next());
-                if (compareStartId != startId) {
+                String compareStartId = paramIter.next();
+                if (!compareStartId.equals(startId)) {
                     throw new IllegalStateException();
                 }
                 int i = 1;
@@ -506,7 +506,7 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
             try {
                 StatementEnqueuer se;
                 StatementEnqueuer direct = null;
-                Integer startId;
+                String startId;
                 try {
                     if (executor != null && (startId = startIds.poll()) != null) {
                         direct = rsQueue.get(startId);
@@ -519,7 +519,7 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
                     }
                     if (executor != null && paramIter.hasNext() && (se = psQueue.poll()) != null) {
                         startId = se.init(paramIter, startIds.peekLast());
-                        if (startId < 0) {
+                        if (startId == null) {
                             psQueue.add(se);
                         } else {
                             startIds.add(startId);
@@ -585,11 +585,11 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     }
 
     private static class PSInitStruct {
-        public final int startId;
+        public final String startId;
         public final PreparedStatement ps;
         public final Connection c;
 
-        public PSInitStruct(int startId, PreparedStatement ps, Connection c) {
+        public PSInitStruct(String startId, PreparedStatement ps, Connection c) {
             this.startId = startId;
             this.ps = ps;
             this.c = c;
@@ -597,7 +597,9 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         
     }
     
-    private PSInitStruct initializePreparedStatement(Connection connection, PreparedStatement ps, Iterator<String> paramIter, Integer precedingStartId) throws SQLException {
+    private SQLParam paramType = SQLParam.INTEGER;
+    
+    private PSInitStruct initializePreparedStatement(Connection connection, PreparedStatement ps, Iterator<String> paramIter, String precedingStartId) throws SQLException {
         if (ps == null) {
             if (connection == null) {
                 connection = ds.getConnection();
@@ -607,19 +609,19 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
             ps.clearParameters();
         }
         if (!parameterizedSQL || !paramIter.hasNext()) {
-            return new PSInitStruct(-1, ps, connection);
+            return new PSInitStruct(null, ps, connection);
         }
         boolean output = precedingStartId == null;
         do {
-            int startId = Integer.parseInt(paramIter.next());
+            String startId = paramIter.next();
             if (output) {
-                ps.setInt(1, startId);
-                int val = startId;
+                paramType.init(ps, 1, startId);
+                String val = startId;
                 for (int i = 2; i <= chunkSize; i++) {
                     if (paramIter.hasNext()) {
-                        val = Integer.parseInt(paramIter.next());
+                        val = paramIter.next();
                     }
-                    ps.setInt(i, val);
+                    paramType.init(ps, i, val);
                 }
                 return new PSInitStruct(startId, ps, connection);
             } else {
@@ -1031,5 +1033,5 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     protected abstract void outputFieldAsSAXEvents(long selfId, String fieldLabel, Reader content) throws SAXException, IOException;
     protected abstract void outputFieldAsSAXEvents(long selfId, String fieldLabel, InputStream content) throws SAXException, IOException;
 
-
+    
 }
