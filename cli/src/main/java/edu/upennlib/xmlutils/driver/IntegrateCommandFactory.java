@@ -203,18 +203,20 @@ public class IntegrateCommandFactory extends CommandFactory {
                 int batchSize = Integer.parseInt(overrides.getProperty("chunk-size", "-1"));
                 int lookaheadFactor = Integer.parseInt(overrides.getProperty("lookahead", "-1"));
                 JoiningXMLFilter joiner = new JoiningXMLFilter(true);
-                boolean allowFork = sxfs.size() > 1;
                 XMLReader inputHandler;
-                if (sxfs.isEmpty()) {
-                    inputHandler = root;
-                } else if (allowFork) {
-                    inputHandler = new InputMultiplier(root, sxfs.toArray(new StatefulXMLFilter[sxfs.size()]));
-                } else {
-                    inputHandler = new InputSetter(root, sxfs.get(0));
+                switch (sxfs.size()) {
+                    case 0:
+                        inputHandler = new SXFResetter(root);
+                        break;
+                    case 1:
+                        inputHandler = new InputSetter(root, sxfs.get(0));
+                        joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor, false));
+                        break;
+                    default:
+                        inputHandler = new InputMultiplier(root, sxfs.toArray(new StatefulXMLFilter[sxfs.size()]));
+                        joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor, true));
                 }
-                System.err.println("HAY "+allowFork);
                 joiner.setParent(inputHandler);
-                joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor, allowFork));
                 ret = joiner;
                 //ret = new XMLFilterImpl(root);
             }
@@ -271,7 +273,7 @@ public class IntegrateCommandFactory extends CommandFactory {
 
         private final StatefulXMLFilter[] children;
         
-        public InputMultiplier(XMLReader parent, StatefulXMLFilter... children) {
+        public InputMultiplier(XMLReader parent, StatefulXMLFilter[] children) {
             super(parent, (children == null ? null : children[0]));
             if (children == null || children.length < 2) {
                 this.children = null;
@@ -293,15 +295,35 @@ public class IntegrateCommandFactory extends CommandFactory {
 
     }
 
-    private static class InputSetter extends XMLFilterImpl {
+    private static class InputSetter extends SXFResetter {
 
         private final StatefulXMLFilter sxf;
-        private IntegratorOutputNode ion;
         
         public InputSetter(XMLReader parent, StatefulXMLFilter sxf) {
             super(parent);
-            this.ion = firstIntegratorParent(parent);
             this.sxf = sxf;
+        }
+
+        @Override
+        public void setParent(XMLReader parent) {
+            super.setParent(parent);
+        }
+        
+        @Override
+        public void parse(InputSource input) throws SAXException, IOException {
+            sxf.setInputSource(input);
+            super.parse(input);
+        }
+
+    }
+
+    private static class SXFResetter extends XMLFilterImpl {
+
+        private IntegratorOutputNode ion;
+        
+        public SXFResetter(XMLReader parent) {
+            super(parent);
+            this.ion = firstIntegratorParent(parent);
         }
 
         @Override
@@ -313,7 +335,6 @@ public class IntegrateCommandFactory extends CommandFactory {
         @Override
         public void parse(InputSource input) throws SAXException, IOException {
             ion.reset();
-            sxf.setInputSource(input);
             super.parse(input);
         }
 
@@ -361,7 +382,9 @@ public class IntegrateCommandFactory extends CommandFactory {
         }
         StatefulXMLFilter sxf = root.addDescendent(pathElements, inputConfigured, outputElementStack.peekLast().getValue());
         if (xmlFilter instanceof SQLXMLReader) {
-            sxfs.add(sxf);
+            if (((SQLXMLReader)xmlFilter).isParameterized()) {
+                sxfs.add(sxf);
+            }
         }
         delegateCommandFactory = null;
     }
