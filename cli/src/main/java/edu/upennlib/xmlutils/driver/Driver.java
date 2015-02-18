@@ -32,6 +32,8 @@ import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXSource;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -237,8 +239,14 @@ public class Driver {
         }
     }
     
+    private static void initLog4j() {
+        PatternLayout layout = new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN);
+        ConsoleAppender appender = new ConsoleAppender(layout, ConsoleAppender.SYSTEM_ERR);
+        BasicConfigurator.configure(appender);
+    }
+    
     public static void main(String[] args) throws IOException, TransformerConfigurationException {
-        BasicConfigurator.configure();
+        initLog4j();
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
         Iterable<Map.Entry<CommandFactory, String[]>> commands = buildCommandList(args, cfs);
         Iterator<Map.Entry<CommandFactory, String[]>> iter = commands.iterator();
