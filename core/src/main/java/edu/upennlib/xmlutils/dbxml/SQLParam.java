@@ -27,6 +27,7 @@ import java.sql.Types;
 public enum SQLParam {
     
     INTEGER(Types.INTEGER, new Int(), Integer.class),
+    DECIMAL(Types.DECIMAL, new Decimal(), Float.class),
     BIGINT(Types.BIGINT, new BigInt(), Long.class);
 
     public PreparedStatement init(PreparedStatement ps, int index, String val) throws SQLException {
@@ -86,6 +87,28 @@ public enum SQLParam {
         @Override
         public Long convert(String val) {
             return Long.parseLong(val);
+        }
+
+    }
+    
+    private static class Decimal implements PreparedStatementInit<Float> {
+
+        @Override
+        public PreparedStatement init(PreparedStatement ps, int index, Float val) throws SQLException {
+            ps.setFloat(index, val);
+            return ps;
+        }
+
+        @Override
+        public Float convert(String val) {
+            int splitIndex;
+            if ((splitIndex = val.indexOf('/')) < 0) {
+                return Float.parseFloat(val);
+            } else {
+                float numerator = Float.parseFloat(val.substring(0, splitIndex));
+                float denominator = Float.parseFloat(val.substring(splitIndex + 1, val.length()));
+                return numerator / denominator;
+            }
         }
 
     }

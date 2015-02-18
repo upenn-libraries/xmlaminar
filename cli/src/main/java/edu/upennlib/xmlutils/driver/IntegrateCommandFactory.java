@@ -200,8 +200,7 @@ public class IntegrateCommandFactory extends CommandFactory {
                     return null;
                 }
                 this.inputBase = inputBase;
-                int batchSize = Integer.parseInt(overrides.getProperty("chunk-size", "-1"));
-                int lookaheadFactor = Integer.parseInt(overrides.getProperty("lookahead", "-1"));
+                int lookaheadFactor = Integer.parseInt(overrides.getProperty("lookahead", "0"));
                 JoiningXMLFilter joiner = new JoiningXMLFilter(true);
                 XMLReader inputHandler;
                 switch (sxfs.size()) {
@@ -210,11 +209,11 @@ public class IntegrateCommandFactory extends CommandFactory {
                         break;
                     case 1:
                         inputHandler = new InputSetter(root, sxfs.get(0));
-                        joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor, false));
+                        joiner.setIteratorWrapper(new InputSplitter(actualBatchSize, lookaheadFactor, false));
                         break;
                     default:
                         inputHandler = new InputMultiplier(root, sxfs.toArray(new StatefulXMLFilter[sxfs.size()]));
-                        joiner.setIteratorWrapper(new InputSplitter(batchSize, lookaheadFactor, true));
+                        joiner.setIteratorWrapper(new InputSplitter(actualBatchSize, lookaheadFactor, true));
                 }
                 joiner.setParent(inputHandler);
                 ret = joiner;
@@ -362,6 +361,7 @@ public class IntegrateCommandFactory extends CommandFactory {
     }
     
     private final List<StatefulXMLFilter> sxfs = new ArrayList<StatefulXMLFilter>();
+    private int actualBatchSize = -1;
     
     private void addNode() {
         Command command = delegateCommandFactory.newCommand(true, false, overrides);
@@ -382,8 +382,15 @@ public class IntegrateCommandFactory extends CommandFactory {
         }
         StatefulXMLFilter sxf = root.addDescendent(pathElements, inputConfigured, outputElementStack.peekLast().getValue());
         if (xmlFilter instanceof SQLXMLReader) {
-            if (((SQLXMLReader)xmlFilter).isParameterized()) {
+            SQLXMLReader sxr = (SQLXMLReader) xmlFilter;
+            if (sxr.isParameterized()) {
                 sxfs.add(sxf);
+                int localBatchSize = sxr.getBatchSize();
+                if (actualBatchSize < 0) {
+                    actualBatchSize = localBatchSize;
+                } else if (actualBatchSize != localBatchSize) {
+                    throw new IllegalStateException("incompatible batch sizes!: "+actualBatchSize +" != "+localBatchSize);
+                }
             }
         }
         delegateCommandFactory = null;

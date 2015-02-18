@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -615,7 +616,8 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         
     }
     
-    private SQLParam paramType = SQLParam.INTEGER;
+    private SQLParam repeatParamType = null;
+    private final List<SQLParam> paramTypes = new ArrayList<SQLParam>();
     
     private PSInitStruct initializePreparedStatement(Connection connection, PreparedStatement ps, Iterator<String> paramIter, String precedingStartId) throws SQLException {
         if (ps == null) {
@@ -633,13 +635,19 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         do {
             String startId = paramIter.next();
             if (output) {
-                paramType.init(ps, 1, startId);
+                Iterator<SQLParam> spIter;
+                if (repeatParamType != null) {
+                    spIter = new RepeatIterator<SQLParam>(repeatParamType);
+                } else {
+                    spIter = paramTypes.iterator();
+                }
+                spIter.next().init(ps, 1, startId);
                 String val = startId;
                 for (int i = 2; i <= chunkSize; i++) {
                     if (paramIter.hasNext()) {
                         val = paramIter.next();
                     }
-                    paramType.init(ps, i, val);
+                    spIter.next().init(ps, i, val);
                 }
                 return new PSInitStruct(startId, ps, connection);
             } else {
@@ -650,6 +658,31 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
             }
         } while (paramIter.hasNext());
         return null;
+    }
+    
+    private static class RepeatIterator<T> implements Iterator<T> {
+
+        private final T val;
+        
+        private RepeatIterator(T val) {
+            this.val = val;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return true;
+        }
+
+        @Override
+        public T next() {
+            return val;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Not supported.");
+        }
+        
     }
     
     private void initializeResultSet() throws SQLException {
@@ -736,6 +769,8 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     
     private String parameterizeSQL(String sql, int chunkSize) throws ParseException {
         Matcher m = PARAM_CLAUSE_DELIMS.matcher(sql);
+        repeatParamType = null;
+        paramTypes.clear();
         StringBuilder sb = new StringBuilder();
         int depth = 0;
         boolean lastWasStart = false;
@@ -761,8 +796,21 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
                             sb.append('?');
                             String typeName = m1.group(1);
                             boolean repeatParam = m1.group(2) != null;
-                            paramType = SQLParam.valueOf(typeName);
-                            if (repeatParam) {
+                            SQLParam paramType = SQLParam.valueOf(typeName);
+                            if (!repeatParam) {
+                                if (repeatParamType != null) {
+                                    throw new IllegalArgumentException("may not mix individual param "+repeatParamType+" with repeatable param "+paramType);
+                                }
+                                paramTypes.add(paramType);
+                            } else {
+                                if (repeatParamType == null) {
+                                    repeatParamType = paramType;
+                                } else if (repeatParamType != paramType) {
+                                    throw new IllegalArgumentException("multiple specifications of repeatable params must have identical type; "
+                                            +repeatParamType +" != "+paramType);
+                                } else if (!paramTypes.isEmpty()) {
+                                    throw new IllegalArgumentException("may not mix repeatble param "+paramType+" with individual params "+paramTypes);
+                                }
                                 for (int i = 1; i < chunkSize; i++) {
                                     sb.append(",?");
                                 }
@@ -780,6 +828,9 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
             throw new ParseException(sql, sql.length());
         }
         sb.append(sql, contentOffset, sql.length());
+        if (repeatParamType == null && chunkSize != paramTypes.size()) {
+            setBatchSize(paramTypes.size());
+        }
         return sb.toString();
     }
     
@@ -808,12 +859,12 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     protected String parameterizeSQLOld(String sql, int chunkSize) {
         Matcher m = PARAM_PATTERN.matcher(sql);
         if (!m.find()) {
-            paramType = null;
+            repeatParamType = null;
             return null;
         } else {
             String typeName = m.group(1);
             boolean repeatParam = m.group(2) != null;
-            paramType = SQLParam.valueOf(typeName);
+            repeatParamType = SQLParam.valueOf(typeName);
             StringBuffer sb = new StringBuffer(sql.length() - typeName.length() + (chunkSize * 2));
             sb.append('?');
             if (repeatParam) {

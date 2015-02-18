@@ -555,10 +555,10 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
                 rf = DIRECT_READER_FACTORY;
                 vssf = (VolatileSAXSourceFactory<T>) STANDARD_VSSF;
             }
-            if (lookaheadFactor < 1) {
-                this.sr = splitter;
-            } else {
+            if (allowFork || lookaheadFactor > 0) {
                 this.sr = new BufferingSplittingReader(splitter, lookaheadFactor, rf);
+            } else {
+                this.sr = splitter;
             }
         }
         
