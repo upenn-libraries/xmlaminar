@@ -68,6 +68,13 @@ public class IntegrateCommandFactory extends CommandFactory {
     private int delegateDepth = Integer.MAX_VALUE;
     private IntegratorOutputNode root;
 
+    public IntegrateCommandFactory() {
+        overrides = new Properties();
+        overrides.setProperty("lookahead", "0");
+        overrides.setProperty("chunk-size", "6");
+        overrides.setProperty("expect-presplit-input", "true");
+    }
+    
     private void reset() {
         root = new IntegratorOutputNode();
     }
@@ -105,7 +112,8 @@ public class IntegrateCommandFactory extends CommandFactory {
 
     private final ArrayDeque<Entry<String, Boolean>> outputElementStack = new ArrayDeque<Entry<String, Boolean>>();
     private CommandFactory delegateCommandFactory;
-    private final Properties overrides = new Properties();
+    
+    private final Properties overrides;
     
     private String parsePropName;
     private final StringBuilder propBuilder = new StringBuilder();
