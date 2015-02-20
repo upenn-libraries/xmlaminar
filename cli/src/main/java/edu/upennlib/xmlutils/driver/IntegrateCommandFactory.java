@@ -81,9 +81,9 @@ public class IntegrateCommandFactory extends CommandFactory {
     
     @Override
     public CommandFactory getConfiguringXMLFilter(boolean first, InitCommand inputBase, CommandType maxType) {
-        if (!first) {
-            throw new IllegalArgumentException();
-        }
+//        if (!first) {
+//            throw new IllegalArgumentException();
+//        }
         this.inputBase = inputBase;
         this.maxType = maxType;
         return this;
@@ -104,9 +104,9 @@ public class IntegrateCommandFactory extends CommandFactory {
 
     @Override
     public Command newCommand(boolean first, boolean last) {
-        if (!first) {
-            throw new IllegalArgumentException();
-        }
+//        if (!first) {
+//            throw new IllegalArgumentException();
+//        }
         return new IntegrateCommand(first, last);
     }
 
@@ -210,21 +210,30 @@ public class IntegrateCommandFactory extends CommandFactory {
                 this.inputBase = inputBase;
                 int lookaheadFactor = Integer.parseInt(overrides.getProperty("lookahead", "0"));
                 JoiningXMLFilter joiner = new JoiningXMLFilter(true);
-                XMLReader inputHandler;
+                boolean allowFork;
+                XMLFilter inputHandler;
                 switch (sxfs.size()) {
                     case 0:
                         inputHandler = new SXFResetter(root);
+                        allowFork = false;
                         break;
                     case 1:
                         inputHandler = new InputSetter(root, sxfs.get(0));
-                        joiner.setIteratorWrapper(new InputSplitter(actualBatchSize, lookaheadFactor, false));
+                        allowFork = false;
+                        joiner.setIteratorWrapper(new InputSplitter(actualBatchSize, lookaheadFactor, allowFork));
                         break;
                     default:
                         inputHandler = new InputMultiplier(root, sxfs.toArray(new StatefulXMLFilter[sxfs.size()]));
-                        joiner.setIteratorWrapper(new InputSplitter(actualBatchSize, lookaheadFactor, true));
+                        allowFork = true;
+                        joiner.setIteratorWrapper(new InputSplitter(actualBatchSize, lookaheadFactor, allowFork));
                 }
-                joiner.setParent(inputHandler);
-                ret = joiner;
+                if (first) {
+                    joiner.setParent(inputHandler);
+                    ret = joiner;
+                } else {
+                    PivotXMLFilter pivot = new PivotXMLFilter(root, inputHandler, actualBatchSize, lookaheadFactor, allowFork);
+                    ret = pivot;
+                }
                 //ret = new XMLFilterImpl(root);
             }
             return ret;

@@ -211,11 +211,11 @@ public class Driver {
                 localLast = !iter.hasNext();
                 Command lastCommand = command;
                 command = cf.newCommand(false, last && localLast);
+                XMLFilter child = command.getXMLFilter(new StaticArgFactory(commandEntry.getValue()), inputCommand, maxType);
                 if (command.handlesOutput() && !(last && localLast)) {
                     localLast = true;
                     command = lastCommand;
                 } else {
-                    XMLFilter child = command.getXMLFilter(new StaticArgFactory(commandEntry.getValue()), inputCommand, maxType);
                     if (child == null) {
                         command.printHelpOn(System.err);
                         return null;

@@ -101,9 +101,9 @@ class InputCommandFactory extends CommandFactory {
 
         protected InputCommand(boolean first, boolean last, boolean explicit) {
             this.explicit = explicit;
-            if (!first || last) {
-                throw new IllegalArgumentException(InputCommand.class + " must be first in chain");
-            }
+//            if (!first || last) {
+//                throw new IllegalArgumentException(InputCommand.class + " must be first in chain");
+//            }
             parser = new OptionParser();
             inputFileSpec = parser.acceptsAll(Flags.INPUT_FILE_ARG, "input; default to stdin if no --files-from, otherwise CWD")
                     .withRequiredArg().ofType(File.class)

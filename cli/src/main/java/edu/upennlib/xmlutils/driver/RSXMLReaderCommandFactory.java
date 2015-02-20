@@ -36,9 +36,9 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
 
     @Override
     public Command newCommand(boolean first, boolean last) {
-        if (!first) {
-            throw new IllegalArgumentException("type "+RSXMLReaderCommandFactory.class+" must be first in pipeline");
-        }
+//        if (!first) {
+//            throw new IllegalArgumentException("type "+RSXMLReaderCommandFactory.class+" must be first in pipeline");
+//        }
         return new RSXMLReaderCommand(first, last);
     }
 
@@ -85,6 +85,9 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
                     rsxr.setSql(sql);
                     if (expectPresplitInput || !rsxr.isParameterized()) {
                         ret = rsxr;
+                    } else if (!first) {
+                        PivotXMLFilter pivot = new PivotXMLFilter(rsxr, batchSize, lookaheadFactor);
+                        ret = pivot;
                     } else {
                         JoiningXMLFilter joiner = new JoiningXMLFilter(true);
                         joiner.setParent(rsxr);

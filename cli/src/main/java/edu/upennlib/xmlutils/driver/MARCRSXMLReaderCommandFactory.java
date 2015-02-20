@@ -38,9 +38,9 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
 
     @Override
     public Command newCommand(boolean first, boolean last) {
-        if (!first) {
-            throw new IllegalArgumentException("type "+MARCRSXMLReaderCommandFactory.class+" must be first in pipeline");
-        }
+//        if (!first) {
+//            throw new IllegalArgumentException("type "+MARCRSXMLReaderCommandFactory.class+" must be first in pipeline");
+//        }
         return new MARCRSXMLReaderCommand(first, last);
     }
 
@@ -100,6 +100,9 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
                     mxr.setSql(sql);
                     if (expectPresplitInput || !mxr.isParameterized()) {
                         ret = mxr;
+                    } else if (!first) {
+                        PivotXMLFilter pivot = new PivotXMLFilter(mxr, batchSize, lookaheadFactor);
+                        ret = pivot;
                     } else {
                         JoiningXMLFilter joiner = new JoiningXMLFilter(true);
                         joiner.setParent(mxr);

@@ -216,13 +216,18 @@ public class ConfigCommandFactory extends CommandFactory {
 
     private final Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
 
+    private static final Set<String> VALID_LOCAL_NAMES = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(new String[] {"source", "filter"})));
+    
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         verifyNamespaceURI(uri);
         if (depth == 0) {
-            if (!localName.equals(first ? "source" : "filter")) {
+            if (first && !"source".equals(localName)) {
+                throw new IllegalStateException("bad element localName for first=" + first + "; expected source"
+                        + ", found " + localName+", type="+atts.getValue("type"));
+            } else if (!VALID_LOCAL_NAMES.contains(localName)) {
                 throw new IllegalStateException("bad element localName for first=" + first + "; expected "
-                        + (first ? "source" : "filter") + ", found " + localName);
+                        + VALID_LOCAL_NAMES + ", found " + localName+", type="+atts.getValue("type"));
             }
             String type;
             CommandFactory cf = cfs.get(type = atts.getValue("type"));

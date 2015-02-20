@@ -21,6 +21,7 @@ import edu.upennlib.paralleltransformer.InputSourceXMLReader;
 import edu.upennlib.xmlutils.DumpingLexicalXMLFilter;
 import edu.upennlib.xmlutils.SAXProperties;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
+import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +74,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author michael
  */
-public class IntegratorOutputNode implements IdQueryable, XMLReader {
+public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQueryable {
 
     private static final boolean debugging = true;
     private final StatefulXMLFilter inputFilter;
