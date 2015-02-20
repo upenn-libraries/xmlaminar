@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Level;
 import java.util.zip.GZIPOutputStream;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -91,6 +92,12 @@ public class SerializingXMLFilter extends XMLFilterImpl {
                 res.getOutputStream().close();
             } catch (IOException ex) {
                 LOG.error("error closing stream", ex);
+            }
+        } else if (gzipOutput) {
+            try {
+                ((GZIPOutputStream)res.getOutputStream()).finish();
+            } catch (IOException ex) {
+                LOG.error("error finishing stream", ex);
             }
         }
     }

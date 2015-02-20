@@ -300,7 +300,7 @@ class OutputCommandFactory extends CommandFactory {
                 }
                 return true;
             } else {
-                SerializingXMLFilter serializer = new SerializingXMLFilter(output);
+                SerializingXMLFilter serializer = new SerializingXMLFilter(output, gzipOutput);
                 serializer.setParent(noIndent ? parent : new OutputTransformerConfigurer(parent, Collections.singletonMap("indent", "yes")));
                 serializer.parse(inSource);
                 return false;
