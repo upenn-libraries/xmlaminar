@@ -507,6 +507,7 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     public final void parse(InputSource input) throws IOException, SAXException {
         if (!parsing) {
             parsing = true;
+            attRunner.clear();
             buffer.clear();
             buffer.setParent(this);
             buffer.setContentHandler(ch);

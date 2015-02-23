@@ -59,7 +59,7 @@ public class StatefulXMLFilter extends VolatileXMLFilterImpl implements IdQuerya
     private volatile int refLevel = -1;
 
     private volatile boolean selfId = false;
-    private Deque<Comparable> id = new ArrayDeque<Comparable>();
+    private final Deque<Comparable> id = new ArrayDeque<Comparable>();
 
     private InputSource inputSource = new InputSource();
 

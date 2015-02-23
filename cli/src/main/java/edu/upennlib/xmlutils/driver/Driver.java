@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -245,6 +246,18 @@ public class Driver {
         BasicConfigurator.configure(appender);
     }
     
+    public XMLReader newXMLReader(List<String> args, ExecutorService executor) throws IOException {
+        Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
+        Iterable<Map.Entry<CommandFactory, String[]>> commands = buildCommandList(args.toArray(new String[args.size()]), cfs);
+        Iterator<Map.Entry<CommandFactory, String[]>> iter = commands.iterator();
+        SAXSource source = chainCommands(true, null, iter, true);
+        if (source == null) {
+            return null;
+        } else {
+            return source.getXMLReader();
+        }
+    }
+
     public static void main(String[] args) throws IOException, TransformerConfigurationException {
         initLog4j();
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();

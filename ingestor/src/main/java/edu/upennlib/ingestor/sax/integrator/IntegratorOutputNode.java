@@ -95,6 +95,7 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
 
     @Override
     public void reset() {
+        attRunner.clear();
         if (childNodes != null) {
             for (IdQueryable child : childNodes) {
                 child.reset();
@@ -950,7 +951,7 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
         }
     }
 
-    private AttributesImpl attRunner = new AttributesImpl();
+    private final AttributesImpl attRunner = new AttributesImpl();
 
     @Override
     public boolean self() {
