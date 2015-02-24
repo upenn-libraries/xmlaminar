@@ -17,6 +17,7 @@
 package edu.upennlib.xmlutils.driver;
 
 import edu.upennlib.xmlutils.SAXProperties;
+import edu.upennlib.xmlutils.dbxml.DataSourceFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXSource;
 import org.apache.log4j.BasicConfigurator;
@@ -246,7 +248,7 @@ public class Driver {
         BasicConfigurator.configure(appender);
     }
     
-    public XMLReader newXMLReader(List<String> args, ExecutorService executor) throws IOException {
+    public XMLReader newXMLReader(List<String> args, ExecutorService executor, DataSourceFactory dsf) throws IOException {
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
         Iterable<Map.Entry<CommandFactory, String[]>> commands = buildCommandList(args.toArray(new String[args.size()]), cfs);
         Iterator<Map.Entry<CommandFactory, String[]>> iter = commands.iterator();
@@ -254,7 +256,22 @@ public class Driver {
         if (source == null) {
             return null;
         } else {
-            return source.getXMLReader();
+            XMLReader xmlReader = source.getXMLReader();
+            try {
+                xmlReader.setProperty(SAXProperties.EXECUTOR_SERVICE_PROPERTY_NAME, executor);
+            } catch (SAXNotRecognizedException ex) {
+                logger.trace("ignoring " + ex);
+            } catch (SAXNotSupportedException ex) {
+                logger.trace("ignoring " + ex);
+            }
+            try {
+                xmlReader.setProperty(SAXProperties.DATA_SOURCE_FACTORY_PROPERTY_NAME, dsf);
+            } catch (SAXNotRecognizedException ex) {
+                logger.trace("ignoring " + ex);
+            } catch (SAXNotSupportedException ex) {
+                logger.trace("ignoring " + ex);
+            }
+            return xmlReader;
         }
     }
 

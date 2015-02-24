@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package edu.upennlib.xmlutils;
+package edu.upennlib.xmlutils.dbxml;
+
+import javax.sql.DataSource;
 
 /**
  *
  * @author magibney
  */
-public class SAXProperties {
-    public static final String EXECUTOR_SERVICE_PROPERTY_NAME = "http://concurrent.util.java/ExecutorService";
-    public static final String DATA_SOURCE_FACTORY_PROPERTY_NAME = "http://dbxml.xmlutils.upennlib.edu/DataSourceFactory";
+public interface DataSourceFactory {
+    DataSource newDataSource(String name, String psSQL);
 }

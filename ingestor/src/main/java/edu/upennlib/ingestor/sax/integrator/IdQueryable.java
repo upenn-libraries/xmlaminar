@@ -16,7 +16,6 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
-import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import java.io.EOFException;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -25,7 +24,7 @@ import org.xml.sax.SAXException;
  *
  * @author michael
  */
-public interface IdQueryable extends Runnable, IndexedPropertyConfigurable {
+public interface IdQueryable extends Runnable {
 
     void reset();
     
@@ -59,4 +58,7 @@ public interface IdQueryable extends Runnable, IndexedPropertyConfigurable {
 
     public String buffersToString();
 
+    public void setName(String string);
+
+    public String getName();
 }

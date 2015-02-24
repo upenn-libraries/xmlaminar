@@ -96,7 +96,11 @@ public class MARCRSXMLReaderCommandFactory extends CommandFactory {
                     mxr.setName(name);
                     mxr.setIdFieldLabels(parseIdFieldLabels(idFieldLabels));
                     mxr.setOutputFieldLabels(new String[]{marcBinaryFieldLabel});
-                    mxr.setDataSource(SQLXMLReader.newDataSource(connectionConfigFile));
+                    if (dataSourceName != null) {
+                        mxr.setDataSourceName(dataSourceName);
+                    } else {
+                        mxr.setDataSource(SQLXMLReader.newDataSource(connectionConfigFile));
+                    }
                     mxr.setSql(sql);
                     if (expectPresplitInput || !mxr.isParameterized()) {
                         ret = mxr;

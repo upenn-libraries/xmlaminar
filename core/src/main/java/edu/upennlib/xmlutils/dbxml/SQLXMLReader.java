@@ -16,7 +16,6 @@
 
 package edu.upennlib.xmlutils.dbxml;
 
-import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.xmlutils.BoundedXMLFilterBuffer;
 import edu.upennlib.xmlutils.SAXFeatures;
 import edu.upennlib.xmlutils.SAXProperties;
@@ -37,6 +36,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.text.ParseException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,9 +54,11 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
+import oracle.jdbc.OracleConnection;
 import oracle.jdbc.pool.OracleConnectionPoolDataSource;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
@@ -74,7 +76,7 @@ import org.xml.sax.helpers.AttributesImpl;
  *
  * @author michael
  */
-public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements IndexedPropertyConfigurable {
+public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
 
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     public static final int DEFAULT_CHUNK_SIZE = 6;
@@ -95,6 +97,8 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     private final HashMap<String, Boolean> features = new HashMap<String, Boolean>();
     private final HashMap<String, Boolean> unmodifiableFeatures = new HashMap<String, Boolean>();
     private DataSource ds;
+    private String dataSourceName;
+    private DataSourceFactory dsf;
     
     public DataSource getDataSource() {
         return ds;
@@ -104,10 +108,22 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         this.ds = ds;
     }
     
+    public String getDataSourceName() {
+        return dataSourceName;
+    }
+    
+    public void setDataSourceName(String name) {
+        if (name == null ? this.dataSourceName != null : !name.equals(this.dataSourceName)) {
+            this.dataSourceName = name;
+            if (compiledSql != null && dsf != null) {
+                ds = dsf.newDataSource(dataSourceName, compiledSql);
+            }
+        }
+    }
+    
     public static DataSource newDataSource(File connectionProps) {
         try {
             OracleConnectionPoolDataSource ds = (OracleConnectionPoolDataSource) Class.forName("oracle.jdbc.pool.OracleConnectionPoolDataSource").newInstance();
-            Connection c;
             ds.setDriverType("thin");
             ds.setPortNumber(1521);
             Properties cProps = new Properties();
@@ -200,12 +216,10 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         this.pe = pe;
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    @Override
     public String getName() {
         return name;
     }
@@ -272,6 +286,8 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
             if (getExecutor() == null) {
                 setExecutor((ExecutorService) value);
             }
+        } else if (SAXProperties.DATA_SOURCE_FACTORY_PROPERTY_NAME.equals(name)) {
+            setDataSourceFactory((DataSourceFactory) value);
         } else {
             throw new SAXNotRecognizedException("setProperty("+name+", "+value+")");
         }
@@ -402,55 +418,64 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         }
         
         public String init(Iterator<String> paramIter, String lastStartId) throws SQLException {
-            PSInitStruct psInit = initializePreparedStatement(connection, ps, paramIter, lastStartId);
+            PSInitStruct psInit = initializePreparedStatement(paramIter, lastStartId);
             connection = psInit.c;
             ps = psInit.ps;
             startId = psInit.startId;
             return startId;
         }
 
-        public ResultSet getResultSet(Iterator<String> paramIter) throws SQLException {
-            if (!complete) {
-                rsLock.lock();
-                try {
-                    while (!complete) {
-                        hasRs.await();
+        public Entry<ResultSet, Connection> getResultSet(Iterator<String> paramIter) throws SQLException {
+            Entry<ResultSet, Connection> ret = null;
+            try {
+                if (!complete) {
+                    rsLock.lock();
+                    try {
+                        while (!complete) {
+                            hasRs.await();
+                        }
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    } finally {
+                        rsLock.unlock();
                     }
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                } finally {
-                    rsLock.unlock();
+                }
+                if (ex != null) {
+                    throw ex;
+                } else if (rex != null) {
+                    throw rex;
+                } else if (e != null) {
+                    throw e;
+                }
+                if (paramIter != null) {
+                    if (!paramIter.hasNext()) {
+                        throw new IllegalStateException();
+                    }
+                    String compareStartId = paramIter.next();
+                    if (!compareStartId.equals(startId)) {
+                        throw new IllegalStateException();
+                    }
+                    int i = 1;
+                    while (paramIter.hasNext() && i++ < chunkSize) {
+                        paramIter.next();
+                    }
+                }
+                ret = rs == null ? null : new AbstractMap.SimpleEntry<ResultSet, Connection>(rs, connection);
+                reset();
+                return ret;
+            } finally {
+                if (ret == null) {
+                    connection.close();
                 }
             }
-            if (ex != null) {
-                throw ex;
-            } else if (rex != null) {
-                throw rex;
-            } else if (e != null) {
-                throw e;
-            }
-            if (paramIter != null) {
-                if (!paramIter.hasNext()) {
-                    throw new IllegalStateException();
-                }
-                String compareStartId = paramIter.next();
-                if (!compareStartId.equals(startId)) {
-                    throw new IllegalStateException();
-                }
-                int i = 1;
-                while (paramIter.hasNext() && i++ < chunkSize) {
-                    paramIter.next();
-                }
-            }
-            ResultSet ret = rs;
-            reset();
-            return ret;
         }
         
         @Override
         public void run() {
+            boolean successful = false;
             try {
                 rs = ps.executeQuery();
+                successful = true;
             } catch (SQLException ex) {
                 this.ex = ex;
             } catch (RuntimeException ex) {
@@ -464,6 +489,13 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
                     hasRs.signal();
                 } finally {
                     rsLock.unlock();
+                }
+                if (!successful) {
+                    try {
+                        connection.close();
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         }
@@ -503,6 +535,19 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
         this.executor = executor;
     }
     
+    public DataSourceFactory getDataSourceFactory() {
+        return dsf;
+    }
+    
+    public void setDataSourceFactory(DataSourceFactory dsf) {
+        if (this.dsf != dsf) {
+            this.dsf = dsf;
+            if (compiledSql != null && dataSourceName != null) {
+                ds = dsf.newDataSource(dataSourceName, compiledSql);
+            }
+        }
+    }
+    
     @Override
     public final void parse(InputSource input) throws IOException, SAXException {
         if (!parsing) {
@@ -523,6 +568,7 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
             }
             buffer.parse(input);
         } else {
+            Connection c = null;
             try {
                 StatementEnqueuer se;
                 StatementEnqueuer direct = null;
@@ -530,12 +576,16 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
                 try {
                     if (rsQueueLength > 1 && parameterizedSQL && (startId = startIds.poll()) != null) {
                         direct = rsQueue.get(startId);
-                        rs = direct.getResultSet(paramIter);
+                        Entry<ResultSet, Connection> rc = direct.getResultSet(paramIter);
+                        rs = rc.getKey();
+                        c = rc.getValue();
                     } else {
                         direct = psQueue.remove();
                         direct.init(paramIter, null);
                         direct.run();
-                        rs = direct.getResultSet(null);
+                        Entry<ResultSet, Connection> rc = direct.getResultSet(null);
+                        rs = rc.getKey();
+                        c = rc.getValue();
                     }
                     if (rsQueueLength > 1 && parameterizedSQL && paramIter.hasNext() && (se = psQueue.poll()) != null) {
                         startId = se.init(paramIter, startIds.peekLast());
@@ -566,9 +616,10 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
                 throw new RuntimeException(ex);
             } finally {
                 paramIter = null;
-                if (rs != null) {
+                rs = null;
+                if (c != null) {
                     try {
-                        rs.close();
+                        c.close();
                     } catch (SQLException ex) {
                         logger.error("exception closing resultset", ex);
                     }
@@ -620,47 +671,52 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
     private SQLParam repeatParamType = null;
     private final List<SQLParam> paramTypes = new ArrayList<SQLParam>();
     
-    private PSInitStruct initializePreparedStatement(Connection connection, PreparedStatement ps, Iterator<String> paramIter, String precedingStartId) throws SQLException {
-        if (ps == null) {
-            if (connection == null) {
-                connection = ds.getConnection();
-            }
+    private PSInitStruct initializePreparedStatement(Iterator<String> paramIter, String precedingStartId) throws SQLException {
+        Connection connection;
+        PreparedStatement ps;
+        connection = ds.getConnection();
+        boolean initSuccessful = false;
+        try {
             ps = connection.prepareStatement(compiledSql);
-        } else {
-            ps.clearParameters();
-        }
-        if (!parameterizedSQL || !paramIter.hasNext()) {
-            return new PSInitStruct(null, ps, connection);
-        }
-        boolean output = precedingStartId == null;
-        do {
-            String startId = paramIter.next();
-            if (output) {
-                Iterator<SQLParam> spIter;
-                if (repeatParamType != null) {
-                    spIter = new RepeatIterator<SQLParam>(repeatParamType);
-                } else {
-                    spIter = paramTypes.iterator();
-                }
-                spIter.next().init(ps, 1, startId);
-                String val = startId;
-                for (int i = 2; i <= chunkSize; i++) {
-                    if (paramIter.hasNext()) {
-                        val = paramIter.next();
-                    }
-                    spIter.next().init(ps, i, val);
-                }
-                return new PSInitStruct(startId, ps, connection);
-            } else {
-                output = precedingStartId.equals(startId);
-                for (int i = 1; i < chunkSize && paramIter.hasNext(); i++) {
-                    paramIter.next();
-                }
+            if (!parameterizedSQL || !paramIter.hasNext()) {
+                initSuccessful = true;
+                return new PSInitStruct(null, ps, connection);
             }
-        } while (paramIter.hasNext());
-        return null;
+            boolean output = precedingStartId == null;
+            do {
+                String startId = paramIter.next();
+                if (output) {
+                    Iterator<SQLParam> spIter;
+                    if (repeatParamType != null) {
+                        spIter = new RepeatIterator<SQLParam>(repeatParamType);
+                    } else {
+                        spIter = paramTypes.iterator();
+                    }
+                    spIter.next().init(ps, 1, startId);
+                    String val = startId;
+                    for (int i = 2; i <= chunkSize; i++) {
+                        if (paramIter.hasNext()) {
+                            val = paramIter.next();
+                        }
+                        spIter.next().init(ps, i, val);
+                    }
+                    initSuccessful = true;
+                    return new PSInitStruct(startId, ps, connection);
+                } else {
+                    output = precedingStartId.equals(startId);
+                    for (int i = 1; i < chunkSize && paramIter.hasNext(); i++) {
+                        paramIter.next();
+                    }
+                }
+            } while (paramIter.hasNext());
+            return null;
+        } finally {
+            if (!initSuccessful) {
+                connection.close();
+            }
+        }
     }
-    
+
     private static class RepeatIterator<T> implements Iterator<T> {
 
         private final T val;
@@ -749,8 +805,11 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl implements Inde
             parameterizedSQL = false;
             this.compiledSql = sql;
         }
+        if (dsf != null && dataSourceName != null) {
+            ds = dsf.newDataSource(dataSourceName, compiledSql);
+        }
     }
-    
+
     public boolean isParameterized() {
         if (compiledSql == null) {
             try {

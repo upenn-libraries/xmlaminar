@@ -16,12 +16,12 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
-import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.paralleltransformer.InputSourceXMLReader;
 import edu.upennlib.xmlutils.DumpingLexicalXMLFilter;
 import edu.upennlib.xmlutils.SAXProperties;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
+import edu.upennlib.xmlutils.dbxml.DataSourceFactory;
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
@@ -85,6 +85,7 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
     private Boolean[] requireForWrite;
     private String name;
     private File dumpFile;
+    private DataSourceFactory dsf;
     private static final Logger logger = LoggerFactory.getLogger(IntegratorOutputNode.class);
 
     private static final SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -128,10 +129,10 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
     public void initSpring() {
         HashMap<String, XMLReader> subIntegrators = new HashMap<String, XMLReader>();
         for (XMLReader integrator : subIntegratorsSpring) {
-            if (!(integrator instanceof IndexedPropertyConfigurable)) {
-                throw new RuntimeException(integrator+" not an instance of "+IndexedPropertyConfigurable.class.getCanonicalName());
+            if (!(integrator instanceof IdQueryable)) {
+                throw new RuntimeException(integrator+" not an instance of "+IdQueryable.class.getCanonicalName());
             }
-            IndexedPropertyConfigurable ipc = (IndexedPropertyConfigurable) integrator;
+            IdQueryable ipc = (IdQueryable) integrator;
             if (ipc.getName() == null) {
                 throw new RuntimeException("integrator "+integrator+" must have non-null name");
             }
@@ -256,14 +257,34 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
     }
     LexicalHandler lexicalHandler = null;
 
-    @Override
-    public void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException {
+    private <T extends SAXException> void localSetProperty(String name, Object value, T exception) throws T {
+        if (!localSetProperty(name, value)) {
+            throw exception;
+        }
+    }
+    
+    private boolean localSetProperty(String name, Object value) {
         if ("http://xml.org/sax/properties/lexical-handler".equals(name)) {
             lexicalHandler = (LexicalHandler) value;
         } else if (SAXProperties.EXECUTOR_SERVICE_PROPERTY_NAME.equals(name)) {
             setExecutor((ExecutorService) value);
+        } else if (SAXProperties.DATA_SOURCE_FACTORY_PROPERTY_NAME.equals(name)) {
+            setDataSourceFactory((DataSourceFactory) value);
         } else {
-            throw new SAXNotRecognizedException("setFeature(" + name + ", " + value + ")");
+            return false;
+        }
+        return true;
+    }
+    
+    @Override
+    public void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException {
+        try {
+            super.setProperty(name, value);
+            localSetProperty(name, value);
+        } catch (SAXNotSupportedException ex) {
+            throw ex;
+        } catch (SAXNotRecognizedException ex) {
+            localSetProperty(name, value, ex);
         }
     }
 
@@ -366,6 +387,7 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
                     assignOutput(inputFilter);
                     notify();
                 }
+                setParentProperties(inputFilter);
             }
             return false;
         } else {
@@ -401,16 +423,27 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
             requireForWrite = requires.toArray(new Boolean[size]);
             for (IdQueryable idq : childNodes) {
                 if (idq instanceof XMLReader) {
-                    try {
-                        ((XMLReader) idq).setProperty(SAXProperties.EXECUTOR_SERVICE_PROPERTY_NAME, executor);
-                    } catch (SAXNotRecognizedException ex) {
-                        logger.trace("ignoring "+ex);
-                    } catch (SAXNotSupportedException ex) {
-                        logger.trace("ignoring "+ex);
-                    }
+                    setParentProperties((XMLReader) idq);
                 }
             }
             return true;
+        }
+    }
+
+    private void setParentProperties(XMLReader parent) {
+        try {
+            parent.setProperty(SAXProperties.EXECUTOR_SERVICE_PROPERTY_NAME, executor);
+        } catch (SAXNotRecognizedException ex) {
+            logger.trace("ignoring " + ex);
+        } catch (SAXNotSupportedException ex) {
+            logger.trace("ignoring " + ex);
+        }
+        try {
+            parent.setProperty(SAXProperties.DATA_SOURCE_FACTORY_PROPERTY_NAME, dsf);
+        } catch (SAXNotRecognizedException ex) {
+            logger.trace("ignoring " + ex);
+        } catch (SAXNotSupportedException ex) {
+            logger.trace("ignoring " + ex);
         }
     }
     
@@ -427,6 +460,14 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
     public void setExecutor(ExecutorService executor) {
         this.executor = executor;
         this.childJobMonitor = new JobMonitor<Void>(executor);
+    }
+    
+    public DataSourceFactory getDataSourceFactory() {
+        return dsf;
+    }
+    
+    public void setDataSourceFactory(DataSourceFactory dsf) {
+        this.dsf = dsf;
     }
     
     private static class JobMonitor<T> implements Runnable {

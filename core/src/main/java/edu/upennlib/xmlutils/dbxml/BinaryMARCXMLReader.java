@@ -16,7 +16,6 @@
 
 package edu.upennlib.xmlutils.dbxml;
 
-import edu.upennlib.dbutils.ConnectionException;
 import edu.upennlib.xmlutils.SAXFeatures;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import java.io.BufferedOutputStream;
@@ -36,6 +35,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.MalformedInputException;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -203,14 +203,14 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
 
 
 
-    public static void main(String args[]) throws SQLException, FileNotFoundException, IOException, SAXException, TransformerConfigurationException, TransformerException, ParserConfigurationException, ConnectionException {
+    public static void main(String args[]) throws SQLException, FileNotFoundException, IOException, SAXException, TransformerConfigurationException, TransformerException, ParserConfigurationException {
         logger.setLevel(Level.WARN);
         BinaryMARCXMLReader instance = getTestInstance(3032000, 3033000);
 
         runTestInstanceToFile(instance);
     }
 
-    public static BinaryMARCXMLReader getTestInstance(int lowBibId, int highBibId) throws ConnectionException {
+    public static BinaryMARCXMLReader getTestInstance(int lowBibId, int highBibId) {
         final String sql = "SELECT DISTINCT BIB_DATA.BIB_ID, BIB_DATA.SEQNUM, BIB_DATA.RECORD_SEGMENT "
                 + "FROM PENNDB.BIB_DATA, BIB_MASTER "
                 + "WHERE BIB_DATA.BIB_ID = BIB_MASTER.BIB_ID AND  BIB_MASTER.SUPPRESS_IN_OPAC = 'N' "
@@ -219,7 +219,14 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
                 + "ORDER BY BIB_ID, SEQNUM";
 
         BinaryMARCXMLReader instance = new BinaryMARCXMLReader(1, 1);
-        instance.setDataSource(newDataSource(new File("work/connection.properties")));
+        boolean testDSF = true;
+        if (testDSF) {
+            DataSourceFactory dsf = new PSDataSourceFactory(Collections.singletonMap("voyager", new File("work/connection.properties")));
+            instance.setDataSourceFactory(dsf);
+            instance.setDataSourceName("voyager");
+        } else {
+            instance.setDataSource(newDataSource(new File("work/connection.properties")));
+        }
         instance.setSql(sql);
         String[] ifl = {"BIB_ID"};
         instance.setIdFieldLabels(ifl);

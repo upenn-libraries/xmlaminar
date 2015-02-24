@@ -16,7 +16,6 @@
 
 package edu.upennlib.xmlutils.dbxml;
 
-import edu.upennlib.dbutils.ConnectionException;
 import edu.upennlib.xmlutils.SAXFeatures;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -132,7 +131,7 @@ public class RSXMLReader extends SQLXMLReader {
             + "ORDER BY BIB_ID, MFHD_ID, ITEM_ID, STATUS_ID";
     private static String[] itemStatusIdFields = {"BIB_ID", "MFHD_ID", "ITEM_ID", "STATUS_ID"};
 
-    public static void main(String[] args) throws TransformerConfigurationException, TransformerException, FileNotFoundException, IOException, ConnectionException {
+    public static void main(String[] args) throws TransformerConfigurationException, TransformerException, FileNotFoundException, IOException {
 
         RSXMLReader instance = new RSXMLReader();
         logger.setLevel(Level.WARN);

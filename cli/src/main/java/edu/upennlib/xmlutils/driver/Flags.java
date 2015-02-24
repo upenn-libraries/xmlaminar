@@ -64,6 +64,7 @@ public class Flags {
      */
     public static final List<String> NAME_ARG = unmodifiableList(asList("name"));
     public static final List<String> CONNECTION_CONFIG_FILE_ARG = unmodifiableList(asList("connection-config-file"));
+    public static final List<String> DATA_SOURCE_NAME_ARG = unmodifiableList(asList("datasource-name"));
     public static final List<String> ID_FIELD_LABELS_ARG = unmodifiableList(asList("id-field-labels"));
     public static final List<String> MARC_FIELD_LABEL_ARG = unmodifiableList(asList("marc-binary-field-label"));
     public static final List<String> SQL_ARG = unmodifiableList(asList("sql"));

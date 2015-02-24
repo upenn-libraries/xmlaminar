@@ -16,7 +16,6 @@
 
 package edu.upennlib.xmlutils.dbxml;
 
-import edu.upennlib.dbutils.ConnectionException;
 import edu.upennlib.subjectremediation.SubjectTrieLoader;
 import edu.upennlib.subjectremediation.SubjectTrieTraverser;
 import java.io.FileNotFoundException;
@@ -102,7 +101,7 @@ public class SubjectMARCFieldModifier implements MARCFieldModifier {
         return null;
     }
 
-    public static void main(String[] args) throws ConnectionException, TransformerConfigurationException, TransformerException, IOException {
+    public static void main(String[] args) throws TransformerConfigurationException, TransformerException, IOException {
         BasicConfigurator.configure();
         SubjectTrieLoader stl = new SubjectTrieLoader();
         SubjectTrieTraverser lookup = stl.load();

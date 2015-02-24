@@ -37,6 +37,8 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
     private final OptionSpec<String> nameSpec;
     protected File connectionConfigFile;
     private final OptionSpec<File> connectionConfigFileSpec;
+    protected String dataSourceName;
+    private final OptionSpec<String> dataSourceNameSpec;
     protected String sql;
     private final OptionSpec<String> sqlSpec;
     protected String idFieldLabels;
@@ -70,6 +72,7 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
                 "path to file specifying host, sid, user, pwd for connection")
                 .withRequiredArg().ofType(File.class);
         sqlSpec = parser.acceptsAll(Flags.SQL_ARG).withRequiredArg().ofType(String.class);
+        dataSourceNameSpec = parser.acceptsAll(Flags.DATA_SOURCE_NAME_ARG).withRequiredArg().ofType(String.class);
         batchSizeSpec = parser.acceptsAll(Flags.SIZE_ARG).withRequiredArg().ofType(Integer.class).defaultsTo(6);
         lookaheadFactorSpec = parser.acceptsAll(Flags.LOOKAHEAD_FACTOR_ARG, "prefetch input chunks asynchronously").withRequiredArg().ofType(Integer.class).defaultsTo(0);
         idFieldLabelsSpec = parser.acceptsAll(Flags.ID_FIELD_LABELS_ARG, "ordered list of"
@@ -87,7 +90,9 @@ public abstract class SQLXMLReaderCommand extends MultiOutCommand {
         lookaheadFactor = options.valueOf(lookaheadFactorSpec);
         expectPresplitInput = options.has(expectPresplitInputSpec);
         suppressParamClause = options.has(suppressParamClauseSpec);
-        if (options.has(connectionConfigFileSpec)) {
+        if (options.has(dataSourceNameSpec)) {
+            dataSourceName = options.valueOf(dataSourceNameSpec);
+        } else if (options.has(connectionConfigFileSpec)) {
             connectionConfigFile = options.valueOf(connectionConfigFileSpec);
         }
         return ret;

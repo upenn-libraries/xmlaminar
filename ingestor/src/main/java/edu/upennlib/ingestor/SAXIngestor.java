@@ -16,7 +16,6 @@
 
 package edu.upennlib.ingestor;
 
-import edu.upennlib.configurationutils.IndexedPropertyConfigurable;
 import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
 import edu.upennlib.paralleltransformer.TXMLFilter;
 import edu.upennlib.solrposter.SAXSolrPoster;
@@ -52,7 +51,7 @@ import org.xml.sax.InputSource;
  *
  * @author michael
  */
-public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
+public class SAXIngestor implements Runnable {
 
     private String name = null;
     private IntegratorOutputNode integrator = null;
@@ -204,12 +203,10 @@ public class SAXIngestor implements Runnable, IndexedPropertyConfigurable {
         logger.info("Processing time: " + processingTime);
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    @Override
     public String getName() {
         return name;
     }

@@ -81,7 +81,11 @@ public class RSXMLReaderCommandFactory extends CommandFactory {
                     rsxr.setSuppressParameterizedClause(suppressParamClause);
                     rsxr.setName(name);
                     rsxr.setIdFieldLabels(parseIdFieldLabels(idFieldLabels));
-                    rsxr.setDataSource(SQLXMLReader.newDataSource(connectionConfigFile));
+                    if (dataSourceName != null) {
+                        rsxr.setDataSourceName(dataSourceName);
+                    } else {
+                        rsxr.setDataSource(SQLXMLReader.newDataSource(connectionConfigFile));
+                    }
                     rsxr.setSql(sql);
                     if (expectPresplitInput || !rsxr.isParameterized()) {
                         ret = rsxr;
