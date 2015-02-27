@@ -23,10 +23,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
@@ -435,24 +439,55 @@ public class BoundedXMLFilterBuffer extends XMLFilterLexicalHandlerImpl {
         parse(null, systemId);
     }
 
+    private ExecutorService executor;
+    
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+    
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+    
     private void parse(InputSource input, String systemId) throws SAXException, IOException {
         if (parsing) {
             throw new IllegalStateException();
         }
         parsing = true;
-        Thread t = new Thread(new EventPlayer(), "eventPlayer<-"+Thread.currentThread().getName());
-        final Thread calling = Thread.currentThread();
-        final Thread.UncaughtExceptionHandler ueh = t.getUncaughtExceptionHandler();
-        t.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                calling.interrupt();
-                ueh.uncaughtException(t, e);
-            }
-        });
-        t.start();
         getParent().setProperty(LEXICAL_HANDLER_PROPERTY_KEY, this);
+        Future<?> eventPlayer = executor.submit(new EventPlayer(Thread.currentThread()));
+        try {
+            doParse(input, systemId, eventPlayer);
+        } catch (InterruptedException ex) {
+            handleException(ex, eventPlayer);
+        } catch (ExecutionException ex) {
+            handleException(ex, eventPlayer);
+        } catch (Throwable t) {
+            handleException(t, eventPlayer);
+        }
+    }
+    
+    private void handleException(Throwable t, Future<?> eventPlayer) throws SAXException, IOException {
+        Throwable toThrow;
+        if (eventPlayerThrowable != null) {
+            toThrow = eventPlayerThrowable;
+        } else {
+            consumerThrowable = t;
+            toThrow = t;
+            eventPlayer.cancel(true);
+        }
+        if (toThrow instanceof SAXException) {
+            throw (SAXException) toThrow;
+        } else if (toThrow instanceof IOException) {
+            throw (IOException) toThrow;
+        } else if (toThrow instanceof RuntimeException) {
+            throw (RuntimeException) toThrow;
+        } else {
+            throw new RuntimeException(toThrow);
+        }
+    }
+
+    private void doParse(InputSource input, String systemId, Future<?> eventPlayer) throws SAXException, IOException, InterruptedException, ExecutionException {
         if (input != null) {
             super.parse(input);
         } else if (systemId != null) {
@@ -460,17 +495,35 @@ public class BoundedXMLFilterBuffer extends XMLFilterLexicalHandlerImpl {
         } else {
             throw new IllegalArgumentException("null argument to parse()");
         }
-        try {
-            t.join();
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
-        }
+        eventPlayer.get();
     }
 
+    private volatile Throwable consumerThrowable = null;
+    private volatile Throwable eventPlayerThrowable = null;
+    
     private class EventPlayer implements Runnable {
 
+        private final Thread calling;
+        
+        private EventPlayer(Thread calling) {
+            this.calling = calling;
+        }
+        
         @Override
         public void run() {
+            try {
+                parse();
+            } catch (Throwable t) {
+                if (consumerThrowable == null) {
+                    eventPlayerThrowable = t;
+                    calling.interrupt();
+                } else if (!(t instanceof InterruptedException)) {
+                    t.printStackTrace(System.err);
+                }
+            }
+        }
+
+        public void parse() {
             while (parsing) {
                 if (!writable[head]) {
                     notifyOutput = true;

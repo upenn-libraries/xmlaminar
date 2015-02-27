@@ -533,6 +533,7 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
     
     public void setExecutor(ExecutorService executor) {
         this.executor = executor;
+        buffer.setExecutor(executor);
     }
     
     public DataSourceFactory getDataSourceFactory() {
