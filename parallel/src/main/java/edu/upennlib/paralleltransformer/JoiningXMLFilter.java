@@ -16,6 +16,7 @@
 
 package edu.upennlib.paralleltransformer;
 
+import edu.upennlib.paralleltransformer.QueueSourceXMLFilter.QueueSource;
 import edu.upennlib.paralleltransformer.callback.OutputCallback;
 import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
@@ -58,7 +59,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author Michael Gibney
  */
-public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCallback {
+public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCallback, QueueSource<VolatileSAXSource> {
 
     private static final Logger LOG = LoggerFactory.getLogger(JoiningXMLFilter.class);
     protected static final ContentHandler devNullContentHandler = new DevNullContentHandler();
@@ -90,6 +91,11 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
         t.reset();
         t.transform(new SAXSource(joiner, new InputSource("work/blah.txt")), new StreamResult(new FileOutputStream(f2)));
         System.out.println("I THINK I'M DONE");
+    }
+
+    @Override
+    public BlockingQueue<VolatileSAXSource> newQueue() {
+        return new SynchronousQueue<VolatileSAXSource>();
     }
     
     private static class SimulateClientDisconnect extends FilterOutputStream {
@@ -204,26 +210,26 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     private void parseMultiOut(InputSource input, String systemId) throws SAXException, IOException {
         reset();
         hardReset();
-        try {
+//        try {
             if (input != null) {
                 super.parse(input);
             } else {
                 super.parse(systemId);
             }
-        } catch (Throwable t) {
-            try {
-                if (consumerThrowable == null) {
-                    producerThrowable = t;
-                    consumerTask.cancel(true);
-                } else {
-                    t = consumerThrowable;
-                    consumerThrowable = null;
-                }
-            } finally {
-                outputCallback.finished(t);
-                throw new RuntimeException(t);
-            }
-        }
+//        } catch (Throwable t) {
+//            try {
+//                if (consumerThrowable == null) {
+//                    producerThrowable = t;
+//                    consumerTask.cancel(true);
+//                } else {
+//                    t = consumerThrowable;
+//                    consumerThrowable = null;
+//                }
+//            } finally {
+//                outputCallback.finished(t);
+//                throw new RuntimeException(t);
+//            }
+//        }
         outputCallback.finished(null);
     }
 
@@ -246,12 +252,15 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
         }
         setupParse(initialEventContentHandler);
         if (multiOut) {
-            OutputLooper outLoop = new OutputLooper(Thread.currentThread());
-            consumerTask = getExecutor().submit(outLoop);
+//            OutputLooper outLoop = new OutputLooper(Thread.currentThread());
+//            consumerTask = getExecutor().submit(outLoop);
             lastSystemId = in.getSystemId();
             try {
-                callbackQueue.put(in.getInputSource());
-            } catch (InterruptedException ex) {
+                outputCallback.callback(new VolatileSAXSource(synchronousParser, in.getInputSource()));
+                //callbackQueue.put(in.getInputSource());
+            } catch (SAXException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         }
@@ -275,8 +284,11 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
                 reset();
                 setupParse(initialEventContentHandler);
                 try {
-                    callbackQueue.put(in.getInputSource());
-                } catch (InterruptedException ex) {
+                    outputCallback.callback(new VolatileSAXSource(synchronousParser, in.getInputSource()));
+                    //callbackQueue.put(in.getInputSource());
+                } catch (SAXException ex) {
+                    throw new RuntimeException(ex);
+                } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
             }
@@ -305,11 +317,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     public void finished() throws SAXException {
         localFinished();
         if (multiOut) {
-            try {
-                callbackQueue.put(END_OUTPUT_LOOP);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
+            //outputCallback.finished(null);
         }
     }
 

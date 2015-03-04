@@ -37,7 +37,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
@@ -181,16 +185,26 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
         return parseQueueSupplier;
     }
 
+    public static interface QueueSource<T> {
+        BlockingQueue<T> newQueue();
+    } 
+    
     private void initProducer(InputSource input) {
         if (parseQueue == null) {
-            parseQueue = new ArrayBlockingQueue<VolatileSAXSource>(10, false);
+            XMLReader parent = getParent();
+            if (parent instanceof QueueSource) {
+                parseQueue = ((QueueSource) parent).newQueue();
+            } else {
+                parseQueue = new ArrayBlockingQueue<VolatileSAXSource>(10, false);
+            }
         } else {
             parseQueue.clear();
         }
         boolean setPQS = false;
+        parseThread = Thread.currentThread();
         if (parseQueueSupplier == null) {
             setPQS = true;
-            Runnable parseQueueRunner = new ParseQueueSupplier(input, Thread.currentThread());
+            Runnable parseQueueRunner = new ParseQueueSupplier(input);
             parseQueueSupplier = executor.submit(parseQueueRunner);
         }
         VolatileSAXSource next;
@@ -206,29 +220,61 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                     xmlReader.setContentHandler(this);
                     xmlReader.parse(next.getInputSource());
                 }
-                if (FINISHED.t != null) {
-                    throw new RuntimeException(FINISHED.t);
-                }
+            }
+            if (FINISHED.t == null) {
                 finished();
-            }
-            if (FINISHED.t != null) {
-                throw new RuntimeException(FINISHED.t);
-            }
-        } catch (Throwable ex) {
-            if (producerThrowable == null) {
-                consumerThrowable = ex;
-                parseQueueSupplier.cancel(true);
-                throw new RuntimeException(ex);
             } else {
-                ex = producerThrowable;
-                producerThrowable = null;
-                throw new RuntimeException(ex);
+                throw new UpstreamException(FINISHED.t);
             }
+        } catch (UpstreamException ex) {
+            throw ex;
+        } catch (Throwable t) {
+            throw handleDownstreamException(t);
         } finally {
             if (setPQS) {
                 parseQueueSupplier = null;
             }
+            parseThread = null;
         }
+    }
+
+    private RuntimeException handleDownstreamException(Throwable t) {
+        if (parseThread != null) {
+            parseThread = null;
+            parseQueueSupplier.cancel(true);
+        }
+        VolatileSAXSource vss;
+        try {
+            if ((vss = parseQueue.take()) != FINISHED) {
+                LOG.error("parseQueueSupplier must send FINISHED signal; got "+vss);
+            }
+        } catch (InterruptedException ex) {
+            LOG.warn("interrupted while handling downstream exception");
+        }
+        return new RuntimeException(t);
+    }
+    
+    private static class UpstreamException extends RuntimeException {
+
+        public UpstreamException() {
+        }
+
+        public UpstreamException(String message) {
+            super(message);
+        }
+
+        public UpstreamException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public UpstreamException(Throwable cause) {
+            super(cause);
+        }
+
+        public UpstreamException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+            super(message, cause, enableSuppression, writableStackTrace);
+        }
+        
     }
     
     public static interface IteratorWrapper<T> {
@@ -454,6 +500,23 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
 
     }
     
+    private volatile Thread parseThread = null;
+    
+    private void handleUpstreamThrowable(Throwable t) {
+        parseQueue.clear();
+        if (parseThread != null) {
+            Thread pt = parseThread;
+            parseThread = null;
+            pt.interrupt();
+        }
+        try {
+            parseQueue.put(getFinishedSAXSource(t));
+        } catch (InterruptedException ex) {
+            LOG.warn("interrupted while handling upstream throwable");
+            throw new RuntimeException(ex);
+        }
+    }
+
     /**
      * Exists strictly to hand off control to upstream parsing that will 
      * supply input to this XMLFilter via queue, and propagate exceptions 
@@ -462,11 +525,9 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
     private class ParseQueueSupplier implements Runnable {
 
         private final InputSource input;
-        private final Thread consumer;
 
-        public ParseQueueSupplier(InputSource input, Thread consumerThread) {
+        public ParseQueueSupplier(InputSource input) {
             this.input = input;
-            this.consumer = consumerThread;
         }
 
         @Override
@@ -474,16 +535,8 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
             try {
                 QueueSourceXMLFilter.super.parse(input);
             } catch (Throwable t) {
-                t.printStackTrace(System.err);
-                if (consumerThrowable == null) {
-                    producerThrowable = t;
-                    consumer.interrupt();
-                    throw new RuntimeException(t);
-                } else {
-                    t = consumerThrowable;
-                    consumerThrowable = null;
-                    throw new RuntimeException(t);
-                }
+                handleUpstreamThrowable(t);
+                throw new RuntimeException(t);
             }
         }
     }
