@@ -616,6 +616,7 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             } finally {
+                parsing = false;
                 paramIter = null;
                 rs = null;
                 if (c != null) {
@@ -626,7 +627,6 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
                     }
                 }
             }
-            parsing = false;
         }
     }
 

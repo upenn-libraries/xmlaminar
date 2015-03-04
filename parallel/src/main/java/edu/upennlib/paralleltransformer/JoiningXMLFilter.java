@@ -21,8 +21,12 @@ import edu.upennlib.paralleltransformer.callback.StdoutCallback;
 import edu.upennlib.paralleltransformer.callback.XMLReaderCallback;
 import edu.upennlib.xmlutils.DevNullContentHandler;
 import edu.upennlib.xmlutils.VolatileSAXSource;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
@@ -67,13 +71,53 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     private final ArrayDeque<StructuralStartEvent> startEvents;
     private ContentHandler outputContentHandler;
 
-    public static void main(String[] args) throws TransformerConfigurationException, SAXException, ParserConfigurationException, FileNotFoundException, IOException, TransformerException {
-        TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id", true, 1);
-        JoiningXMLFilter joiner = new JoiningXMLFilter(true);
-        txf.setInputType(InputType.indirect);
-        joiner.setParent(txf);
-        joiner.setOutputCallback(new StdoutCallback());
-        joiner.parse(new InputSource("../cli/test-multiout-joiner.txt"));
+    public static void main(String[] args) throws Exception {
+        //TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id", true, 1);
+        JoiningXMLFilter preJoiner = new JoiningXMLFilter(true);
+        preJoiner.setInputType(InputType.indirect);
+        JoiningXMLFilter joiner = new JoiningXMLFilter(false);
+        //txf.setInputType(InputType.indirect);
+        joiner.setParent(preJoiner);
+        File f1 = new File("/tmp/one.xml");
+        File f2 = new File("/tmp/two.xml");
+        Transformer t = TransformerFactory.newInstance().newTransformer();
+        try {
+            t.transform(new SAXSource(joiner, new InputSource("work/blah.txt")), new StreamResult(new SimulateClientDisconnect(new FileOutputStream(f1), 20)));
+        } catch (Exception ex) {
+            // nothing.
+        }
+        System.out.println("HERE");
+        t.reset();
+        t.transform(new SAXSource(joiner, new InputSource("work/blah.txt")), new StreamResult(new FileOutputStream(f2)));
+        System.out.println("I THINK I'M DONE");
+    }
+    
+    private static class SimulateClientDisconnect extends FilterOutputStream {
+
+        private final int limit;
+        private int index;
+        
+        public SimulateClientDisconnect(OutputStream out, int limit) {
+            super(out);
+            this.limit = limit;
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            out.write(b, off, len);
+            if ((index += len) > limit) {
+                close();
+            }
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            out.write(b);
+            if (++index > limit) {
+                close();
+            }
+        }
+        
     }
     
     public JoiningXMLFilter(boolean multiOut) {
@@ -98,6 +142,24 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     private void reset() {
         level = -1;
         startEvents.clear();
+    }
+    
+    private void hardReset() {
+        producerThrowable = null;
+        consumerThrowable = null;
+        if (multiOut) {
+            consumerTask = null;
+            lastSystemId = null;
+            callbackQueue.clear();
+            resetPhaser(parseBeginPhaser);
+            resetPhaser(parseEndPhaser);
+        }
+    }
+
+    private static void resetPhaser(Phaser phaser) {
+        while (phaser.getArrivedParties() > 0) {
+            phaser.arrive();
+        }
     }
 
     @Override
@@ -141,6 +203,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     
     private void parseMultiOut(InputSource input, String systemId) throws SAXException, IOException {
         reset();
+        hardReset();
         try {
             if (input != null) {
                 super.parse(input);
@@ -166,6 +229,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
 
     private void parse(InputSource input, String systemId) throws SAXException, IOException {
         reset();
+        hardReset();
         if (input != null) {
             super.parse(input);
         } else {

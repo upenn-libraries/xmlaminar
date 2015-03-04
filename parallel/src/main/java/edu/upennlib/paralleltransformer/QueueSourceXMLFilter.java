@@ -38,6 +38,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
@@ -68,7 +69,12 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
     private static class ErrorSAXSource extends VolatileSAXSource {
         
         private final AtomicBoolean checkedOutError = new AtomicBoolean(false);
-        private Throwable t;
+        private volatile Throwable t;
+        
+        private void reset() {
+            checkedOutError.set(false);
+            t = null;
+        }
         
         private VolatileSAXSource checkout(Throwable t) {
             if (t == null) {
@@ -178,8 +184,12 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
     private void initProducer(InputSource input) {
         if (parseQueue == null) {
             parseQueue = new ArrayBlockingQueue<VolatileSAXSource>(10, false);
+        } else {
+            parseQueue.clear();
         }
+        boolean setPQS = false;
         if (parseQueueSupplier == null) {
+            setPQS = true;
             Runnable parseQueueRunner = new ParseQueueSupplier(input, Thread.currentThread());
             parseQueueSupplier = executor.submit(parseQueueRunner);
         }
@@ -213,6 +223,10 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                 ex = producerThrowable;
                 producerThrowable = null;
                 throw new RuntimeException(ex);
+            }
+        } finally {
+            if (setPQS) {
+                parseQueueSupplier = null;
             }
         }
     }
@@ -280,6 +294,9 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
     private boolean autoSetParentExecutor = false;
     
     private void setupParseLocal() throws SAXException {
+        FINISHED.reset();
+        producerThrowable = null;
+        consumerThrowable = null;
         XMLReader localParent = getParent();
         if (localParent instanceof OutputCallback) {
             OutputCallback oc = (OutputCallback) localParent;
@@ -467,8 +484,6 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                     consumerThrowable = null;
                     throw new RuntimeException(t);
                 }
-            } finally {
-                parseQueueSupplier = null;
             }
         }
     }
