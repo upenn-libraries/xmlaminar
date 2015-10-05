@@ -127,18 +127,14 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
                 t.reset();
                 t.setOutputProperty(OutputKeys.INDENT, "yes");
                 FileOutputStream fos = new FileOutputStream(f1+i);
-                System.err.println(fos.getFD().toString());
                 try {
                     t.transform(new SAXSource(root, new InputSource()), new StreamResult(new SimulateClientDisconnect(fos, 100000)));
                 } catch (Exception ex) {
-                    System.err.println("hey hey "+ex);
+                    System.err.println("caught top-level exception: "+ex.getClass().getSimpleName());
                     // nothing.
                 } finally {
                     fos.close();
                 }
-                System.out.println("START-inter" + i);
-                Thread.sleep(1000);
-                System.out.println("END-inter" + i);
                 root.reset();
                 t.reset();
                 t.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -149,7 +145,6 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
                     fos.close();
                 }
                 System.out.println("I THINK I'M DONE");
-                Thread.sleep(1000);
             }
         } finally {
             executor.shutdown();
@@ -584,10 +579,10 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
             this.jobs = jobs;
             this.target = target;
             if (!activeJobs.isEmpty()) {
-                System.err.println(name+" active jobs not empty: "+activeJobs.size());
+                logger.error(name+" active jobs not empty: "+activeJobs.size());
             }
             if (!jobQueue.isEmpty()) {
-                System.err.println(name+" jobQueue not empty: "+jobQueue.size());
+                logger.error(name+" jobQueue not empty: "+jobQueue.size());
             }
             upstreamThrowable = null;
             this.name = name;
@@ -607,11 +602,9 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
                     activeJobs.remove(job);
                 } catch (ExecutionException ex) {
                     activeJobs.remove(job);
-                    //drainActiveJobs();
                     throw ex;
                 } catch (Throwable t) {
                     activeJobs.remove(job);
-                    //drainActiveJobs();
                     throw new RuntimeException(t);
                 }
             }
@@ -658,18 +651,10 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
 
     @Override
     public void run() {
-        try {
         if (!init()) {
             inputFilter.run();
         } else {
             for (int i = 0; i < childNodes.length; i++) {
-//                String setThreadName;
-//                if (childElementNames[i] != null) {
-//                    childNodes[i].setName(childElementNames[i]);
-//                    setThreadName = childElementNames[i]+"<-"+Thread.currentThread().getName();
-//                } else {
-//                    setThreadName = childNodes[i].getName()+"<-"+Thread.currentThread().getName();
-//                }
                 if (requireForWrite[i]) {
                     requiredIndexes.add(i);
                 }
@@ -691,25 +676,15 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
                 handleLocalException();
                 throw new RuntimeException(ex);
             } catch (Throwable t) {
-                //t.printStackTrace(System.err);
                 handleLocalException();
                 throw new RuntimeException(t);
             }
-        }
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
         }
     }
 
     private void handleLocalException() {
         if (childJobMonitor.upstreamThrowable != null) {
             Throwable t = childJobMonitor.upstreamThrowable;
-//            try {
-//                childJobMonitor.drainActiveJobs();
-//            } catch (InterruptedException ex) {
-//                Thread.dumpStack();
-//                logger.error("error draining jobs"+ ex);
-//            }
             if (t instanceof RuntimeException) {
                 throw (RuntimeException) t;
             } else if (t instanceof ExecutionException) {
@@ -718,7 +693,6 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
                 throw new RuntimeException(t);
             }
         } else {
-            System.err.println("cancelling child futures "+getName());
             childJobFuture.cancel(true);
         }
     }
