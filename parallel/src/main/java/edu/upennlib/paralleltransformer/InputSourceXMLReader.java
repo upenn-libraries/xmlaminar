@@ -22,8 +22,18 @@
 
 package edu.upennlib.paralleltransformer;
 
+import com.sun.org.apache.xerces.internal.impl.XMLEntityManager;
+import edu.upennlib.xmlutils.Resettable;
 import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -35,15 +45,36 @@ import org.xml.sax.XMLReader;
 public class InputSourceXMLReader extends VolatileXMLFilterImpl {
 
     private final InputSource source;
+    private Reader ownReader;
+    private final Resettable resetter;
     private boolean parsed = false;
     
     public InputSourceXMLReader(InputSource source) {
-        this(null, source);
+        this(null, source, null);
     }
 
     public InputSourceXMLReader(XMLReader parent, InputSource source) {
+        this(parent, source, null);
+    }
+    
+    public InputSourceXMLReader(XMLReader parent, InputSource source, Resettable resetter) {
         super(parent);
         this.source = source;
+        this.resetter = resetter;
+    }
+    
+    private static Reader openNewReader(InputSource input) {
+        if (input.getCharacterStream() == null && input.getByteStream() == null) {
+            try {
+                return new InputStreamReader(new File(input.getSystemId()).toURI().toURL().openStream(), StandardCharsets.UTF_8);
+            } catch (MalformedURLException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        } else {
+            return null;
+        }
     }
     
     @Override
@@ -58,9 +89,36 @@ public class InputSourceXMLReader extends VolatileXMLFilterImpl {
             parsed = true;
             in = source;
         } else {
+            if (resetter != null) {
+                resetter.reset();
+                System.err.println("XXX just reset this");
+            }
             in = new InputSource(source.getSystemId());
         }
-        super.parse(in);
+        if ((ownReader = openNewReader(in)) != null) {
+            in.setCharacterStream(ownReader);
+        }
+        try {
+            super.parse(in);
+        } catch (SAXException e) {
+            closeReaders();
+            throw e;
+        } catch (IOException e) {
+            closeReaders();
+            throw e;
+        } catch (RuntimeException e) {
+            closeReaders();
+            throw e;
+        } catch (Error e) {
+            closeReaders();
+            throw e;
+        }
     }
     
+    private void closeReaders() throws IOException {
+        if (ownReader != null) {
+            ownReader.close();
+        }
+    }
+
 }

@@ -17,14 +17,20 @@
 package edu.upennlib.ingestor.sax.integrator;
 
 import edu.upennlib.paralleltransformer.InputSourceXMLReader;
+import edu.upennlib.paralleltransformer.JoiningXMLFilter;
+import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
 import edu.upennlib.xmlutils.DumpingLexicalXMLFilter;
+import edu.upennlib.xmlutils.SAXParserResetter;
 import edu.upennlib.xmlutils.SAXProperties;
 import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
 import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
 import edu.upennlib.xmlutils.dbxml.DataSourceFactory;
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,6 +42,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
@@ -43,6 +50,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -92,6 +100,89 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
     
     static {
         spf.setNamespaceAware(true);
+    }
+
+    public static void main(String[] args) throws Exception {
+        //TXMLFilter txf = new TXMLFilter(new StreamSource("../cli/identity.xsl"), "/root/rec/@id", true, 1);
+        ExecutorService executor = Executors.newCachedThreadPool();
+        IntegratorOutputNode root = new IntegratorOutputNode();
+        root.addDescendent("/record/marc", getResettableSR(new InputSource("./src/test/resources/input/real/marc.xml")), false).setName("+marc");
+        root.addDescendent("/record/holdings/holding", getResettableSR(new InputSource("./src/test/resources/input/real/hldg.xml")), false).setName("+holding");
+        root.addDescendent("/record/holdings/holding/items/item", getResettableSR(new InputSource("./src/test/resources/input/real/itemAll.xml")), false).setName("+item");
+        root.addDescendent("/record/holdings/holding/items/item/itemStatuses/itemStatus", getResettableSR(new InputSource("./src/test/resources/input/real/itemStatus.xml")), false).setName("+status");
+        root.setExecutor(executor);
+        JoiningXMLFilter preJoiner = new JoiningXMLFilter(true);
+        JoiningXMLFilter joiner = new JoiningXMLFilter(false);
+        preJoiner.setExecutor(executor);
+        joiner.setExecutor(executor);
+        //txf.setInputType(InputType.indirect);
+        preJoiner.setParent(root);
+        joiner.setParent(preJoiner);
+        String f1 = "/tmp/one.xml";
+        String f2 = "/tmp/two.xml";
+        Transformer t = TransformerFactory.newInstance().newTransformer();
+        try {
+            for (int i = 0; i < 2; i++) {
+                root.reset();
+                t.reset();
+                t.setOutputProperty(OutputKeys.INDENT, "yes");
+                FileOutputStream fos = new FileOutputStream(f1+i);
+                System.err.println(fos.getFD().toString());
+                try {
+                    t.transform(new SAXSource(root, new InputSource()), new StreamResult(new SimulateClientDisconnect(fos, 100000)));
+                } catch (Exception ex) {
+                    System.err.println("hey hey "+ex);
+                    // nothing.
+                } finally {
+                    fos.close();
+                }
+                System.out.println("START-inter" + i);
+                Thread.sleep(1000);
+                System.out.println("END-inter" + i);
+                root.reset();
+                t.reset();
+                t.setOutputProperty(OutputKeys.INDENT, "yes");
+                fos = new FileOutputStream(f2+i);
+                try {
+                    t.transform(new SAXSource(root, new InputSource()), new StreamResult(fos));
+                } finally {
+                    fos.close();
+                }
+                System.out.println("I THINK I'M DONE");
+                Thread.sleep(1000);
+            }
+        } finally {
+            executor.shutdown();
+            executor.awaitTermination(1, TimeUnit.DAYS);
+        }
+    }
+
+    private static class SimulateClientDisconnect extends FilterOutputStream {
+
+        private final int limit;
+        private int index;
+
+        public SimulateClientDisconnect(OutputStream out, int limit) {
+            super(out);
+            this.limit = limit;
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            out.write(b, off, len);
+            if ((index += len) > limit) {
+                close();
+            }
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            out.write(b);
+            if (++index > limit) {
+                close();
+            }
+        }
+
     }
 
     @Override
@@ -149,10 +240,10 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
         }
     }
 
-    public void addDescendent(String path, XMLReader source, boolean requireForWrite) {
+    public StatefulXMLFilter addDescendent(String path, XMLReader source, boolean requireForWrite) {
         String[] pe = path.substring(1).split("/");
         LinkedList<String> pathElements = new LinkedList<String>(Arrays.asList(pe));
-        addDescendent(pathElements, source, requireForWrite);
+        return addDescendent(pathElements, source, requireForWrite);
     }
 
     private static final int DEPTH_LIMIT = 10;
@@ -187,6 +278,7 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
                 requires.add(false); // Otherwise add node manually (explicitly).
                 names.add(subName);
                 nodes.add(subNode);
+                subNode.setName(subName);
             }
         }
         if (executor != null) {
@@ -213,7 +305,11 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
 
     @Override
     public String getName() {
-        return name;
+        if (name != null) {
+            return name;
+        } else {
+            return inputFilter == null ? null : inputFilter.getName();
+        }
     }
 
     private static final Map<String,Boolean> unmodifiableFeatures;
@@ -476,16 +572,25 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
         private final BlockingQueue<Future<T>> jobQueue = new LinkedBlockingQueue<Future<T>>();
         private final Collection<Future<T>> activeJobs = new HashSet<Future<T>>();
         private final ExecutorCompletionService<T> backing;
-        private Throwable upstreamThrowable;
+        private volatile Throwable upstreamThrowable;
         private Thread target;
+        private String name;
 
         public JobMonitor(ExecutorService backing) {
             this.backing = new ExecutorCompletionService<T>(backing, jobQueue);
         }
         
-        public void init(Collection<? extends Runnable> jobs, Thread target) {
+        public void init(Collection<? extends Runnable> jobs, Thread target, String name) {
             this.jobs = jobs;
             this.target = target;
+            if (!activeJobs.isEmpty()) {
+                System.err.println(name+" active jobs not empty: "+activeJobs.size());
+            }
+            if (!jobQueue.isEmpty()) {
+                System.err.println(name+" jobQueue not empty: "+jobQueue.size());
+            }
+            upstreamThrowable = null;
+            this.name = name;
         }
 
         private void invokeJobs() {
@@ -502,8 +607,12 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
                     activeJobs.remove(job);
                 } catch (ExecutionException ex) {
                     activeJobs.remove(job);
-                    drainActiveJobs();
+                    //drainActiveJobs();
                     throw ex;
+                } catch (Throwable t) {
+                    activeJobs.remove(job);
+                    //drainActiveJobs();
+                    throw new RuntimeException(t);
                 }
             }
         }
@@ -549,6 +658,7 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
 
     @Override
     public void run() {
+        try {
         if (!init()) {
             inputFilter.run();
         } else {
@@ -564,7 +674,7 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
                     requiredIndexes.add(i);
                 }
             }
-            childJobMonitor.init(Arrays.asList(childNodes), Thread.currentThread());
+            childJobMonitor.init(Arrays.asList(childNodes), Thread.currentThread(), getName());
             childJobFuture = executor.submit(childJobMonitor);
             try {
                 if (childNodes.length <= Integer.SIZE) {
@@ -581,15 +691,25 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
                 handleLocalException();
                 throw new RuntimeException(ex);
             } catch (Throwable t) {
+                //t.printStackTrace(System.err);
                 handleLocalException();
                 throw new RuntimeException(t);
             }
+        }
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
     }
 
     private void handleLocalException() {
         if (childJobMonitor.upstreamThrowable != null) {
             Throwable t = childJobMonitor.upstreamThrowable;
+//            try {
+//                childJobMonitor.drainActiveJobs();
+//            } catch (InterruptedException ex) {
+//                Thread.dumpStack();
+//                logger.error("error draining jobs"+ ex);
+//            }
             if (t instanceof RuntimeException) {
                 throw (RuntimeException) t;
             } else if (t instanceof ExecutionException) {
@@ -598,15 +718,16 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
                 throw new RuntimeException(t);
             }
         } else {
+            System.err.println("cancelling child futures "+getName());
             childJobFuture.cancel(true);
         }
     }
     
     private final LinkedHashSet<Integer> requiredIndexes = new LinkedHashSet<Integer>();
 
-    private static XMLReader getXR() {
+    private static SAXParser getSP() {
         try {
-            return spf.newSAXParser().getXMLReader();
+            return spf.newSAXParser();
         } catch (ParserConfigurationException ex) {
             throw new RuntimeException(ex);
         } catch (SAXException ex) {
@@ -614,7 +735,24 @@ public class IntegratorOutputNode extends VolatileXMLFilterImpl implements IdQue
         }
     }
     
-    public static void main(String[] args) throws Exception {
+    private static XMLReader getXR() {
+        try {
+            return getSP().getXMLReader();
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    private static InputSourceXMLReader getResettableSR(InputSource source) {
+        SAXParser sp = getSP();
+        try {
+            return new InputSourceXMLReader(sp.getXMLReader(), source, new SAXParserResetter(sp));
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    public static void main2(String[] args) throws Exception {
         IntegratorOutputNode root = new IntegratorOutputNode();
         boolean testProblem = true;
         if (testProblem) {

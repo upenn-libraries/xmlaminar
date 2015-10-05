@@ -512,7 +512,7 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
         try {
             parseQueue.put(getFinishedSAXSource(t));
         } catch (InterruptedException ex) {
-            LOG.warn("interrupted while handling upstream throwable");
+            LOG.warn("interrupted while handling upstream throwable", t);
             throw new RuntimeException(ex);
         }
     }
