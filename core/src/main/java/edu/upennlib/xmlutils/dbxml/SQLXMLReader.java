@@ -201,9 +201,6 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
     }
     
     private void setBatchSizeLocal(int size) {
-        if (size < 1) {
-            throw new IllegalArgumentException("size="+size+"; must be > 0");
-        }
         this.chunkSize = size;
         compiledSql = null;
     }
