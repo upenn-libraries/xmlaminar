@@ -193,6 +193,7 @@ public class InputSplitter implements QueueSourceXMLFilter.IteratorWrapper<Volat
             super(in);
             sr = in;
             this.chunkSize = lookaheadFactor + 1;
+            System.err.println("lookaheadFactor="+lookaheadFactor);
             this.ccb = new CircularCharBuffer();
             this.rf = rf;
         }

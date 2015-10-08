@@ -291,12 +291,12 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
         this.iteratorWrapper = iteratorWrapper;
     }
     
-    private Iterator<VolatileSAXSource> initIterator(InputSource input) {
+    private Iterator<VolatileSAXSource> initIterator(InputSource input, InputType induced) {
         if (iteratorWrapper == null) {
             return new IndirectSourceSupplier(input);
         } else {
             Iterator<VolatileSAXSource> base;
-            switch (inputType) {
+            switch (induced) {
                 case indirect:
                     base = new IndirectSourceSupplier(input);
                     break;
@@ -310,18 +310,20 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
         }
     }
     
-    private void initProducerIterator(InputSource input) {
+    private void initProducerIterator(InputSource input, InputType induced) {
         try {
             VolatileSAXSource next;
-            Iterator<VolatileSAXSource> sourceIter = initIterator(input);
+            Iterator<VolatileSAXSource> sourceIter = initIterator(input, induced);
             if (sourceIter.hasNext()) {
                 next = sourceIter.next();
+                System.err.println("nextInit: "+next.getSystemId());
                 initialParse(next);
                 XMLReader xmlReader = next.getXMLReader();
                 xmlReader.setContentHandler(this);
                 xmlReader.parse(next.getInputSource());
                 while (sourceIter.hasNext()) {
                     next = sourceIter.next();
+                    System.err.println("nextRepeat: "+next.getSystemId());
                     repeatParse(next);
                     xmlReader = next.getXMLReader();
                     xmlReader.setContentHandler(this);
@@ -400,7 +402,7 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
                     finished();
                     break;
                 case indirect:
-                    initProducerIterator(input);
+                    initProducerIterator(input, induced);
                     break;
                 case queue:
                     initProducer(input);
@@ -445,6 +447,7 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
 
         private final InputSource input;
         private final Scanner s;
+        private boolean scannerClosed = false;
 
         public IndirectSourceSupplier(InputSource input) {
             this.input = input;
@@ -477,9 +480,12 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
 
         @Override
         public boolean hasNext() {
-            if (s.hasNext()) {
+            if (scannerClosed) {
+                return false;
+            } else if (s.hasNext()) {
                 return true;
             } else {
+                scannerClosed = true;
                 s.close();
                 return false;
             }
@@ -488,6 +494,8 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
         @Override
         public VolatileSAXSource next() {
             String next = s.next();
+            System.err.println("scannerNext: "+next);
+            Thread.dumpStack();
             InputSource nextIn = new InputSource(next);
             XMLReader xr = QueueSourceXMLFilter.super.getParent(); // defaults to parent
             return new VolatileSAXSource(xr, nextIn);

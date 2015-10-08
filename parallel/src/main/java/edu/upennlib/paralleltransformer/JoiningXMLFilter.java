@@ -244,7 +244,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
     }
 
     private String lastSystemId;
-    
+
     @Override
     public void initialParse(VolatileSAXSource in) {
         if (multiOut) {
@@ -255,8 +255,38 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
 //            OutputLooper outLoop = new OutputLooper(Thread.currentThread());
 //            consumerTask = getExecutor().submit(outLoop);
             lastSystemId = in.getSystemId();
+            System.err.println("initialParse systemId="+lastSystemId);
+            if (getInputType() != InputType.queue) {
+                getExecutor().submit(new AsyncOutput(outputCallback, synchronousParser, in.getInputSource()));
+            } else {
+                try {
+                    outputCallback.callback(new VolatileSAXSource(synchronousParser, in.getInputSource()));
+                    //callbackQueue.put(in.getInputSource());
+                } catch (SAXException ex) {
+                    throw new RuntimeException(ex);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+    }
+    
+    private static class AsyncOutput implements Runnable {
+
+        private final XMLReaderCallback outputCallback;
+        private final XMLReader xmlReader;
+        private final InputSource in;
+
+        public AsyncOutput(XMLReaderCallback outputCallback, XMLReader xmlReader, InputSource in) {
+            this.outputCallback = outputCallback;
+            this.xmlReader = xmlReader;
+            this.in = in;
+        }
+        
+        @Override
+        public void run() {
             try {
-                outputCallback.callback(new VolatileSAXSource(synchronousParser, in.getInputSource()));
+                outputCallback.callback(new VolatileSAXSource(xmlReader, in));
                 //callbackQueue.put(in.getInputSource());
             } catch (SAXException ex) {
                 throw new RuntimeException(ex);
@@ -264,6 +294,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
                 throw new RuntimeException(ex);
             }
         }
+        
     }
     
     @Override
@@ -272,6 +303,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
             setupParse(devNullContentHandler);
         } else {
             String systemId = in.getSystemId();
+            System.err.println("systemId compare: "+systemId+", "+lastSystemId);
             if (systemId == null ? lastSystemId == null : systemId.equals(lastSystemId)) {
                 setupParse(devNullContentHandler);
             } else {
@@ -283,13 +315,17 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
                 }
                 reset();
                 setupParse(initialEventContentHandler);
-                try {
-                    outputCallback.callback(new VolatileSAXSource(synchronousParser, in.getInputSource()));
-                    //callbackQueue.put(in.getInputSource());
-                } catch (SAXException ex) {
-                    throw new RuntimeException(ex);
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
+                if (getInputType() != InputType.queue) {
+                    getExecutor().submit(new AsyncOutput(outputCallback, synchronousParser, in.getInputSource()));
+                } else {
+                    try {
+                        outputCallback.callback(new VolatileSAXSource(synchronousParser, in.getInputSource()));
+                        //callbackQueue.put(in.getInputSource());
+                    } catch (SAXException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         }

@@ -26,6 +26,7 @@ import edu.upennlib.ingestor.sax.integrator.StatefulXMLFilter;
 import edu.upennlib.paralleltransformer.InputSourceXMLReader;
 import edu.upennlib.paralleltransformer.InputSplitter;
 import edu.upennlib.paralleltransformer.JoiningXMLFilter;
+import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
 import edu.upennlib.xmlutils.dbxml.SQLXMLReader;
 import java.io.File;
 import java.io.FileNotFoundException;
