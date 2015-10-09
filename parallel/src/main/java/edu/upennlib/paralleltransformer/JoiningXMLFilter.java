@@ -255,7 +255,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
 //            OutputLooper outLoop = new OutputLooper(Thread.currentThread());
 //            consumerTask = getExecutor().submit(outLoop);
             lastSystemId = in.getSystemId();
-            if (getInputType() != InputType.queue) {
+            if (true || getInputType() != InputType.queue) {
                 getExecutor().submit(new AsyncOutput(outputCallback, synchronousParser, in.getInputSource()));
             } else {
                 try {
@@ -314,7 +314,7 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
                 }
                 reset();
                 setupParse(initialEventContentHandler);
-                if (getInputType() != InputType.queue) {
+                if (true || getInputType() != InputType.queue) {
                     getExecutor().submit(new AsyncOutput(outputCallback, synchronousParser, in.getInputSource()));
                 } else {
                     try {
