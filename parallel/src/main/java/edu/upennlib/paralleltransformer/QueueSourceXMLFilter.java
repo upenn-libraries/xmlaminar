@@ -316,14 +316,12 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
             Iterator<VolatileSAXSource> sourceIter = initIterator(input, induced);
             if (sourceIter.hasNext()) {
                 next = sourceIter.next();
-                System.err.println("nextInit: "+next.getSystemId());
                 initialParse(next);
                 XMLReader xmlReader = next.getXMLReader();
                 xmlReader.setContentHandler(this);
                 xmlReader.parse(next.getInputSource());
                 while (sourceIter.hasNext()) {
                     next = sourceIter.next();
-                    System.err.println("nextRepeat: "+next.getSystemId());
                     repeatParse(next);
                     xmlReader = next.getXMLReader();
                     xmlReader.setContentHandler(this);
@@ -494,8 +492,6 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
         @Override
         public VolatileSAXSource next() {
             String next = s.next();
-            System.err.println("scannerNext: "+next);
-            Thread.dumpStack();
             InputSource nextIn = new InputSource(next);
             XMLReader xr = QueueSourceXMLFilter.super.getParent(); // defaults to parent
             return new VolatileSAXSource(xr, nextIn);
