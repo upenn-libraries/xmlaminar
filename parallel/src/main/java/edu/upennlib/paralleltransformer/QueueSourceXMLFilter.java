@@ -296,7 +296,7 @@ public abstract class QueueSourceXMLFilter extends VolatileXMLFilterImpl {
             return new IndirectSourceSupplier(input);
         } else {
             Iterator<VolatileSAXSource> base;
-            switch (induced) {
+            switch (inputType) {
                 case indirect:
                     base = new IndirectSourceSupplier(input);
                     break;
