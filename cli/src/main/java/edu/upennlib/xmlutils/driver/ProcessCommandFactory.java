@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.regex.Pattern;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import joptsimple.OptionParser;
@@ -119,6 +120,9 @@ class ProcessCommandFactory extends CommandFactory {
             }
             if (first && inputBase.filesFrom != null) {
                 txf.setInputType(QueueSourceXMLFilter.InputType.indirect);
+                if (inputBase.delim != null) {
+                    txf.setDelimiterPattern(Pattern.compile(inputBase.delim, Pattern.LITERAL));
+                }
             }
             return txf;
         }

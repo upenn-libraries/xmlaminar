@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.regex.Pattern;
 import javax.xml.transform.TransformerFactory;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -105,6 +106,9 @@ public class JoinCommand implements Command<InputCommandFactory.InputCommand> {
         JoiningXMLFilter joiner = new JoiningXMLFilter(!joinAll);
         if (first && inputBase.filesFrom != null) {
             joiner.setInputType(QueueSourceXMLFilter.InputType.indirect);
+            if (inputBase.delim != null) {
+                joiner.setDelimiterPattern(Pattern.compile(inputBase.delim, Pattern.LITERAL));
+            }
         }
         return joiner;
     }

@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.regex.Pattern;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -104,6 +105,9 @@ class SplitCommandFactory extends CommandFactory {
             LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter(recordDepth, chunkSize);
             if (first && inputBase.filesFrom != null) {
                 splitter.setInputType(QueueSourceXMLFilter.InputType.indirect);
+                if (inputBase.delim != null) {
+                    splitter.setDelimiterPattern(Pattern.compile(inputBase.delim, Pattern.LITERAL));
+                }
             }
             return splitter;
         }
