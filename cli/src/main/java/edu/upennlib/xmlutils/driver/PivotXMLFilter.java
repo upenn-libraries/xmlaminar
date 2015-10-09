@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Phaser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -46,6 +49,7 @@ public class PivotXMLFilter<T extends XMLFilter & XMLReader> extends XMLFilterIm
     private final int lookaheadFactor;
     private final XMLFilter highParent;
     private ExecutorService executor;
+    private static final Logger logger = LoggerFactory.getLogger(PivotXMLFilter.class);
 
     public PivotXMLFilter(XMLFilter parent, int batchSize, int lookaheadFactor) {
         this(parent, batchSize, lookaheadFactor, false);
@@ -108,10 +112,22 @@ public class PivotXMLFilter<T extends XMLFilter & XMLReader> extends XMLFilterIm
             ocParent.setOutputCallback(sc);
             /*
             CAN INLINE THIS
-            executor.submit(new ParsingRunnable(parent, input));
-            sc.awaitFinished();
-            */
+             executor.submit(new ParsingRunnable(parent, input));
+             sc.awaitFinished();
+             */
+            try {
+                parent.setProperty(SAXProperties.EXECUTOR_SERVICE_PROPERTY_NAME, executor);
+            } catch (SAXNotRecognizedException ex) {
+                executor.shutdown();
+                executor = null;
+                logger.trace("ignoring " + ex);
+            } catch (SAXNotSupportedException ex) {
+                executor.shutdown();
+                executor = null;
+                logger.trace("ignoring " + ex);
+            }
             parent.parse(input);
+            sc.awaitFinished();
             return null;
         } else {
             InputSource pivotIn = new InputSource(input.getSystemId());
@@ -137,6 +153,7 @@ public class PivotXMLFilter<T extends XMLFilter & XMLReader> extends XMLFilterIm
 
         private final XMLReader downstream;
         private final ExecutorService executor;
+        private final Phaser finished = new Phaser(2);
 
         public SplittingCallback(XMLReader downstream, int batchSize, int lookaheadFactor, ExecutorService executor) {
             this.downstream = downstream;
@@ -164,10 +181,15 @@ public class PivotXMLFilter<T extends XMLFilter & XMLReader> extends XMLFilterIm
                 XMLToPlaintext xtp = new XMLToPlaintext(w, input, xmlReader);
                 executor.submit(xtp);
                 downstream.parse(pivotIn);
+                finished.arrive();
             } catch (Throwable t) {
                 t.printStackTrace(System.err);
                 throw new RuntimeException(t);
             }
+        }
+
+        public void awaitFinished() {
+            finished.arriveAndAwaitAdvance();
         }
 
         @Override
