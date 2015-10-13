@@ -78,6 +78,8 @@ public class IntegrateCommandFactory extends CommandFactory {
     
     private void reset() {
         root = new IntegratorOutputNode();
+        actualBatchSize = -1;
+        sxfs.clear();
     }
     
     @Override
