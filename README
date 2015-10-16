@@ -10,12 +10,12 @@ of many workflows involving XML.
 
 xml-utils defines and implements a clean java and command-line API, 
 providing a flexible level of abstraction for managing the document-based 
-nature of data that can be represented as XML.  Functionality enabled 
-includes:
+nature of XML representations of data.  Functionality enabled includes:
 1. Joining multiple XML streams together
 2. Splitting XML streams into smaller chunks
 3. Fault-tolerant, order-preserving parallel processing of arbitrarily 
-   large XML streams
+   large XML streams (taking advantage of multiple cores to speed
+   processing)
 4. Streaming XML representation of information from databases (including 
    MARC->MARCXML)
 5. Integration of multiple corresponding XML streams into a single 
