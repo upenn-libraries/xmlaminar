@@ -302,7 +302,6 @@ public class JoiningXMLFilter extends QueueSourceXMLFilter implements OutputCall
             setupParse(devNullContentHandler);
         } else {
             String systemId = in.getSystemId();
-            System.err.println("systemId compare: "+systemId+", "+lastSystemId);
             if (systemId == null ? lastSystemId == null : systemId.equals(lastSystemId)) {
                 setupParse(devNullContentHandler);
             } else {
