@@ -36,7 +36,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.text.ParseException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,12 +53,10 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.sql.DataSource;
-import oracle.jdbc.OracleConnection;
-import oracle.jdbc.pool.OracleConnectionPoolDataSource;
+import oracle.jdbc.pool.OracleDataSource;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.EntityResolver;
@@ -123,14 +120,26 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
     
     public static DataSource newDataSource(File connectionProps) {
         try {
-            OracleConnectionPoolDataSource ds = (OracleConnectionPoolDataSource) Class.forName("oracle.jdbc.pool.OracleConnectionPoolDataSource").newInstance();
+            OracleDataSource ds = (OracleDataSource) Class.forName("oracle.jdbc.pool.OracleDataSource").newInstance();
+            Properties prop = new Properties();
+            prop.setProperty("MinLimit", "1");
+            prop.setProperty("MaxLimit", "4");
+            prop.setProperty("InitialLimit", "1");
+            prop.setProperty("InactivityTimeout", "10");
+            prop.setProperty("AbandonedConnectionTimeout", "10");
+            prop.setProperty("MaxStatementsLimit", "10");
+            ds.setConnectionCacheProperties(prop);
             ds.setDriverType("thin");
             ds.setPortNumber(1521);
             Properties cProps = new Properties();
             cProps.load(new FileReader(connectionProps));
             ds.setServerName((String) cProps.remove("server"));
             ds.setDatabaseName((String) cProps.remove("database"));
+            ds.setUser((String) cProps.remove("user"));
+            ds.setPassword((String) cProps.remove("password"));
             ds.setConnectionProperties(cProps);
+            ds.setImplicitCachingEnabled(true);
+            ds.setConnectionCachingEnabled(true);
             return ds;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -392,6 +401,18 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
     private final BlockingQueue<StatementEnqueuer> psQueue;
     private final LinkedBlockingDeque<String> startIds;
     
+    private static class RSStruct {
+        private final PreparedStatement ps;
+        private final ResultSet rs;
+        private final Connection conn;
+
+        public RSStruct(PreparedStatement ps, ResultSet rs, Connection conn) {
+            this.ps = ps;
+            this.rs = rs;
+            this.conn = conn;
+        }
+    }
+
     private class StatementEnqueuer implements Runnable {
 
         private volatile boolean complete = false;
@@ -422,8 +443,8 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
             return startId;
         }
 
-        public Entry<ResultSet, Connection> getResultSet(Iterator<String> paramIter) throws SQLException {
-            Entry<ResultSet, Connection> ret = null;
+        public RSStruct getResultSet(Iterator<String> paramIter) throws SQLException {
+            RSStruct ret = null;
             try {
                 if (!complete) {
                     rsLock.lock();
@@ -457,7 +478,7 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
                         paramIter.next();
                     }
                 }
-                ret = rs == null ? null : new AbstractMap.SimpleEntry<ResultSet, Connection>(rs, connection);
+                ret = rs == null ? null : new RSStruct(ps, rs, connection);
                 reset();
                 return ret;
             } finally {
@@ -566,6 +587,7 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
             }
             buffer.parse(input);
         } else {
+            PreparedStatement ps = null;
             Connection c = null;
             try {
                 StatementEnqueuer se;
@@ -574,16 +596,18 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
                 try {
                     if (rsQueueLength > 1 && parameterizedSQL && (startId = startIds.poll()) != null) {
                         direct = rsQueue.get(startId);
-                        Entry<ResultSet, Connection> rc = direct.getResultSet(paramIter);
-                        rs = rc.getKey();
-                        c = rc.getValue();
+                        RSStruct rc = direct.getResultSet(paramIter);
+                        ps = rc.ps;
+                        rs = rc.rs;
+                        c = rc.conn;
                     } else {
                         direct = psQueue.remove();
                         direct.init(paramIter, null);
                         direct.run();
-                        Entry<ResultSet, Connection> rc = direct.getResultSet(null);
-                        rs = rc.getKey();
-                        c = rc.getValue();
+                        RSStruct rc = direct.getResultSet(null);
+                        ps = rc.ps;
+                        rs = rc.rs;
+                        c = rc.conn;
                     }
                     if (rsQueueLength > 1 && parameterizedSQL && paramIter.hasNext() && (se = psQueue.poll()) != null) {
                         startId = se.init(paramIter, startIds.peekLast());
@@ -615,12 +639,28 @@ public abstract class SQLXMLReader extends VolatileXMLFilterImpl {
             } finally {
                 parsing = false;
                 paramIter = null;
-                rs = null;
-                if (c != null) {
+                try {
+                    if (rs != null) {
+                        rs.close();
+                    }
+                } catch (SQLException ex) {
+                    logger.error("exception closing resultset", ex);
+                } finally {
+                    rs = null;
                     try {
-                        c.close();
+                        if (ps != null) {
+                            ps.close();
+                        }
                     } catch (SQLException ex) {
-                        logger.error("exception closing resultset", ex);
+                        logger.error("exception closing statement", ex);
+                    } finally {
+                        if (c != null) {
+                            try {
+                                c.close();
+                            } catch (SQLException ex) {
+                                logger.error("exception closing connection", ex);
+                            }
+                        }
                     }
                 }
             }
