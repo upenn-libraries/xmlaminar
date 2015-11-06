@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package edu.upennlib.paralleltransformer;
 
 import com.sun.org.apache.xerces.internal.impl.XMLEntityManager;
