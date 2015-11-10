@@ -16,39 +16,34 @@
 
 package edu.upenn.library.xmlaminar.parallel;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.xml.sax.SAXException;
 
 /**
- * Unit test for simple App.
+ *
+ * @author Michael Gibney
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
+public class UpstreamSAXException extends SAXException {
+
+    private final SAXException source;
+
+    public UpstreamSAXException(InterruptedException immediate, SAXException source) {
+        super(immediate);
+        this.source = source;
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    @Override
+    public Exception getException() {
+        return source.getException();
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+    @Override
+    public String getMessage() {
+        return source.getMessage();
     }
+
+    @Override
+    public String toString() {
+        return source.toString();
+    }
+
 }

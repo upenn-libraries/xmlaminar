@@ -16,39 +16,10 @@
 
 package edu.upenn.library.xmlaminar.parallel;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 /**
- * Unit test for simple App.
+ *
+ * @author Michael Gibney
  */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
-
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
+public interface ParentSubdividable<E extends Enum<E>, T extends ParentSubdividable<E, T, C>, C extends Subdividable<E, C>> extends Subdividable<E, T> {
+    C getChild();
 }
