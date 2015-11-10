@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package edu.upennlib.ingestor.sax.integrator;
+package edu.upenn.library.xmlaminar.integrator;
 
-import edu.upennlib.paralleltransformer.InputSourceXMLReader;
-import edu.upennlib.xmlutils.EchoingContentHandler;
-import edu.upennlib.xmlutils.DevNullContentHandler;
-import edu.upennlib.xmlutils.SAXFeatures;
-import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
-import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
+import edu.upenn.library.xmlaminar.parallel.InputSourceXMLReader;
+import edu.upenn.library.xmlaminar.EchoingContentHandler;
+import edu.upenn.library.xmlaminar.DevNullContentHandler;
+import edu.upenn.library.xmlaminar.SAXFeatures;
+import edu.upenn.library.xmlaminar.UnboundedContentHandlerBuffer;
+import edu.upenn.library.xmlaminar.VolatileXMLFilterImpl;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.upennlib.ingestor.sax.integrator;
+package edu.upenn.library.xmlaminar.integrator;
 
 import java.io.EOFException;
 import org.xml.sax.ContentHandler;

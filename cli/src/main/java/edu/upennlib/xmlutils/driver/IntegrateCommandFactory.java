@@ -16,8 +16,8 @@
 
 package edu.upennlib.xmlutils.driver;
 
-import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
-import edu.upennlib.ingestor.sax.integrator.StatefulXMLFilter;
+import edu.upenn.library.xmlaminar.integrator.IntegratorOutputNode;
+import edu.upenn.library.xmlaminar.integrator.StatefulXMLFilter;
 import edu.upennlib.paralleltransformer.InputSourceXMLReader;
 import edu.upennlib.paralleltransformer.InputSplitter;
 import edu.upennlib.paralleltransformer.JoiningXMLFilter;

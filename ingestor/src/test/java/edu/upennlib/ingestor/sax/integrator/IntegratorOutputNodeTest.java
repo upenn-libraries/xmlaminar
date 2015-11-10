@@ -16,7 +16,8 @@
 
 package edu.upennlib.ingestor.sax.integrator;
 
-import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
+import edu.upenn.library.xmlaminar.integrator.IntegratorOutputNode;
+import edu.upenn.library.xmlaminar.UnboundedContentHandlerBuffer;
 import javax.xml.transform.sax.SAXResult;
 import java.nio.channels.Channels;
 import org.w3c.dom.Document;

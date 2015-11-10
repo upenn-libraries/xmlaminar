@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package edu.upennlib.ingestor.sax.integrator;
+package edu.upenn.library.xmlaminar.integrator;
 
-import edu.upennlib.paralleltransformer.InputSourceXMLReader;
-import edu.upennlib.paralleltransformer.JoiningXMLFilter;
-import edu.upennlib.paralleltransformer.QueueSourceXMLFilter;
-import edu.upennlib.xmlutils.DumpingLexicalXMLFilter;
-import edu.upennlib.xmlutils.SAXParserResetter;
-import edu.upennlib.xmlutils.SAXProperties;
-import edu.upennlib.xmlutils.UnboundedContentHandlerBuffer;
-import edu.upennlib.xmlutils.VolatileXMLFilterImpl;
-import edu.upennlib.xmlutils.dbxml.DataSourceFactory;
+import edu.upenn.library.xmlaminar.parallel.InputSourceXMLReader;
+import edu.upenn.library.xmlaminar.parallel.JoiningXMLFilter;
+import edu.upenn.library.xmlaminar.parallel.QueueSourceXMLFilter;
+import edu.upenn.library.xmlaminar.DumpingLexicalXMLFilter;
+import edu.upenn.library.xmlaminar.SAXParserResetter;
+import edu.upenn.library.xmlaminar.SAXProperties;
+import edu.upenn.library.xmlaminar.UnboundedContentHandlerBuffer;
+import edu.upenn.library.xmlaminar.VolatileXMLFilterImpl;
+import edu.upenn.library.xmlaminar.dbxml.DataSourceFactory;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;

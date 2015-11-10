@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package edu.upennlib.ingestor;
+package edu.upenn.library.ingestor;
 
-import edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode;
-import edu.upennlib.paralleltransformer.TXMLFilter;
+import edu.upenn.library.xmlaminar.integrator.IntegratorOutputNode;
+import edu.upenn.library.xmlaminar.parallel.TXMLFilter;
 import edu.upennlib.solrposter.SAXSolrPoster;
-import edu.upennlib.xmlutils.DumpingLexicalXMLFilter;
-import edu.upennlib.xmlutils.dbxml.PerformanceEvaluator;
+import edu.upenn.library.xmlaminar.DumpingLexicalXMLFilter;
+import edu.upenn.library.xmlaminar.dbxml.PerformanceEvaluator;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;

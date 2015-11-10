@@ -19,7 +19,7 @@
  * and open the template in the editor.
  */
 
-package edu.upennlib.ingestor.sax.integrator;
+package edu.upenn.library.xmlaminar.integrator;
 
 /**
  *
