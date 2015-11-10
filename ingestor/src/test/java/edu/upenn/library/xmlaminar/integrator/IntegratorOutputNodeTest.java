@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.upennlib.ingestor.sax.integrator;
+package edu.upenn.library.xmlaminar.integrator;
 
 import edu.upenn.library.xmlaminar.integrator.IntegratorOutputNode;
 import edu.upenn.library.xmlaminar.UnboundedContentHandlerBuffer;
