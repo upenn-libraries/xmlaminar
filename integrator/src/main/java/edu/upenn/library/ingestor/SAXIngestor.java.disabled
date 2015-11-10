@@ -18,7 +18,7 @@ package edu.upenn.library.ingestor;
 
 import edu.upenn.library.xmlaminar.integrator.IntegratorOutputNode;
 import edu.upenn.library.xmlaminar.parallel.TXMLFilter;
-import edu.upennlib.solrposter.SAXSolrPoster;
+import edu.upenn.library.solrposter.SAXSolrPoster;
 import edu.upenn.library.xmlaminar.DumpingLexicalXMLFilter;
 import edu.upenn.library.xmlaminar.dbxml.PerformanceEvaluator;
 import java.io.ByteArrayOutputStream;

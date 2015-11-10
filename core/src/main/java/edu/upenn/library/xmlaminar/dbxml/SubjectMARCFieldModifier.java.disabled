@@ -16,8 +16,8 @@
 
 package edu.upenn.library.xmlaminar.dbxml;
 
-import edu.upennlib.subjectremediation.SubjectTrieLoader;
-import edu.upennlib.subjectremediation.SubjectTrieTraverser;
+import edu.upenn.library.subjectremediation.SubjectTrieLoader;
+import edu.upenn.library.subjectremediation.SubjectTrieTraverser;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;

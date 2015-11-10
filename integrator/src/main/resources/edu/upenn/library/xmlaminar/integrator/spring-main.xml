@@ -3,7 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <bean id="ingestor" class="edu.upennlib.ingestor.SAXIngestor" scope="singleton" lazy-init="true">
+    <bean id="ingestor" class="edu.upenn.library.ingestor.SAXIngestor" scope="singleton" lazy-init="true">
         <property name="integrator" ref="rootIntegrator"/>
         <property name="solrPoster" ref="solrPoster"/>
         <property name="joiner" ref="joiner"/>
@@ -14,13 +14,13 @@
         <property name="solrServerURI" value="${solrServer.url}"/>
         <property name="dumpFile" value="${ingestor.dumpFile}"/>
     </bean>
-    <bean id="evaluator" class="edu.upennlib.xmlutils.dbxml.PerformanceEvaluator" scope="singleton" lazy-init="true"/>
-    <bean id="rootIntegrator" class="edu.upennlib.ingestor.sax.integrator.IntegratorOutputNode" scope="singleton" lazy-init="true" init-method="initSpring">
+    <bean id="evaluator" class="edu.upenn.library.xmlaminar.dbxml.PerformanceEvaluator" scope="singleton" lazy-init="true"/>
+    <bean id="rootIntegrator" class="edu.upenn.library.xmlaminar.integrator.IntegratorOutputNode" scope="singleton" lazy-init="true" init-method="initSpring">
         <property name="subIntegratorsSpring" ref="${rootIntegrator.subIntegrators}"/>
         <property name="descendentsSpring" value="${rootIntegrator.descendents}"/>
         <property name="dumpFile" value="${rootIntegrator.dumpFile}"/>
     </bean>
-    <bean id="marcIntegrator" class="edu.upennlib.xmlutils.dbxml.BinaryMARCXMLReader" scope="prototype">
+    <bean id="marcIntegrator" class="edu.upenn.library.xmlaminar.dbxml.BinaryMARCXMLReader" scope="prototype">
         <property name="name" value="${integrator.name}"/>
         <property name="host" value="${integrator.host}"/>
         <property name="sid" value="${integrator.sid}"/>
@@ -32,12 +32,12 @@
         <property name="performanceEvaluator" ref="evaluator"/>
         <property name="fieldModifier" ref="${integrator.fieldModifier}"/>
     </bean>
-    <bean id="subjectFieldModifier" class="edu.upennlib.xmlutils.dbxml.SubjectMARCFieldModifier" lazy-init="true">
+    <bean id="subjectFieldModifier" class="edu.upenn.library.xmlaminar.dbxml.SubjectMARCFieldModifier" lazy-init="true">
         <property name="subjectRemediationTable" ref="subjectRemediationTable"/>
     </bean>
-    <bean id="subjectRemediationTable" class="edu.upennlib.subjectremediation.SubjectTrieTraverser" factory-bean="subjectTrieLoader" factory-method="load" lazy-init="true"/>
-    <bean id="subjectTrieLoader" class="edu.upennlib.subjectremediation.SubjectTrieLoader" lazy-init="true"/>
-    <bean id="rsIntegrator" class="edu.upennlib.xmlutils.dbxml.RSXMLReader" scope="prototype">
+    <bean id="subjectRemediationTable" class="edu.upenn.library.subjectremediation.SubjectTrieTraverser" factory-bean="subjectTrieLoader" factory-method="load" lazy-init="true"/>
+    <bean id="subjectTrieLoader" class="edu.upenn.library.subjectremediation.SubjectTrieLoader" lazy-init="true"/>
+    <bean id="rsIntegrator" class="edu.upenn.library.xmlaminar.dbxml.RSXMLReader" scope="prototype">
         <property name="name" value="${integrator.name}"/>
         <property name="host" value="${integrator.host}"/>
         <property name="sid" value="${integrator.sid}"/>
@@ -47,19 +47,19 @@
         <property name="sql" value="${integrator.sql}"/>
         <property name="performanceEvaluator" ref="evaluator"/>
     </bean>
-    <bean id="solrPoster" class="edu.upennlib.solrposter.SAXSolrPoster" lazy-init="true" scope="singleton">
+    <bean id="solrPoster" class="edu.upenn.library.solrposter.SAXSolrPoster" lazy-init="true" scope="singleton">
         <property name="server" ref="solrServer"/>
     </bean>
     <bean id="solrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer" factory-bean="solrServerFactory" factory-method="getServer" scope="singleton" lazy-init="true"/>
-    <bean id="solrServerFactory" class="edu.upennlib.solrposter.ConcurrentUpdateSolrServerFactory" scope="singleton" lazy-init="true">
+    <bean id="solrServerFactory" class="edu.upenn.library.solrposter.ConcurrentUpdateSolrServerFactory" scope="singleton" lazy-init="true">
         <property name="solrURL" value="${solrServer.url}"/>
         <property name="queueSize" value="${solrServer.queueSize}"/>
         <property name="threadCount" value="${solrServer.threadCount}"/>
     </bean>
-    <bean id="joiner" class="edu.upennlib.paralleltransformer.TransformingXMLFilter" scope="singleton" lazy-init="true">
+    <bean id="joiner" class="edu.upenn.library.xmlaminar.parallel.TXMLFilter" scope="singleton" lazy-init="true">
         <property name="stylesheet" value="${joiner.stylesheet}"/>
         <property name="chunkSize" value="${joiner.chunkSize}"/>
     </bean>
-    <bean id="null" class="edu.upennlib.configurationutils.ConfigUtils$NullFactory" scope="singleton" lazy-init="true"/>
-    <bean id="bpp" class="edu.upennlib.configurationutils.BPP"/>
+<!--    <bean id="null" class="edu.upenn.library.configurationutils.ConfigUtils$NullFactory" scope="singleton" lazy-init="true"/>
+    <bean id="bpp" class="edu.upenn.library.configurationutils.BPP"/>-->
 </beans>

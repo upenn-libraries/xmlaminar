@@ -55,7 +55,7 @@ public abstract class FilesystemXMLReader implements XMLReader {
     public static final boolean DEFAULT_TOLERATE_UNREADABLE_DIRECTORIES = true;
     private boolean tolerateUnreadableDirectories = DEFAULT_TOLERATE_UNREADABLE_DIRECTORIES;
     private static final String NS_PREFIXES_FEATURE_KEY = "http://xml.org/sax/features/namespace-prefixes";
-    public static final String URI = "http://upennlib.edu/fsxml";
+    public static final String URI = "http://library.upenn.edu/fsxml";
     public static final String PREFIX = "fsxml";
     private static final Logger logger = LoggerFactory.getLogger(FilesystemXMLReader.class);
     private static final Map<String,Boolean> unmodifiableFeatures;

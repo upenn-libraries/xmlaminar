@@ -22,5 +22,5 @@ package edu.upenn.library.xmlaminar;
  */
 public class SAXProperties {
     public static final String EXECUTOR_SERVICE_PROPERTY_NAME = "http://concurrent.util.java/ExecutorService";
-    public static final String DATA_SOURCE_FACTORY_PROPERTY_NAME = "http://dbxml.xmlutils.upennlib.edu/DataSourceFactory";
+    public static final String DATA_SOURCE_FACTORY_PROPERTY_NAME = "http://dbxml.xmlaminar.library.upenn.edu/DataSourceFactory";
 }
