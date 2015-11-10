@@ -36,7 +36,7 @@
                             </descriptorRefs>
                             <archive>
                                 <manifestEntries>
-                                    <Main-Class>edu.upenn.library.xmlaminar.driver.Driver</Main-Class>
+                                    <Main-Class>edu.upenn.library.xmlaminar.cli.Driver</Main-Class>
                                     <Class-Path>./</Class-Path>
                                 </manifestEntries>
                             </archive>
