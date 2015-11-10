@@ -4,16 +4,16 @@
                              http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>edu.upennlib</groupId>
-    <artifactId>xml-utils</artifactId>
+    <groupId>edu.upenn.library</groupId>
+    <artifactId>xmlaminar</artifactId>
     <packaging>pom</packaging>
-    <version>1.0</version>
-    <name>XML Utils</name>
+    <version>1.3-SNAPSHOT</version>
+    <name>xmlaminar</name>
 
     <modules>
         <module>core</module>
         <module>parallel</module>
-        <module>ingestor</module>
+        <module>integrator</module>
         <module>cli</module>
     </modules>
 
