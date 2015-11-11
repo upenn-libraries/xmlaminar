@@ -22,16 +22,18 @@ import edu.upenn.library.xmlaminar.cli.CommandType;
 import edu.upenn.library.xmlaminar.cli.Flags;
 import edu.upenn.library.xmlaminar.cli.InitCommand;
 import edu.upenn.library.xmlaminar.cli.InputCommandFactory;
-import edu.upenn.library.xmlaminar.parallel.LevelSplittingXMLFilter;
 import edu.upenn.library.xmlaminar.parallel.QueueSourceXMLFilter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.regex.Pattern;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLFilter;
 
@@ -62,10 +64,17 @@ class SolrPostCommandFactory extends CommandFactory {
 
     private static class SplitCommand implements Command<InputCommandFactory.InputCommand> {
 
-        private int chunkSize;
-        private final OptionSpec<Integer> chunkSizeSpec;
-        private int recordDepth;
-        private final OptionSpec<Integer> recordDepthSpec;
+        private static final int DEFAULT_QUEUE_SIZE = 10;
+        private static final Collection<String> QUEUE_SIZE_ARG = Arrays.asList("queue-size");
+        private int queueSize;
+        private final OptionSpec<Integer> threadCountSpec;
+        private static final int DEFAULT_THREAD_COUNT = 4;
+        private static final Collection<String> THREAD_COUNT_ARG = Arrays.asList("thread-count");
+        private int threadCount;
+        private final OptionSpec<String> solrUrlSpec;
+        private static final Collection<String> SOLR_URL_ARG = Arrays.asList("solr-url");
+        private String solrURL;
+        private final OptionSpec<Integer> queueSizeSpec;
 
         private final OptionSpec verboseSpec;
         private final OptionSpec helpSpec;
@@ -81,11 +90,12 @@ class SolrPostCommandFactory extends CommandFactory {
             this.first = first;
             this.last = last;
             parser = new OptionParser();
-            recordDepthSpec = parser.acceptsAll(Flags.DEPTH_ARG, "set record element depth")
-                    .withRequiredArg().ofType(Integer.class).defaultsTo(1);
-            chunkSizeSpec = parser.acceptsAll(Flags.SIZE_ARG, "size (in records) of output files (for split) "
-                    + "or processing chunks (for process)").withRequiredArg().ofType(Integer.class)
-                    .defaultsTo(100);
+            solrUrlSpec = parser.acceptsAll(SOLR_URL_ARG, "solr update server url")
+                    .withRequiredArg().ofType(String.class);
+            queueSizeSpec = parser.acceptsAll(QUEUE_SIZE_ARG, "solr update queue size")
+                    .withRequiredArg().ofType(Integer.class).defaultsTo(DEFAULT_QUEUE_SIZE);
+            threadCountSpec = parser.acceptsAll(THREAD_COUNT_ARG, "solr update thread count")
+                    .withRequiredArg().ofType(Integer.class).defaultsTo(DEFAULT_THREAD_COUNT);
             verboseSpec = parser.acceptsAll(Flags.VERBOSE_ARG, "be more verbose");
             helpSpec = parser.acceptsAll(Flags.HELP_ARG, "show help").forHelp();
         }
@@ -95,8 +105,9 @@ class SolrPostCommandFactory extends CommandFactory {
             if (options.has(helpSpec)) {
                 return false;
             }
-            recordDepth = options.valueOf(recordDepthSpec);
-            chunkSize = options.valueOf(chunkSizeSpec);
+            solrURL = options.valueOf(solrUrlSpec);
+            threadCount = options.valueOf(threadCountSpec);
+            queueSize = options.valueOf(queueSizeSpec);
             return true;
         }
         
@@ -108,19 +119,20 @@ class SolrPostCommandFactory extends CommandFactory {
                 return null;
             }
             CommandFactory.conditionalInit(first, inputBase, EXPECT_INPUT);
-            LevelSplittingXMLFilter splitter = new LevelSplittingXMLFilter(recordDepth, chunkSize);
+            SAXSolrPoster ssp = new SAXSolrPoster();
+            ssp.setServer(new ConcurrentUpdateSolrServer(solrURL, queueSize, threadCount));
             if (first && inputBase.getFilesFrom() != null) {
-                splitter.setInputType(QueueSourceXMLFilter.InputType.indirect);
+                ssp.setInputType(QueueSourceXMLFilter.InputType.indirect);
                 if (inputBase.getDelim() != null) {
-                    splitter.setDelimiterPattern(Pattern.compile(inputBase.getDelim(), Pattern.LITERAL));
+                    ssp.setDelimiterPattern(Pattern.compile(inputBase.getDelim(), Pattern.LITERAL));
                 }
             }
-            return splitter;
+            return ssp;
         }
 
         @Override
         public CommandType getCommandType() {
-            return CommandType.SPLIT;
+            return CommandType.PASS_THROUGH;
         }
 
         @Override
@@ -130,7 +142,7 @@ class SolrPostCommandFactory extends CommandFactory {
 
         @Override
         public boolean handlesOutput() {
-            return false;
+            return true;
         }
 
         @Override
