@@ -217,7 +217,7 @@ public class SAXSolrPoster extends QueueSourceXMLFilter implements OutputCallbac
         inputDocsChunk.clear();
     }
 
-    private void openTransformer(int refLevel, String extra) throws SAXException {
+    private void openTransformer(int refLevel) throws SAXException {
         try {
             fieldContentsWriter.flush();
         } catch (IOException ex) {
@@ -263,10 +263,10 @@ public class SAXSolrPoster extends QueueSourceXMLFilter implements OutputCallbac
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
         if (inField) {
             if (!useTransformer) {
-                openTransformer(level + 1, "startPrefixMapping("+prefix+", "+uri+")");
+                openTransformer(level + 1);
             } else if (closeTransformer) {
                 closeTransformer();
-                openTransformer(level + 1, "startPrefixMapping("+prefix+", "+uri+")");
+                openTransformer(level + 1);
             }
             transformerInput.startPrefixMapping(prefix, uri);
         }
@@ -291,10 +291,10 @@ public class SAXSolrPoster extends QueueSourceXMLFilter implements OutputCallbac
             enterField(atts.getValue("name"));
         } else if (inField) {
             if (!useTransformer) {
-                openTransformer(level, "startElement("+uri+", "+localName+", "+qName+")");
+                openTransformer(level);
             } else if (closeTransformer) {
                 closeTransformer();
-                openTransformer(level, "startElement("+uri+", "+localName+", "+qName+")");
+                openTransformer(level);
             }
             transformerInput.startElement(uri, localName, qName, atts);
         }
