@@ -16,11 +16,11 @@
 
 package edu.upenn.library.xmlaminar.solr;
 
+import edu.upenn.library.xmlaminar.VolatileSAXSource;
+import edu.upenn.library.xmlaminar.parallel.DummyXMLReader;
 import edu.upenn.library.xmlaminar.parallel.QueueSourceXMLFilter;
-import edu.upenn.library.xmlaminar.parallel.callback.OutputCallback;
 import java.io.BufferedReader;
 import org.apache.solr.client.solrj.SolrServer;
-import org.xml.sax.ContentHandler;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -50,13 +50,14 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 
 /**
  *
  * @author michael
  */
-public class SAXSolrPoster extends QueueSourceXMLFilter implements OutputCallback {
+public class SAXSolrPoster extends QueueSourceXMLFilter {
 
     public static final String TRANSFORMER_FACTORY_CLASS_NAME = "net.sf.saxon.TransformerFactoryImpl";
     private SolrServer server;
@@ -99,6 +100,7 @@ public class SAXSolrPoster extends QueueSourceXMLFilter implements OutputCallbac
         }
     }
 
+    @Override
     public void shutdown() {
         if (server instanceof ConcurrentUpdateSolrServer) {
             ((ConcurrentUpdateSolrServer) server).blockUntilFinished();
@@ -236,7 +238,9 @@ public class SAXSolrPoster extends QueueSourceXMLFilter implements OutputCallbac
 
     @Override
     public void setDocumentLocator(Locator locator) {
-        logger.trace("ignoring setDocumentLocator("+locator+")");
+        if (logger.isTraceEnabled()) {
+            logger.trace("ignoring setDocumentLocator("+locator+")");
+        }
     }
 
     @Override
@@ -249,6 +253,36 @@ public class SAXSolrPoster extends QueueSourceXMLFilter implements OutputCallbac
         if (docsCount > 0) {
             submitDocs();
         }
+    }
+
+    @Override
+    protected void initialParse(VolatileSAXSource in) {
+        synchronousParse(in);
+    }
+
+    @Override
+    protected void repeatParse(VolatileSAXSource in) {
+        synchronousParse(in);
+    }
+
+    private static final DummyXMLReader dxr = new DummyXMLReader();
+
+    private void synchronousParse(VolatileSAXSource in) {
+        XMLReader xmlReader = in.getXMLReader();
+        xmlReader.setContentHandler(this);
+        try {
+            xmlReader.parse(in.getInputSource());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        } catch (SAXException ex) {
+            throw new RuntimeException(ex);
+        }
+        in.setXMLReader(dxr);
+    }
+
+    @Override
+    protected void finished() throws SAXException {
+        shutdown();
     }
 
     public static class SolrRuntimeException extends RuntimeException {
