@@ -19,28 +19,20 @@ package edu.upenn.library.xmlaminar.solr;
 import edu.upenn.library.xmlaminar.VolatileSAXSource;
 import edu.upenn.library.xmlaminar.parallel.DummyXMLReader;
 import edu.upenn.library.xmlaminar.parallel.QueueSourceXMLFilter;
-import java.io.BufferedReader;
 import org.apache.solr.client.solrj.SolrServer;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.zip.GZIPInputStream;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.common.SolrException;
@@ -112,36 +104,6 @@ public class SAXSolrPoster extends QueueSourceXMLFilter {
         this.server = server;
     }
     
-    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, TransformerConfigurationException, TransformerException {
-        ConcurrentUpdateSolrServerFactory ssf = new ConcurrentUpdateSolrServerFactory();
-        ssf.setThreadCount(4);
-        ssf.setQueueSize(10);
-        ssf.setSolrURL(args[0]);
-        SAXSolrPoster ssp = new SAXSolrPoster();
-        ssp.setServer(ssf.getServer());
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        TransformerFactory tf = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
-        try {
-            String line;
-            while ((line = in.readLine()) != null) {
-                if (line.length() > 0) {
-                    Transformer t = tf.newTransformer();
-                    StreamSource s;
-                    if (!line.endsWith(".gz")) {
-                        s = new StreamSource(line);
-                    } else {
-                        s = new StreamSource(new GZIPInputStream(new FileInputStream(line)));
-                        s.setSystemId(line);
-                    }
-                    t.transform(s, new SAXResult(ssp));
-                }
-            }
-        } finally {
-            in.close();
-        }
-        ssp.shutdown();
-    }
-
     public SolrServer getServer() {
         return server;
     }
