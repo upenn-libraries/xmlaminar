@@ -15,6 +15,7 @@
         <module>parallel</module>
         <module>integrator</module>
         <module>cli</module>
+        <module>solr</module>
     </modules>
 
 </project>

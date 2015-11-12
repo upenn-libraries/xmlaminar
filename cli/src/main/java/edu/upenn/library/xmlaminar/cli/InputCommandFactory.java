@@ -47,7 +47,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
  *
  * @author magibney
  */
-class InputCommandFactory extends CommandFactory {
+public class InputCommandFactory extends CommandFactory {
 
     private static final String KEY = "input";
 
@@ -116,6 +116,14 @@ class InputCommandFactory extends CommandFactory {
                     .withRequiredArg().ofType(String.class).defaultsTo(System.lineSeparator());
             verboseSpec = parser.acceptsAll(Flags.VERBOSE_ARG, "be more verbose");
             helpSpec = parser.acceptsAll(Flags.HELP_ARG, "show help").forHelp();
+        }
+
+        public InputSource getFilesFrom() {
+            return filesFrom;
+        }
+
+        public String getDelim() {
+            return delim;
         }
 
         @Override

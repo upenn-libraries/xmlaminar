@@ -18,12 +18,20 @@ package edu.upenn.library.xmlaminar.cli;
 
 import edu.upenn.library.xmlaminar.SAXProperties;
 import edu.upenn.library.xmlaminar.dbxml.DataSourceFactory;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,6 +62,7 @@ public class Driver {
 
     public static final String CONFIG_NAMESPACE_URI = "http://library.upenn.edu/xml-utils/config";
     private static final Logger logger = LoggerFactory.getLogger(Driver.class);
+    public static final String LOAD_EXTERNAL_COMMAND_FACTORIES_INI = "load-external-command-factories.ini";
     
     static {
         try {
@@ -67,12 +76,15 @@ public class Driver {
             Class.forName(ConfigCommandFactory.class.getCanonicalName());
             Class.forName(PipelineCommandFactory.class.getCanonicalName());
             Class.forName(IntegrateCommandFactory.class.getCanonicalName());
+            loadPlugins(ClassLoader.getSystemClassLoader());
         } catch (ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
+        } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
         
     }
-    
+
     public static class StaticArgFactory implements Command.ArgFactory {
 
         private final String[] args;
@@ -275,8 +287,63 @@ public class Driver {
         }
     }
 
+    private static void loadPlugins(ClassLoader cl) throws IOException {
+        Set<String> dynamicCommandFactories = new HashSet<>();
+        String extResourceIniLocation = Driver.class.getPackage().getName().replace('.', '/') + "/" + LOAD_EXTERNAL_COMMAND_FACTORIES_INI;
+        Enumeration<URL> extCfIni = cl.getResources(extResourceIniLocation);
+        while (extCfIni.hasMoreElements()) {
+            URL next = extCfIni.nextElement();
+            BufferedReader br = new BufferedReader(new InputStreamReader(next.openStream()));
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (!line.isEmpty() && !line.startsWith("#")) {
+                    dynamicCommandFactories.add(line);
+                }
+            }
+        }
+        for (String cf : dynamicCommandFactories) {
+            try {
+                Class.forName(cf, true, cl);
+            } catch (ClassNotFoundException ex) {
+                logger.warn("dynamically specified command type not found: " + cf);
+            }
+        }
+    }
+
+    private static String[] parsePlugins(String[] args) throws MalformedURLException, IOException {
+        if (args.length > 0 && "--plugins".equals(args[0])) {
+            if (args.length < 2) {
+                logger.warn("ignoring empty \"--plugins\" option");
+                return new String[]{};
+            } else if (args[1].startsWith("-")) {
+                logger.warn("interpreting \""+args[1]+"\" as option argument; ignoring empty \"--plugins\" option");
+                return Arrays.copyOfRange(args, 1, args.length);
+            } else {
+                String plugins = args[1];
+                args = Arrays.copyOfRange(args, 2, args.length);
+                String[] pluginCp = plugins.split(":");
+                List<URL> pluginUrls = new ArrayList<>();
+                for (String cp : pluginCp) {
+                    cp = cp.trim();
+                    if (!cp.isEmpty()) {
+                        pluginUrls.add(new File(cp).toURI().toURL());
+                    }
+                }
+                if (!pluginUrls.isEmpty()) {
+                    ClassLoader prev = Thread.currentThread().getContextClassLoader();
+                    ClassLoader augmented = URLClassLoader.newInstance(pluginUrls.toArray(new URL[pluginUrls.size()]), prev);
+                    Thread.currentThread().setContextClassLoader(augmented);
+                    loadPlugins(augmented);
+                }
+            }
+        }
+        return args;
+    }
+    
     public static void main(String[] args) throws IOException, TransformerConfigurationException {
         initLog4j();
+        args = parsePlugins(args);
         Map<String, CommandFactory> cfs = CommandFactory.getAvailableCommandFactories();
         Iterable<Map.Entry<CommandFactory, String[]>> commands = buildCommandList(args, cfs);
         Iterator<Map.Entry<CommandFactory, String[]>> iter = commands.iterator();
