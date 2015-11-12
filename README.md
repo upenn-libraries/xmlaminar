@@ -61,7 +61,7 @@ mvn install:install-file -Dfile=<path-to-file> -DgroupId=com.oracle \
 ```
 
 ### Use
-#### Command-line
+#### Command-line help
 Referring to the jar-with-dependencies as `xmlaminar.jar`, top-level cli 
 help may be accessed via:
 ```
@@ -89,3 +89,15 @@ Option                              Description
                                       otherwise CWD
 -v, --verbose                       be more verbose
 ```
+
+#### Command-line syntax
+Command-line syntax is designed to enable pipelineing wihtin a single JVM. Syntax was 
+to some degree inspired by the robustness and configurability of the `find` and `rsync` 
+commands, and the fluency of the `xrandr` command.
+
+Commind-line structure follows the pattern:
+```
+java -jar xmlaminar.jar [[--command] [--subcommand [arg]]*]+
+```
+Each command is configured by 0 or more subcommands, and output from each command is "piped" 
+(as SAX events) as input to the subsequent command. 
