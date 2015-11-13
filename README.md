@@ -224,7 +224,49 @@ ORDER BY 1,2
   </config:property>
 </config:source>
 ```
-Note that properties specified in the config may be contained directly as text content
-(which is processed in the same way as a Java properties file) or within a dedicated
-`<config:source/>` element. This allows the terseness of a java properties file to coexist
-alongside the richness and explicitness of XML.
+Note that properties specified in the config may be contained directly as top-level
+text content (which is parsed as a Java properties file) or within a dedicated
+`<config:source/>` element. This allows the terseness of a simple properties file to coexist
+alongside the richness and explicitness of XML, without sacrificing clarity or 
+introducing ambiguity.
+
+### Parallel, fault-tolerant XSLT processing
+The `process` command is one of the most powerful xmlaminar commands. Its handful of options
+allow for XML streams (consisting of independent records) to be parsed and processed 
+in parallel, greatly speeding what has traditionally been a fragile, fundamentally serial task. 
+
+```
+Option                       Description
+------                       -----------
+-r, --split-depth <Integer>  set record element depth (default: 1)
+--record-xpath               xpath specifying record id location
+-s, --subdivide-on-failure   define behavior on processing failure
+-x, --xsl <File>             xsl file defining processing templates
+```
+By passing a list of files to be processed, or by invoking the `split` command before the `process`
+command, chunks of records will be parsed serially, processed in parallel, and output 
+corresponding to input order. If the `subdivide-on-failure` flag is specified, a failure 
+during processing of a chunk of records will cause the chunk to be recursively subdivided 
+(according to the `split-depth` option) and re-processed, isolating the individual problem 
+record, logging its id (according to the setting of the `record-xpath` option), and 
+allowing the remainder of the records to complete the transformation successfully.
+
+### Output files corresponding to input
+In the common use case of transforming a directory full of XML files and writing output
+files in an analogous directory structure, xmlaminar may be configured to behave like 
+"'rsync --files-from' plus transformation". 
+
+The following command takes all `*.xml` files in the `input/` directory, splits them to
+ensure that XSLT processing isn't attempted on chunks of more than 1000 records,
+processes the resulting chunks according to `transform.xsl` (subdividing on transformation 
+failure and logging failed record ids), joins successfully transformed chunks back 
+together (grouping by input systemId), and writes the resulting transformed documents
+(gzipped) to a path rooted in the `output/` directory, analogous to the path of the 
+corresponding input document (as rooted in the `input/` directory):
+
+```
+find input/ -name '*.xml' | \
+  java -jar xmlaminar.jar --input -i input/ --files-from - --split -n 1000 \
+       --process -s -x transform.xsl --record-xpath '/root/record/@id' 
+       --join --output -z -b output/
+```
