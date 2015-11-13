@@ -170,3 +170,61 @@ These concerns are addressed by the `config` pseudo-command, whose single XML-co
 argument bundles command and pipeline configurations together into a single modular 
 component that may be used as part of other pipelines or commands -- either on the 
 command-line, or nested within other configuration files. 
+
+The below configuration file (invoked `echo 20 | java -jar xmlaminar.jar --config pipeline.xml` 
+reads ids for records modified during the past 20 days, and uses them to retrieve 
+associated marc records as MARCXML, group them into documents containing 1000 records
+each (plus remainder), and write the resulting documents out (gzipped) as out/marc-00000.xml.gz, 
+out/marc-00001.xml.gz, etc.
+
+`pipeline.xml`:
+```xml
+<config:source type="pipeline" xmlns:config="http://library.upenn.edu/xmlaminar/config">
+  <config:source type="config">
+    incremental.xml
+  </config:source>
+  <config:filter type="config">
+    records.xml
+  </config:filter>
+  <config:filter type="split">
+    chunk-size=1000
+  </config:filter>
+  <config:filter type="output">
+    output-extension=.xml
+    output-basename=out/marc
+    gzip=true
+  </config:filter>
+</config:source>
+```
+`incremental.xml`:
+```xml
+<config:source type="db-to-xml" xmlns:config="http://library.upenn.edu/xmlaminar/config">
+  connection-config-file=connection.properties
+  id-field-labels=BIB_ID
+  <config:property name="sql">
+SELECT DISTINCT BIB_ID
+FROM BIB_HISTORY
+WHERE ACTION_DATE > SYSDATE - &lt;\DECIMAL\&gt;
+ORDER BY 1
+  </config:property>
+</config:source>
+```
+`marc-records.xml`:
+```xml
+<config:source type="marcdb-to-xml" xmlns:config="http://library.upenn.edu/xmlaminar/config">
+  connection-config-file=connection.properties
+  marc-binary-field-label=RECORD_SEGMENT
+  id-field-labels=BIB_ID
+  <config:property name="sql">
+SELECT BIB_DATA.BIB_ID, BIB_DATA.SEQNUM, BIB_DATA.RECORD_SEGMENT
+FROM PENNDB.BIB_DATA, BIB_MASTER
+WHERE BIB_DATA.BIB_ID = BIB_MASTER.BIB_ID
+  AND BIB_DATA.BIB_ID in (&lt;\INTEGER*\&gt;)
+ORDER BY 1,2
+  </config:property>
+</config:source>
+```
+Note that properties specified in the config may be contained directly as text content
+(which is processed in the same way as a Java properties file) or within a dedicated
+`<config:source/>` element. This allows the terseness of a java properties file to coexist
+alongside the richness and explicitness of XML.
