@@ -97,9 +97,9 @@ commands, and the fluency of the `xrandr` command-line utility.
 
 Command-line structure follows the pattern:
 ```
-java -jar xmlaminar.jar [[--command] [--subcommand [arg]]*]+
+java -jar xmlaminar.jar [[--command] [--option [arg]]*]+
 ```
-Each command is configured by 0 or more subcommands (some of which accept arguments), 
+Each command is configured by 0 or more options (some of which accept arguments), 
 and output from each command is "piped" (as SAX events) as input to the subsequent command. 
 As a simple example, the following command takes a list of similarly-formatted XML
 files on stdin, joins them all together into one large XML file, splits them into 
