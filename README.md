@@ -15,7 +15,7 @@ of many workflows involving XML.
 
 
 ## Functionality
-xml-utils defines and implements a clean java and command-line API, 
+xmlaminar defines and implements a clean java and command-line API, 
 providing a flexible level of abstraction for managing the document-based 
 nature of XML representations of data.  Functionality enabled includes:
 

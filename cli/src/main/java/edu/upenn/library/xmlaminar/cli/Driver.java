@@ -60,7 +60,7 @@ import org.xml.sax.XMLReader;
  */
 public class Driver {
 
-    public static final String CONFIG_NAMESPACE_URI = "http://library.upenn.edu/xml-utils/config";
+    public static final String CONFIG_NAMESPACE_URI = "http://library.upenn.edu/xmlaminar/config";
     private static final Logger logger = LoggerFactory.getLogger(Driver.class);
     public static final String LOAD_EXTERNAL_COMMAND_FACTORIES_INI = "load-external-command-factories.ini";
     
