@@ -119,7 +119,7 @@ gzipped output files can save a significant amount of disk space and i/o.
 There are three main types of input that can be specified (including on stdin):
 
 1. Direct (XML content)
-2. Indirect (list of Files/URIs containing XML content)
+2. Indirect (list of Files/URIs containing XML content; compare rsync "files-from" option)
 3. Parameters (for commands that support generation of XML content based on input parameters)
 
 Of these three, the first two should be fairly intuitive. The third case is 
@@ -156,4 +156,17 @@ echo "0.5" | java -jar xmlaminar.jar \
      --db-to-xml --sql 'SELECT * FROM TABLE WHERE ID IN (<\INTEGER*\>)'
 ```
 
+##### Configuration options
+Most commands (excluding, e.g., the `integrate` command) can be fully configured directly
+on the command line. However, to do so would quickly become unwieldy, because of:
 
+1. The profusion of options for some commands
+2. The usefulness of chaining (potentially very) many commands together
+
+Also, the inherent composability of pipelines would make it very useful to define a modular
+alias for a frequently-used configuration of a command (or pipeline of commands). 
+
+These concerns are addressed by the `config` pseudo-command, whose single XML-configuration-file 
+argument bundles command and pipeline configurations together into a single modular 
+component that may be used as part of other pipelines or commands -- either on the 
+command-line, or nested within other configuration files. 
