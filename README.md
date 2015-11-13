@@ -41,10 +41,10 @@ Main design considerations include:
 
 ## Build and use
 ### Building
-Build using maven (i.e., `mvn clean install` from top-level project); 
-all dependencies should be available in Maven Central, with the exception
-of a runtime dependency on the Oracle JDBC driver (see below). Top level 
-pom file builds all modules. Command-line runnable jar file is generated at: 
+Build using [Maven](http://maven.apache.org/) (i.e., `mvn clean install` from 
+top-level project); all dependencies should be available in Maven Central, with 
+the exception of a runtime dependency on the Oracle JDBC driver (see below). Top 
+level pom file builds all modules. Command-line runnable jar file is generated at: 
 `cli/dist/xmlaminar-cli-[version]-jar-with-dependencies.jar`
 
 #### JDBC driver dependency
@@ -91,13 +91,69 @@ Option                              Description
 ```
 
 #### Command-line syntax
-Command-line syntax is designed to enable pipelineing wihtin a single JVM. Syntax was 
+Command-line syntax is designed to enable pipelineing within a single JVM. Syntax was 
 to some degree inspired by the robustness and configurability of the `find` and `rsync` 
-commands, and the fluency of the `xrandr` command.
+commands, and the fluency of the `xrandr` command-line utility.
 
-Commind-line structure follows the pattern:
+Command-line structure follows the pattern:
 ```
 java -jar xmlaminar.jar [[--command] [--subcommand [arg]]*]+
 ```
-Each command is configured by 0 or more subcommands, and output from each command is "piped" 
-(as SAX events) as input to the subsequent command. 
+Each command is configured by 0 or more subcommands (some of which accept arguments), 
+and output from each command is "piped" (as SAX events) as input to the subsequent command. 
+As a simple example, the following command takes a list of similarly-formatted XML
+files on stdin, joins them all together into one large XML file, splits them into 
+documents containing 10 records each, and writes each of the resulting documents as gzipped 
+files with incrementing file names (/tmp/out.xml-00000.gz,-00001.gz,-00002.gz...) 
+```
+find . -name '*.xml' -print0 | \
+  java -jar xmlaminar.jar --input --from0 --files-from - \
+                          --join -a \
+                          --split -n 10 \
+                          --output -z -b /tmp/out.xml
+```
+Note that when working with large amounts of XML, the ability to write directly to 
+gzipped output files can save a significant amount of disk space and i/o.
+
+##### Input
+There are three main types of input that can be specified (including on stdin):
+
+1. Direct (XML content)
+2. Indirect (list of Files/URIs containing XML content)
+3. Parameters (for commands that support generation of XML content based on input parameters)
+
+Of these three, the first two should be fairly intuitive. The third case is 
+designed to be used when XML output is generated as a linear function of a stream of 
+input parameters. In a way input type 2 is a special case of input type 3, where the 
+"parameters" consist of resource references that define the generated output XML. 
+
+The motivating use case for input type 3 was the `*db-to-xml`-type commands, where a 
+parameterized SQL query is used to configure an XMLReader, which dynamically generates 
+XML as specified by a stream of input parameters. For instance, for pseudo-SQL configuration
+query `SELECT * FROM TABLE WHERE ID IN (<\INTEGER*\>)`, if we pass in delimited stream of a million 
+ids (`cat ids.txt | java -jar xmlaminar.jar [...]`), we would expect to receive output 
+analogous to:
+```xml
+<root>
+  <record id="[first-id]">
+    <col1>val</col1>
+    <col2>val</col2>
+  </record>
+  ...
+  <record id="[millionth-id]">
+    <col1>val</col1>
+    <col2>val</col2>
+  </record>
+</root>
+```
+To facilitate JVM-internal pipelining of the generation and consumption of input-type-3
+parameter streams, the pipeline automatically pivots according to each command's expected
+input type, so that the following command works as one might intuitively hope (generating 
+flat XML containing all columns for each row that has been updated in the last half day):
+```
+echo "0.5" | java -jar xmlaminar.jar \
+     --db-to-xml --sql 'SELECT ID FROM TABLE WHERE LAST_UPDATE > SYSDATE - <\DECIMAL\>' \
+     --db-to-xml --sql 'SELECT * FROM TABLE WHERE ID IN (<\INTEGER*\>)'
+```
+
+
