@@ -209,7 +209,7 @@ ORDER BY 1
   </config:property>
 </config:source>
 ```
-`marc-records.xml`:
+`records.xml`:
 ```xml
 <config:source type="marcdb-to-xml" xmlns:config="http://library.upenn.edu/xmlaminar/config">
   connection-config-file=connection.properties
