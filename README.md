@@ -270,3 +270,58 @@ find input/ -name '*.xml' | \
        --process -s -x transform.xsl --record-xpath '/root/record/@id' 
        --join --output -z -b output/
 ```
+
+## Extensions
+Two main approaches are available for extending the functionality available in 
+xmlaminar: 
+
+1. Depend on xmlaminar-cli and package your own additional functionality along
+with all dependencies in a single jar file, with the unmodified 
+`edu.upenn.library.xmlaminar.cli.Driver` main class, or
+2. Package your plugin in a thin jar file (with compile-time dependencies on `xmlaminar-cli`) 
+and invoke the stock xmlaminar jar file with a 
+`--plugins <colon-separated-paths-to-plugin-jar-files>` initial argument. 
+
+Both approaches allow you to take advantage of the command line arg parsing 
+logic and framework, making functionality (including help messages) available
+directly on the command-line.  
+
+Several steps should be taken when extending functionality with either of the above 
+approaches:
+
+1. Include one or more `edu.upenn.library.xmlaminar.xli.CommandFactory` instances to 
+define command-line arguments and certain aspects of command behavior.
+   * your `CommandFactory` should include a static initializer block to register 
+     itself with the top-level command-line parser:
+```java
+        class MyCommandFactory extends CommandFactory {
+            static {
+                registerCommandFactory(new MyCommandFactory());
+            }
+
+            @Override
+            public String getKey() {
+                return "mycommand";
+            }
+        }
+```
+2. Include one or more instances of `org.xml.sax.helpers.XMLFilterImpl`, or 
+`edu.upenn.library.xmlaminar.parallel.QueueSourceXMLFilter` if you wish to support 
+multi-input; optionally extending `edu.upenn.library.xmlaminar.parallel.callback.OutputCallback`
+if you wish to support multi-output.
+3. If you wish to support the second (i.e., dynamic/runtime) approach to extending 
+functionality, you should take the extra step of enumerating desired `CommandFactory`
+instances in a special classpath resource file (which you would normally bundl in your 
+plugin/extension jar file):
+`edu/upenn/library/xmlaminar/cli/load-external-command-factories.ini`. Each 
+non-empty, non-whitespace, non-`#`-prefixed line in each such file will be parsed as a 
+full-qualified Java class name, and an attempt will be made to load these classes by name 
+at runtime. On class load, each named `CommandFactory` should (in its static initializer
+block) register an instance of itself with the main command-line parser, making the added
+functionality directly available on the command line. 
+    * The `xmlaminar-solr` module (which defines a command that unmarshals SAX events
+      representing solr input documents into Java `SolrInputDocument` objects and posts
+      them in parallel to a solr server via a `ConcurrentUpdateSolrServer`) is an example 
+      of this approach. The benefit of this dynamic/runtime approach is that it allows users 
+      to swap in specialized modular extensions of functionality without requiring them to
+      compile and distribute custom-modified versions of the main code. 
