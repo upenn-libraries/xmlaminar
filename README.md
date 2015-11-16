@@ -272,8 +272,7 @@ find input/ -name '*.xml' | \
 ```
 
 ## Extensions
-Two main approaches are available for extending the functionality available in 
-xmlaminar: 
+Two main approaches are available for extending the functionality of xmlaminar: 
 
 1. Depend on xmlaminar-cli and package your own additional functionality along
 with all dependencies in a single jar file, with the unmodified 
