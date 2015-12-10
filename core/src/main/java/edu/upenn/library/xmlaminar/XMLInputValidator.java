@@ -67,7 +67,8 @@ public class XMLInputValidator extends FilterReader {
                     && Character.isLowSurrogate((lowSurrogate = cbuf[nextIndex]))) {
                 int codePoint = Character.toCodePoint(c, lowSurrogate);
                 if (!isHighXMLCharacter(codePoint)) {
-                    Arrays.fill(cbuf, i, nextIndex + 1, REPLACEMENT);
+                    cbuf[i] = REPLACEMENT;
+                    cbuf[nextIndex] = REPLACEMENT;
                 }
                 i = nextIndex;
             } else if (!is16BitXMLCharacter(c)) {
