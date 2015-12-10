@@ -17,8 +17,8 @@
 package edu.upenn.library.xmlaminar.dbxml;
 
 import edu.upenn.library.xmlaminar.SAXFeatures;
+import static edu.upenn.library.xmlaminar.XMLInputValidator.writeSanitizedXMLCharacters;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -71,7 +71,7 @@ public class RSXMLReader extends SQLXMLReader {
     protected void outputFieldAsSAXEvents(long selfId, String fieldLabel, char[] content, int endIndex) throws SAXException, IOException {
         if (content != null) {
             ch.startElement("", fieldLabel, fieldLabel, attRunner);
-            ch.characters(content, 0, endIndex);
+            writeSanitizedXMLCharacters(content, 0, endIndex, ch);
             ch.endElement("", fieldLabel, fieldLabel);
         }
     }
@@ -98,7 +98,7 @@ public class RSXMLReader extends SQLXMLReader {
     private void outputCharacters(Reader content) throws IOException, SAXException {
         int length = -1;
         while ((length = content.read(characters, 0, characters.length)) != -1) {
-            ch.characters(characters, 0, length);
+            writeSanitizedXMLCharacters(characters, 0, length, ch);
         }
     }
 

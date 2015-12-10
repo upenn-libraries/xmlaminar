@@ -20,6 +20,9 @@ import java.io.FilterReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -36,21 +39,52 @@ public class XMLInputValidator extends FilterReader {
     @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
         int toReturn = super.read(cbuf, off, len);
-        for (int i = off; i < off + len; i++) {
-            if (!isValidXMLCharacter(cbuf[i])) {
-                cbuf[i] = REPLACEMENT;
-            }
-        }
+        sanitizeXMLCharacters(cbuf, off, toReturn);
         return toReturn;
     }
 
-    private static boolean isValidXMLCharacter(int c) {
-        return (c >= 0x20 && c <= 0xD7FF) || (c >= 0xE000 && c <= 0xFFFD) || c == 0xD || c == 0xA || c == 0x9;
+    public static boolean isValidXMLCharacter(int c) {
+        return is16BitXMLCharacter(c) || isHighXMLCharacter(c);
+    }
+
+    public static boolean is16BitXMLCharacter(int c) {
+        return (c >= 0x20 && c <= 0xD7FF) || (c >= 0xE000 && c <= 0xFFFD) 
+                || c == 0xD || c == 0xA || c == 0x9;
+    }
+
+    public static boolean isHighXMLCharacter(int c) {
+        return c >= 0x10000 && c <= 0x10FFFF;
+    }
+
+    public static char[] sanitizeXMLCharacters(char[] cbuf, int off, int len) {
+        int max = off + len;
+        char c;
+        char lowSurrogate;
+        int nextIndex;
+        for (int i = off; i < max; i++) {
+            c = cbuf[i];
+            if (Character.isHighSurrogate(c) && (nextIndex = i + 1) < max
+                    && Character.isLowSurrogate((lowSurrogate = cbuf[nextIndex]))) {
+                int codePoint = Character.toCodePoint(c, lowSurrogate);
+                if (!isHighXMLCharacter(codePoint)) {
+                    Arrays.fill(cbuf, i, nextIndex + 1, REPLACEMENT);
+                }
+                i = nextIndex;
+            } else if (!is16BitXMLCharacter(c)) {
+                cbuf[i] = REPLACEMENT;
+            }
+        }
+        return cbuf;
+    }
+
+    public static void writeSanitizedXMLCharacters(char[] cbuf, int off, int len, ContentHandler ch) throws SAXException {
+        sanitizeXMLCharacters(cbuf, off, len);
+        ch.characters(cbuf, off, len);
     }
 
     @Override
     public int read() throws IOException {
         int c = super.read();
-        return (isValidXMLCharacter(c) ? c : REPLACEMENT);
+        return (is16BitXMLCharacter(c) ? c : REPLACEMENT);
     }
 }

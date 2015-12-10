@@ -18,6 +18,7 @@ package edu.upenn.library.xmlaminar.dbxml;
 
 import edu.upenn.library.xmlaminar.SAXFeatures;
 import edu.upenn.library.xmlaminar.UnboundedContentHandlerBuffer;
+import static edu.upenn.library.xmlaminar.XMLInputValidator.writeSanitizedXMLCharacters;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -404,7 +405,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
             switch (field[index]) {
                 case DE:
                     if (inSubfield) {
-                        outputBuffer.characters(field, cStart, index - cStart);
+                        writeSanitizedXMLCharacters(field, cStart, index - cStart, outputBuffer);
                         outputBuffer.endElement(FieldType.subfield.uri, FieldType.subfield.localName, FieldType.subfield.qName);
                     }
                     attRunner.clear();
@@ -414,7 +415,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
                     cStart = -1;
                     break;
                 case FT:
-                    outputBuffer.characters(field, cStart, index - cStart);
+                    writeSanitizedXMLCharacters(field, cStart, index - cStart, outputBuffer);
                     if (inSubfield) {
                         outputBuffer.endElement(FieldType.subfield.uri, FieldType.subfield.localName, FieldType.subfield.qName);
                     }
@@ -434,7 +435,7 @@ public class BinaryMARCXMLReader extends SQLXMLReader {
         attRunner.clear();
         outputBuffer.startElement(FieldType.record.uri, FieldType.record.localName, FieldType.record.qName, attRunner);
         outputBuffer.startElement(FieldType.leader.uri, FieldType.leader.localName, FieldType.leader.qName, attRunner);
-        outputBuffer.characters(leader.array(), leader.arrayOffset(), 24);
+        writeSanitizedXMLCharacters(leader.array(), leader.arrayOffset(), 24, outputBuffer);
         outputBuffer.endElement(FieldType.leader.uri, FieldType.leader.localName, FieldType.leader.qName);
     }
 
